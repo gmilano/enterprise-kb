@@ -1,0 +1,13 @@
+{
+  "topics": ["erp", "crm", "enterprise-ai", "business-automation", "workflow-automation"],
+  "agentKeywords": "AI enterprise ERP CRM automation agent open source",
+  "repoKeywords": "ERP CRM enterprise resource planning AI open source",
+  "verticalKeywords": "Odoo ERP open source enterprise platform",
+  "minStars": 500,
+  "licenses": ["MIT", "Apache-2.0", "LGPL-3.0"],
+  "keywords": {
+    "agents": ["ERP agent", "CRM automation", "invoice processor AI", "procurement agent"],
+    "repos": ["Odoo", "ERPNext", "SuiteCRM", "Dolibarr", "n8n", "Temporal"],
+    "verticals": ["Odoo (LGPL)", "ERPNext (GPL)", "SuiteCRM (AGPL)", "Dolibarr (GPL)", "Krayon"]
+  }
+}
