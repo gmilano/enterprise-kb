@@ -8,7 +8,68 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — fifth pass (latest)
+## 2026-11-20 — sixth pass (latest)
+
+**Method: searched by what the agent reads, not by what the agent is.** Pass 3 swept by
+architectural layer, pass 4 by consequence, pass 5 by counterparty. This pass went *downward* —
+beneath the agent to the data plane — and found a layer this KB had half of. It had the context
+layer (DataHub, OpenMetadata, Unity Catalog, `auto-ontology`) and transformation (dbt). It had
+**no governed metric definition, no entity resolution, no change data capture and no query
+engine**: the four components that decide whether an agent's answer reconciles with the client's
+own finance reporting.
+
+**Fifteen repositories added across four sections in `repos/foundations.md`.** Permissive core:
+[cube-js/cube](https://github.com/cube-js/cube) (Apache-2.0/MIT, 21.3k ★),
+[dbt-labs/metricflow](https://github.com/dbt-labs/metricflow) (Apache-2.0, 1.9k ★),
+[malloydata/malloy](https://github.com/malloydata/malloy) (MIT, 2.6k ★),
+[moj-analytical-services/splink](https://github.com/moj-analytical-services/splink) (MIT, 2.6k ★),
+[J535D165/recordlinkage](https://github.com/J535D165/recordlinkage) (BSD-3-Clause, 1.1k ★),
+[debezium/debezium](https://github.com/debezium/debezium) (Apache-2.0, 13.4k ★),
+[dlt-hub/dlt](https://github.com/dlt-hub/dlt) (Apache-2.0, 6.1k ★),
+[meltano/meltano](https://github.com/meltano/meltano) (MIT, 2.7k ★),
+[duckdb/duckdb](https://github.com/duckdb/duckdb) (MIT, 43.2k ★),
+[apache/iceberg](https://github.com/apache/iceberg) (Apache-2.0, 9.4k ★),
+[evidence-dev/evidence](https://github.com/evidence-dev/evidence) (MIT, 7.1k ★).
+
+**The pass's risk finding — the data plane is the second layer this KB family has found where
+non-OSI licences concentrate, and where the most-starred option is the least usable:**
+
+- [airbytehq/airbyte](https://github.com/airbytehq/airbyte) (22.4k ★) — root `LICENSE` is the
+  **Elastic License 2.0**. Airbyte's own marketing page says "Airbyte Core is open source under
+  Apache 2.0"; **the repository does not support that**. ELv2 forbids offering the software to
+  third parties as a managed service — precisely the engagement shape Globant would sell.
+- [bruin-data/ingestr](https://github.com/bruin-data/ingestr) (4.0k ★) — **Functional Source
+  License 1.1**, a licence class new to this KB: *"each version becomes Apache 2.0 two years
+  after release."* Time-delayed permissive, not permanently restricted.
+- [metabase/metabase](https://github.com/metabase/metabase) (50.4k ★) — **AGPL-3.0** outside
+  `enterprise/`. Its root `package.json` says `"license": "private"`, so a manifest-only read
+  returns a **false negative** on the most-starred repo in the section.
+- [zinggAI/zingg](https://github.com/zinggAI/zingg) (1.3k ★) — **AGPL-3.0**, while the MIT
+  alternative ([splink](https://github.com/moj-analytical-services/splink)) is less marketed.
+- [lightdash/lightdash](https://github.com/lightdash/lightdash) (6.2k ★) — MIT **except**
+  `packages/backend/src/ee/`. Sidebar names no licence at all.
+
+**In every one of those five cases the clean substitute has fewer stars than the encumbered
+option.** That is now the third layer in this KB family where sorting by stars gives
+systematically the wrong procurement answer, after the energy KB's metering layer and this KB's
+own skills/harness layer. It is no longer a per-layer quirk; see `intel/trends.md` for the
+generalisation.
+
+**Method rule derived this pass (reusable across the rotation):** the root `LICENSE` and the
+package manifest **can disagree, and either can be wrong in either direction** — Metabase's
+manifest understates (false negative), Airbyte's marketing overstates (false positive), Cube's
+two sources disagree harmlessly. Read both; when they conflict, record the conflict instead of
+picking the convenient reading.
+
+**One measurement limit, stated rather than papered over:** Airbyte's README carries both MIT
+and ELv2 badges, which implies a platform/connector split. The boundary is **not documented at
+any path probed this pass** — `airbyte-integrations/LICENSE` and the licensing FAQ doc both
+return 404. Reusing a specific Airbyte connector therefore requires reading that connector's own
+licence file. Unresolved, and flagged as unresolved.
+
+---
+
+## 2026-11-20 — fifth pass
 
 **Method change: searched the surfaces an agent touches that are *not* code.** Pass 3 swept by
 architectural layer (found the control plane). Pass 4 swept by consequence (found payments, PII,

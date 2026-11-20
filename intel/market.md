@@ -182,6 +182,38 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   AI touching personal data. A certification programme is a procurement hook: it creates a
   third-party artefact a bidder can hold, like ISO 42001 in EMEA (§14).
 
+
+#### The data plane — North America, added sixth pass 2026-11-20
+
+**Regional sizing (analyst, single-source, treat as directional):** North America holds the
+largest regional share of the AI market at **38.5%**, with the United States alone drawing
+**$159 billion in 2025**; MarketsAndMarkets projects the regional market from **$254.86B to
+$1.36T by 2031 (~27% CAGR)**. Named as the region's most influential players: Google,
+Microsoft, IBM, AWS, Nvidia, Oracle, Salesforce, OpenAI and Meta — one report's list, worth
+cross-checking before it goes in a deck.
+
+**Governance is self-directed, and that is the commercial opening.** Dentons' North American
+survey finds that, absent universal regulation, companies are designing their own AI governance
+frameworks — but **few have implemented an integrated, auditable AI management system**. US
+federal requirements vary by agency and sector.
+
+**What this pass adds specifically: the incumbent NA data stack is the licence-encumbered
+one.** Nearly every source-available or copyleft component found in this pass's sweep is
+North-American in origin — [airbytehq/airbyte](https://github.com/airbytehq/airbyte) (Elastic
+License 2.0), [metabase/metabase](https://github.com/metabase/metabase) (AGPL-3.0 outside
+`enterprise/`) — while the permissive substitutes are mostly EMEA-built (see the EMEA section).
+A North American client is therefore **disproportionately likely to already run the components
+Globant cannot build on**, and not to know it: Airbyte's own marketing page claims Apache-2.0
+while its repository `LICENSE` is ELv2.
+
+**Opportunity:** a **data-plane licence review** scoped tightly to ingestion, BI and entity
+resolution, delivered as the first two weeks of any data-agent engagement. It is cheap, it is
+evidenced by `repos/foundations.md`, and it lands with a US client precisely because there is no
+regulator forcing the question — the forcing function is their own counsel and their M&A
+diligence. Pair it with the **auditable metric definition** from `compose/patterns.md`
+Receta 14: in a region with no federal rule, a signed metric set is the control that passes a
+board, and it is a deliverable rather than a policy document.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -299,6 +331,57 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
 - **New this pass — one named EMEA enterprise is already on AG-UI.** Deutsche Telekom appears in
   coverage of CopilotKit's round as a user of the protocol. Second-hand, but it means the
   "in-app agent UI" conversation is already live in a German enterprise, not hypothetical.
+
+
+#### The data plane — EMEA, added sixth pass 2026-11-20
+
+**The permissive data plane is, to a striking degree, European.** This is the clearest regional
+finding of the pass. Of the components in `repos/foundations.md` that Globant can build on
+without licence friction:
+
+| Component | Licence | Origin |
+|-----------|---------|--------|
+| [moj-analytical-services/splink](https://github.com/moj-analytical-services/splink) | MIT | **UK Ministry of Justice** |
+| [duckdb/duckdb](https://github.com/duckdb/duckdb) | MIT | Netherlands (Stichting DuckDB Foundation) |
+| [dlt-hub/dlt](https://github.com/dlt-hub/dlt) | Apache-2.0 | Germany (Berlin) |
+| [debezium/debezium](https://github.com/debezium/debezium) | Apache-2.0 | Red Hat (EMEA engineering) |
+| [J535D165/recordlinkage](https://github.com/J535D165/recordlinkage) | BSD-3-Clause | Netherlands |
+| [lightdash/lightdash](https://github.com/lightdash/lightdash) | MIT except `/ee` | UK |
+
+**Why that matters commercially rather than as trivia:** the EMEA objection to an AI data
+project is almost never capability, it is **where the data goes**. Splink resolves identities
+*inside* the client's own warehouse and Debezium reads the database log in place — so the
+reference architecture in `compose/patterns.md` Receta 15 **extracts nothing to a third-party
+service**, and every component in it is EU- or UK-originated and permissively licensed. That is
+a data-sovereignty answer made of facts rather than assurances, and it is available to no
+competitor who starts from a US SaaS stack.
+
+**Demand-side numbers:** IDC finds only **9% of EMEA organisations** have delivered measurable
+business outcomes from most of their AI projects over the past two years, and frames the gap as
+**execution, not ambition**. Veeam reports **88% already operating AI agents while only 7%
+believe they are prepared to manage them**; Gartner figures cited by WWT put only **12%** of
+organisations with dedicated AI governance structures. Named regional deployment: **HSBC with
+Mistral AI**, deploying enterprise-grade AI across global operations **with full data
+ownership** — the sovereignty framing, from a bank. Lenovo's EMEA lead frames the AI Act as
+forcing a rethink of *where* AI runs, not only how.
+
+**Regulatory hook, and a correction this KB must not lose.** Article 10 of the EU AI Act
+governs **training, validation and testing datasets** — data quality criteria, data preparation,
+and measures to address bias. Two consequences for this layer:
+
+- Article 10 obligations fall on **providers, not deployers**. A client deploying a third-party
+  system should be **obtaining Article 10 documentation from its provider** — and when Globant
+  builds the system, Globant is in the provider's seat. The lineage, versioned golden record and
+  adjudication trail from Receta 15 are the evidence Article 10 asks for, which turns a
+  compliance cost into a deliverable already in the recipe.
+- **On the date: this file's existing record stands and is correct.** Regulation (EU) 2026/1744
+  (Digital Omnibus) deferred Annex III high-risk obligations to **2 December 2027** and Annex I
+  to **2 August 2028**. This pass's searches **again** returned the stale "2 August 2026, €35M
+  or 7% of global revenue" framing from secondary sources, alongside newer reporting describing
+  the delay. That is the **sixth** independent search to surface the superseded date, so the
+  warning already in `intel/trends.md` is load-bearing and should not be trimmed. Per this KB's
+  own rule: a fresher secondary source does not beat a verified record, and the discrepancy is
+  explained here rather than overwritten.
 
 ### APAC
 
@@ -433,6 +516,45 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   client worried about US vendor dependence, the interface layer now has a non-US implementation
   path — and [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) (Apache-2.0,
   3,835 ★) gives the JVM core a portable agent runtime (Receta 6).
+
+
+#### The data plane — APAC, added sixth pass 2026-11-20
+
+**APAC is where the data *agents* come from, as EMEA is where the data *plane* comes from.**
+Three of the four live text-to-SQL/data agents found this pass are APAC-origin:
+[Canner/WrenAI](https://github.com/Canner/WrenAI) (Apache-2.0, 18.4k ★, Taiwan),
+[eosphoros-ai/DB-GPT](https://github.com/eosphoros-ai/DB-GPT) (MIT, 20.3k ★, China) and
+[XGenerationLab/XiYan-SQL](https://github.com/XGenerationLab/XiYan-SQL) (Apache-2.0, 1.0k ★,
+China, with the serious NL-to-SQL benchmark work in the category). The region's main
+entity-resolution project, [zinggAI/zingg](https://github.com/zinggAI/zingg) (India), is
+AGPL-3.0. **This is the second time this KB has measured APAC as the origin region for an entire
+agent category** — the third pass found `deer-flow` the same way — and it is now a stated
+pattern rather than a coincidence. Practical use: in an APAC engagement the agent layer can
+credibly be sourced regionally, which matters where sovereignty is a procurement criterion.
+
+**Adoption runs ahead of the West, unevenly.** Forrester reports **Singapore, Australia, New
+Zealand and South Korea leading most North American and European countries** in enterprise AI
+adoption. Lenovo's CIO Playbook finds **96% of APAC organisations increasing AI investment, by
+an average of 15% in 2026**. Against that: AlphaSense describes the region as not moving in
+lockstep, with **Japan notably cautious** and **security the top adoption barrier**, and the
+Asian Development Outlook's AI Preparedness Index shows a wide gap between advanced and
+developing markets. Forrester expects **sovereignty to shape AI infrastructure choices for half
+of firms**.
+
+**Regulation relevant to the data plane:** Singapore's consultations on AI use in **financial
+institutions** centre on transparency, accountability and risk oversight — all three are
+semantic-layer properties in Receta 14, not model properties, which is the argument to make to
+a Singaporean bank. IDC reports unified AI governance moving **from optional to mandatory**.
+China's national **"AI Plus"** programme pairs adoption targets with extensive governance.
+BSA has warned that a recent development risks slowing AI adoption in **India**, including
+Indian-language model work. Named regional deployment: **Woolworths Group (Australia)**
+extending its digital shopping assistant "Olive" on Google Cloud's agentic platform.
+
+**Opportunity:** the sovereignty-shaped build — an APAC-origin data agent over a permissively
+licensed, in-warehouse data plane, with nothing extracted to a US SaaS. **One caution to carry
+into the sale:** Zingg's AGPL means the region's best-marketed entity-resolution tool is the one
+Globant must contain behind a process boundary; the MIT substitute (Splink) is EMEA-origin, so
+an "all-APAC stack" is not achievable at the resolution layer and should not be promised.
 
 ### LATAM
 
@@ -600,6 +722,53 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   recording when it was actually measured — the next LATAM pass should run it before anyone
   quotes a gap. (Note also that org location cannot be read from this environment at all; see
   the verification addendum in `intel/trends.md`.)
+
+
+#### The data plane — LATAM, added sixth pass 2026-11-20
+
+**Demand is real and ahead of governance.** RSM's survey of **400+ Latin American business
+leaders** finds roughly **40% already implementing AI** and **68% of those adopters planning to
+scale within 12 months**, with **67% citing efficiency** as the motive. RSM's own framing is
+that the next phase depends less on appetite than on closing three gaps: **rules, readiness and
+workforce capacity**. Thomson Reuters places **Mexico and Brazil** first on project volume and
+funding, followed by **Chile, Colombia and Argentina**.
+
+**Regulatory state:** no Latin American country has a fully mature, harmonised AI regime across
+all sectors. **Peru is furthest along** — the regulation of **Law No. 31814** was published in
+**September 2025**, setting out prohibited practices and requiring **human oversight for
+high-risk uses**. **Uruguay** became the first country in the region to sign the Council of
+Europe's Framework Convention on AI (2025). This is consistent with what this file already
+records: several regional firms are voluntarily anchoring on the **EU AI Act as a de facto
+standard**.
+
+**The repository gap, measured rather than assumed — this is the honest finding.** This pass
+searched in Spanish for LATAM-origin work in this specific layer (data agents, semantic layers,
+text-to-SQL, entity resolution: *"código abierto agente datos SQL semántica empresa LATAM
+Brasil México 2026 repositorio"*) and found **zero LATAM-origin repositories in the data
+plane.** What the Spanish-language results actually returned was *coverage* of
+[NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology) in regional tech press, NVIDIA's
+AI-Q blueprint, and Spanish and EU **academic theses** — no regional project. That is consistent
+with this KB's standing measurement of no LATAM-origin agent framework of scale, and it now
+extends one layer down. **Recorded explicitly so no later pass reads silence as coverage**, and
+so nobody re-runs the same Spanish-vocabulary sweep expecting a different answer: this layer has
+now been measured at zero once, in Spanish, on 2026-11-20.
+
+**Why the gap does not weaken the LATAM offer — and this is the useful inversion.** Every
+component of Recetas 14 and 15 is MIT, BSD-3-Clause or Apache-2.0 and **EMEA- or
+APAC-originated**, and the architecture extracts nothing to a third-party service. So the LATAM
+engagement is not waiting on a regional stack that does not exist; it is delivering the
+permissive in-warehouse stack with **EU-AI-Act-shaped documentation** — which is the standard
+regional firms are already choosing voluntarily, and which this file notes Globant can design
+to because the conformity work was built for EMEA. The in-warehouse property specifically
+answers **Brazil's LGPD** and the regional *habeas data* constraints this file already records:
+with Splink and Debezium, personal data never leaves the client's own boundary, so the
+cross-border transfer question largely does not arise.
+
+**Opportunity:** lead with **Receta 15 (entity resolution)** rather than the agent. In markets
+where the data estate is fragmented across local ERP localisations — which this KB already
+catalogues via the OCA `l10n-*` modules for Argentina, Brazil, Chile and Mexico — the
+duplicate-rate delta is a measurable, unarguable first win, and it is the prerequisite that
+makes a "customer 360" agent buildable at all.
 
 ## Posicionamiento Globant
 

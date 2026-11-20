@@ -507,3 +507,122 @@ Two new refusals, both of which change what this KB may claim:
   available**; the READMEs of the three archived repositories carry no deprecation notice.
   Stated as evidence, not hidden: one channel, queried twice, plus one corroborating web-search
   signal for Chainlit only.
+
+---
+
+## Sixth pass, 2026-11-20 — the data plane, and a rule that generalises across this rotation
+
+### The semantic layer became the governance contract for data agents
+
+The dominant 2026 position across the analyst and vendor literature is that a governed
+semantic layer, exposed over MCP, is what makes enterprise text-to-SQL viable — and that **MCP
+alone is transport, not governance**. The supporting evidence, with its weaknesses stated:
+
+- **Schema width is the cliff.** A 2025 study, reached through vendor secondary sources,
+  measures **GPT-4o at 86% execution accuracy on academic benchmarks collapsing to 6% on
+  enterprise databases with more than 1,000 columns.** This is the single most useful number in
+  this pass, because it explains why a text-to-SQL demo on a toy schema predicts nothing about
+  production.
+- **The measured repair is large and the sample is tiny.** A **dbt Labs benchmark (April
+  2026)** reports semantic-layer grounding lifting Claude Sonnet 4.6 from **90.0% to 98.2%** and
+  GPT-5.3-Codex from **84.1% to 100%** — across **11 questions on one modelled project, run by
+  a semantic-layer vendor.** Quote it as architectural justification, never as a service level.
+- **Forecast, secondhand:** Gartner (February 2026) projects that by 2028, **60% of agentic
+  analytics projects relying solely on MCP will fail** without a consistent semantic layer.
+- **Vendor direction of travel:** at Google Next '26, Looker added BI agents grounded in a
+  governed semantic model with a native MCP server. The hyperscalers are converging on the same
+  architecture, which means the *pattern* is safe to standardise on even though the specific
+  vendor claims are self-interested.
+
+**Why this is a trend and not a tool note:** it relocates the deliverable. For four passes this
+KB has argued the agent is the least consequential choice in an engagement; in the data-agent
+category that argument now has a number attached to it. The billable artefact is a set of signed
+metric definitions, and the agent is a thin interface onto them.
+
+### The licence-concentration rule, now generalised beyond one layer
+
+The energy KB established that the **metering** layer was where non-OSI licences concentrate and
+where sorting by stars gives systematically wrong recommendations. This pass found the same thing
+in the **enterprise data plane**, and the mechanism is now clear enough to state as a rule:
+
+> **The closer an open-source layer sits to a vendor's core SaaS revenue, the more likely it is
+> source-available rather than open source — and the better marketed it is, the more likely the
+> clean substitute has fewer stars.**
+
+Data integration and BI *are* the product for the companies that build them, so that is exactly
+where Elastic License 2.0, FSL, AGPL and open-core cluster. The evidence from this pass: the
+encumbered options are Airbyte (22.4k ★, ELv2), Metabase (50.4k ★, AGPL), ingestr (4.0k ★,
+FSL-1.1), Zingg (1.3k ★, AGPL) and Lightdash (6.2k ★, open-core) — and **in all five cases the
+permissive substitute is less starred**: dlt (6.1k), Superset/Evidence (7.1k), Meltano (2.7k),
+Splink (2.6k).
+
+**Operational consequence for every industry in this rotation:** when opening a *new* layer,
+check licences **before** building the table, not after. A table built by star rank and
+licence-checked afterwards has to be thrown away, and three KBs in this family have now paid
+that cost.
+
+### A fifth licence class: time-delayed permissive (FSL)
+
+This KB family had recorded four non-OSI classes from the energy passes — Fair Source (a user
+cap), PolyForm Noncommercial (a total commercial block), revocable grants (a continuity risk),
+and bespoke-but-substantively-permissive (read the file, do not assume). **The Functional Source
+License 1.1** on [bruin-data/ingestr](https://github.com/bruin-data/ingestr) is a fifth and
+behaves unlike any of them: *"each version becomes Apache 2.0 two years after release."* A
+non-compete window rather than a permanent restriction. It creates an engineering decision no
+other class does — **pinning a release older than two years is a compliant path**, with a real
+maintenance cost to quote. Any repository in this family filed simply as "not open source"
+deserves a re-read against this class, because the answer may be "not yet."
+
+### Archived-but-highly-starred is now a measured systemic property
+
+Pass 5 found three archived chat-UI repositories whose READMEs did not disclose it. Pass 6 found
+a fourth, in a different layer: [vanna-ai/vanna](https://github.com/vanna-ai/vanna) (MIT,
+**23.8k ★**, archived **29 March 2026**), the second most-starred project in its category, dead
+for nearly eight months. **Stars do not decay when a project dies**, so any star-sorted search —
+which is what a client's engineers run — surfaces dead code with full social proof. This is now
+a standing check in this KB's method, and it is also a sellable finding: dependency-provenance
+review, already offered in `repos/foundations.md`, has four archived repositories and four
+renamed/moved organisations behind it as evidence.
+
+### A tenth way to measure a false zero — found by this pass, in this pass's own method
+
+This pass verified its 33 new and cited URLs by fetching `README.md` over
+`raw.githubusercontent.com` and treating a 200 as "the repository exists."
+[data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) returned **404 on
+`README.md` on both `main` and `master`** — which, read carelessly, says a repository the fourth
+pass had verified in detail is gone.
+
+It is not gone. `LICENSE`, `pyproject.toml`, `SECURITY.md` and `docs/index.md` all return **200**
+on `main` and on `HEAD`. **The repository simply has no root `README.md`** — its landing content
+lives in `docs/`. The 404 measured the probe, not the project.
+
+**Rule: never use `README.md` as an existence check.** A project that publishes documentation
+from `docs/` or a docs site has no root README, and this is common in mature,
+foundation-governed repositories — exactly the ones a KB is most likely to recommend. Probe
+`LICENSE` first (it is the thing being verified anyway), and fall back to `pyproject.toml` /
+`package.json` / `docs/index.md` before concluding anything is missing.
+
+This is the **tenth** documented way this KB family has measured a false zero, after PRODIST,
+parenthesised OR, IEEE 1547, AMI, reservoir, un-indexed forks, NOASSERTION, master-vs-main and
+LICENSE-MIT. Nine of the previous nine were found by auditing *another* pass's work; this one
+was found by auditing the current pass's own, which is the cheaper place to find it. It is also
+a live demonstration of the rule the energy pass derived: **a new negative does not beat a
+verified positive just by being more recent** — the fourth pass's record of this repository
+(byte-identical `LICENSE` across both the old and new organisation paths) was right, and the
+correct response to the conflict was to explain the discrepancy rather than delete the row.
+
+### Method note — the manifest-first rule gained a counter-example, and survived
+
+The energy pass derived: *read the package manifest first, because it declares the licence as an
+author-written SPDX expression.* This pass found the case that bounds it.
+[metabase/metabase](https://github.com/metabase/metabase)'s root `package.json` declares
+`"license": "private"` — a manifest-only read yields a **false negative** on a repository that
+is in fact AGPL-3.0 outside `enterprise/` plus a commercial licence inside. Meanwhile
+[airbytehq/airbyte](https://github.com/airbytehq/airbyte)'s *marketing page* claims Apache-2.0
+while its root `LICENSE` is ELv2 — a **false positive** from the source a hurried reviewer is
+likeliest to trust. **Refined rule: read the manifest *and* the licence file; when they
+disagree, record the disagreement rather than resolving it to the convenient answer.** Notably,
+[Canner/WrenAI](https://github.com/Canner/WrenAI)'s own licence file independently states the
+same precedence logic — that the manifest governs published artefacts while the licence file
+governs repository sources — which is corroboration from a project maintainer rather than from
+another pass of this KB.

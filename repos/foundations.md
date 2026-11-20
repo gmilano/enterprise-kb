@@ -491,3 +491,80 @@ out of `microsoft/` — so the rate is holding at close to one in ten. A client'
 working until it silently does not. **Offer dependency-provenance review as a line item** — it
 is cheap, it is evidenced by this ledger, and it is exactly the kind of finding that justifies
 the governance work in `compose/patterns.md`.
+
+---
+
+## The data plane under the agent — added sixth pass, 2026-11-20
+
+**Why this section exists.** This KB had the *context* layer (catalog, lineage, ontology) and
+the *transformation* layer (dbt), and nothing in between or below: no governed metric
+definition, no entity resolution, no change data capture, no query engine. Those are the four
+things that decide whether an enterprise data agent answers from numbers the client's finance
+team recognises, or invents a plausible join. Every licence below was read from the
+repository's own file or manifest.
+
+### Semantic / metrics layer — the contract that makes the agent's answer auditable
+
+This is the layer that turns "the agent wrote some SQL" into "the agent requested a certified
+metric." It is the governance deliverable, not a convenience.
+
+| Repo | Licence (how established) | ★ | Origin | Role |
+|------|---------------------------|---|--------|------|
+| [cube-js/cube](https://github.com/cube-js/cube) | **Apache-2.0 default across the repo, MIT in parts** — read `LICENSE`; note root `package.json` declares `"MIT"`. Permissive either way. | 21.3k | North America | The most complete open semantic layer: metrics, dimensions, joins and access rules as code, served over SQL/REST/GraphQL **and MCP**. The default choice for Receta 14. |
+| [dbt-labs/metricflow](https://github.com/dbt-labs/metricflow) | **Apache-2.0** — `pyproject.toml` declares `license = "Apache-2.0"`, `LICENSE` agrees | 1.9k | North America | "Define, build and maintain metrics in code." The right pick when the client already runs dbt and the metric definitions should live beside the models. |
+| [malloydata/malloy](https://github.com/malloydata/malloy) | **MIT** — explicit `SPDX-License-Identifier: MIT` in the licence file | 2.6k | North America | A language for describing data relationships. Use where the semantic model itself is the artefact being designed; composable where Cube is served. |
+
+**Licence note worth carrying into a client conversation:** all three are permissive. This is
+the rare layer in 2026 where the governance-critical components are *not* source-available —
+which is exactly why the layer below it is such a trap.
+
+### Entity resolution — the component that decides whether "customer 360" is real
+
+An agent asked "what is this customer's total exposure?" is wrong by construction if the
+client is one row in CRM, two in billing and three in support. This is unglamorous and it is
+the difference between a demo and a deliverable.
+
+| Repo | Licence (how established) | ★ | Origin | Role |
+|------|---------------------------|---|--------|------|
+| [moj-analytical-services/splink](https://github.com/moj-analytical-services/splink) | **MIT** — `LICENSE` reads "MIT License, Copyright (c) 2020 Ministry of Justice" | 2.6k | **EMEA (UK Ministry of Justice)** | "Fast, accurate and scalable probabilistic data linkage with support for multiple SQL backends." Runs the linkage *inside* the client's warehouse (DuckDB, Spark, Athena) rather than extracting data — which is why it survives a data-residency review. **Built and maintained by a government department**, which is an unusually strong provenance story for a regulated client. |
+| [J535D165/recordlinkage](https://github.com/J535D165/recordlinkage) | **BSD-3-Clause** — `pyproject.toml` declares `license = {text = "BSD-3-Clause"}` | 1.1k | EMEA (Netherlands) | "A powerful and modular toolkit for record linkage and duplicate detection in Python." Smaller and in-memory; the right tool for a scoped reconciliation, not an estate. |
+| [zinggAI/zingg](https://github.com/zinggAI/zingg) | **AGPL-3.0 — read the licence file, it is the full GNU Affero text** | 1.3k | APAC (India) | "AI based entity resolution, identity resolution, master data management and deduplication at scale for humans and agents." Capable and well-documented — and **copyleft**. See the containment rule below. |
+
+**The recommendation is Splink, and it is not a close call for Globant's purposes.** It is MIT,
+it is government-maintained, and it pushes computation to the warehouse. Zingg is the more
+marketed project and the AGPL makes it the wrong default: usable as a separate, unmodified
+service behind a process boundary, unusable linked into something Globant delivers as the
+client's own software. Same containment discipline this KB already applies to copyleft ERP.
+
+### Change data capture and ingestion — and the licence minefield this KB had not mapped
+
+**This is the finding of the pass.** The energy pass established that the *metering* layer is
+where non-OSI licences concentrate. The same thing is true here, for the same structural
+reason, and it generalises — see `intel/trends.md`.
+
+**Clean and permissive — build on these:**
+
+| Repo | Licence (how established) | ★ | Origin | Role |
+|------|---------------------------|---|--------|------|
+| [debezium/debezium](https://github.com/debezium/debezium) | **Apache-2.0** — `LICENSE.txt`; README notes the Antlr grammars in `debezium-ddl-parser` are MIT | 13.4k | EMEA (Red Hat) | "Change data capture for a variety of databases." Log-based CDC — reads the WAL/binlog rather than polling, so it does not add load to the client's production OLTP box. The reference implementation of the category. |
+| [dlt-hub/dlt](https://github.com/dlt-hub/dlt) | **Apache-2.0** — `LICENSE.txt` is the full Apache text | 6.1k | EMEA (Berlin) | "An open source Python library that makes data loading easy." Pipelines are code — testable, reviewable, diffable. The permissive substitute for the source-available ELT tools below. |
+| [meltano/meltano](https://github.com/meltano/meltano) | **MIT** — `pyproject.toml` and `LICENSE` agree | 2.7k | North America | Declarative, code-first ELT over the Singer tap/target ecosystem. Use where the client wants a connector catalogue without a vendor runtime. |
+| [duckdb/duckdb](https://github.com/duckdb/duckdb) | **MIT** — Stichting DuckDB Foundation | 43.2k | EMEA (Netherlands) | "A high-performance analytical database system." The local/embedded engine that makes Splink and a semantic layer testable on a laptop before anything touches client infrastructure. |
+| [apache/iceberg](https://github.com/apache/iceberg) | **Apache-2.0** | 9.4k | Global (ASF) | "A high-performance format for huge analytic tables." The table format that keeps the agent's reads reproducible — snapshot isolation means two agent runs can be compared. |
+
+**Source-available or copyleft — read before quoting, and do not assume from the badge:**
+
+| Repo | What the licence actually is | ★ | What it blocks |
+|------|------------------------------|---|----------------|
+| [airbytehq/airbyte](https://github.com/airbytehq/airbyte) | **Root `LICENSE` is the Elastic License 2.0 (ELv2).** The README carries **two** badges, MIT *and* ELv2. Airbyte's own marketing page states "Airbyte Core is open source under Apache 2.0" — **the repository does not support that claim.** | 22.4k | ELv2 forbids providing the software to third parties as a managed service. **A Globant-operated Airbyte for a client is exactly the use ELv2 exists to prevent.** The MIT/ELv2 path boundary is **not documented at any path probed this pass** (`airbyte-integrations/LICENSE` → 404, licence FAQ doc → 404), so a specific connector's reuse requires reading that connector's own licence file first. Measured limit, stated as one. |
+| [bruin-data/ingestr](https://github.com/bruin-data/ingestr) | **Functional Source License 1.1 (FSL-1.1-ALv2)** — not OSI. README: *"Each version becomes Apache 2.0 two years after release."* | 4.0k | A **non-compete window**, not a permanent restriction — a licence class this KB had not previously recorded. Today's release is restricted; the release from two years ago is Apache-2.0. If a client insists on ingestr, the compliant path is pinning a version older than two years, which is a real engineering decision with a real cost. |
+| [metabase/metabase](https://github.com/metabase/metabase) | **AGPL-3.0 outside the top-level `enterprise/` directory; Metabase Commercial Licence inside it.** Note the root `package.json` declares `"license": "private"` — a manifest read alone would have produced a *false negative* here. | 50.4k | Network copyleft. Deployable as a separate service; **not** embeddable or modifiable inside a proprietary client product without AGPL compliance. The most-starred repo in this whole section and the one most likely to be assumed safe. |
+| [lightdash/lightdash](https://github.com/lightdash/lightdash) | **MIT, except `packages/backend/src/ee/`, which is under a separate licence.** Established by reading the licence file; the sidebar names no licence. | 6.2k | Classic open core. The MIT path is genuinely usable — just never build against `/ee`, and pin that exclusion in the build so it cannot drift in later. |
+
+**The method rule this produced, which applies to every industry in this rotation:**
+*the root `LICENSE` file and the package manifest can disagree, and either one alone can be
+wrong in either direction.* Metabase's manifest says `"private"` (false negative — it is AGPL
+plus commercial). Cube's manifest says `MIT` while its `LICENSE` says Apache-2.0 by default
+(both permissive, no harm). Airbyte's marketing says Apache-2.0 while its `LICENSE` says ELv2
+(false positive, and the dangerous direction). **Read both, and when they disagree, say so
+rather than picking the convenient one.**

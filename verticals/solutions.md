@@ -293,3 +293,28 @@ looks like a bolt-on and gets switched off after the pilot.
 8. **Put the agent in a service task, not in place of the engine.** If the client has a BPM
    engine, the process stays there and keeps its audit trail; the agent is one step inside it
    (Flowable, Apache-2.0). This is what makes "agentic" auditable to a process owner.
+
+---
+
+## BI & analytics platforms — the vertical an enterprise data agent plugs into
+
+**Added sixth pass, 2026-11-20.** This file already had Superset under "Internal tools,
+workflow & BI." That single row understated a whole category: the client almost always
+*already owns* a BI platform, and the agent engagement is to put a question-answering surface
+in front of it, not to replace it. The licence spread in this category is unusually wide, so
+the containment pattern matters more here than almost anywhere else in this file.
+
+| Platform | Licence (verified by reading the file) | ★ | Customisation posture |
+|----------|---------------------------------------|---|----------------------|
+| [apache/superset](https://github.com/apache/superset) | Apache-2.0 | — (already catalogued above) | The permissive default. Embed, fork, re-skin, ship. |
+| [evidence-dev/evidence](https://github.com/evidence-dev/evidence) | **MIT** | 7.1k | "BI as code": reports are SQL + markdown in git. The best fit when the *agent* should author or modify a report, because a pull request is a reviewable artefact and a dashboard click is not. |
+| [lightdash/lightdash](https://github.com/lightdash/lightdash) | **MIT except `packages/backend/src/ee/`** | 6.2k | Open core, dbt-native, self-described "agentic BI". Build against the MIT paths and **pin the `/ee` exclusion in the build** so it cannot drift in during an upgrade. |
+| [metabase/metabase](https://github.com/metabase/metabase) | **AGPL-3.0 outside `enterprise/`**, Metabase Commercial Licence inside | 50.4k | The one most clients already run, and the one with the strongest copyleft. **Deploy and configure it; do not embed or modify it inside something Globant delivers as the client's own product.** Put the agent *beside* it — reading the same semantic layer — rather than inside it. |
+
+**The pattern that survives the licence here is the same one this file already states, applied
+to a specific trap:** the agent does **not** integrate into the BI tool. Both the BI tool and
+the agent read the **same semantic layer** (`cube-js/cube` or `dbt-labs/metricflow`). That one
+decision does three things at once — it keeps the agent's numbers identical to the dashboard's
+numbers, it keeps Globant's code out of an AGPL process, and it means swapping the BI tool later
+does not touch the agent. If the agent is built *into* Metabase, the client has an AGPL
+obligation and a rewrite the next time they change BI vendor.

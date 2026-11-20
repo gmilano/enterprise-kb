@@ -49,6 +49,14 @@ updated: 2026-11-20
 > client's own application. See the new section below, `repos/foundations.md`, and
 > `compose/patterns.md` Recetas 12–13.
 
+> **Sixth pass, 2026-11-20 (latest): a whole agent *category* was missing, not a row.**
+> This pass searched by **first client request** — the thing an enterprise asks for in meeting
+> one — and found the **data agent** (text-to-SQL / "ask our data in English") absent from five
+> passes of this file. Four live implementations added as **Tier 2** below, three of them
+> APAC-origin, plus one 23.8k-star project that has been **archived since March 2026**. The
+> category's real deliverable is the semantic layer underneath it, not the agent; see
+> `repos/foundations.md` and `compose/patterns.md` **Recetas 14–15**.
+
 ## Tier 0 — The harness layer (new category this pass, all MIT)
 
 The unit enterprises now adopt is not a framework but a **harness**: the agent plus the
@@ -222,3 +230,67 @@ for, and it matters for Japan/Korea cores (`compose/patterns.md` Receta 6).
   (**234,677 ★, no `LICENSE` file**, last pushed 2026-04-20). **Implication: stars tell you
   what engineers install, not what Globant may ship.** Rank Tier 1 by license and
   governance; use stars only to know what a client's developers have already pulled in.
+
+---
+
+## Tier 2 — Data agents: the one agent category every enterprise asks for first
+
+**Added sixth pass, 2026-11-20.** Five passes of this file catalogued harnesses, frameworks,
+UI surfaces and governance, and never once catalogued the agent an enterprise actually asks for
+in the first meeting: *"let us ask our data a question in English."* That agent has its own
+category, its own failure mode and its own licence trap, and none of the three were in this KB.
+
+Every row's licence below was established by **reading the repository's own licence file or
+package manifest** over `raw.githubusercontent.com`, not from a badge — and in two of the six
+cases the badge or the vendor's own marketing page was wrong. Star counts read from the
+repository page on 2026-11-20.
+
+| Agent | Repo | Licence (how established) | ★ | Origin | What it is |
+|-------|------|---------------------------|---|--------|------------|
+| **WrenAI** | [Canner/WrenAI](https://github.com/Canner/WrenAI) | **Apache-2.0 for every code path** — read the `LICENSE` path map; `docs/**` is CC-BY-4.0 | 18.4k | APAC (Canner, Taiwan) | Text-to-SQL agent with its own semantic/modelling layer and an MCP interface. The most complete open implementation of the pattern in this table. |
+| **MindsDB** | [mindsdb/mindsdb](https://github.com/mindsdb/mindsdb) | **MIT** — sidebar and README agree | 39.9k | North America | "The unified workspace where open-source models get things done for you": federates many data sources behind one query surface an agent can use. Most-starred repo in this category by a wide margin. |
+| **DB-GPT** | [eosphoros-ai/DB-GPT](https://github.com/eosphoros-ai/DB-GPT) | **MIT** | 20.3k | APAC (China) | "Open-source agentic AI data assistant" — agent framework specialised to the database/BI task rather than a general harness pointed at a warehouse. |
+| **XiYan-SQL** | [XGenerationLab/XiYan-SQL](https://github.com/XGenerationLab/XiYan-SQL) | **Apache-2.0** | 1.0k | APAC (China) | Multi-generator ensemble for NL-to-SQL. Self-reported **75.63% EX on BIRD test** and 89.65% on Spider test. Small star count, serious benchmark work — use it as the *technique* reference, not the platform. |
+
+**And one archived repository, recorded because its MIT code is still being copied:**
+
+| Repo | Licence | ★ | Status |
+|------|---------|---|--------|
+| [vanna-ai/vanna](https://github.com/vanna-ai/vanna) | MIT | 23.8k | **ARCHIVED by the owner on 29 March 2026 — read-only.** |
+
+**Four live agents and one corpse, and that is the honest count.** Vanna is the second
+most-starred project in this category and it has been read-only for nearly eight months. This
+is the *same shape* as the fifth pass's finding one layer over (three archived chat-UI
+repositories whose READMEs did not say so): **in the agent ecosystem, star count survives
+death.** A client who searched "open source text to SQL" and sorted by stars has a one-in-two
+chance of landing on an archived project. Checking `archived` status is now a standing item
+in this KB's method, not an incidental observation.
+
+### The failure mode this category has, stated before the recipe
+
+Text-to-SQL does not fail gradually at enterprise scale — it falls off a cliff, and the cliff
+is **schema width**:
+
+- A 2025 study, cited through vendor secondary sources, measures **GPT-4o at 86% execution
+  accuracy on academic benchmarks and 6% on enterprise databases with more than 1,000
+  columns.** Not degraded — collapsed.
+- A **dbt Labs benchmark (April 2026)** measures the repair: routing the question through a
+  semantic layer moved Claude Sonnet 4.6 from **90.0% to 98.2%** and GPT-5.3-Codex from
+  **84.1% to 100%**. **Read the sample before quoting it: 11 questions against one modelled
+  project, run by a semantic-layer vendor.** Directionally consistent with the schema-width
+  finding; not a general-purpose accuracy claim, and this KB will not present it as one.
+- **Gartner (February 2026), cited secondhand:** by 2028, **60% of agentic analytics projects
+  relying solely on MCP will fail** without a consistent semantic layer.
+
+**The engineering conclusion, which is the whole point of this tier:** the agent in this
+category is not the deliverable. The **semantic layer underneath it** is the deliverable, and
+the agent is the interface onto it. That inverts the usual sales conversation and it is
+defensible with the three numbers above. Components in `repos/foundations.md`; the build is
+`compose/patterns.md` **Receta 14**.
+
+> **Relationship to what this KB already had.** `compose/patterns.md` Receta 8 step 3 already
+> said *"fix the semantics before the reasoning"* and pointed at
+> [NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology). That advice was right and is
+> unchanged. What was missing was everything needed to *act* on it — and, separately, a
+> non-NVIDIA option, since `intel/market.md` flags vendor concentration as a live risk in the
+> governance layer. Cube, MetricFlow and Malloy are that option.

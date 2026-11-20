@@ -8,7 +8,56 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — fifth pass (latest)
+## 2026-11-20 — sixth pass (latest)
+
+**Headline: the agent an enterprise asks for first was missing from this file entirely, and its
+second most-starred implementation has been archived since March.**
+
+Five passes catalogued the agent as a *general* thing — harnesses, frameworks, UI surfaces,
+governance. This pass searched by **first client request** instead: what does an enterprise ask
+for in meeting one? The answer is always some version of *"let us ask our data a question in
+English."* That is a distinct agent category with its own benchmark literature and its own
+licence traps, and this KB had none of it.
+
+**New this pass — four live data agents (full table in `agents/top.md`, Tier 2):**
+
+| Agent | Licence | ★ | Origin |
+|-------|---------|---|--------|
+| [mindsdb/mindsdb](https://github.com/mindsdb/mindsdb) | MIT | 39.9k | North America |
+| [eosphoros-ai/DB-GPT](https://github.com/eosphoros-ai/DB-GPT) | MIT | 20.3k | APAC (China) |
+| [Canner/WrenAI](https://github.com/Canner/WrenAI) | Apache-2.0 (all code paths) | 18.4k | APAC (Taiwan) |
+| [XGenerationLab/XiYan-SQL](https://github.com/XGenerationLab/XiYan-SQL) | Apache-2.0 | 1.0k | APAC (China) |
+
+**Three of the four are APAC-origin.** That is the second time this KB has measured APAC as the
+origin region for a whole agent category (the third pass found `deer-flow` the same way), and it
+is now a pattern worth stating in a capability deck rather than a coincidence.
+
+**The die-off, continuing last pass's finding:** [vanna-ai/vanna](https://github.com/vanna-ai/vanna)
+(MIT, 23.8k ★) was **archived by its owner on 29 March 2026 and is read-only** — nearly eight
+months. It is the second most-starred project in the category. Last pass found three archived
+chat-UI repositories whose READMEs did not disclose it; this pass found a fourth archived
+project in a different layer. **Standing method change: `archived` status is now checked for
+every repository this KB recommends, every pass.** Stars do not decay when a project dies, so
+star-sorted search actively leads a client to dead code.
+
+**Licence finding — WrenAI, and a correction to the public record.** Secondary sources describe
+WrenAI as "Apache 2.0 core with AGPL modules" and some mirrors report it as AGPL-3.0 outright.
+**Neither is accurate today.** Its `LICENSE` is an explicit path→licence map: `core/**`,
+`sdk/**`, `skills/**`, `examples/**` and the root files are **all Apache-2.0**; `docs/**` is
+CC-BY-4.0; the AGPL-3.0 text is shipped **pre-emptively and currently applies to zero paths**.
+So: Globant can build on all of it today, *and* the path map is the thing to re-read each pass,
+because the project has told us in writing that it intends to add AGPL modules later. That is
+the honest statement, and it is neither of the two wrong ones. WrenAI's licence file also states
+that **the package manifest is authoritative where it disagrees with the licence file** —
+independent corroboration of the manifest-first rule this KB's energy pass derived.
+
+**What did not change:** Tier 0 and Tier 1 are untouched again — the fourth consecutive pass
+where the framework choice did not move. The agent is still the least consequential decision
+on the page.
+
+---
+
+## 2026-11-20 — fifth pass
 
 **Headline: three of this layer's best-known repositories are archived, and their READMEs do not
 say so.** This pass searched the one surface the previous four never touched — **where the agent

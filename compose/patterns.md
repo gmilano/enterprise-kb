@@ -708,6 +708,162 @@ estate with the diff in CI and the 42001 evidence pack. Note for EMEA: pair the 
 AI-Act Annex III scoping already recorded in `intel/market.md` — the inventory is the input to
 that scoping, and clients routinely attempt the scoping without it and have to redo it.
 
+
+---
+
+## Receta 14 — "Ask our data in English", built so the answer reconciles with finance
+
+**For:** the client who asked for a text-to-SQL chatbot in meeting one. This is the most
+requested enterprise agent of 2026 and the one most likely to be delivered as a demo that dies
+in UAT, because the thing that kills it is not the model.
+
+**The number that should shape the proposal:** text-to-SQL does not degrade with schema
+size, it **collapses** — a 2025 study (via vendor secondary sources) measures GPT-4o at **86%
+execution accuracy on academic benchmarks and 6% on enterprise databases with more than 1,000
+columns**. Every enterprise warehouse worth querying is on the wrong side of that threshold.
+So the deliverable is the **semantic layer**, and the agent is the interface onto it.
+
+| Layer | Component | Licence |
+|-------|-----------|---------|
+| Semantic layer (default) | [cube-js/cube](https://github.com/cube-js/cube) | Apache-2.0 (MIT in parts) |
+| Semantic layer (client already runs dbt) | [dbt-labs/metricflow](https://github.com/dbt-labs/metricflow) | Apache-2.0 |
+| Semantic modelling language | [malloydata/malloy](https://github.com/malloydata/malloy) | MIT |
+| Transformation | [dbt-labs/dbt](https://github.com/dbt-labs/dbt) | Apache-2.0 |
+| Ontology / graph grounding (optional) | [NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology) | Apache-2.0 |
+| Catalog / lineage | [datahub-project/datahub](https://github.com/datahub-project/datahub) | Apache-2.0 |
+| Data agent | [Canner/WrenAI](https://github.com/Canner/WrenAI) (all code paths Apache-2.0) or [mindsdb/mindsdb](https://github.com/mindsdb/mindsdb) (MIT) | Apache-2.0 / MIT |
+| NL-to-SQL technique reference | [XGenerationLab/XiYan-SQL](https://github.com/XGenerationLab/XiYan-SQL) | Apache-2.0 |
+| Engine for local build & test | [duckdb/duckdb](https://github.com/duckdb/duckdb) | MIT |
+| Table format | [apache/iceberg](https://github.com/apache/iceberg) | Apache-2.0 |
+| Tool gateway | [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge) | Apache-2.0 |
+| Authorisation | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) or [cerbos/cerbos](https://github.com/cerbos/cerbos) | Apache-2.0 |
+| Eval gate | [confident-ai/deepeval](https://github.com/confident-ai/deepeval) + [promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) | Apache-2.0 / MIT |
+| Report surface | [evidence-dev/evidence](https://github.com/evidence-dev/evidence) | MIT |
+
+### Wiring
+
+1. **Define the metrics before you connect a model.** Twenty to forty metrics in Cube or
+   MetricFlow, each with its dimensions, joins and access rules as code in git. This is the
+   billable artefact and the one the client's finance lead must sign. If they will not sign a
+   metric definition, the project is not ready for an agent and that is the finding to report.
+2. **Forbid raw SQL generation. The agent requests a metric, not a table.** Expose Cube over
+   **MCP** and give the agent *only* that tool. It names a metric, dimensions and a time grain;
+   the semantic layer generates the SQL. This is what moves accuracy and it is also what makes
+   the answer auditable — every response traces to a definition a human approved. Gartner
+   (Feb 2026, secondhand) projects **60% of agentic analytics projects relying solely on MCP
+   will fail by 2028** without this layer; MCP is the transport, not the governance.
+3. **Put authorisation at the semantic layer, not in the prompt.** Row- and column-level rules
+   belong in Cube's access control, enforced by OPA or Cerbos against the caller's identity.
+   An agent that is *told* not to show salaries will show salaries. Never pass the agent's own
+   service credentials — it acts as the asking user or it does not act.
+4. **Build and test entirely on DuckDB first.** Load a representative sample locally, run the
+   whole stack on a laptop, and only then point it at the warehouse. In a client with a
+   data-residency review this is also what lets engineering start in week one while access
+   approvals are still moving.
+5. **Gate on a question set, not on vibes.** Fifty to a hundred real business questions with
+   known-correct answers, run in CI through deepeval/promptfoo on every change to a metric
+   definition or prompt. **Report accuracy against that set, never against a public
+   benchmark** — the 6% number above is exactly what happens when a public benchmark is used
+   as the estimate.
+6. **Let the agent write reports as pull requests.** Point it at Evidence, where a report is
+   SQL plus markdown in git. The agent proposes, a human merges. This is the one place in the
+   recipe where agent output can safely become a durable artefact, because the review step
+   already exists.
+
+### What to tell the client the limits are
+
+- **Quote accuracy only against their own question set.** The dbt Labs April 2026 benchmark
+  (semantic layer lifting Claude Sonnet 4.6 from 90.0% to 98.2%, GPT-5.3-Codex from 84.1% to
+  100%) is **11 questions on one modelled project, run by a semantic-layer vendor**. It
+  supports the architecture; it does not predict their numbers. Use it to justify the design,
+  never as a service level.
+- **Unmodelled questions must fail loudly.** A question outside the metric set returns "not
+  defined" and a route to request it — not a guess. Clients accept a bounded tool; they do not
+  forgive a confident wrong number in a board pack.
+- **The metric set is the roadmap.** Coverage grows per sprint, and that is the renewable
+  engagement — not model tuning.
+
+**Deliverable:** 20–40 signed metric definitions in git, served over MCP with row-level
+authorisation, one agent answering against them, a CI accuracy gate on the client's own
+questions, and a report surface where agent output lands as a reviewable pull request.
+
+---
+
+## Receta 15 — Entity resolution first, when "customer 360" is the actual ask
+
+**For:** the client who wants an agent to answer "what is this customer's total exposure / open
+tickets / lifetime value" and whose customer exists as several different rows in several
+different systems. The agent is not the problem here and no amount of prompt work touches it.
+
+**Why this is its own recipe:** Receta 14 makes the agent answer from governed metrics. But a
+governed metric computed over unresolved identities is *precisely wrong* — it sums one customer
+as three. This step runs **before** the semantic layer, and it is the most defensible scoping
+call available in a data-agent engagement.
+
+| Layer | Component | Licence |
+|-------|-----------|---------|
+| CDC from source systems | [debezium/debezium](https://github.com/debezium/debezium) | Apache-2.0 |
+| Pipeline / loading | [dlt-hub/dlt](https://github.com/dlt-hub/dlt) | Apache-2.0 |
+| Connector catalogue (alternative) | [meltano/meltano](https://github.com/meltano/meltano) | MIT |
+| **Entity resolution** | [moj-analytical-services/splink](https://github.com/moj-analytical-services/splink) | **MIT** |
+| Scoped reconciliation (small jobs) | [J535D165/recordlinkage](https://github.com/J535D165/recordlinkage) | BSD-3-Clause |
+| Engine | [duckdb/duckdb](https://github.com/duckdb/duckdb) (local / mid-size) or Spark via Splink backends | MIT |
+| Table format | [apache/iceberg](https://github.com/apache/iceberg) | Apache-2.0 |
+| Lineage / catalog | [datahub-project/datahub](https://github.com/datahub-project/datahub) or [OpenLineage/OpenLineage](https://github.com/OpenLineage/OpenLineage) | Apache-2.0 |
+| De-identification for non-production | [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) | MIT |
+| Metrics over resolved entities | [cube-js/cube](https://github.com/cube-js/cube) | Apache-2.0 |
+| Human adjudication console | [appsmithorg/appsmith](https://github.com/appsmithorg/appsmith) | Apache-2.0 |
+
+### Wiring
+
+1. **Capture changes, do not poll.** Debezium reads the WAL/binlog of the source systems, so
+   the client's production OLTP database takes no added query load — the objection that
+   usually kills this work in the DBA review. Land it with dlt.
+2. **Resolve identities inside the warehouse with Splink.** Splink runs probabilistic linkage
+   against DuckDB, Spark or Athena **where the data already is**. Nothing is extracted to a
+   third-party service, which is what gets it through a data-residency or GDPR review — and in
+   EMEA engagements that property is worth more than any accuracy delta.
+3. **Use the provenance in the room.** Splink is **MIT and built by the UK Ministry of
+   Justice**. A government-maintained linkage library is a far easier sell to a regulated
+   client's risk committee than a vendor library, and it costs nothing to say so.
+4. **Never auto-merge a borderline match.** Splink returns a match probability. Set two
+   thresholds: auto-link above the high one, auto-reject below the low one, and route the band
+   between them to a human in an Appsmith console. **The adjudication queue is a deliverable,
+   not an admission of failure** — it is also where the client's domain knowledge enters, and
+   it is what makes the golden record defensible to an auditor.
+5. **Emit the golden record as a versioned table, with lineage.** Iceberg snapshots plus
+   DataHub/OpenLineage, so "why did this customer's total change last Tuesday" is answerable.
+   An unexplainable change in a customer total destroys trust faster than a wrong answer.
+6. **De-identify before anything non-production.** Presidio on any extract used for
+   development, demos or model evaluation. Entity resolution work concentrates exactly the
+   personal data that must not leave the production boundary.
+7. **Only now layer Receta 14 on top.** Point Cube's metrics at the resolved entity table, and
+   the agent inherits correct identities for free.
+
+### Licence posture
+
+Every component in the table is MIT, BSD-3-Clause or Apache-2.0 — this recipe has **no
+copyleft and no source-available dependency**, which is unusual for the data plane and worth
+stating in a proposal. The one trap is the obvious alternative:
+[zinggAI/zingg](https://github.com/zinggAI/zingg) is the more marketed entity-resolution
+project and it is **AGPL-3.0**. Usable as an unmodified separate service behind a process
+boundary; not usable linked into software Globant delivers as the client's own.
+
+### Sizing and the milestone to fix
+
+Four to six weeks to a first resolved domain (customers *or* suppliers, never both at once),
+measured by three numbers the client picks before work starts: duplicate rate before and
+after, adjudication queue volume per week, and the count of source systems reconciled. Fix the
+milestone on **"the golden record exists and is explainable,"** not on agent accuracy — the
+agent is the next recipe and bundling the two is how this work gets blamed for a model's
+behaviour.
+
+**Deliverable:** one resolved entity domain in a versioned table with lineage, an
+auto-link/auto-reject/adjudicate pipeline with a staffed queue, and a measured duplicate-rate
+delta — the prerequisite that makes "customer 360 agent" a buildable sentence.
+
+---
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation
