@@ -105,6 +105,13 @@ the enforcement layer. Now the answer is the control plane, and it is checkable 
 repository. **Pair Agent Router with `mcp-context-forge` rather than choosing between them:**
 the forge is the MCP registry and proxy, Agent Router is the model-and-tool traffic plane.
 
+
+**Qualification, fifth pass 2026-11-20 — this trend covers two of three protocol legs.** MCP
+(agent↔tool) and A2A (agent↔agent) converged and moved to a foundation. The **agent↔user** leg
+did not: AG-UI, A2UI, json-render and openui are four live permissive standards with no
+foundation steward (trend 15). So "protocol lock-in is a weaker objection than it was in 2025"
+is true for integration and false for the user interface. Say which layer you mean.
+
 ## 6. Consolidation: point tools are being absorbed into platforms
 
 Unframe reports enterprises moving **away from fragmented AI point tools toward unified
@@ -353,6 +360,89 @@ scope statement, risk register and evidence trail is selling the *audit artefact
 exactly what the red-team and eval-gate tooling in `repos/foundations.md` already generates as a
 by-product. Receta 10 produces the evidence; this trend explains who buys it.
 
+## 15. The agent-to-user layer is the one protocol surface that did *not* converge
+
+Trend 5 above is true and incomplete. The protocol story has three legs, not two: **MCP** for
+agent↔tool, **A2A** for agent↔agent, and **AG-UI** for agent↔user. The first two converged and
+then moved to the Linux Foundation. The third did not converge at all.
+
+Four permissive, actively-developed, mutually incompatible standards sit within one order of
+magnitude of each other, verified on 2026-11-20:
+
+| Standard | Repo | Licence | ★ | Backing |
+|----------|------|---------|---|---------|
+| AG-UI | [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) | MIT | 20,766 | CopilotKit — a venture-funded company ($27M, May 2026), **not** a foundation |
+| json-render | [vercel-labs/json-render](https://github.com/vercel-labs/json-render) | Apache-2.0 | 19,791 | Vercel |
+| A2UI | [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) | Apache-2.0 | 17,690 | Google (announced 15 Dec 2025; 1.0 shipped) |
+| openui | [thesysdev/openui](https://github.com/thesysdev/openui) | MIT | 15,375 | Thesys |
+
+Adoption claims cut across the fragmentation rather than resolving it: Google, Microsoft, Amazon
+and Oracle are all reported to support AG-UI, and LangChain, Mastra, Pydantic AI and Agno
+integrate it — while Google ships A2UI, which it says was developed with partners *including the
+AG-UI/CopilotKit team*. Gemini supports A2UI 0.9.1 and ByteDance shipped an A2UI renderer for
+Lynx in June 2026. Named AG-UI enterprise users reported in coverage of the funding round:
+Deutsche Telekom, Docusign, Cisco, S&P Global. **All adoption figures here are
+company-sourced via press coverage, not independently verified** — the repository facts are
+first-hand, the market claims are not.
+
+**So what, precisely:** the honest line to a client in 2026 is *"tool integration is a settled,
+foundation-governed standard; the user-facing layer is not, so we will build it to be
+replaceable."* Concretely — the agent emits typed UI intent, one adapter module binds it to
+AG-UI or A2UI, and no renderer vocabulary appears in the agent's reasoning or prompts. The cost
+of getting this wrong is not a rewrite of the agent; it is a rewrite of every screen.
+
+**Corollary, and the sharper commercial fact:** the previous generation of this layer is dying in
+public. `Chainlit/chainlit` (Apache-2.0, 12,498 ★), `langchain-ai/agent-chat-ui` (MIT, 3,253 ★)
+and `langchain-ai/deep-agents-ui` (MIT, 1,705 ★) are all reported **archived** by the GitHub API,
+and none of their READMEs says so. The three share one shape — a standalone chat window in
+front of an agent — and every live project in the layer has the opposite shape: render into the
+host application. **The chat shell is being abandoned as a product category.** Any client whose
+agent front end is one of those three has an un-announced end-of-life in production.
+
+## 16. You cannot govern what you have not inventoried — and the inventory tooling is immature
+
+Trends 3, 10 and 14 all describe governance as the 2026 buying requirement. ISO/IEC 42001 is a
+procurement gate; EU AI Act record-keeping is an obligation with dates. Both presuppose an answer
+to a question most enterprises cannot answer: **what AI do we actually run?** With >10,000 MCP
+servers reported in production across the market and skills installed per-developer, the estate
+is not in a vendor portal.
+
+The open tooling that produces that answer exists, uses a standard an auditor already accepts,
+and is small:
+
+- [CycloneDX/specification](https://github.com/CycloneDX/specification) (Apache-2.0, 585 ★) —
+  the OWASP BOM standard, including **ML-BOM**. Use the standard; do not invent a format.
+- [Trusera/ai-bom](https://github.com/Trusera/ai-bom) (Apache-2.0, 368 ★, **last push
+  2026-05-24**) — discovery of agents, models and APIs in infrastructure.
+- [sbom-tool/sbom-tools](https://github.com/sbom-tool/sbom-tools) (MIT, 268 ★, 2026-11-17) —
+  semantic AI-BOM **diff** and compliance validation; turns a snapshot into drift detection.
+- [apisec-inc/mcp-audit](https://github.com/apisec-inc/mcp-audit) (MIT, 167 ★, 2026-08-18) —
+  scans MCP configs for exposed secrets and shadow APIs.
+
+**So what:** the asymmetry between the value of the obligation and the maturity of the tooling is
+the opening. A four-week "AI estate inventory" engagement — discover, express as CycloneDX,
+diff weekly, hand over the 42001 evidence pack — is a credible first deliverable for the very
+common client who says *"we need AI governance"* and cannot list what they run. It also
+front-loads the hardest input into every later governance workstream. See
+`compose/patterns.md` Receta 13.
+
+## 17. Agents are being managed as a workforce, and the tooling for it is bigger than the frameworks
+
+[paperclipai/paperclip](https://github.com/paperclipai/paperclip) — MIT, **115,408 ★**, 19,156
+forks, pushed 2026-11-20 — describes itself as "the open-source app everyone uses to manage
+agents at work." It is more starred than every framework in `agents/top.md` Tier 1 combined, and
+[NousResearch/hermes-paperclip-adapter](https://github.com/NousResearch/hermes-paperclip-adapter)
+(MIT, 2,065 ★) exists to run the Hermes harness "as a managed employee in a Paperclip company."
+
+Read with trend 9 (the unit of adoption is the harness) and trend 11 (stars have decoupled from
+enterprise suitability), the shape is clear: the market is organising agents the way it organises
+people — a role, a manager, an assignment, a review. **So what for an engagement:** the questions
+a client will ask in 2027 are org-design questions, not modelling ones — who owns this agent, who
+approves its work, what is its scope, how is it reviewed, when is it retired. That maps onto the
+approval layer (`humanlayer`, Apache-2.0) and the identity/attribution layer this KB already
+carries. It does **not** mean recommending `paperclip` into a regulated estate on its star count;
+it means not being surprised when the client has already installed it.
+
 ## Trend sources that disagree — recorded, not reconciled
 
 - **North American adoption:** Stanford AI Index 2026 says **90%** organisational AI use;
@@ -402,3 +492,18 @@ first-hand and reproducible. Every market statistic, survey percentage and resea
 came from WebSearch result summaries and is **second-hand** — attributed to its source but
 not read at source. The two tiers of evidence are not interchangeable, and this pass has
 flagged the second tier wherever it is load-bearing.
+
+**Fifth-pass addendum, 2026-11-20 — two more channels measured.** `search/repositories` and
+`raw.githubusercontent.com` worked again (30 repositories re-verified, 15 `LICENSE` files read).
+Two new refusals, both of which change what this KB may claim:
+
+- **`api.github.com/users/{org}` returns 403** ("sessions are bound to their configured
+  repositories"). **Org location is therefore unverifiable from here.** Every region-origin
+  attribution in the fifth pass comes from web-search evidence about the *company*
+  (CopilotKit/Seattle, Chainlit/Paris, Google, Vercel, ByteDance), never from GitHub metadata.
+  Do not quote origin counts or ratios to a client.
+- **`github.com` HTML returns 403** (378 bytes, no page). This matters because the archival
+  finding in trend 15 rests on the search API's `archived` flag with **no second channel
+  available**; the READMEs of the three archived repositories carry no deprecation notice.
+  Stated as evidence, not hidden: one channel, queried twice, plus one corroborating web-search
+  signal for Chainlit only.

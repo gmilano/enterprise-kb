@@ -8,7 +8,107 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — fourth pass (latest)
+## 2026-11-20 — fifth pass (latest)
+
+**Method change: searched the surfaces an agent touches that are *not* code.** Pass 3 swept by
+architectural layer (found the control plane). Pass 4 swept by consequence (found payments, PII,
+catalog). This pass swept by **counterparty** — who or what is on the other side of the agent:
+a human looking at a screen, a manager assigning it work, an auditor asking what exists. Three
+layers came back, all with zero prior coverage in this KB, and one of them contains a die-off.
+
+### The interaction layer, and three archived repositories
+
+Full tables in `agents/trending.md` (same date). The repos-side summary:
+
+- **Live and converging on one shape** — the agent renders into the client's existing
+  application: [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit) (MIT, 38,842 ★),
+  [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) (MIT, 20,766 ★),
+  [vercel-labs/json-render](https://github.com/vercel-labs/json-render) (Apache-2.0, 19,791 ★),
+  [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) (Apache-2.0, 17,690 ★, Google-origin),
+  [thesysdev/openui](https://github.com/thesysdev/openui) (MIT, 15,375 ★),
+  [assistant-ui/assistant-ui](https://github.com/assistant-ui/assistant-ui) (MIT, 13,351 ★),
+  [tambo-ai/tambo](https://github.com/tambo-ai/tambo) (MIT, 11,221 ★).
+- **Archived, same shape as each other** — a standalone chat window in front of an agent:
+  [Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0, 12,498 ★),
+  [langchain-ai/agent-chat-ui](https://github.com/langchain-ai/agent-chat-ui) (MIT, 3,253 ★),
+  [langchain-ai/deep-agents-ui](https://github.com/langchain-ai/deep-agents-ui) (MIT, 1,705 ★).
+  **None of the three READMEs says so.**
+
+**Why four competing permissive standards is the finding, not the list.** AG-UI (20,766 ★),
+json-render (19,791 ★), A2UI (17,690 ★) and openui (15,375 ★) are within one order of magnitude
+of each other, all permissive, all actively pushed, and all solving the same problem. There is
+no foundation steward for any of them. Contrast the tool layer, where MCP won and then moved to
+the Linux Foundation. **At the presentation layer, a 2026 engagement is making a bet, not
+following a standard** — so build the agent's output as structured data and keep the renderer
+swappable. Partial cooperation exists and is worth knowing: Google states A2UI was developed
+with partners including the AG-UI/CopilotKit team, so these are not purely rival camps.
+
+### AI inventory and AI-BOM — the layer that has to exist before governance can
+
+This KB sells governance (trends 3, 10, 14; Recetas 7, 9, 10). All of it assumes you know what
+agents, models, keys and MCP servers exist in the estate. **Nothing in this KB produced that
+list.** The tooling is small, young and permissive:
+
+| Repo | Licence (file-read) | ★ | Forks | Pushed | What it does |
+|------|---------------------|---|-------|--------|--------------|
+| [CycloneDX/specification](https://github.com/CycloneDX/specification) | Apache-2.0 | 585 | 98 | 2026-11-20 | The OWASP BOM standard itself — SBOM, SaaSBOM, **ML-BOM**, VEX. The format an auditor will accept. |
+| [CycloneDX/cyclonedx-python](https://github.com/CycloneDX/cyclonedx-python) | Apache-2.0 | 406 | 107 | 2026-11-19 | BOM generator for Python projects and environments. Maven, Gradle, .NET, Go variants exist in the same org. |
+| [Trusera/ai-bom](https://github.com/Trusera/ai-bom) | Apache-2.0 | 368 | 102 | **2026-05-24** | "AI Bill of Materials — discover every AI agent, model and API in your infrastructure." The only *discovery*-shaped tool found. **Six months idle — a fork candidate, not a dependency.** |
+| [sbom-tool/sbom-tools](https://github.com/sbom-tool/sbom-tools) | MIT | 268 | 20 | 2026-11-17 | Semantic SBOM/CBOM/**AI-BOM** diff, quality scoring and compliance validation for CycloneDX/SPDX. The *diff* matters: it turns an inventory into change detection. |
+| [apisec-inc/mcp-audit](https://github.com/apisec-inc/mcp-audit) | MIT | 167 | 45 | 2026-08-18 | Scans MCP configs for exposed secrets, shadow APIs and models. Narrow, directly useful given >10,000 MCP servers in production. Three months idle. |
+
+**Read the star counts as a market statement, not a quality one.** The governance *obligations*
+(ISO/IEC 42001, EU AI Act record-keeping) are a procurement gate worth millions; the open tooling
+to satisfy the inventory half of them tops out at 585 stars. That asymmetry is the opening —
+assembling and operating this is deliverable work, and nobody has productised it.
+
+### The engineer-facing front door: internal developer portal
+
+| Repo | Licence | ★ | Forks | Pushed | Note |
+|------|---------|---|-------|--------|------|
+| [backstage/backstage](https://github.com/backstage/backstage) | Apache-2.0 | 34,891 | 7,786 | 2026-11-20 | CNCF developer-portal framework; already the software catalog and ownership system of record in many large clients. |
+| [spotify/portal-ai-plugins](https://github.com/spotify/portal-ai-plugins) | Apache-2.0 | 3,302 | 260 | 2026-10-23 | Brings the Portal CLI into coding agents: catalog search, ownership/health/incident briefings, and **action invocation with help, dry-run and confirmation safeguards**. A month idle. |
+
+The second row is the interesting one: the confirmation-and-dry-run pattern is the same
+human-approval boundary `humanlayer` implements, arriving from the platform-engineering side.
+Where a client already runs Backstage, the catalog is the cheapest grounding source in the
+building — it already knows what every service is and who owns it.
+
+### Determinism as a product category
+
+[github/spec-kit](https://github.com/github/spec-kit) — MIT, **150,799 ★**, 13,548 forks, pushed
+2026-11-20 — spec-driven development tooling, and the second-most-starred repository this KB has
+ever recorded. Relevant to enterprise for one reason: it is the mainstream expression of
+*specify, then generate, then verify against the spec*, which is the only shape of agentic
+delivery an audit function accepts. Pair it with the evaluation gate in Receta 10.
+
+### Also new, filling two named holes in `repos/foundations.md`
+
+- [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) — Apache-2.0, 3,835 ★,
+  765 forks, pushed 2026-11-20. "Portable AI agent runtime for the JVM: one `@Agent` class runs
+  on Spring AI, LangChain4j, and others." Directly strengthens **Receta 6** (JVM-native agents
+  for an APAC enterprise core), which previously rested on `agentscope-java` alone.
+- [dbos-inc/dbos-transact-py](https://github.com/dbos-inc/dbos-transact-py) — MIT, 1,693 ★,
+  pushed 2026-11-20. Database-backed durable Python workflows: durable execution **without**
+  standing up a separate orchestrator, when Temporal is too much infrastructure for the pilot.
+- [openbao/openbao](https://github.com/openbao/openbao) — MPL-2.0, 9,112 ★, pushed 2026-11-20.
+  The Linux Foundation Vault fork, for secrets. MPL-2.0 is **weak, file-level copyleft**: running
+  it as a service alongside a proprietary product is fine; modifying its files and shipping them
+  closed is not.
+- [cedar-policy/cedar](https://github.com/cedar-policy/cedar) — Apache-2.0, 1,889 ★, pushed
+  2026-11-20. A third authorisation option beside OPA and Cerbos, AWS-origin, with formal
+  verification of policies as its differentiator.
+
+### Not usable, despite appearing in every "durable agents" discussion
+
+[restatedev/restate](https://github.com/restatedev/restate) — 4,725 ★, GitHub reports
+`NOASSERTION`; the `LICENSE` file on **both** `main` and `master` is the **Business Source
+License 1.1**. BUSL is not open source: it carries a use limitation until a conversion date.
+**Do not put it in a client architecture as "open source".** Verified substitutes for the same
+job are already in this KB (Temporal) plus `dbos-transact-py` above.
+
+
+## 2026-11-20 — fourth pass
 
 **Method change: searched by what an agent is allowed to *do*, not by what it is built with.**
 The third pass swept by architectural layer and found the control plane. This pass asked a

@@ -23,6 +23,16 @@ updated: 2026-11-20
 > because this session's network policy reaches GitHub only. Repository facts are
 > first-hand. See the verification note at the end of `intel/trends.md`.
 
+>
+> **Fifth pass, 2026-11-20 (latest):** a new vendor category enters the map — the **interface
+> layer** (CopilotKit, Vercel, Google's A2UI, Thesys), the only protocol surface in agentic
+> computing with **no foundation steward** and four live competing standards. All four regions
+> updated with new 2026 evidence, including a **correction to this KB's own expectation that
+> Brazil would pass an AI law**, a refinement on Mexico (no omnibus act, but binding
+> automated-decision duties), and the EMEA finding that the region's only interface-layer
+> project is **archived**. Caveat strengthened: GitHub's `users/{org}` endpoint is refused from
+> this session, so no region-origin claim in this pass rests on repository metadata.
+
 ## The 2026 frame in one paragraph
 
 Enterprise AI spend is real and large — Menlo Ventures puts enterprise AI deployment
@@ -56,6 +66,9 @@ and recoverable enough to go to production."
 | Cognizant | SI competitor | **Launched EMEA AI unit 28 Jul 2026** | Direct competitor on exactly the pilots-to-production pitch. |
 | UiPath / Automation Anywhere | RPA incumbents | Installed automation base | Agentic transition is their existential risk and a migration opportunity. |
 | **Linux Foundation / AAIF** | Neutral steward, not a vendor | Stewards **MCP**, **goose**, **AGENTS.md** and — new this pass — **[Agent Router](https://github.com/theagentrouter/agent-router)** (Apache-2.0), the control plane formerly called Envoy AI Gateway | **Not a competitor — the answer to an objection.** It is what lets Globant say the layer holding a client's model credentials is governed by a foundation, not a vendor. Directly mitigates the NVIDIA concentration risk in the row above. |
+
+| **CopilotKit** | Interface-layer vendor (new category) | Authors **AG-UI** (MIT, 20,766 ★), the agent↔user protocol; $27M Series A May 2026; reported support from Google, Microsoft, Amazon and Oracle; named users include Deutsche Telekom, Docusign, Cisco, S&P Global | **The one layer with no neutral steward.** The protocol is MIT and free to implement; the money is in the enterprise product above it. For Globant that is favourable: the standard costs nothing and the integration into a client's own screens is exactly the billable work. Risk to name: a venture-funded company controls the de facto standard, so keep the renderer behind an adapter. |
+| **Google (A2UI)** | Protocol publisher | [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) (Apache-2.0, 17,690 ★), announced 15 Dec 2025, 1.0 shipped; UI as data against a client-held catalog of approved components; Gemini support; ByteDance Lynx renderer (Jun 2026) | A second, Apache-2.0 answer to the same problem — and the stronger *security* story, which is what a regulated client will respond to. Google states it was built with partners including the AG-UI/CopilotKit team, so do not frame these as a two-horse race. |
 
 **Open-source governance shift to watch:** the Linux Foundation's **Agentic AI Foundation
 (AAIF)**, formed 9 Dec 2025, now stewards MCP (Anthropic), goose (Block) and AGENTS.md
@@ -140,6 +153,34 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   months idle. For a NA retail, travel or marketplace client this is a *positioning*
   conversation, not an implementation one: build the signed-mandate and approval step now,
   stay rail-agnostic. See `repos/foundations.md` and Receta 11.
+
+- **New this pass (fifth, 2026-11-20) — the interface layer is a North American industry, and it
+  is already inside the Fortune 500.** CopilotKit (Seattle) raised **$27M in May 2026** (Glilot
+  Capital, NFX, SignalFire) for the agent-to-user interface layer, and keeps the **AG-UI**
+  protocol MIT while monetising an enterprise product above it. Coverage of the round reports
+  **Google, Microsoft, Amazon and Oracle supporting AG-UI**, with **Deutsche Telekom, Docusign,
+  Cisco and S&P Global** named as users; company-sourced claims range from "tens of millions of
+  agent-user interactions weekly" to "a majority of the Fortune 500". **Treat the adoption
+  figures as vendor-sourced**; the repository and licence are first-hand
+  ([ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui), MIT, 20,766 ★). *Opening:*
+  the protocol is free to implement, the integration work is not, and the clients named above are
+  exactly the profile that buys integration from a studio rather than building it.
+- **New this pass — the US regulatory picture got an active federal counter-move, not just
+  absence.** Beyond "no federal statute", this pass's sweep records **Executive Order 14365** and
+  a **DOJ AI Litigation Task Force** aimed at state AI laws, with federal preemption legislation
+  proposed and not enacted. State law remains the binding layer: **California SB 53** (frontier
+  models), **Texas TRAIGA**, and **Illinois** AI-in-employment rules are cited as in force.
+  **Colorado is contested across sources** — one account has the state repealing and replacing
+  its AI Act in May 2026 before it took effect (after litigation and DOJ intervention), another
+  has the original act effective 30 June 2026. **Do not state Colorado's status to a client
+  without checking it that week.** *Consequence for proposals:* a US compliance posture is now a
+  moving target with an adversarial federal layer, which strengthens the policy-as-code argument
+  this KB already makes — encode the obligation set per jurisdiction, because the set changes.
+- **New this pass — Canada is a distinct jurisdiction, not "North America".** No AI-specific
+  statute; the **"AI for All" strategy (June 2026)** covers AI literacy, content watermarking and
+  a **trusted-AI certification programme**, while PIPEDA and Quebec's **Law 25** already bind any
+  AI touching personal data. A certification programme is a procurement hook: it creates a
+  third-party artefact a bidder can hold, like ISO 42001 in EMEA (§14).
 
 ### EMEA
 
@@ -232,6 +273,32 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   (MIT, 11,989 ★) lets personal data be removed *before* a prompt crosses any boundary, which
   changes the conversation from "which region is the GPU in" to "no personal data left the
   estate". Cheapest credible answer to the first question asked in every EMEA engagement.
+
+- **New this pass (fifth, 2026-11-20) — sovereignty is being deprioritised under delivery
+  pressure, and now there is a number for it.** Veeam research (June 2026) reports **99% of EMEA
+  enterprise decision-makers calling data sovereignty critical while 72.5% are actively
+  deprioritising it to accelerate AI**, with **Germany the most extreme at 82%** putting AI
+  development ahead of data governance. Second-hand, single vendor — but it is the most useful
+  single sentence in this section, because it names the real objection. *How to use it:* the
+  EMEA pitch is **not** "sovereignty or speed". It is **"sovereignty without the delay"** — an
+  EU-origin, permissive, self-hostable stack that does not cost a quarter of schedule. That is
+  precisely the stack already catalogued above. Also recorded: Forrester predicts **no European
+  enterprise will fully exit US hyperscalers in 2026**, so the deliverable is the hybrid
+  placement decision, not a migration fantasy.
+- **New this pass — the one EMEA-origin project in the agent interface layer is archived.**
+  [Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0, 12,498 ★) was created by
+  **Chainlit SAS, Paris**, is the most-recommended Python conversational-AI shell in the market,
+  and the GitHub API reports it **archived** (last push 2026-09-18). This is the inverse of the
+  pattern this KB records elsewhere: in the metering and assurance layers, EMEA origin is a
+  *strength* for a sovereignty pitch; in the interface layer there is **no live EMEA-origin
+  option at all** — AG-UI and json-render are US, A2UI is Google, openui is Thesys. *Two
+  consequences:* (1) an EMEA client wanting an end-to-end EU-origin stack can have one from data
+  to control plane but **not** at the presentation layer, and saying so first is free credibility;
+  (2) any EMEA deployment already running Chainlit has an archived dependency in front of
+  production — a dated, factual reason to open a modernisation conversation.
+- **New this pass — one named EMEA enterprise is already on AG-UI.** Deutsche Telekom appears in
+  coverage of CopilotKit's round as a user of the protocol. Second-hand, but it means the
+  "in-app agent UI" conversation is already live in a German enterprise, not hypothetical.
 
 ### APAC
 
@@ -337,6 +404,35 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   layers** (payments, PII, catalog, graph RAG) — unlike the harness layer, where two of the four
   largest MIT harnesses are APAC-origin. The APAC strength is in agent runtimes, not in the
   governance substrate around them.
+
+- **New this pass (fifth, 2026-11-20) — China's filing regime has a volume number now, which makes
+  it a measurable gate rather than a described one.** More than **550 generative-AI services had
+  been filed by mid-2026**; public-facing services must complete a **security assessment and
+  algorithm filing before launch**, and **mandatory AI content labelling has been in force since
+  1 September 2025**. Second-hand (law-firm and compliance summaries), but the shape is actionable:
+  in China the pre-launch artefact *is* the project plan, so a China-facing engagement is
+  scoped backwards from the filing, and labelling is an engineering requirement in the output
+  path, not a policy page.
+- **New this pass — India signalled it may legislate, so the window to build before the rules is
+  closing.** In **July 2026** the Indian government indicated it may pursue dedicated AI
+  legislation on a **risk-based model**; until then the **Digital Personal Data Protection Act**
+  is the binding constraint on AI data use. One industry body warns dedicated legislation risks
+  slowing adoption. *So what:* for an India engagement, build the obligation set as configuration
+  now (the same policy-as-code pattern as EMEA) rather than hard-coding "no AI law applies".
+- **New this pass — the adoption-versus-scale gap is quantified for the region.** Deloitte-sourced
+  figures put APAC enterprise generative-AI adoption at **18% (2024) → 42% (2025)**, with
+  **scaled deployment at roughly 12% of enterprises**. That is consistent with the BCG "~30% of
+  workflows mature enough" datum already recorded above and with Forrester's higher adoption
+  figures: APAC adopts fastest and scales no better than anyone else. The regional pitch is
+  therefore **industrialisation**, not evangelism.
+- **New this pass — APAC is implementing the interface layer, not just consuming it.** ByteDance
+  shipped an **A2UI renderer for Lynx in June 2026**, i.e. an APAC-origin renderer for a
+  Google-origin protocol, and Gemini supports A2UI 0.9.1. Together with `bytedance/deer-flow`
+  (MIT, 85,545 ★) already in `agents/top.md` Tier 0, the pattern holds: **APAC engineering teams
+  are producing permissive agent infrastructure, not only adopting it.** For a Japan or Korea
+  client worried about US vendor dependence, the interface layer now has a non-US implementation
+  path — and [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) (Apache-2.0,
+  3,835 ★) gives the JVM core a portable agent runtime (Receta 6).
 
 ### LATAM
 
@@ -461,6 +557,49 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   a delivery market, not a supply market, for agent infrastructure.** Globant's regional moat is
   integration and localisation on top of North American and EMEA-origin open source — not
   regional open source, because there is none to build on.
+
+- **New this pass (fifth, 2026-11-20) — correction to this KB's own expectation: Brazil's AI law
+  did not arrive, and there is a named reason.** Earlier passes recorded that "Brazil and Chile
+  were expected to follow" Peru. The region's most developed bill, **PL 2338/2023**, has
+  **stalled** — reportedly awaiting a rapporteur's opinion in a Chamber committee, with a vote
+  possibly not before after the **October 2026 elections**. **Do not tell a Brazilian client a
+  national AI law is imminent.** What *is* binding remains **LGPD**. This is not a contradiction
+  of the earlier record but a resolution of it: the expectation was reasonable and did not
+  happen, which is exactly the kind of thing a KB must say out loud rather than quietly drop.
+- **New this pass — Brazil's courts are acting as the interim AI regulator, which is a different
+  compliance surface entirely.** The **Superior Electoral Court (TSE)** issued **fourteen
+  resolutions** governing the 2026 electoral process, including restrictions on AI use. *So what:*
+  in Brazil the near-term binding constraints arrive as **judicial and sectoral acts**, not as a
+  statute — so the discovery question for a Brazilian engagement is "which regulator and which
+  court have spoken about your sector", not "is there an AI law".
+- **New this pass — refinement, not reversal, on Mexico.** This KB records "Mexico still has no
+  AI-specific legislation", which remains true of a *comprehensive* law. But sources this pass
+  report **2026 amendments already in force that create concrete binding obligations**, and
+  Mexico's data-protection law carries an **opt-out right from automated processing that could
+  harm the data subject** — an automated-decision constraint that directly governs agents.
+  Separately, the federal digital agency **ATDT published a National AI Plan 2026 in September**,
+  reported to centre on a **314-petaflop public supercomputer**. *So what:* "Mexico is
+  unregulated" is the wrong brief. The right brief is "no omnibus AI act, but binding
+  automated-decision duties plus a national compute programme to align with". Sources conflict
+  on the detail — verify the amendment text before quoting it.
+- **New this pass — named LATAM enterprise adopters, which this section lacked.** **Petrobras,
+  Nubank and Embraer** are cited as integrating AI into operations (predictive maintenance, fraud
+  detection, customer-service automation), with Brazil the region's largest AI market for 2026.
+  Secondary sourcing, but it gives the regional map named references instead of percentages.
+- **Measurement caveat worth more than a statistic.** A secondary source cites IDB/McKinsey
+  figures of **67% of large regional enterprises with at least one AI project in production but
+  only 23% reporting measurable business impact** — while another review in the same sweep found
+  **no firm-level adoption data for any Latin American country**. Both cannot be strong at once.
+  Use the 67/23 *shape* (production without measured value) and never the decimals; the
+  67/23 pairing says the same thing as the RSM governance figures above and is the opening.
+- **LATAM open-source supply in the interface layer: not measured, and that is the honest
+  statement.** This pass's sweep of the agent-to-user layer returned no LATAM-origin repository,
+  but it was run in English only. This KB has measured a Spanish/Portuguese-vocabulary zero for
+  *agent frameworks* several times; it has **never** run that vocabulary against the interface
+  layer. So the correct record is **"not searched"**, not "zero". A negative is only worth
+  recording when it was actually measured — the next LATAM pass should run it before anyone
+  quotes a gap. (Note also that org location cannot be read from this environment at all; see
+  the verification addendum in `intel/trends.md`.)
 
 ## Posicionamiento Globant
 

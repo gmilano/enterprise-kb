@@ -37,6 +37,18 @@ updated: 2026-11-20
 > OpenTelemetry instrumentation. Six sections were added there, and they change what this file
 > means: picking an agent is now the *smallest* decision in an engagement.
 
+> **Fifth pass, 2026-11-20 (latest): no agent rows changed again — and this time the news is a
+> die-off one layer over.** This pass searched by *counterparty* (who is on the other side of the
+> agent) and found the surface where the agent meets a human, which four prior passes never
+> touched. Three of that layer's best-known repositories are **archived** —
+> [Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0, 12,498 ★),
+> [langchain-ai/agent-chat-ui](https://github.com/langchain-ai/agent-chat-ui) (MIT, 3,253 ★) and
+> [langchain-ai/deep-agents-ui](https://github.com/langchain-ai/deep-agents-ui) (MIT, 1,705 ★) —
+> and **none of their READMEs says so.** They share one shape: a standalone chat window in front
+> of an agent. Everything live in that layer has the other shape: the agent renders *into* the
+> client's own application. See the new section below, `repos/foundations.md`, and
+> `compose/patterns.md` Recetas 12–13.
+
 ## Tier 0 — The harness layer (new category this pass, all MIT)
 
 The unit enterprises now adopt is not a framework but a **harness**: the agent plus the
@@ -96,6 +108,10 @@ framework. See `compose/patterns.md` Receta 7.
 Also permissive and worth knowing for JVM shops:
 [agentscope-ai/agentscope-java](https://github.com/agentscope-ai/agentscope-java) — Apache-2.0, 6,435 ★ —
 distributed, production-grade, long-running agents on the JVM.
+And, new this pass, [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) —
+Apache-2.0, 3,835 ★, pushed 2026-11-20 — a portable agent runtime where one `@Agent` class runs
+over Spring AI, LangChain4j or a vendor SDK, which is how a JVM shop avoids re-writing agents
+when it changes model provider.
 
 ## Tier 2 — Popular but license-restricted (use with care)
 
@@ -111,6 +127,49 @@ Licenses below were read from each repo's `LICENSE` file, not from GitHub's badg
 | Mastra | [mastra-ai/mastra](https://github.com/mastra-ai/mastra) | Apache-2.0 core + `ee/` carve-out | 29,691 | TypeScript framework; `ee/` directories separately licensed. |
 | Activepieces | [activepieces/activepieces](https://github.com/activepieces/activepieces) | MIT core + `packages/ee/` carve-out | 25,638 | ~400 MCP servers bundled; enterprise packages carved out. |
 | AutoGen | [microsoft/autogen](https://github.com/microsoft/autogen) | CC-BY-4.0 (per GitHub) | 61,955 | **Legacy.** Superseded — active work moved to AG2 and Microsoft Agent Framework. Do not start new work here. |
+
+## The agent-to-user layer — not agents, but where the agent meets the employee (new this pass)
+
+Everything above decides what the agent *is*. This decides whether anyone uses it. Four prior
+passes of this KB went from framework → harness → control plane → blast radius without once
+naming the surface the user actually sees, which is also where an engagement is judged.
+
+Licences below were **read from each repository's `LICENSE` file**; stars and push dates are from
+the GitHub API on 2026-11-20.
+
+| Piece | Repo | Licence | ★ | Pushed | Role |
+|-------|------|---------|---|--------|------|
+| AG-UI protocol | [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) | MIT | 20,766 | 2026-11-20 | **The third protocol.** MCP = agent↔tool, A2A = agent↔agent, AG-UI = agent↔user. Open and free to implement without CopilotKit's framework. |
+| Frontend stack | [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit) | MIT | 38,842 | 2026-11-20 | React/Angular/mobile/Slack implementation; authors of AG-UI. $27M Series A May 2026 (Seattle). |
+| A2UI | [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) | Apache-2.0 | 17,690 | 2026-11-20 | Google-origin, announced 15 Dec 2025, 1.0 shipped. Agent streams **layout data, not code**; client holds a catalog of pre-approved components. The strongest *security* story in the layer. |
+| json-render | [vercel-labs/json-render](https://github.com/vercel-labs/json-render) | Apache-2.0 | 19,791 | 2026-11-19 | Vercel's generative-UI framework. |
+| openui | [thesysdev/openui](https://github.com/thesysdev/openui) | MIT | 15,375 | 2026-11-20 | A third self-declared "open standard" for the same slot. |
+| Chat surface | [assistant-ui/assistant-ui](https://github.com/assistant-ui/assistant-ui) | MIT | 13,351 | 2026-11-20 | The live React chat library — the replacement for the archived LangChain UIs. |
+| React SDK | [tambo-ai/tambo](https://github.com/tambo-ai/tambo) | MIT | 11,221 | 2026-11-18 | Generative UI SDK for React. |
+| Mobile | [flyerhq/flutter_chat_ui](https://github.com/flyerhq/flutter_chat_ui) | Apache-2.0 | 2,381 | 2026-11-19 | Flutter; for a phone-first workforce (field service, retail floor, logistics). |
+| Human approval | [humanlayer/humanlayer](https://github.com/humanlayer/humanlayer) | Apache-2.0 | 12,919 | 2026-11-16 | The agent requests a human decision as a typed call, not a politely-worded prompt. |
+| Agent management | [paperclipai/paperclip](https://github.com/paperclipai/paperclip) | MIT (`LICENSE` on `master`) | 115,408 | 2026-11-20 | "The open-source app everyone uses to manage agents at work." More starred than all of Tier 1 combined. |
+
+**Four permissive standards, no foundation steward, within one order of magnitude of each other.**
+That is the opposite of the tool layer, where MCP won and then moved to the Linux Foundation
+(`intel/trends.md` §5). **So what:** at the presentation layer a 2026 engagement is placing a
+bet, not following a standard. Have the agent emit **structured UI intent** and keep the renderer
+behind an adapter, so the bet is reversible. Google states A2UI was built with partners including
+the AG-UI/CopilotKit team, so these are overlapping camps rather than clean rivals — do not sell
+them to a client as a two-horse race.
+
+**Archived — check whether the client already standardised on one:** `Chainlit/chainlit`
+(Apache-2.0, 12,498 ★, Paris-origin, last push 2026-09-18), `langchain-ai/agent-chat-ui` (MIT,
+3,253 ★), `langchain-ai/deep-agents-ui` (MIT, 1,705 ★). Also stale, not archived:
+[agno-agi/agent-ui](https://github.com/agno-agi/agent-ui) (MIT, 1,879 ★, last push 2026-05-08).
+A client on Chainlit has an archived dependency carrying their whole agent front end, and their
+README will not have told them. **That is a migration engagement with a deadline the client has
+not noticed yet.**
+
+**Also new in this tier's neighbourhood:** [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere)
+(Apache-2.0, 3,835 ★, pushed 2026-11-20) — "portable AI agent runtime for the JVM: one `@Agent`
+class runs on Spring AI, LangChain4j and others." It is the JVM answer this KB had only one entry
+for, and it matters for Japan/Korea cores (`compose/patterns.md` Receta 6).
 
 ## Gaps found this pass — read before planning an engagement
 

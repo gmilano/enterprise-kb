@@ -222,6 +222,51 @@ revoke a credential, cap a budget, enforce a quota and attribute cost per platfo
 what makes "we agent-enabled seven systems" an auditable claim instead of seven integrations
 nobody can see. Recipe: `compose/patterns.md` Receta 9.
 
+## Internal developer portal — the platform the engineering organisation already logs into
+
+Every other platform in this file is a system of record for the *business*. This one is the
+system of record for the *software*, and it is the cheapest grounding source in a large client
+because it already answers "what services exist and who owns them".
+
+| Platform | Repo | Licence | ★ | Stack | Agentic angle |
+|----------|------|---------|---|-------|---------------|
+| Backstage | [backstage/backstage](https://github.com/backstage/backstage) | Apache-2.0 | 34,891 | TypeScript / React | CNCF developer-portal framework; software catalog, ownership, tech docs, scaffolder templates. The catalog is a ready-made, already-trusted grounding graph for an engineering agent. |
+| Spotify Portal AI plugins | [spotify/portal-ai-plugins](https://github.com/spotify/portal-ai-plugins) | Apache-2.0 | 3,302 | TypeScript | Puts the Portal CLI inside coding agents: catalog search, service briefings from ownership/health/incident data, and action invocation **with help, dry-run and explicit confirmation**. Last push 2026-10-23. |
+
+**Order of operations:** before proposing a new catalog for an engineering agent, ask whether
+Backstage is already running. If it is, the ownership graph is free, politically accepted, and
+better maintained than anything a six-week project will build. If it is not, this file's
+`DataHub`/`OpenMetadata` rows remain the answer for data, not for services.
+
+## Where the agent's user interface sits relative to everything in this file
+
+The collaboration-platform section above covers the agent's **front door** — Slack, Mattermost,
+a chat surface the user goes *to*. The layer found in the fifth pass is different: the agent
+renders *inside* the business application the user is already in — the ERP screen, the ticket
+form, the CRM record.
+
+That distinction decides the deliverable:
+
+- **Chat front door** (Slack/Mattermost/Open WebUI): fastest to ship, best for knowledge
+  retrieval and Q&A, and it requires the user to leave their work to ask a question.
+- **In-app generative UI** (AG-UI / A2UI / json-render / openui — see `repos/foundations.md`):
+  the agent proposes an action as native components *in the screen where the work happens*.
+  More integration work, far higher adoption, and the only shape in which an agent can realistically
+  replace a step in a process rather than comment on it.
+
+**The warning that belongs in this file specifically.** Open WebUI's licence already blocks
+silent white-labelling (row above). The in-app layer has a different and larger risk: the
+standalone-chat-shell projects in that category are being **archived** —
+[Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0, 12,498 ★) among them.
+If a client's vertical deployment has a Chainlit front end, that is an archived dependency
+sitting in front of a production system, and the README does not say so. Check for it in
+discovery; it is a credible, dated reason to open a modernisation conversation.
+
+**For a vertical platform specifically**, the integration point is almost always the platform's
+own component library: an ERPNext or Odoo screen that renders an agent's proposal using the
+suite's own widgets looks like part of the product; the same proposal in a floating chat bubble
+looks like a bolt-on and gets switched off after the pilot.
+
 ## Cómo customizar con AI — the pattern that survives the license
 
 1. **Do not fork the base platform.** Run it stock; copyleft stays contained in the

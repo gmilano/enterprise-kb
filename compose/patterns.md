@@ -208,6 +208,7 @@ not accept a Python sidecar in the transaction path.
 | Layer | Component | License |
 |-------|-----------|---------|
 | Agents (JVM) | [agentscope-ai/agentscope-java](https://github.com/agentscope-ai/agentscope-java) | Apache-2.0 |
+| Portable JVM runtime | [Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) | Apache-2.0 |
 | Agents (Python peer) | [agentscope-ai/agentscope](https://github.com/agentscope-ai/agentscope) | Apache-2.0 |
 | .NET/Java alt | [microsoft/semantic-kernel](https://github.com/microsoft/semantic-kernel) | MIT |
 | Base suite | [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | Apache-2.0 |
@@ -219,6 +220,14 @@ core. Where a client's legal team rejects copyleft outright, **apache/ofbiz-fram
 only fully Apache-2.0 ERP+CRM+SCM suite** in this KB — small community, but it unblocks deals
 nothing else can. Self-host serving with vLLM to satisfy data-localisation requirements,
 which are a standing APAC constraint rather than an edge case.
+
+**Addition, fifth pass 2026-11-20 — provider portability on the JVM.**
+[Atmosphere/atmosphere](https://github.com/Atmosphere/atmosphere) (Apache-2.0, 3,835 ★, 765
+forks, pushed 2026-11-20) lets one `@Agent` class run over Spring AI, LangChain4j or a vendor
+SDK. On a Japanese or Korean core this matters for a specific reason: the model provider is the
+part of the stack most likely to be changed for data-localisation or sovereignty reasons, and
+this is the layer that keeps that change out of the agent code. It also removes this recipe's
+single-project dependency on `agentscope-java`.
 
 **Per-market caveat:** there is no APAC-wide regime. Korea's AI Basic Act (in force Jan 2026)
 and Vietnam's (1 Mar 2026) impose real obligations; Japan is light-touch. Express the
@@ -575,6 +584,130 @@ obligation on Globant's code in this recipe**, which is the point.
 - **The FIDO Alliance donation of AP2 is reported, not verified** by this KB (no primary source
   was reachable). Verify before it reaches a deck.
 
+## Receta 12 — Put the agent inside the client's own application, not in a chat window
+
+**When to use it.** The client has a pilot that works in a chat box and nobody uses it, or they
+want an agent to take over a *step in a process* rather than answer questions about it. This is
+the highest-adoption shape available in 2026 and the one four prior passes of this KB never
+specified.
+
+**Why this recipe exists at all.** The standalone-chat-shell projects in this category are being
+archived — `Chainlit/chainlit` (Apache-2.0, 12,498 ★), `langchain-ai/agent-chat-ui` (MIT,
+3,253 ★) and `langchain-ai/deep-agents-ui` (MIT, 1,705 ★) are all reported archived by the
+GitHub API, with no notice in their READMEs. Everything live renders *into* the host app.
+
+### Wiring
+
+| Layer | Piece | Licence |
+|-------|-------|---------|
+| UI protocol | [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) **or** [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) | MIT / Apache-2.0 |
+| Renderer | [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit) (React/Angular/Slack) · [assistant-ui/assistant-ui](https://github.com/assistant-ui/assistant-ui) · [vercel-labs/json-render](https://github.com/vercel-labs/json-render) if the front end is Next.js · [flyerhq/flutter_chat_ui](https://github.com/flyerhq/flutter_chat_ui) if mobile | MIT / MIT / Apache-2.0 / Apache-2.0 |
+| Agent | whatever the client already runs — [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph) (MIT), [agno-agi/agno](https://github.com/agno-agi/agno) (Apache-2.0) or [pydantic/pydantic-ai](https://github.com/pydantic/pydantic-ai) (MIT); all three integrate AG-UI | MIT / Apache-2.0 / MIT |
+| Human boundary | [humanlayer/humanlayer](https://github.com/humanlayer/humanlayer) | Apache-2.0 |
+| Grounding | [NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology) over the catalog, or [backstage/backstage](https://github.com/backstage/backstage) if the subject is services | Apache-2.0 |
+| Traffic plane | [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Apache-2.0 |
+
+### Build order
+
+1. **Pick the three screens, not the model.** Identify the exact places in the client's existing
+   application where the agent will render. If nobody can name three, the engagement is not ready
+   — that is a discovery finding, not a blocker to hide.
+2. **Define a typed UI intent of your own** and have the agent emit *only* that. One adapter
+   module maps intent → AG-UI or A2UI events. **No renderer vocabulary in prompts, tool
+   definitions or agent reasoning.** This is the whole reversibility of the recipe: four live
+   standards compete at this layer with no foundation steward (`intel/trends.md` §15), so the
+   renderer *will* be reconsidered.
+3. **Constrain the component catalog on the client side.** Follow A2UI's model even when using
+   AG-UI: the host application holds a catalog of approved components and the agent may only
+   *request* from it. An agent that can emit arbitrary markup into an internal app is a
+   prompt-injection path to an employee's screen — a rendered link, a forged confirmation
+   button. The schema closes it structurally; text filtering does not.
+4. **Put `humanlayer` between the agent and every irreversible action**, as a typed call with an
+   owner, a route and a timeout — not as a prompt instruction. Carry over the rule this KB holds
+   from automotive: **model reasoning text never reaches the actuator**, only a validated
+   command with validated arguments.
+5. **Ground before you render.** Proposals must cite the record they came from — the catalog
+   entity, the ticket, the Backstage service. An agent rendering a confident native widget is
+   *more* persuasive than one writing a paragraph, so an ungrounded proposal is more dangerous in
+   this shape, not less.
+6. **Attribute every call** through the control plane (Receta 9) so the pilot can answer "what
+   did this cost per resolved task" on the day it is reviewed.
+
+### Sizing and the milestone to fix
+
+**4–6 weeks** for one screen, one agent, one approval path, in a staging copy of the client's
+real front end. **10–14 weeks** for three screens with grounding, cost attribution and an
+approval audit trail. Expect **60–70% of effort in the host application and its component
+catalog, not in the agent.** Budget it as front-end integration work with an agent attached,
+because that is what it is.
+
+**First milestone to fix contractually:** one real screen, one real proposal, rendered with the
+client's own components and approved by a real user. Before that exists, do not add a second
+agent, a second screen or a model upgrade.
+
+### What to tell the client the limits are
+
+- The renderer choice is a **bet**, not a standard. It is behind an adapter for that reason.
+- An agent in-app changes the UX contract: users will treat a native widget as a product
+  feature, so proposal quality has to be production quality from the first demo.
+- If they are on Chainlit today, say plainly that it is archived, and price the migration
+  separately from the new capability. Do not fold a forced migration into a feature quote.
+
+## Receta 13 — AI estate inventory first: the four-week engagement that unblocks every other one
+
+**When to use it.** The client says "we need AI governance" and cannot list what they run. Also
+the correct first move whenever ISO/IEC 42001 certification or EU AI Act record-keeping is
+mentioned, because both presuppose an inventory and neither accepts a spreadsheet maintained by
+hand.
+
+**Why it is a separate recipe.** Recetas 7, 9 and 10 govern agents the client knows about. With
+>10,000 MCP servers reported in production market-wide and skills installed per developer, the
+estate is not in any vendor portal. **Unknown agents are the ones that cause the incident.**
+
+### Wiring
+
+| Step | Piece | Licence |
+|------|-------|---------|
+| Discover agents/models/APIs in infrastructure | [Trusera/ai-bom](https://github.com/Trusera/ai-bom) | Apache-2.0 (368 ★, **idle since 2026-05-24 — fork it**) |
+| Scan MCP configs for secrets, shadow APIs, models | [apisec-inc/mcp-audit](https://github.com/apisec-inc/mcp-audit) | MIT (167 ★, idle since 2026-08-18) |
+| Express as a standard BOM | [CycloneDX/specification](https://github.com/CycloneDX/specification) + [CycloneDX/cyclonedx-python](https://github.com/CycloneDX/cyclonedx-python) (Maven/Gradle/.NET/Go siblings in the same org) | Apache-2.0 |
+| Diff, score, validate over time | [sbom-tool/sbom-tools](https://github.com/sbom-tool/sbom-tools) | MIT |
+| Inventory the *skills* an agent can load | [NVIDIA/SkillSpector](https://github.com/NVIDIA/SkillSpector) | Apache-2.0 |
+| Services and owners, where it already exists | [backstage/backstage](https://github.com/backstage/backstage) | Apache-2.0 |
+| Where the numbers come from afterwards | the control plane, Receta 9 | Apache-2.0 |
+
+### Build order
+
+1. **Week 1 — discover, do not judge.** Run `ai-bom` and `mcp-audit` across the estate and
+   produce the raw list. Resist classifying anything yet; the deliverable of week 1 is a list
+   long enough to be uncomfortable.
+2. **Week 2 — express it in CycloneDX, not in a format you invented.** ML-BOM/SaaSBOM are part of
+   the standard. An auditor who already accepts CycloneDX for software will accept it for AI; a
+   bespoke spreadsheet restarts that argument from zero.
+3. **Week 3 — make it a diff, not a snapshot.** Wire `sbom-tools` into CI or a weekly job. An
+   inventory that is not re-run is a dated document; a diff is a **control**, and controls are
+   what 42001 auditors ask to see evidence of.
+4. **Week 4 — hand over the evidence pack**: current BOM, diff history, owner per entry,
+   approval route per entry (Receta 12 step 4), and the explicit list of what the tooling
+   **cannot** see. That last list is the most valuable page in the pack and the honest basis for
+   phase two.
+
+### Licence and maintenance posture — read before quoting
+
+Two of the five tools are months idle (`ai-bom` 2026-05-24, `mcp-audit` 2026-08-18) and the
+whole layer tops out at 585 stars. **Both are permissive (Apache-2.0, MIT), so forking is
+allowed and is the right plan** — quote maintenance of a fork, not dependency on an upstream
+that may not move. Do not present this layer to a client as mature tooling; present it as a
+standard (CycloneDX) plus scripts Globant maintains. That is accurate and it is also the more
+defensible commercial position.
+
+### Sizing
+
+**4 weeks** for one business unit or one cloud account. **8–10 weeks** for a multi-account
+estate with the diff in CI and the 42001 evidence pack. Note for EMEA: pair the output with the
+AI-Act Annex III scoping already recorded in `intel/market.md` — the inventory is the input to
+that scoping, and clients routinely attempt the scoping without it and have to redo it.
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation
@@ -625,3 +758,29 @@ obligation on Globant's code in this recipe**, which is the point.
   probes still find nothing for `microsoft/agent-framework`.
 - **Replacing a working BPM engine to be "agentic".** The agent goes in a service task. The
   audit trail, SLA timers and task lists are the reason the client can approve it at all.
+
+**New anti-patterns, fifth pass 2026-11-20 — each observed in this pass's evidence:**
+
+- **Shipping a chat window and calling it an agent deployment.** Three of the layer's
+  best-known chat shells are archived while every live project renders into the host
+  application. If the user has to navigate somewhere to talk to the agent, adoption is the
+  risk, not capability.
+- **Letting renderer vocabulary into the agent's prompts or reasoning.** Four competing
+  permissive UI standards, no foundation steward. Renderer-specific output means the next
+  standards decision becomes an agent rewrite.
+- **Letting an agent emit arbitrary markup into an internal application.** That is a
+  prompt-injection path to an employee's screen. The client application holds the component
+  catalog; the agent requests from it.
+- **Reading `main/LICENSE` and stopping.** `paperclipai/paperclip` (115,408 ★) keeps its
+  licence on `master`. The full probe order is manifest → `LICENSE` → `.md`/`.txt` →
+  `LICENSE-MIT` → `LICENSE-APACHE` → `COPYING`, across `main` **and** `master`.
+- **Trusting GitHub's licence badge.** `humanlayer/12-factor-agents` (27,343 ★) reports
+  `NOASSERTION` and is unmodified Apache-2.0. Conversely `restatedev/restate` reports
+  `NOASSERTION` and is **BUSL-1.1** — not open source. The badge is a hint either way; the
+  file is the answer, and the error is expensive in both directions.
+- **Selling governance before the inventory exists.** Every governance recipe in this file
+  assumes a list of what runs. If the client cannot produce that list, Receta 13 is the first
+  engagement, not an add-on to the fourth.
+- **Treating a stale README as a live project.** None of the three archived repositories says
+  it is archived. Check the API's `archived` flag and the last push date for every dependency
+  you put in a proposal.

@@ -8,7 +8,101 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — fourth pass (latest)
+## 2026-11-20 — fifth pass (latest)
+
+**Headline: three of this layer's best-known repositories are archived, and their READMEs do not
+say so.** This pass searched the one surface the previous four never touched — **where the agent
+meets the human** — and the first thing it measured was a die-off. The GitHub search API reports
+`archived: true` for [Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0,
+12,498 ★ — the most-recommended Python conversational-AI shell in the market),
+[langchain-ai/agent-chat-ui](https://github.com/langchain-ai/agent-chat-ui) (MIT, 3,253 ★) and
+[langchain-ai/deep-agents-ui](https://github.com/langchain-ai/deep-agents-ui) (MIT, 1,705 ★).
+LangChain has archived **both** of its agent UI repositories.
+
+**Evidence quality, stated because the conclusion is strong:** the `archived` flag comes from the
+GitHub search API, re-queried twice. The github.com HTML page returns **403 from this
+environment**, so that channel could not cross-check it, and **none of the three READMEs carries
+a deprecation notice** — an engineer reading the README would not know. Corroborating signal for
+Chainlit only: a PyPI fork surfaced in this pass's web search states the original Chainlit team
+is no longer maintaining the project. Treat "archived" as well-founded; treat "and therefore
+dead" as a judgement.
+
+**What the pattern means, and it is not a coincidence.** Sort this layer by shape rather than by
+stars and the archived repos are all the *same* shape — a **standalone chat window placed in
+front of an agent**. Every live, actively-pushed repository in the layer is the *other* shape:
+the agent **renders into the client's existing application** using that application's own
+components. The chat shell as a product category is being abandoned in favour of in-app
+generative UI. For an engagement this is the difference between a deliverable the client's users
+must navigate to and one that appears inside the screen they already work in.
+
+### The agent-to-user interaction layer — zero prior coverage in this KB
+
+Verified today against the GitHub API; every licence below was additionally **read from the
+repository's `LICENSE` file**, not taken from the badge.
+
+| Repo | Licence (file-read) | ★ | Forks | Pushed | What it is |
+|------|---------------------|---|-------|--------|------------|
+| [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit) | MIT | 38,842 | 4,839 | 2026-11-20 | The frontend stack for agents and generative UI (React, Angular, mobile, Slack). Authors of the AG-UI protocol. |
+| [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) | MIT | 20,766 | 2,129 | 2026-11-20 | **AG-UI: the Agent-User Interaction Protocol.** The third leg of the protocol triad — MCP for tools, A2A for agent-to-agent, AG-UI for agent-to-user. |
+| [vercel-labs/json-render](https://github.com/vercel-labs/json-render) | Apache-2.0 | 19,791 | 1,059 | 2026-11-19 | "The Generative UI framework" (Vercel). |
+| [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) | Apache-2.0 | 17,690 | 1,432 | 2026-11-20 | **A2UI — Google-origin**, announced 15 Dec 2025, 1.0 released. Agent streams **layout data, not code**; the client holds a catalog of pre-approved components and the agent may only request from it. |
+| [thesysdev/openui](https://github.com/thesysdev/openui) | MIT | 15,375 | 1,026 | 2026-11-20 | "The Open Standard for Generative UI" — a third contender for the same slot. |
+| [assistant-ui/assistant-ui](https://github.com/assistant-ui/assistant-ui) | MIT | 13,351 | 1,353 | 2026-11-20 | TypeScript/React library for AI chat; the live option where the archived LangChain UIs used to be. |
+| [tambo-ai/tambo](https://github.com/tambo-ai/tambo) | MIT | 11,221 | 577 | 2026-11-18 | Generative UI SDK for React. |
+| [CopilotKit/openfuse](https://github.com/CopilotKit/openfuse) | MIT | 6,544 | 964 | 2026-11-20 | Reference personal agent (browser, terminal, files) built on CopilotKit — a worked example, not a platform. |
+| [flyerhq/flutter_chat_ui](https://github.com/flyerhq/flutter_chat_ui) | Apache-2.0 | 2,381 | 864 | 2026-11-19 | The mobile answer: Flutter chat/agent SDK. Relevant wherever the client's workforce is phone-first. |
+
+**Archived — do not start here, and check whether a client already did:**
+[Chainlit/chainlit](https://github.com/Chainlit/chainlit) (Apache-2.0, 12,498 ★,
+**archived**, last push 2026-09-18, Paris-origin),
+[langchain-ai/agent-chat-ui](https://github.com/langchain-ai/agent-chat-ui) (MIT, 3,253 ★,
+**archived**), [langchain-ai/deep-agents-ui](https://github.com/langchain-ai/deep-agents-ui)
+(MIT, 1,705 ★, **archived**). Also stale but not archived:
+[agno-agi/agent-ui](https://github.com/agno-agi/agent-ui) (MIT, 1,879 ★, last push
+**2026-05-08** — six months).
+
+### Human approval as a component, not a code review habit
+
+| Repo | Licence | ★ | Pushed | Note |
+|------|---------|---|--------|------|
+| [humanlayer/humanlayer](https://github.com/humanlayer/humanlayer) | Apache-2.0 (file-read) | 12,919 | 2026-11-16 | Approval/escalation layer: the agent requests a human decision as a typed call rather than a prompt asking nicely. |
+| [humanlayer/12-factor-agents](https://github.com/humanlayer/12-factor-agents) | **Apache-2.0 — read from the file; GitHub reports `NOASSERTION`** | 27,343 | 2025-09-21 | The design-principles document the market quotes. The licence file is the **unmodified** 199-line Apache-2.0 text with no added clauses, so an enterprise *may* adopt it internally — a question clients do ask. **Content is 14 months stale.** |
+| [humanlayer/fold](https://github.com/humanlayer/fold) | MIT | 187 | 2026-10-23 | Provider-agnostic agent core; small, listed for completeness. |
+
+This is the T46 probe paying off again: a 27,343-star repository reported `NOASSERTION` turned
+out to be plain, unaltered Apache-2.0. Three passes of this KB have now found the same class of
+error. **GitHub's licence badge is a hint; the file is the answer.**
+
+### Agents managed as a workforce — a 115,408-star MIT repo this KB never mentioned
+
+| Repo | Licence | ★ | Forks | Pushed | Note |
+|------|---------|---|-------|--------|------|
+| [paperclipai/paperclip](https://github.com/paperclipai/paperclip) | MIT (**`LICENSE` is on `master`, not `main`**) | 115,408 | 19,156 | 2026-11-20 | "The open-source app everyone uses to manage agents at work." More starred than every framework in `agents/top.md` Tier 1 combined. |
+| [NousResearch/hermes-paperclip-adapter](https://github.com/NousResearch/hermes-paperclip-adapter) | MIT | 2,065 | 404 | 2026-04-04 | Runs Hermes "as a managed employee in a Paperclip company" — the shape the market is converging on: agents with a manager, a role and a review surface. |
+
+Note the branch trap, which is the exact failure the fourth pass recorded: `paperclip`'s licence
+file exists only on `master`. A probe that reads `main/LICENSE` and stops concludes a
+115k-star repository is unlicensed.
+
+### Searched and not found this pass
+
+- **No LATAM-origin repository in the interaction layer.** The sweep's results were
+  NA-origin (CopilotKit/Seattle, Vercel, Google, tambo) with one EMEA entry (Chainlit, Paris —
+  and archived) and one APAC implementation (ByteDance's Lynx renderer for A2UI, Jun 2026).
+  **Honest limit: this pass did not run a Spanish/Portuguese-vocabulary sweep**, so this is a
+  gap in the measurement, not a measured zero. Next LATAM pass should run it before quoting a
+  number.
+- **Org location is unverifiable from this environment.** The `users/{org}` endpoint returns
+  403 ("sessions are bound to their configured repositories"); only `search/repositories`
+  works. Every region-origin attribution in this pass comes from web-search evidence about
+  the company, not from GitHub metadata. Do not quote origin ratios to a client.
+- **No foundation steward for the agent-to-user layer.** Searched; none exists. MCP, goose,
+  AGENTS.md and the control plane are all under the Linux Foundation's AAIF. AG-UI is a
+  vendor-held MIT protocol (CopilotKit, $27M Series A, May 2026) and A2UI is a Google-origin
+  Apache-2.0 project. See `intel/trends.md` §15.
+
+
+## 2026-11-20 — fourth pass
 
 **Headline: the agent layer and the control plane are now both covered, and the thing still
 missing was consequence. What is this agent allowed to *do* — spend money, read personal data,

@@ -343,6 +343,134 @@ and re-paid on refresh, and it is the line item clients do not expect. Price it 
 gateway metering in the control-plane section above, which is where that token spend becomes
 visible.
 
+## Agent-to-user interaction & generative UI — the layer this KB did not have at all
+
+Four passes built the substrate under the agent and never named the surface above it. Every
+licence here was read from the repository's `LICENSE` file on 2026-11-20.
+
+| Repo | Licence | ★ | Forks | Pushed | Why it is foundational |
+|------|---------|---|-------|--------|------------------------|
+| [ag-ui-protocol/ag-ui](https://github.com/ag-ui-protocol/ag-ui) | MIT | 20,766 | 2,129 | 2026-11-20 | The Agent-User Interaction Protocol — the agent↔user leg beside MCP (tools) and A2A (agents). Implementable without CopilotKit. |
+| [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit) | MIT | 38,842 | 4,839 | 2026-11-20 | Reference implementation across React, Angular, mobile and Slack. Integrates with LangChain, Mastra, Pydantic AI and Agno — all already in this KB. |
+| [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) | Apache-2.0 | 17,690 | 1,432 | 2026-11-20 | Google-origin. UI expressed as **data, not code**, against a client-held catalog of pre-approved components — a schema that enforces capability boundaries on the agent. |
+| [vercel-labs/json-render](https://github.com/vercel-labs/json-render) | Apache-2.0 | 19,791 | 1,059 | 2026-11-19 | Vercel's generative-UI framework; the natural fit where the client's front end is already Next.js. |
+| [thesysdev/openui](https://github.com/thesysdev/openui) | MIT | 15,375 | 1,026 | 2026-11-20 | Third contender calling itself an open standard for the same slot. |
+| [assistant-ui/assistant-ui](https://github.com/assistant-ui/assistant-ui) | MIT | 13,351 | 1,353 | 2026-11-20 | Live React/TypeScript chat library; the migration target for the archived LangChain UIs. |
+| [tambo-ai/tambo](https://github.com/tambo-ai/tambo) | MIT | 11,221 | 577 | 2026-11-18 | Generative UI SDK for React. |
+| [flyerhq/flutter_chat_ui](https://github.com/flyerhq/flutter_chat_ui) | Apache-2.0 | 2,381 | 864 | 2026-11-19 | Flutter/mobile. The only mobile-first entry found; matters for field and floor workforces. |
+
+**The architectural rule this layer imposes.** Four permissive, actively-developed, mutually
+incompatible standards with no foundation steward means the renderer is a **reversible
+decision only if you design for it**. Have the agent produce structured UI intent — a typed
+payload — and put the AG-UI/A2UI/json-render binding behind one adapter module. If the agent's
+reasoning emits renderer-specific markup, the client is married to that renderer.
+
+**The security argument, which is the one that sells.** A2UI's design — the agent may only
+request components from a catalog the *client application* holds — is the presentation-layer
+version of the rule this KB already carries from automotive: **model output is not a command.**
+An agent that can emit arbitrary markup into an internal app is a prompt-injection path to the
+employee's screen (a rendered link, a forged confirmation button). A schema-constrained
+catalog closes it structurally rather than by filtering text.
+
+### Archived — the chat-shell category is being abandoned
+
+| Repo | Licence | ★ | Status | Note |
+|------|---------|---|--------|------|
+| [Chainlit/chainlit](https://github.com/Chainlit/chainlit) | Apache-2.0 | 12,498 | **Archived** (API `archived: true`); last push 2026-09-18 | Paris-origin (Chainlit SAS), community-maintained since 2025 per secondary sources. The most-recommended Python conversational-AI shell in the market, and the **only EMEA-origin entry in this layer**. |
+| [langchain-ai/agent-chat-ui](https://github.com/langchain-ai/agent-chat-ui) | MIT | 3,253 | **Archived** | LangGraph chat front end. |
+| [langchain-ai/deep-agents-ui](https://github.com/langchain-ai/deep-agents-ui) | MIT | 1,705 | **Archived** | UI for Deep Agents. |
+
+**Evidence note, because this is a strong claim.** `archived: true` comes from the GitHub
+search API, queried twice. The github.com HTML page returns **403 from this environment**, so
+it could not be cross-checked there, and **no README carries a deprecation notice**. For
+Chainlit, a PyPI fork found in web search independently states the original team no longer
+maintains it. Verify once more before telling a client their platform is dead, then tell them.
+
+## Human approval & escalation — a component, not a convention
+
+| Repo | Licence | ★ | Pushed | Note |
+|------|---------|---|--------|------|
+| [humanlayer/humanlayer](https://github.com/humanlayer/humanlayer) | Apache-2.0 (file-read) | 12,919 | 2026-11-16 | The agent *requests* a human decision through a typed call with routing and timeout, instead of a prompt that asks the model to please check first. |
+| [humanlayer/12-factor-agents](https://github.com/humanlayer/12-factor-agents) | **Apache-2.0 — read from file; GitHub reports `NOASSERTION`** | 27,343 | 2025-09-21 | The design-principles document clients quote at you. The file is the unmodified 199-line Apache-2.0 text, no added clauses, so internal adoption and adaptation are permitted. Content is 14 months old. |
+| [spotify/portal-ai-plugins](https://github.com/spotify/portal-ai-plugins) | Apache-2.0 | 3,302 | 2026-10-23 | Arrives at the same boundary from platform engineering: catalog actions exposed to coding agents with **help, dry-run and confirmation** built in. |
+
+**Why this belongs in foundations and not in a recipe.** Human-in-the-loop is reported as the
+dominant enterprise agent architecture in 2026. Implemented as prompt instructions it is not a
+control — it is a hope, and it fails silently under context pressure. Implemented as a typed
+call it is auditable, it has an owner, and it produces the approval record an ISO 42001 or EU AI
+Act file wants. Wire it between the agent and every irreversible tool.
+
+## Agent workforce management — the 115k-star layer
+
+| Repo | Licence | ★ | Forks | Pushed | Note |
+|------|---------|---|-------|--------|------|
+| [paperclipai/paperclip](https://github.com/paperclipai/paperclip) | MIT (**`LICENSE` lives on `master`**) | 115,408 | 19,156 | 2026-11-20 | "The open-source app everyone uses to manage agents at work." Agents get a role, a manager and a review surface. |
+| [NousResearch/hermes-paperclip-adapter](https://github.com/NousResearch/hermes-paperclip-adapter) | MIT | 2,065 | 404 | 2026-04-04 | Runs the Hermes harness "as a managed employee in a Paperclip company" — harness (`agents/top.md` Tier 0) plugged into a management surface. |
+
+Branch trap, repeated for the second pass running: reading only `main/LICENSE` reports a
+115,408-star repository as unlicensed. Probe order is manifest → `LICENSE` → `.md`/`.txt` →
+`LICENSE-MIT` → `LICENSE-APACHE` → `COPYING`, across `main` **and** `master`.
+
+## AI inventory & AI-BOM — the prerequisite for everything this KB sells as governance
+
+Trends 3, 10 and 14 and Recetas 7, 9 and 10 all presuppose an estate inventory. No tool in this
+KB produced one until now.
+
+| Repo | Licence | ★ | Forks | Pushed | Role |
+|------|---------|---|-------|--------|------|
+| [CycloneDX/specification](https://github.com/CycloneDX/specification) | Apache-2.0 | 585 | 98 | 2026-11-20 | The OWASP BOM standard: SBOM, SaaSBOM, **ML-BOM**, VEX. The artefact format an auditor already accepts — do not invent a format. |
+| [CycloneDX/cyclonedx-python](https://github.com/CycloneDX/cyclonedx-python) | Apache-2.0 | 406 | 107 | 2026-11-19 | Generator for Python projects/environments; Maven, Gradle, .NET and Go generators are siblings in the same org. |
+| [sbom-tool/sbom-tools](https://github.com/sbom-tool/sbom-tools) | MIT | 268 | 20 | 2026-11-17 | Semantic SBOM/CBOM/**AI-BOM** diff, quality scoring and compliance validation over CycloneDX/SPDX. The diff is what converts a one-off inventory into drift detection. |
+| [Trusera/ai-bom](https://github.com/Trusera/ai-bom) | Apache-2.0 | 368 | 102 | **2026-05-24** | Discovery: find every AI agent, model and API in the infrastructure. The only discovery-shaped tool located. **Six months idle — treat as a fork candidate, not a dependency.** |
+| [apisec-inc/mcp-audit](https://github.com/apisec-inc/mcp-audit) | MIT | 167 | 45 | 2026-08-18 | Scans MCP configs for exposed secrets, shadow APIs and models. Narrow but pointed at the right surface given >10,000 MCP servers reported in production. Three months idle. |
+
+**Read the numbers honestly: this layer is immature.** The obligations are worth millions in
+procurement; the open tooling tops out at 585 stars and two of the five pieces are months idle.
+That is a gap, and gaps are where delivery revenue is — assembling, operating and reporting from
+this inventory is studio work, not a product purchase. It is also the cheapest credible first
+deliverable for a client who says "we need AI governance" and cannot say what they run.
+
+## Internal developer portal — the front door for the engineering organisation
+
+| Repo | Licence | ★ | Forks | Pushed | Note |
+|------|---------|---|-------|--------|------|
+| [backstage/backstage](https://github.com/backstage/backstage) | Apache-2.0 | 34,891 | 7,786 | 2026-11-20 | CNCF portal framework. In clients that run it, the software catalog already answers *what exists and who owns it* — the two questions every agent grounding effort starts by re-deriving badly. |
+| [spotify/portal-ai-plugins](https://github.com/spotify/portal-ai-plugins) | Apache-2.0 | 3,302 | 260 | 2026-10-23 | Portal CLI inside coding agents: catalog search, service briefings from ownership/health/incident data, guarded action invocation. |
+
+**Use before building.** Before standing up a catalog for an agent (`DataHub`, `OpenMetadata`
+elsewhere in this file), check whether the client runs Backstage. If they do, the ownership graph
+exists, is already trusted by the engineering org, and can be the agent's grounding source on
+day one.
+
+## Determinism & spec-driven delivery
+
+[github/spec-kit](https://github.com/github/spec-kit) — MIT, **150,799 ★**, 13,548 forks, pushed
+2026-11-20. Spec-driven development tooling: write the specification, generate against it, verify
+against it. It is listed here because *specify → generate → verify* is the only agentic delivery
+shape an audit or QA function accepts, and because at 150k stars it is what a client's developers
+have probably already installed. Combine with the CI evaluation gate in Receta 10.
+
+## Durable execution without an orchestrator, and one BUSL trap
+
+- [dbos-inc/dbos-transact-py](https://github.com/dbos-inc/dbos-transact-py) — MIT, 1,693 ★,
+  pushed 2026-11-20. Database-backed durable Python workflows. The right size when a pilot needs
+  crash-safe resumption but not a Temporal cluster.
+- [restatedev/restate](https://github.com/restatedev/restate) — 4,725 ★, GitHub reports
+  `NOASSERTION`; the `LICENSE` on **both `main` and `master`** is the **Business Source License
+  1.1**. BUSL is *not* open source — a use limitation applies until a conversion date. It
+  appears in most "durable agents" discussions; **it cannot be presented to a client as open
+  source.** Use Temporal or `dbos-transact-py`.
+
+## Secrets & authorisation — two additions beside OPA, Cerbos and Keycloak
+
+- [openbao/openbao](https://github.com/openbao/openbao) — MPL-2.0, 9,112 ★, pushed 2026-11-20.
+  The Linux Foundation Vault fork; the foundation-governed answer for the place agent credentials
+  live. **MPL-2.0 is weak, file-level copyleft:** run it as a service next to proprietary code
+  freely; modifying its own files and shipping them closed is the thing it forbids.
+- [cedar-policy/cedar](https://github.com/cedar-policy/cedar) — Apache-2.0, 1,889 ★, pushed
+  2026-11-20. AWS-origin authorisation language whose differentiator is formal analysis of
+  policies. A third option beside OPA and Cerbos, worth naming on an AWS-heavy estate.
+
 ## Rename ledger — four canonical repos moved (three verified third pass, one fourth pass)
 
 The method note at the end of this file says to probe three channels before writing "does not
