@@ -22,6 +22,11 @@ updated: 2026-11-20
 > service-desk sections added, Dolibarr added to ERP, and Camunda's licence read in full —
 > it is **not** open source, which matters because it now sells itself as an "Agentic
 > Orchestration Platform" and will come up in exactly these conversations.
+>
+> **Third pass, 2026-11-20 (later still):** collaboration front-door and document/contract
+> sections added. Mattermost's licence read in full — it is the most intricate in this KB and
+> is routinely described simply as "open source", which is not wrong but is not usable without
+> the detail below.
 
 ## ERP & business suites
 
@@ -109,6 +114,76 @@ where the only **LATAM-origin** code in this KB lives:
 `l10n-brazil` was pushed the same day this pass ran — it is genuinely maintained, not
 abandoned. **All of it is AGPL-3.0**, so treat it as deployment infrastructure for the
 client's own instance, never as a component inside a Globant product.
+
+## Collaboration platforms — the agent's front door inside the client
+
+An enterprise agent that users must visit a new web app to use will not be used. The highest-
+adoption surface is the messaging platform staff already keep open all day, and two of the three
+large self-hostable ones have a permissive core.
+
+| Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
+|----------|------|--------------|-------|-------|--------------------|
+| Rocket.Chat | [RocketChat/Rocket.Chat](https://github.com/RocketChat/Rocket.Chat) | **MIT (Expat) core + `apps/meteor/ee/` and `ee/` carve-outs** (read from `LICENSE`) | 46,512 | TypeScript / Meteor / MongoDB | Self-hosted messaging, voice and omnichannel; self-described "interoperable by design, governed by you". The cleanest licence of the three — a Globant-built agent bot stays MIT-compatible as long as it lives outside `ee/`. Strong fit where data residency rules out Slack or Teams. |
+| Mattermost | [mattermost/mattermost](https://github.com/mattermost/mattermost) | **Tri-modal — read carefully** | 39,679 | Go / React | See the licence note below. Common in defence, public sector and regulated engineering orgs, which is exactly where sovereign agent deployments land. |
+| Chatwoot | [chatwoot/chatwoot](https://github.com/chatwoot/chatwoot) | MIT core + `enterprise/` carve-out | 40,242 | Ruby / Vue | Already listed under ITSM; named again because it is the *customer*-facing front door where Rocket.Chat and Mattermost are the *employee*-facing one. |
+
+**Mattermost's licence, read in full from `LICENSE.txt` — the most intricate in this KB.** It is
+three licences at once, and which one applies depends on what you do:
+
+1. **Compiled versions produced by Mattermost, Inc.** → **MIT**.
+2. **Source code**, to create compiled versions *not* produced by Mattermost, Inc. → **AGPL-3.0**,
+   or a commercial licence from Mattermost, Inc.
+3. **Admin Tools and Configuration Files** — specifically `server/templates/`, `server/i18n/`,
+   `server/public/`, `webapp/` and all subdirectories → **Apache-2.0**.
+
+The `LICENSE.txt` also carries an explicit promise not to enforce AGPL copyleft where an
+application **(a)** does not link to the Mattermost platform directly and uses only the Admin
+Tools and Configuration Files, and **(b)** has not modified or adapted Mattermost source into a
+"modified version" or "work based on" Mattermost.
+
+**Scoping rule that follows:** build the agent as a **separate service that talks to Mattermost
+over its API**, deploy the client's Mattermost from official builds, and touch nothing in the
+server source. Do that and the stated carve-out plus the non-enforcement promise keep Globant's
+code clear of AGPL. Fork the server and the engagement's IP position changes — escalate to legal
+before anyone does. Same containment pattern as the copyleft ERPs, with more precision available.
+
+## Document, contract & records platforms
+
+The enterprise document estate is where agent value is most obvious and most often blocked by
+having no clean text to work with. These are the systems that already hold the documents, plus
+the MIT tooling that makes them machine-readable.
+
+| Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
+|----------|------|--------------|-------|-------|--------------------|
+| Paperless-ngx | [paperless-ngx/paperless-ngx](https://github.com/paperless-ngx/paperless-ngx) | GPL-3.0 | 48,390 | Python / Django | Community-supported document management: scan, index, archive. GPL — run stock in the client's estate, agent beside it over the API. The fastest way to demonstrate document-agent value on a real corpus in a pilot. |
+| Documenso | [documenso/documenso](https://github.com/documenso/documenso) | AGPL-3.0 | 15,841 | TypeScript / Next.js | "The open source DocuSign alternative." AGPL, so the same containment rule applies — but it closes the loop that most agentic contract workflows cannot finish: an agent can draft, extract and route, and a human still has to **sign**. Pair with the Flowable service-task pattern so the signature step is a real process state, not a side effect. |
+| GLPI | [glpi-project/glpi](https://github.com/glpi-project/glpi) | GPL-3.0 | 6,642 | PHP | Listed under ITSM; relevant here because it is also the asset and contract record in many EMEA mid-market and public-sector estates. |
+
+**The ingestion layer that makes any of the above agent-ready — and it is MIT.**
+[docling-project/docling](https://github.com/docling-project/docling) (**MIT**, 70,818 ★,
+pushed 2026-11-20) converts PDF, Office and image documents into structured, layout-aware text,
+and is **hosted in the LF AI & Data Foundation** (IBM-originated, ships alongside the
+GraniteDocling VLM). MIT plus foundation governance plus 70k stars makes it the default choice,
+and crucially its licence is permissive **while every document platform above is copyleft** — so
+the conversion and enrichment pipeline is Globant IP even when the repository holding the
+documents cannot be touched. Where ingestion is a scheduled ETL job rather than a request, use
+[Unstructured-IO/unstructured](https://github.com/Unstructured-IO/unstructured) (Apache-2.0,
+15,769 ★) instead. **This is the clearest example in this file of the licence asymmetry working
+in Globant's favour.**
+
+## Where the control plane sits relative to everything in this file
+
+Every platform in this file is a system of record the client already runs, mostly copyleft, and
+the rule throughout has been: run it stock, integrate over its API, keep Globant's code in a
+separate permissive repository. The third pass added the missing piece — **the plane those
+integrations actually run through**. Put
+[theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) (Apache-2.0,
+Agentic AI Foundation) or [litellm](https://github.com/BerriAI/litellm) (MIT core) between the
+agent and every model, and [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge)
+(Apache-2.0) between the agent and every platform API wrapped as MCP. That gives one place to
+revoke a credential, cap a budget, enforce a quota and attribute cost per platform — which is
+what makes "we agent-enabled seven systems" an auditable claim instead of seven integrations
+nobody can see. Recipe: `compose/patterns.md` Receta 9.
 
 ## Cómo customizar con AI — the pattern that survives the license
 

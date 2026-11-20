@@ -8,6 +8,105 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-20 — third pass (later still)
+
+**Headline: the agent choice stopped being the interesting decision. The control plane is the
+decision, and this KB did not have one.**
+
+The earlier two passes today tracked the agent layer (Tier 0 harnesses) and the skill supply
+chain. This pass went looking for the *traffic* layer — where a model or tool call is actually
+authorised, routed, rate-limited, attributed and paid for — and found that the KB had no entry
+for it at all. Not a thin section: nothing. No gateway, no quota point, no usage attribution,
+no cost governance, no red-teaming, no eval-in-CI, no OpenTelemetry instrumentation. Six
+sections now exist in `repos/foundations.md`; the twelve most important repositories were
+absent from this KB entirely.
+
+That gap is also the market's. **IDC FERS Wave 4 (July 2026): 95% of enterprises run at least
+one company-funded agent-enabled workflow in production, and only 45.4% have real-time
+dashboards tracking token consumption by workflow** — while **61.8% rate their own cost
+governance as "defined" or "optimizing".** Self-assessment is running well ahead of
+instrumentation, which is the most sellable gap in this KB.
+
+**1. Envoy AI Gateway became Agent Router, and joined the Agentic AI Foundation.** The single
+most consequential discovery of the pass:
+
+| Repo | License | Stars | Pushed | What changed |
+|------|---------|-------|--------|--------------|
+| [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Apache-2.0 | 2,423 | 2026-11-19 | "The open source control plane for AI and agent traffic, powered by Envoy." **Formerly Envoy AI Gateway.** Now an **Agentic AI Foundation** project under LF Projects, LLC — `README`: *same code, same maintainers, same release cadence and Apache 2.0 license*. |
+
+Why it matters beyond the rename: the AAIF now stewards **MCP, goose, AGENTS.md and the
+control plane**. `intel/market.md` flagged that the agent-governance toolchain this KB
+recommends is almost entirely NVIDIA's, including a repo whose vendor-neutral org name hides an
+NVIDIA copyright. Agent Router is the **structural mitigation** — Apache-2.0, Envoy-based,
+foundation-governed. For the first time a client can be told that the layer holding their
+model credentials is not owned by a single vendor, and have it be true.
+
+**2. The gateway field, verified and licence-read.** All metadata from the GitHub search API on
+2026-11-20; carve-outs read from each `LICENSE`:
+
+| Repo | Real license | Stars | Note |
+|------|--------------|-------|------|
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) | **MIT core + `litellm/enterprise/` carve-out** | 63,615 | The adoption leader; now a Rust core with a Python SDK. Virtual keys, spend tracking and budgets are in the MIT core — SSO/RBAC reportedly are not. |
+| [Kong/kong](https://github.com/Kong/kong) | Apache-2.0 | 44,402 | "The API and AI Gateway." Core permissive; AI features reportedly enterprise-gated — verify per feature. |
+| [Portkey-AI/gateway](https://github.com/Portkey-AI/gateway) | **MIT, no carve-out found** | 13,421 | 1,600+ LLMs and **50+ guardrails enforced at the gateway**, not in application code. Cleanest licence in the category. |
+| [maximhq/bifrost](https://github.com/maximhq/bifrost) | Apache-2.0 | 9,818 | LLM gateway and MCP gateway in one. Much of the comparative praise is published by its own vendor — discount accordingly. |
+| [Helicone/helicone](https://github.com/Helicone/helicone) | Apache-2.0 | 6,291 | Observability-first. **Not** to be confused with `Helicone/ai-gateway` — **GPL-3.0, 647 ★, last pushed 2025-11-21**. |
+
+**3. Cost governance is now a governance control, not a finance report.** New, and it is the
+pass's commercial thesis — see `intel/trends.md` trend 12. **Gartner: spend on AI models and
+platforms +63.4% YoY to $64B in 2026. FinOps Foundation: 98% of FinOps practitioners now manage
+AI spend, up from 31% two years ago. EY: agentic AI converts fixed labour cost into variable
+compute consumption**, and predicts 40% of agentic projects cancelled by 2027 (a prediction,
+not a measurement). **McKinsey's framing is the one to use in a pitch: the unit of governance
+should be the completed business outcome, not the token** — which is precisely how Globant's
+**Glob.AI** already bills. The permissive tooling exists:
+[openmeterio/openmeter](https://github.com/openmeterio/openmeter) (Apache-2.0, 2,457 ★) for
+metering and entitlements, [opencost/opencost](https://github.com/opencost/opencost)
+(Apache-2.0, 6,824 ★) for the GPU and pod cost that token counting never sees.
+
+**4. Three large MIT agent repos were simply missing from this KB.** Recorded plainly, because
+it is the same method failure the second pass admitted to — tracking frameworks by name misses
+new shapes:
+
+| Repo | License | Stars | Why it belongs |
+|------|---------|-------|----------------|
+| [browser-use/browser-use](https://github.com/browser-use/browser-use) | MIT | 121,597 | AI browser agents. The answer when the client's "integration surface" is a vendor web portal with no API — insurance, logistics, public-sector filing. |
+| [bytedance/deer-flow](https://github.com/bytedance/deer-flow) | MIT | 85,545 | "Long-horizon SuperAgent harness." **APAC-origin.** A fourth MIT harness larger than every Tier-1 framework. |
+| [letta-ai/letta](https://github.com/letta-ai/letta) | Apache-2.0 | 25,503 | Stateful agents with learning memory (MemGPT lineage). **Pushed 2026-10-18** — verify activity. |
+
+**5. Red teaming exists, is permissive, and has one licence trap.** Static skill scanning is
+already being bypassed (see the second pass below); the dynamic control is adversarial testing.
+[NVIDIA/garak](https://github.com/NVIDIA/garak) (Apache-2.0, 10,114 ★) and
+[microsoft/PyRIT](https://github.com/microsoft/PyRIT) (MIT, 4,980 ★) are both real and active —
+**note PyRIT moved**: `Azure/PyRIT` is the stale old home at 128 ★ / 2026-03-25.
+[promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) (MIT, 27,494 ★) does eval **and**
+red-teaming and is built to run as a CI gate. **The trap:**
+[meta-llama/PurpleLlama](https://github.com/meta-llama/PurpleLlama) (4,486 ★) is routinely
+proposed as an open guardrail — its `LICENSE` is the **Llama 3.2 Community License Agreement**,
+not OSI open source. GitHub shows it as `NOASSERTION`, which is why the mistake is common.
+
+**6. Two more unusable-at-scale repositories, and one mis-scoped one.**
+[daytonaio/daytona](https://github.com/daytonaio/daytona) — infrastructure for running
+AI-generated code, **71,307 ★** — has **no `LICENSE` file** and was last pushed 2026-07-24.
+[getzep/zep](https://github.com/getzep/zep) (Apache-2.0, 5,010 ★) still gets scoped as
+self-hosted memory; its `README` now reads *"Zep: Examples and Integrations"* and Zep itself is
+a hosted product. For self-hosted memory use
+[topoteretes/cognee](https://github.com/topoteretes/cognee) (Apache-2.0, 33,431 ★) or Mem0.
+
+**7. Method note that paid for itself: three of ~35 repos checked had moved, two changed
+organisation.** Envoy AI Gateway → Agent Router, `Azure/PyRIT` → `microsoft/PyRIT`,
+`explodinggradients/ragas` → `vibrantlabsai/ragas`. An ownership change is a supply-chain event,
+not a cosmetic one. Full ledger in `repos/foundations.md`. **This is sellable as a
+dependency-provenance review line item.**
+
+**Verification note.** Every repository fact above is first-hand (search API metadata plus
+`LICENSE` read from `raw.githubusercontent.com`). Every market figure is from WebSearch result
+summaries and **not read at source** — this session's network policy resolves GitHub only;
+`curl` and page fetches to Gartner, IDC, Menlo, OECD and Stanford all failed, so the same
+caveat as the earlier passes applies, and several of the sources above are vendor or analyst
+marketing.
+
+
 ## 2026-11-20 — second pass (later same day)
 
 **Headline: the harness won, and it arrived carrying a skill supply chain nobody has

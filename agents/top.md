@@ -15,6 +15,14 @@ updated: 2026-11-20
 > **Second pass, 2026-11-20 (later same day):** Tier 0 added. Every Tier-0 row had its
 > `LICENSE` file read directly from `raw.githubusercontent.com`, not taken from the badge.
 > Tier 1 is unchanged except that OpenClaw moved up into Tier 0, where it belongs.
+>
+> **Third pass, 2026-11-20 (later still):** three large MIT repositories that belong in this
+> file were found missing entirely — **deer-flow** (85,545 ★, APAC-origin harness),
+> **browser-use** (121,597 ★) and **letta** (25,503 ★, stateful agents). Added below. The
+> structural finding of this pass is in `repos/foundations.md`: the KB had no **control-plane**
+> layer at all — no AI gateway, quotas, usage attribution, cost governance, red-teaming or
+> OpenTelemetry instrumentation. Six sections were added there, and they change what this file
+> means: picking an agent is now the *smallest* decision in an engagement.
 
 ## Tier 0 — The harness layer (new category this pass, all MIT)
 
@@ -34,6 +42,7 @@ category, but it is not alone in its order of magnitude.
 | OpenClaw | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | 394,891 | 2026-11-20 | The AI that really does things. Any OS, any platform. Largest harness; the de facto skill-ecosystem centre of gravity. |
 | DeepSeek Harness | [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) | MIT (c) 2026 DeepSeek | 284,581 | 2026-11-18 | "Everything is a Plugin." Plugin-first harness from DeepSeek. **Absent from this KB until now.** |
 | Hermes Agent | [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | MIT (c) 2025 Nous Research | 264,904 | 2026-11-20 | "The agent that grows with you." Persistent-memory harness from Nous Research. |
+| DeerFlow | [bytedance/deer-flow](https://github.com/bytedance/deer-flow) | MIT | 85,545 | 2026-11-20 | "An open-source long-horizon SuperAgent harness that researches, codes, and creates." **APAC-origin (ByteDance)** and **absent from this KB until this pass** — a fourth MIT harness above every Tier-1 framework. Long-horizon framing matters for enterprise: it is built for tasks that run past one context window. |
 | Deep Agents | [langchain-ai/deepagents](https://github.com/langchain-ai/deepagents) | MIT (c) LangChain, Inc. | 31,472 | 2026-11-20 | "The batteries-included agent harness." The LangChain/LangGraph-native option — JS sibling: [langchain-ai/deepagentsjs](https://github.com/langchain-ai/deepagentsjs) (MIT, 1,650 ★). |
 | NemoClaw | [NVIDIA/NemoClaw](https://github.com/NVIDIA/NemoClaw) | Apache-2.0 | 23,057 | 2026-11-20 | **The enterprise answer to the other four.** Runs Hermes, LangChain Deep Agents and OpenClaw *more securely* inside NVIDIA OpenShell with managed inference. The only governance-first entry in this tier. |
 
@@ -54,6 +63,7 @@ framework. See `compose/patterns.md` Receta 7.
 | Agent | Repo | License | Stars | Description |
 |-------|------|---------|-------|-------------|
 | Langflow | [langflow-ai/langflow](https://github.com/langflow-ai/langflow) | MIT | 156,801 | Building and deploying AI-powered agents and workflows (visual builder). |
+| browser-use | [browser-use/browser-use](https://github.com/browser-use/browser-use) | MIT | 121,597 | Python library for AI browser agents. **New to this KB this pass**, and the second-most-starred entry in Tier 1. The practical answer when a client's "API" is a vendor web portal with no API at all — common in insurance, logistics and public-sector filing. Treat the browser as a tool that needs sandboxing and credential scoping like any other. |
 | OpenHands | [OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) | MIT | 93,898 | AI-driven software development agents. |
 | Mem0 | [mem0ai/mem0](https://github.com/mem0ai/mem0) | Apache-2.0 | 69,277 | The memory layer for AI agents — drop-in memory infrastructure. |
 | CrewAI | [crewAIInc/crewAI](https://github.com/crewAIInc/crewAI) | MIT | 61,126 | Orchestrating role-playing, autonomous AI agents in collaborative crews. |
@@ -65,6 +75,7 @@ framework. See `compose/patterns.md` Receta 7.
 | OpenAI Agents SDK | [openai/openai-agents-python](https://github.com/openai/openai-agents-python) | MIT | 30,784 | Lightweight framework for multi-agent workflows. |
 | Sim | [simstudioai/sim](https://github.com/simstudioai/sim) | Apache-2.0 | 30,164 | Collaborative workspace to build, deploy and monitor agents (`apps/sim/ee` carve-out). |
 | Semantic Kernel | [microsoft/semantic-kernel](https://github.com/microsoft/semantic-kernel) | MIT | 28,790 | Integrate LLM technology into apps; strong .NET/Java enterprise story. |
+| Letta | [letta-ai/letta](https://github.com/letta-ai/letta) | Apache-2.0 | 25,503 | Platform for **stateful** agents — advanced memory that learns and self-improves over time (the MemGPT lineage). New to this KB. **Caveat: last pushed 2026-10-18**, the only entry here over a month idle; verify activity before committing. |
 | Pydantic AI | [pydantic/pydantic-ai](https://github.com/pydantic/pydantic-ai) | MIT | 21,312 | Typed Python agents, realtime voice, embeddings; every model/provider. |
 | PraisonAI | [MervinPraison/PraisonAI](https://github.com/MervinPraison/PraisonAI) | MIT | 9,365 | **Private AI agents for highly regulated teams**, self-hosted. |
 | AG2 | [ag2ai/ag2](https://github.com/ag2ai/ag2) | Apache-2.0 | 5,076 | AG2 (formerly AutoGen): the open-source AgentOS. |

@@ -12,7 +12,13 @@ updated: 2026-11-20
 
 > **Second pass, 2026-11-20 (later same day):** NVIDIA added to the player map (it now
 > ships the agent-governance toolchain, Apache-2.0); new 2026 evidence added to all four
-> regions; the LATAM open-source gap re-measured to repository level. Market statistics in
+> regions; the LATAM open-source gap re-measured to repository level.
+>
+> **Third pass, 2026-11-20 (later still):** the NVIDIA concentration risk recorded below now
+> has a **structural mitigation** — the control plane went to the Linux Foundation (see the
+> players table). **Agent FinOps** added as a commercial opening (`intel/trends.md` trend 12).
+> New 2026 evidence added to all four regions, including the first figures that quantify
+> LATAM's investment gap and a named EMEA governance-structure number. Market statistics in
 > this file come from WebSearch result summaries — attributed, but **not read at source**,
 > because this session's network policy reaches GitHub only. Repository facts are
 > first-hand. See the verification note at the end of `intel/trends.md`.
@@ -49,6 +55,8 @@ and recoverable enough to go to production."
 | **NVIDIA** | Silicon + now the agent *governance* toolchain | Ships [SkillSpector](https://github.com/NVIDIA/SkillSpector) (Apache-2.0, 27,027 ★), [SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator), [NemoClaw](https://github.com/NVIDIA/NemoClaw), [NeMo-Relay](https://github.com/NVIDIA/NeMo-Relay), [auto-ontology](https://github.com/NVIDIA/auto-ontology) and the [OpenShell](https://github.com/ai-openshell/OpenShell) runtime — **all Apache-2.0** | New entrant in this map, and the most consequential one for Globant. NVIDIA is giving away exactly the agent-governance layer this KB positions Globant to sell, which **lowers Globant's build cost and raises the bar on pure tooling plays**. Note the vendor-concentration risk: OpenShell's neutral `ai-openshell` org carries an NVIDIA copyright, so a "governed agent" stack assembled naively is an NVIDIA stack. Mitigate by pairing it with non-NVIDIA controls (OPA, Cerbos, Keycloak, OpenSandbox, Giskard). |
 | Cognizant | SI competitor | **Launched EMEA AI unit 28 Jul 2026** | Direct competitor on exactly the pilots-to-production pitch. |
 | UiPath / Automation Anywhere | RPA incumbents | Installed automation base | Agentic transition is their existential risk and a migration opportunity. |
+
+| **Linux Foundation / AAIF** | Neutral steward, not a vendor | Stewards **MCP**, **goose**, **AGENTS.md** and — new this pass — **[Agent Router](https://github.com/theagentrouter/agent-router)** (Apache-2.0), the control plane formerly called Envoy AI Gateway | **Not a competitor — the answer to an objection.** It is what lets Globant say the layer holding a client's model credentials is governed by a foundation, not a vendor. Directly mitigates the NVIDIA concentration risk in the row above. |
 
 **Open-source governance shift to watch:** the Linux Foundation's **Agentic AI Foundation
 (AAIF)**, formed 9 Dec 2025, now stewards MCP (Anthropic), goose (Block) and AGENTS.md
@@ -100,6 +108,24 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   (one market report) against the **~39.6% of the enterprise AI *agent* market** already
   recorded above. Different denominators, not a contradiction — quote whichever matches the
   question, and say which.
+- **New evidence this pass — the base of the funnel is much emptier than the headlines.** The
+  same 120,000+ respondent survey that produced the 8.6% production figure also finds **63.7%
+  of organisations have no formalised AI initiative at all.** Read against Stanford's 90%
+  "organisational AI use", that is the clearest statement of the real NA opportunity: wide
+  informal usage, almost no formal programme. **The first sellable deliverable in that
+  situation is an AI programme and its governance, not an agent.**
+- **New evidence this pass — market size, for a proposal's framing slide.** One market report
+  puts the **North American AI market at $254.86B in 2026, reaching $1.36T by 2031.**
+  Market-research sourced and directional; do not present it as measured.
+- **New evidence this pass — agent cost governance is a North American budget problem now.**
+  **Gartner: spend on AI models and platforms +63.4% YoY to $64B in 2026**; IDC reports
+  token-and-inference-based pricing as the **largest** budgeting barrier organisations cite.
+  Combined with the state-patchwork compliance driver above, the NA entry offer is a **single
+  control plane that produces both the per-state compliance evidence and the per-team cost
+  attribution** — one build, two budget holders. See `compose/patterns.md` Receta 9.
+- **Named players in the region** (one market report): Google, Microsoft, IBM, AWS, NVIDIA,
+  Oracle, Salesforce, OpenAI and Meta, with AWS, Azure and Google Cloud anchoring generative-AI
+  infrastructure. No systems-integration name in that list — which is the opening.
 
 ### EMEA
 
@@ -151,6 +177,33 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   superseded** by Regulation (EU) 2026/1744 (Annex III → **2 December 2027**). Expect clients
   and competitors to be working from the old date — correcting it is a credibility moment,
   and the deferral is the thing that makes a conformity-readiness programme sellable now.
+- **New evidence this pass — a hard number on governance structures, and it is tiny.** A
+  **Gartner figure (cited via WWT): only 12% of organisations have dedicated AI governance
+  structures today.** That is the most quotable EMEA statistic in this KB next to Veeam's 88%/7%
+  pair, and it sizes the conformity-readiness market directly: the Annex III deadline is binding
+  in roughly 12 months and seven out of eight organisations have no structure to meet it with.
+- **New evidence this pass — IDC's framing, worth borrowing verbatim.** IDC's September 2026
+  piece is titled *"The AI supercycle in EMEA: ambition is funded, capability isn't"* — which is
+  the whole EMEA pitch in five words, and it is an analyst saying it rather than Globant.
+- **New evidence this pass — the "EMEA is behind" assumption is wrong at country level.** One
+  analysis finds **Denmark's enterprise AI adoption now exceeds the US enterprise average
+  reported by Stanford, with Finland and Sweden close behind.** So EMEA is not a laggard region;
+  it is a region with a very wide country spread and a large/small enterprise gap (55% vs 17%,
+  recorded above). **Do not open a Nordics conversation with a catch-up narrative** — there the
+  pitch is governance depth and sovereignty, not adoption.
+- **New evidence this pass — sovereignty is becoming an infrastructure-placement question.**
+  Lenovo's EMEA enterprise-AI lead frames the AI Act as pushing organisations to rethink **not
+  just how they deploy AI, but where it runs.** That is the argument for self-hosted vLLM plus
+  an EU-origin assurance toolchain — which this pass strengthened: alongside
+  [Giskard](https://github.com/Giskard-AI/giskard-oss) (Paris) and
+  [Haystack](https://github.com/deepset-ai/haystack) (Berlin), add
+  **[Agenta](https://github.com/Agenta-AI/agenta)** (MIT Expat core, copyright **Agentatech UG**,
+  a German entity) for agent and prompt evaluation. A credible EU-origin evaluation and
+  orchestration stack now exists end to end.
+- **Risk to watch:** European executives are reportedly warning that **AI's energy demand puts
+  net-zero commitments at risk** — relevant because an EMEA client's sustainability function can
+  become an unexpected blocker on a self-hosted GPU proposal. Pair the cost dashboard in
+  Receta 9 with energy reporting and it becomes an answer instead of an objection.
 - **Competitive note:** Cognizant's EMEA AI unit (28 Jul 2026) targets this exact pitch.
 
 ### APAC
@@ -211,6 +264,36 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   ([deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness), MIT,
   284,581 ★) is APAC-origin and now one of the three largest agent harnesses on GitHub. APAC
   open source is no longer a follower in this category — it is setting it.
+- **New evidence this pass — stop selling "APAC" as one region.** AlphaSense's 2026 survey
+  describes the region as **"less like one region and more like five distinct AI adoption
+  stories", with Japan the most cautious**, and finds **security concerns top the region's
+  adoption barriers** — not cost, not skills. That reorders the APAC pitch: lead with
+  containment and data residency, not productivity. It also matches the regulatory picture
+  already recorded (Korea binding, Vietnam binding, Japan light-touch, Singapore sandboxed).
+- **New evidence this pass — directly relevant to Globant's Anthropic alliance.** **Anthropic's
+  2025 AI Usage Index ranked four of its top five countries in APAC.** Globant has a multi-year
+  Anthropic alliance (30 Jun 2026) and Claude access for 28,500 employees; APAC is where that
+  model's per-capita usage is densest. **That is a region-specific reason to lead with the
+  alliance in APAC** rather than treating it as a global talking point.
+- **New evidence this pass — "sovereign RAG" is the regional vocabulary.** APAC enterprise
+  coverage pairs **sovereign RAG with hyperscale AI** as the 2026 shape of demand, and IDC
+  describes **unified AI governance moving from optional to mandatory**. Concretely: retrieval
+  over client-resident data, self-hosted serving, per-market policy. The stack is already in
+  `repos/foundations.md` — vLLM (Apache-2.0) for serving, RAGFlow or Haystack for retrieval,
+  Agent Router (Apache-2.0) as the control plane, jurisdiction-switchable policy in OPA/Cerbos.
+  Use the client's own words: **sovereign RAG**.
+- **New evidence this pass — Thoughtworks places APAC ahead on agentic specifically**, citing
+  Asian markets leading on agentic AI adoption, job creation and executive confidence. With the
+  Forrester figures above (63% genAI, 53% predictive AI in ITOps), APAC is the region where
+  Globant should expect to meet clients who are *already* agentic and need governance retrofitted
+  — the opposite of the LATAM and EMEA "get it to production" motion.
+- **Fourth APAC-origin harness, new this pass:** [bytedance/deer-flow](https://github.com/bytedance/deer-flow)
+  (MIT, 85,545 ★) — a long-horizon SuperAgent harness. Two of the four largest MIT harnesses on
+  GitHub are now APAC-origin. **For a Japan or Korea client worried about US vendor dependence,
+  an APAC-origin MIT harness on a foundation-governed control plane is a complete answer.**
+- **Regulatory risk to watch, sharpened:** a BSA post flags **training-data disclosure as the
+  sharpest live issue for enterprise software in Japan**, and warns that **Indian and Vietnamese
+  measures could slow adoption** in those markets. Thin sourcing — verify before quoting.
 
 ### LATAM
 
@@ -286,6 +369,35 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   only LATAM-origin code in this KB is Odoo localisation. **Implication: in LATAM, Globant
   cannot differentiate on local open source — it differentiates on local compliance
   knowledge applied to global open source.**
+- **Re-measured this pass across six new layers, and the gap holds.** The control plane, metering,
+  red teaming, evaluation, sandboxing and document-AI categories added to
+  `repos/foundations.md` this pass were each searched for LATAM-origin projects. **Zero appeared
+  in any of the six.** The conclusion is now measured across eight categories rather than one,
+  so a future pass can stop re-running it and spend the time on compliance depth instead.
+- **New evidence this pass — the investment gap, quantified for the first time in this KB.**
+  WEF/McKinsey analysis estimates AI could lift LATAM productivity by **1.9–2.3% annually and
+  generate $1.1–1.7 trillion in additional economic value per year**, yet the region captured
+  **$8.2B of the $190B allocated to private AI opportunities globally in 2025 — about 4.3%.**
+  That pair of numbers is the best opening slide for a LATAM enterprise conversation in this
+  KB: the value is regional, the capital is not, and the binding constraint is execution
+  capacity, which is exactly what a delivery partner sells. WEF's January 2026 piece
+  *"Latin America lags in unlocking AI value"* carries the roadmap framing.
+- **New evidence this pass — the "EU model" claim now has an authority behind it.** The
+  **International Bar Association** states the region's approach **follows the EU model** on AI
+  regulation, and **Baker McKenzie** states that **no Latin American country currently has a
+  fully mature, harmonised AI regime across all sectors.** Together those two make the
+  cross-region reuse argument defensible rather than convenient: build Annex III conformity for
+  EMEA, re-sell the governance layer in LATAM, and cite the IBA rather than Globant's own
+  opinion that it transfers. Baker McKenzie also warns multinationals that the lack of
+  harmonisation is the planning problem — i.e. per-country evidence from one build.
+- **New evidence this pass — the competitor set includes nearshore specialists.** Nearshore AI
+  and software services are a named growth channel, with firms such as **Nisum** already
+  established in Colombia and Peru. Add them to **Softtek, CI&T and Encora** as the realistic
+  competitive set; the global SIs are not usually who Globant meets here.
+- **Reference material to cite:** the **IDB's May 2026 study** on AI adoption among LATAM
+  startups, **CEPAL/ECLAC** regional material, and the **ILIA 2025** index (weak talent
+  pipelines and uneven data readiness as binding constraints). All second-hand — none read at
+  source from this session.
 
 ## Posicionamiento Globant
 
@@ -306,3 +418,23 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
 - **Cross-region leverage.** Build Annex III conformity once for EMEA; resell the same
   governance layer into LATAM (EU Act as de facto standard) and adapt it per-state for
   North America and per-market for APAC.
+- **The sharpest alignment in this KB, found third pass.** McKinsey's position is that the unit
+  of AI governance should be **the completed business outcome, not the token cost**. Globant's
+  **Glob.AI** (6 Aug 2026) already bills **per output**. The commercial model Globant shipped and
+  the governance model the market is converging on are the same model — an argument no
+  competitor billing by headcount can make. **Say it in those terms.** The flip side is a margin
+  risk, not a talking point: pay-per-output puts the token bill on Globant's side, so the
+  metering stack in `compose/patterns.md` Receta 9 protects Globant's own economics before it is
+  ever a client feature. Build it internally first and the client reference writes itself.
+- **Vendor-neutrality is now an answerable objection.** Until this pass the governed-agent stack
+  this KB recommends was overwhelmingly NVIDIA's. With **Agent Router** (Apache-2.0, Agentic AI
+  Foundation) at the control plane, **OpenTelemetry GenAI semantic conventions** for telemetry,
+  **E2B** as a non-NVIDIA sandbox and **Docling** (MIT, LF AI & Data) for documents, Globant can
+  propose a governed stack whose enforcement and telemetry layers are foundation-governed. Keep
+  the NVIDIA skill-security tools — they are the best available — but stop letting them be the
+  whole architecture.
+- **Cheapest credible entry point, any region.** Per IDC, 95% of enterprises already run an
+  agent-enabled workflow in production and only 45.4% can see token consumption per workflow.
+  A **cost-and-usage control plane** touches no business logic, needs no model work, and produces
+  the number that unlocks budget for the governance programme. Lead with it when a client says
+  they have "already done AI".

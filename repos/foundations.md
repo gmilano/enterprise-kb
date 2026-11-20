@@ -18,6 +18,15 @@ updated: 2026-11-20
 > chain, data/semantics/transformation, and workload identity — plus the `dbt` gap resolved.
 > Network policy in this session reaches GitHub only, so every row here is GitHub-verified
 > (search API for metadata, `raw.githubusercontent.com` for the actual `LICENSE` text).
+>
+> **Third pass, 2026-11-20 (later same day):** this pass found the KB's largest structural
+> gap and filled it — there was **no control-plane layer**: no AI gateway, no quota or
+> usage-attribution point, no cost governance, no red-teaming, no eval-in-CI and no
+> OpenTelemetry instrumentation. Six sections added below. Three canonical repositories were
+> also found to have **moved** (Envoy AI Gateway, PyRIT, ragas) — see the rename ledger at
+> the end. Same verification channel as before: search API for metadata,
+> `raw.githubusercontent.com` for the real `LICENSE` text. Non-GitHub hosts remain
+> unreachable from this session, so no market figure here is first-hand.
 
 ## Serving & retrieval
 
@@ -137,3 +146,125 @@ deletion. Renames keep serving on `raw.githubusercontent.com`, and the search AP
 qualifier returns nothing for an old name while a `<name> in:name user:<owner>` search finds
 the successor. Probe all three before writing "does not exist". Applied to
 `microsoft/agent-framework`, all three probes still come back empty — see `agents/top.md`.
+
+## Agent control plane — the AI gateway, quotas and usage attribution
+
+**This section is new in the third pass of 2026-11-20 and it closes the biggest hole in this
+KB.** Everything above governs what an agent *is* and what skills it may load. None of it
+governs the thing an agent actually does thousands of times a day: call a model or a tool.
+That call is where credentials, routing, quotas, failover, rate limits and **per-team cost
+attribution** are enforced — or are not. The 2026 evidence says they are not: IDC's FERS
+Wave 4 (July 2026) reports **95% of enterprises running at least one company-funded
+agent-enabled workflow in production, but only 45.4% with real-time dashboards tracking
+token consumption by workflow** (see `intel/trends.md` trend 12).
+
+| Repo | Real license | Stars | Pushed | Role in the stack |
+|------|--------------|-------|--------|-------------------|
+| [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Apache-2.0 | 2,423 | 2026-11-19 | **Start here.** "The open source control plane for AI and agent traffic, powered by Envoy." One OpenAI-compatible API for every model *and* MCP server; platform teams keep credentials, routing, quotas, failover and **usage attribution** in one place. **Formerly Envoy AI Gateway** — now an **Agentic AI Foundation** project under LF Projects, LLC (`README` states: same code, same maintainers, same cadence, Apache-2.0). Low star count, highest strategic value in this file — see the note below on why. |
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) | **MIT core + `litellm/enterprise/` carve-out** (read from `LICENSE`) | 63,615 | 2026-11-20 | The most-adopted gateway by a wide margin, now self-described as "the fastest, litest AI Gateway. Rust core with Python SDK", 100+ providers behind one OpenAI-shaped API. Virtual keys, spend tracking, budgets, fallbacks and logging are in the MIT core. **Check before promising SSO/RBAC/team budgets** — secondary sources place those in the enterprise tier, and `litellm/enterprise/` is separately licensed. |
+| [Kong/kong](https://github.com/Kong/kong) | Apache-2.0 | 44,402 | 2026-11-20 | "The API and AI Gateway." The right answer when the client already runs Kong for north-south API traffic and wants one policy plane. **Caveat:** the gateway core is Apache-2.0 but secondary sources place the AI-specific features behind an enterprise licence — verify per feature before scoping. |
+| [Portkey-AI/gateway](https://github.com/Portkey-AI/gateway) | MIT | 13,421 | 2026-11-20 | Fully MIT, no carve-out found. Routes to 1,600+ LLMs with **integrated guardrails (50+)** at the gateway rather than in application code — i.e. a guardrail that an application team cannot forget to call. The cleanest licence in this section. |
+| [maximhq/bifrost](https://github.com/maximhq/bifrost) | Apache-2.0 | 9,818 | 2026-11-20 | Go gateway positioning itself as LLM gateway **and** MCP gateway in one. Permissive and real; note that much of the comparative material praising it is published by its own vendor, so treat performance and governance claims as unverified. |
+| [Helicone/helicone](https://github.com/Helicone/helicone) | Apache-2.0 | 6,291 | 2026-11-17 | Observability-first: one line of code to monitor, evaluate and experiment. Pair with a gateway rather than instead of one. **Do not confuse with** [Helicone/ai-gateway](https://github.com/Helicone/ai-gateway) — **GPL-3.0**, 647 ★, last pushed **2025-11-21** (a year cold). Same vendor, different licence, abandoned. |
+
+**Why the 2,423-star repo leads this table.** `intel/market.md` records a vendor-concentration
+risk: the skill-governance toolchain this KB recommends is almost entirely NVIDIA's, and
+`ai-openshell/OpenShell`'s vendor-neutral org name hides an NVIDIA copyright. **Agent Router is
+the structural mitigation** — it is Apache-2.0, built on Envoy (CNCF graduated), and governed by
+the same Agentic AI Foundation that stewards MCP, goose and AGENTS.md. For a CTO asking "what in
+this stack is not owned by a single silicon vendor", the control plane is now a true answer.
+Rank it on governance, not stars, exactly as `agents/top.md` warns.
+
+## Cost governance & metering — because the gateway only produces the data
+
+A gateway emits usage events. Turning those into per-team budgets, chargeback and a number a
+CFO will accept is a separate layer, and it is permissively licensed:
+
+| Repo | License | Stars | Pushed | Role in the stack |
+|------|---------|-------|--------|-------------------|
+| [openmeterio/openmeter](https://github.com/openmeterio/openmeter) | Apache-2.0 | 2,457 | 2026-11-20 | "Metering and Billing for AI, API and DevOps" — collects and aggregates usage events at scale. The component that turns gateway token counts into per-team, per-workflow entitlements and invoices. Small repo, exactly the missing piece. |
+| [opencost/opencost](https://github.com/opencost/opencost) | Apache-2.0 | 6,824 | 2026-11-20 | CNCF cost monitoring for Kubernetes and cloud spend. Covers the *other* half of agent cost — the GPUs and pods behind self-hosted vLLM, which token counting never sees. |
+| [apache/superset](https://github.com/apache/superset) | Apache-2.0 | 75,586 | — | Already listed above; named again because it is the reporting surface where OpenMeter and OpenCost data becomes the cost dashboard IDC says 54.6% of enterprises do not have. |
+
+## Red teaming & adversarial testing — new section, and one licence trap
+
+`agents/trending.md` records that skill scanners are already being bypassed. Scanning is a
+static control; the matching dynamic control is adversarial testing, and two serious tools are
+permissive:
+
+| Repo | Real license | Stars | Pushed | Role in the stack |
+|------|--------------|-------|--------|-------------------|
+| [NVIDIA/garak](https://github.com/NVIDIA/garak) | Apache-2.0 | 10,114 | 2026-11-18 | "The LLM vulnerability scanner." The de facto probe suite — run it against the deployed agent, not the bare model, so tool access is in scope. |
+| [microsoft/PyRIT](https://github.com/microsoft/PyRIT) | MIT | 4,980 | 2026-11-20 | Python Risk Identification Tool for generative AI — Microsoft's open red-teaming framework. **Note the location:** the canonical repo is now `microsoft/PyRIT`. The widely linked [Azure/PyRIT](https://github.com/Azure/PyRIT) is the old home — **128 ★, last pushed 2026-03-25** — so a bookmark or a blog link from early 2026 points at a stale mirror. |
+| [promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) | MIT | 27,494 | 2026-11-20 | Listed again in the next section: it does **both** eval and red-teaming/vulnerability scanning, and it is the one tool here that is designed to run as a CI gate. |
+
+**Licence trap — read before anyone proposes Llama Guard.**
+[meta-llama/PurpleLlama](https://github.com/meta-llama/PurpleLlama) (4,486 ★, pushed 2026-11-13)
+is routinely recommended as an open guardrail. Its `LICENSE` is the **LLAMA 3.2 COMMUNITY
+LICENSE AGREEMENT** — *not* MIT, *not* Apache-2.0 and **not an OSI open source licence**. It
+carries acceptable-use terms and bespoke conditions. GitHub reports it as `NOASSERTION`, which
+is why it keeps being mistaken for permissive. Use the Apache-2.0 and MIT options above, or
+clear PurpleLlama with legal first.
+
+**Stale, so not recommended:** [protectai/rebuff](https://github.com/protectai/rebuff)
+(Apache-2.0, 1,533 ★) is a prompt-injection detector still widely cited, but it was last pushed
+**2024-08-07** — over two years cold. Recorded so a future pass does not rediscover it as new.
+
+## Evaluation in CI & OpenTelemetry instrumentation
+
+The KB already lists evaluation *libraries*. What it lacked is the layer that makes evaluation a
+**gate** and makes agent behaviour readable in the client's existing observability stack — which
+matters because an enterprise will not adopt a second, agent-only monitoring tool.
+
+| Repo | License | Stars | Pushed | Role in the stack |
+|------|---------|-------|--------|-------------------|
+| [promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) | MIT | 27,494 | 2026-11-20 | Test prompts, agents and RAG, plus red teaming and vulnerability scanning, declaratively. **The eval gate to put in the pipeline** — MIT, no carve-out found. |
+| [confident-ai/deepeval](https://github.com/confident-ai/deepeval) | Apache-2.0 | 19,577 | 2026-11-19 | "The LLM evaluation framework" — unit-test-shaped metrics for agent and RAG outputs. Pairs naturally with pytest in an existing Python CI. |
+| [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) | Apache-2.0 | 16,389 | 2026-11-14 | RAG-specific evaluation metrics. **Ownership moved:** this is the repo formerly at `explodinggradients/ragas`, which no longer resolves. The org change matters for supply-chain review — re-pin the dependency and re-read the licence rather than assuming continuity. |
+| [traceloop/openllmetry](https://github.com/traceloop/openllmetry) | Apache-2.0 | 7,543 | 2026-11-19 | OpenTelemetry-based observability for LLM and agent applications. The route into the client's **existing** APM, not a parallel tool. |
+| [Arize-ai/openinference](https://github.com/Arize-ai/openinference) | Apache-2.0 | 1,331 | 2026-11-20 | OpenTelemetry instrumentation for AI observability. Note the licence contrast with the same vendor's [Arize-ai/phoenix](https://github.com/Arize-ai/phoenix), which is **Elastic License 2.0** and not open source — instrument with `openinference`, and treat Phoenix as a product decision. |
+| [open-telemetry/semantic-conventions](https://github.com/open-telemetry/semantic-conventions) | Apache-2.0 | 690 | 2026-11-20 | Where the **GenAI semantic conventions** are standardised. 690 stars and structurally load-bearing: agree the span and attribute names here and agent telemetry stays portable across vendors. The vendor-neutral answer to observability lock-in — the same argument as Agent Router, one layer up. |
+| [Agenta-AI/agenta](https://github.com/Agenta-AI/agenta) | **MIT Expat core + any `ee/` carve-out** (read from `LICENSE`) | 4,922 | 2026-11-20 | Workspace for building, evaluating and versioning agents and prompts. Copyright **Agentatech UG (haftungsbeschränkt)**, a German entity — so this is a second **EMEA-origin** assurance tool alongside Giskard, and it strengthens the EU-origin toolchain argument in `intel/market.md`. |
+
+## Sandboxed execution, memory & document AI — rounding out the substrate
+
+| Repo | Real license | Stars | Pushed | Role in the stack |
+|------|--------------|-------|--------|-------------------|
+| [e2b-dev/E2B](https://github.com/e2b-dev/E2B) | Apache-2.0 | 14,943 | 2026-11-20 | "Open-source, secure environment with real-world tools for enterprise-grade agents." Code-execution sandboxing; the complement to `OpenSandbox` above and a non-NVIDIA option in that slot. |
+| [docling-project/docling](https://github.com/docling-project/docling) | **MIT** | 70,818 | 2026-11-20 | "Get your documents ready for gen AI." Document conversion and layout understanding across PDF, Office and images. **Hosted in the LF AI & Data Foundation**, IBM-originated (ships alongside the GraniteDocling VLM). MIT + foundation-governed + 70k stars makes this the default answer to an enterprise document estate — and it was **entirely absent from this KB**. |
+| [Unstructured-IO/unstructured](https://github.com/Unstructured-IO/unstructured) | Apache-2.0 | 15,769 | 2026-11-19 | Document-to-structured-data ETL. The pipeline-shaped alternative to Docling when ingestion is a scheduled job rather than a request. |
+| [topoteretes/cognee](https://github.com/topoteretes/cognee) | Apache-2.0 | 33,431 | 2026-11-20 | Open-source AI memory platform giving agents persistent, queryable memory over a graph. The permissive alternative to Mem0 in the memory slot. |
+| [letta-ai/letta](https://github.com/letta-ai/letta) | Apache-2.0 | 25,503 | **2026-10-18** | Platform for **stateful** agents with advanced memory that learn over time (the MemGPT lineage). Apache-2.0 and substantial, but note it is the only row in this file over a month without a push — check activity before committing to it. |
+
+**Memory caveat — do not scope `getzep/zep` as self-hosted.**
+[getzep/zep](https://github.com/getzep/zep) (Apache-2.0, 5,010 ★) still looks like a
+self-hostable memory server and is cited that way. Its `README` now reads **"Zep: Examples and
+Integrations"**, and describes Zep itself as "the enterprise context layer for reliable
+agents" — a hosted product. The permissive repository is the examples, not the engine. Use
+`cognee` or `mem0` where the requirement is self-hosted memory.
+
+**Unlicensed giant in the sandbox slot:** [daytonaio/daytona](https://github.com/daytonaio/daytona)
+— "secure and elastic infrastructure for running AI-generated code", **71,307 ★** — has **no
+`LICENSE` file** (checked `LICENSE`, `LICENSE.md`, `LICENSE.txt` and `COPYING` on `main` and
+`master`) and was last pushed **2026-07-24**. Enormous mindshare, four months cold, and
+unusable in a deliverable. Same category as the unlicensed skill collections above: reference
+by URL, never by copy.
+
+## Rename ledger — three canonical repos moved, verified this pass
+
+The method note at the end of this file says to probe three channels before writing "does not
+exist". Applied again, it caught three moves that would each have produced a dead link or a
+stale dependency:
+
+| Was | Is now | Evidence |
+|-----|--------|----------|
+| `envoyproxy/ai-gateway` | [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) (Apache-2.0, 2,423 ★) | Old path's `raw` README returns **200** and renders as "Agent Router … **Formerly Envoy AI Gateway**"; the search API's `repo:` qualifier returns **422** for the old name. Project moved to the **Agentic AI Foundation**. |
+| `Azure/PyRIT` | [microsoft/PyRIT](https://github.com/microsoft/PyRIT) (MIT, 4,980 ★, pushed 2026-11-20) | Old org still resolves but is **128 ★ / 2026-03-25**; a `PyRIT in:name stars:>100` search ranks `microsoft/PyRIT` first by two orders of magnitude. |
+| `explodinggradients/ragas` | [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) (Apache-2.0, 16,389 ★) | `repo:explodinggradients/ragas` returns **422**; `ragas in:name stars:>500` returns exactly one repository, under a **new organisation**. Treat as an ownership change, not just a rename. |
+
+**Why this keeps happening, and what it means commercially:** three of roughly thirty-five
+repositories checked in a single pass had moved, and two of the three changed *organisation*,
+not just name. A client's `requirements.txt` or Helm chart pinned to the old coordinates keeps
+working until it silently does not. **Offer dependency-provenance review as a line item** — it
+is cheap, it is evidenced by this ledger, and it is exactly the kind of finding that justifies
+the governance work in `compose/patterns.md`.

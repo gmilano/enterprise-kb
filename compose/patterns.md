@@ -351,6 +351,142 @@ glamorous and most repeatable agentic engagement available in 2026.
 
 ---
 
+## Receta 9 — The agent control plane: one place for credentials, quotas and cost
+
+**For:** the client who says "we have already done AI". Per IDC, 95% of enterprises run at
+least one agent-enabled workflow in production and **only 45.4% can see token consumption per
+workflow** — while 61.8% rate their own cost governance as "defined" or better. So the client
+is almost certainly right that they have agents, and almost certainly unable to tell you what
+they cost, who authorised them, or how many there are. **This is the cheapest credible entry
+point in this KB: it touches no business logic and no model, and it produces the number that
+unlocks the budget for Recetas 3, 4 and 7.**
+
+| Layer | Component | License |
+|-------|-----------|---------|
+| Control plane (model + MCP traffic) | [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Apache-2.0 (Agentic AI Foundation) |
+| Control plane (alternative, widest adoption) | [BerriAI/litellm](https://github.com/BerriAI/litellm) | **MIT core + `litellm/enterprise/` carve-out** |
+| Control plane (alternative, guardrails built in) | [Portkey-AI/gateway](https://github.com/Portkey-AI/gateway) | MIT |
+| Control plane (client already runs Kong) | [Kong/kong](https://github.com/Kong/kong) | Apache-2.0 (AI features may be enterprise-gated) |
+| MCP registry & proxy | [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge) | Apache-2.0 |
+| Agent identity (user-shaped) | [keycloak/keycloak](https://github.com/keycloak/keycloak) | Apache-2.0 |
+| Agent identity (process-shaped) | [spiffe/spire](https://github.com/spiffe/spire) | Apache-2.0 |
+| Tool authorisation | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) or [cerbos/cerbos](https://github.com/cerbos/cerbos) | Apache-2.0 |
+| Enforcement point per call | [NVIDIA/NeMo-Relay](https://github.com/NVIDIA/NeMo-Relay) | Apache-2.0 |
+| Telemetry naming | [open-telemetry/semantic-conventions](https://github.com/open-telemetry/semantic-conventions) | Apache-2.0 |
+| Instrumentation | [traceloop/openllmetry](https://github.com/traceloop/openllmetry) or [Arize-ai/openinference](https://github.com/Arize-ai/openinference) | Apache-2.0 |
+| Metering & entitlements | [openmeterio/openmeter](https://github.com/openmeterio/openmeter) | Apache-2.0 |
+| Infrastructure cost | [opencost/opencost](https://github.com/opencost/opencost) | Apache-2.0 |
+| Reporting surface | [apache/superset](https://github.com/apache/superset) | Apache-2.0 |
+
+**Wiring:**
+
+1. **Inventory before you build — the discovery is half the value.** Point the gateway at
+   nothing yet; instead find every existing caller. Grep the estate for provider base URLs and
+   SDK imports, and pull provider-side usage by API key. The deliverable of week one is a list
+   of agents and callers the client did not know they had. "Agent sprawl" and "shadow AI" are
+   named cost drivers; name them with the client's own data.
+2. **Put the control plane in front, in pass-through mode, and change nothing else.** Agent
+   Router and LiteLLM both expose an OpenAI-compatible API, so migration is a base-URL change
+   per caller. Do not add policy yet. The goal of this step is only that **100% of model traffic
+   flows through one place**. Nothing below is possible until that is true.
+3. **Issue one virtual key per team, workflow and environment — never per developer.** This is
+   the step that makes attribution possible, and it is an organisational decision disguised as a
+   technical one: the key hierarchy you choose becomes the cost-reporting hierarchy forever.
+   Agree it with whoever owns the budget before issuing anything.
+4. **Give the agent a real identity.** Keycloak for the user-shaped identity an audit asks about;
+   SPIRE for the process-shaped one that attests the *build* calling the tool is the build you
+   approved. A shared API key in an environment variable is the thing this recipe exists to
+   delete.
+5. **Name the spans before you emit them.** Adopt the OpenTelemetry **GenAI semantic
+   conventions** and instrument with OpenLLMetry or OpenInference. Agent telemetry then lands in
+   the client's existing APM instead of a second, agent-only monitoring tool nobody renews.
+   Agreeing the attribute names up front is what keeps this portable when the vendor changes.
+6. **Only now add policy, at the gateway and at the call.** Express "which identity may call
+   which model or tool, with what budget" as versioned OPA or Cerbos policy. Enforce it at the
+   gateway for model traffic and through `NeMo-Relay` middleware for per-call tool decisions —
+   a logged decision is not a control.
+7. **Turn usage events into money.** OpenMeter aggregates gateway events into per-team
+   entitlements and chargeback; OpenCost covers the GPU and pod spend behind self-hosted vLLM
+   that token counting never sees. Report both in Superset. **Build the per-workflow token
+   dashboard IDC says 54.6% of enterprises lack** — that single chart is usually the thing that
+   gets the next phase funded.
+8. **Set budgets that fail closed, then test that they do.** A budget that logs an overage is a
+   report. Cap per virtual key, and rehearse the breach in staging so the client sees the agent
+   degrade predictably rather than invoice unpredictably.
+
+**Why this shape:** the control plane is the only layer that sees every model and tool call, so
+it is the only honest place to enforce cost, quota and tool authorisation at once. **Lead with
+Agent Router where vendor neutrality is a live objection** — it is Apache-2.0 under the Agentic
+AI Foundation, the same foundation that stewards MCP, goose and AGENTS.md, and it is the
+structural mitigation for the NVIDIA concentration risk recorded in `intel/market.md`. Lead with
+**LiteLLM** where the client's developers have already adopted it (63,615 ★ makes that likely) —
+but **verify the carve-out before promising SSO, RBAC or team budgets**, since `litellm/enterprise/`
+is separately licensed. Globant's IP in this recipe is the key hierarchy, the policy bundle, the
+semantic-convention mapping and the dashboards — all of which sit in a permissive repository and
+all of which transfer to the next client.
+
+**Commercial note, and it points inward first.** McKinsey's position is that the unit of
+governance should be the completed business outcome, not the token — which is exactly how
+**Glob.AI** bills. Pay-per-output puts the token bill on Globant's side of the contract, so
+this recipe is **margin protection before it is a client deliverable**. Build it on Globant's own
+Glob.AI workloads first; the reference case then writes itself and is honest.
+
+## Receta 10 — The red-team and evaluation gate in CI
+
+**For:** any engagement from Recetas 1–9 that is about to touch production. Receta 7 gates the
+*skills* an agent may load, statically. This gates the *agent's behaviour*, dynamically, on
+every change — and it is the artefact that makes an EMEA Annex III technical file or a NIST AI
+RMF claim evidenced rather than asserted.
+
+| Purpose | Component | License |
+|---------|-----------|---------|
+| Eval + red team, CI-shaped | [promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) | MIT |
+| Metric-based eval in pytest | [confident-ai/deepeval](https://github.com/confident-ai/deepeval) | Apache-2.0 |
+| RAG-specific metrics | [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) | Apache-2.0 (**moved from `explodinggradients`**) |
+| Vulnerability probes | [NVIDIA/garak](https://github.com/NVIDIA/garak) | Apache-2.0 |
+| Adversarial framework | [microsoft/PyRIT](https://github.com/microsoft/PyRIT) | MIT (**canonical; not `Azure/PyRIT`**) |
+| Skill quality gates + CI templates | [NVIDIA/SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator) | Apache-2.0 |
+| Skill security scan | [NVIDIA/SkillSpector](https://github.com/NVIDIA/SkillSpector) | Apache-2.0 |
+| Evidence capture / EU-origin | [Giskard-AI/giskard-oss](https://github.com/Giskard-AI/giskard-oss), [Agenta-AI/agenta](https://github.com/Agenta-AI/agenta) | Apache-2.0 / MIT Expat core |
+| Runtime validation | [guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails), [protectai/llm-guard](https://github.com/protectai/llm-guard) | Apache-2.0 / MIT |
+| Isolation for destructive probes | [e2b-dev/E2B](https://github.com/e2b-dev/E2B) or [opensandbox-group/OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) | Apache-2.0 |
+
+**Wiring:**
+
+1. **Write the eval set from the client's refusals and incidents, not from a benchmark.** The
+   cases that matter are the ones their risk function already worries about. Twenty real cases
+   beat a public benchmark for both signal and credibility.
+2. **Run promptfoo as a required status check.** Declarative config in the repo, assertions per
+   case, and the build fails on regression. This is the step that converts "we evaluated it" into
+   a control with a timestamp and a commit hash.
+3. **Red-team the deployed agent, not the bare model.** Point `garak` and `PyRIT` at the agent
+   **with its tools and gateway attached**, because the interesting vulnerabilities are tool
+   misuse, excessive agency and data exfiltration — none of which exist on a bare model. Run
+   destructive probes inside E2B or OpenSandbox.
+4. **Gate the skills in the same pipeline.** `SkillSpector` for the 71 patterns across 17
+   categories, `SkillEvaluator` for harness compatibility, semantic overlap and behavioural
+   change. It **ships reusable CI templates** — use them rather than writing stages by hand.
+5. **Keep a runtime net, because CI is a point-in-time claim.** `guardrails` or `llm-guard` for
+   input/output validation in production, with Portkey's gateway-level guardrails (Receta 9) as
+   the layer an application team cannot forget to call.
+6. **Capture the evidence as a build artefact.** Every run writes results to durable storage
+   keyed by commit. Giskard and Agenta are both **EMEA-origin**, which matters when an EU client
+   asks for an EU-origin assurance toolchain — and the archive *is* the Annex III technical
+   documentation, produced as a by-product of the pipeline rather than written later.
+
+**Two licence traps to flag before anyone wires them in:**
+[meta-llama/PurpleLlama](https://github.com/meta-llama/PurpleLlama) is commonly proposed as an
+open guardrail and is under the **Llama 3.2 Community License Agreement — not OSI open source**
+(GitHub reports `NOASSERTION`, which is why the error is so common). And
+[protectai/rebuff](https://github.com/protectai/rebuff) is still widely cited but was last
+pushed **2024-08-07** — over two years cold. Use the Apache-2.0 and MIT options in the table.
+
+**Why this shape:** `intel/trends.md` trend 10 records that skill scanners are already being
+bypassed, which makes static scanning necessary and insufficient. A CI gate plus adversarial
+probes plus a runtime validator is defence in depth where each layer fails differently. And the
+evidence archive is what a regulated client's risk committee actually signs — the thing
+`intel/market.md` identifies as the hard part of shipping an agent, as opposed to demoing one.
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation

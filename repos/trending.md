@@ -8,6 +8,99 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-20 — third pass (later still)
+
+Searched by **layer** rather than by star ceiling this time: the earlier passes swept
+`stars:>150000` and found the harness/skill band, which meant anything structurally important
+but modestly starred stayed invisible. Twelve repositories below were absent from this KB
+entirely, and the most strategically important one has 2,423 stars. All metadata from the
+GitHub search API on 2026-11-20; every licence read from the repository's own `LICENSE`.
+
+### Control plane — the layer this KB did not have
+
+| Repo | Real license | Stars | Pushed | Why it is here |
+|------|--------------|-------|--------|----------------|
+| [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Apache-2.0 | 2,423 | 2026-11-19 | **Formerly Envoy AI Gateway; now an Agentic AI Foundation project.** One OpenAI-compatible API for every model and MCP server; credentials, routing, quotas, failover and usage attribution in one Envoy-enforced plane. The vendor-neutral answer to the NVIDIA concentration risk recorded in `intel/market.md`. |
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) | MIT core + `litellm/enterprise/` carve-out | 63,615 | 2026-11-20 | The adoption leader — 100+ providers, Rust core with Python SDK. Virtual keys, spend tracking, budgets and fallbacks in the MIT core. |
+| [Kong/kong](https://github.com/Kong/kong) | Apache-2.0 | 44,402 | 2026-11-20 | "The API and AI Gateway." Right answer when Kong already fronts the client's API estate; AI features reportedly enterprise-gated — verify per feature. |
+| [Portkey-AI/gateway](https://github.com/Portkey-AI/gateway) | MIT, no carve-out found | 13,421 | 2026-11-20 | 1,600+ LLMs, **50+ guardrails enforced at the gateway** instead of in application code. Cleanest licence in the category. |
+| [maximhq/bifrost](https://github.com/maximhq/bifrost) | Apache-2.0 | 9,818 | 2026-11-20 | Go; LLM gateway and MCP gateway in one. Vendor-published comparisons — discount the claims. |
+| [Helicone/helicone](https://github.com/Helicone/helicone) | Apache-2.0 | 6,291 | 2026-11-17 | Observability-first gateway companion. |
+
+### Cost governance & metering — new category
+
+| Repo | License | Stars | Pushed | Why it is moving |
+|------|---------|-------|--------|------------------|
+| [opencost/opencost](https://github.com/opencost/opencost) | Apache-2.0 | 6,824 | 2026-11-20 | CNCF Kubernetes/cloud cost monitoring — the GPU and pod spend behind self-hosted vLLM that token counting never sees. |
+| [openmeterio/openmeter](https://github.com/openmeterio/openmeter) | Apache-2.0 | 2,457 | 2026-11-20 | "Metering and Billing for AI, API and DevOps." Turns gateway usage events into per-team entitlements and chargeback. |
+
+### Red teaming, eval gates & OpenTelemetry instrumentation
+
+| Repo | Real license | Stars | Pushed | Why it is here |
+|------|--------------|-------|--------|----------------|
+| [promptfoo/promptfoo](https://github.com/promptfoo/promptfoo) | MIT | 27,494 | 2026-11-20 | Eval **and** red teaming, declarative, designed to run as a CI gate. |
+| [confident-ai/deepeval](https://github.com/confident-ai/deepeval) | Apache-2.0 | 19,577 | 2026-11-19 | Unit-test-shaped LLM/agent metrics; drops into existing pytest CI. |
+| [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) | Apache-2.0 | 16,389 | 2026-11-14 | RAG evaluation metrics. **Ownership moved** from `explodinggradients` — re-pin and re-read the licence. |
+| [NVIDIA/garak](https://github.com/NVIDIA/garak) | Apache-2.0 | 10,114 | 2026-11-18 | The LLM vulnerability scanner. Run it against the deployed agent so tool access is in scope. |
+| [traceloop/openllmetry](https://github.com/traceloop/openllmetry) | Apache-2.0 | 7,543 | 2026-11-19 | OpenTelemetry-based LLM/agent observability — routes into the client's existing APM. |
+| [microsoft/PyRIT](https://github.com/microsoft/PyRIT) | MIT | 4,980 | 2026-11-20 | Microsoft's open red-teaming toolkit. **Canonical location**; `Azure/PyRIT` is the stale old home (128 ★, 2026-03-25). |
+| [Agenta-AI/agenta](https://github.com/Agenta-AI/agenta) | MIT Expat core + `ee/` carve-out | 4,922 | 2026-11-20 | Agent/prompt eval and versioning workspace. Copyright **Agentatech UG**, a German entity — a second **EMEA-origin** assurance tool alongside Giskard. |
+| [Arize-ai/openinference](https://github.com/Arize-ai/openinference) | Apache-2.0 | 1,331 | 2026-11-20 | OpenTelemetry instrumentation for AI. Note the same vendor's `phoenix` is **Elastic License 2.0** and not open source. |
+| [open-telemetry/semantic-conventions](https://github.com/open-telemetry/semantic-conventions) | Apache-2.0 | 690 | 2026-11-20 | Where **GenAI semantic conventions** are standardised. Lowest stars, highest portability leverage in this list. |
+
+### Sandboxing, memory & document AI
+
+| Repo | Real license | Stars | Pushed | Why it is here |
+|------|--------------|-------|--------|----------------|
+| [docling-project/docling](https://github.com/docling-project/docling) | **MIT** | 70,818 | 2026-11-20 | "Get your documents ready for gen AI." **Hosted in the LF AI & Data Foundation**, IBM-originated. MIT + foundation-governed + 70k stars — the default answer to an enterprise document estate, and absent from this KB until now. |
+| [topoteretes/cognee](https://github.com/topoteretes/cognee) | Apache-2.0 | 33,431 | 2026-11-20 | Open-source graph-backed AI memory for agents. Permissive alternative to Mem0. |
+| [Unstructured-IO/unstructured](https://github.com/Unstructured-IO/unstructured) | Apache-2.0 | 15,769 | 2026-11-19 | Document-to-structured-data ETL for scheduled ingestion. |
+| [e2b-dev/E2B](https://github.com/e2b-dev/E2B) | Apache-2.0 | 14,943 | 2026-11-20 | Secure code-execution sandbox for enterprise agents — a non-NVIDIA option in the isolation slot. |
+
+### Agents that should already have been here
+
+| Repo | License | Stars | Pushed | Note |
+|------|---------|-------|--------|------|
+| [browser-use/browser-use](https://github.com/browser-use/browser-use) | MIT | 121,597 | 2026-11-20 | AI browser agents — for client systems that have a portal and no API. |
+| [bytedance/deer-flow](https://github.com/bytedance/deer-flow) | MIT | 85,545 | 2026-11-20 | "Long-horizon SuperAgent harness." **APAC-origin.** Fourth MIT harness above every Tier-1 framework. |
+| [letta-ai/letta](https://github.com/letta-ai/letta) | Apache-2.0 | 25,503 | **2026-10-18** | Stateful agents, learning memory (MemGPT lineage). Month-plus idle — verify. |
+
+### Renames and ownership moves to fix in existing code — new this pass
+
+| Was | Is now | How it was caught |
+|-----|--------|-------------------|
+| `envoyproxy/ai-gateway` | [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) | Old path's `raw` README returns 200 and reads "Formerly Envoy AI Gateway"; search API `repo:` returns 422 for the old name. |
+| `Azure/PyRIT` | [microsoft/PyRIT](https://github.com/microsoft/PyRIT) | Old org resolves but is 128 ★ / 2026-03-25; name search ranks `microsoft/PyRIT` first by two orders of magnitude. |
+| `explodinggradients/ragas` | [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) | `repo:` on the old path returns 422; `ragas in:name stars:>500` returns one repo under a **new organisation**. |
+
+**Three of ~35 repositories checked had moved and two changed organisation.** That is a
+supply-chain finding, not a link-rot finding.
+
+### Not permissive / not usable, despite appearances
+
+| Repo | Reality | Stars |
+|------|---------|-------|
+| [daytonaio/daytona](https://github.com/daytonaio/daytona) | **No `LICENSE` file** (checked 4 filenames × `main`/`master`); last pushed **2026-07-24** | 71,307 |
+| [meta-llama/PurpleLlama](https://github.com/meta-llama/PurpleLlama) | **Llama 3.2 Community License Agreement** — not OSI open source. GitHub shows `NOASSERTION`, hence the common mistake | 4,486 |
+| [getzep/zep](https://github.com/getzep/zep) | Apache-2.0, but the repo is now *"Examples and Integrations"* — Zep itself is a hosted product. Not self-hosted memory | 5,010 |
+| [Helicone/ai-gateway](https://github.com/Helicone/ai-gateway) | **GPL-3.0** and last pushed **2025-11-21** — a year cold. Same vendor as the Apache-2.0 `helicone` | 647 |
+| [protectai/rebuff](https://github.com/protectai/rebuff) | Apache-2.0 but last pushed **2024-08-07** — over two years cold | 1,533 |
+
+### Searched and not found this pass
+
+- **`envoyproxy/ai-gateway` as a searchable repository** — exists on `raw` (200) but the search
+  API refuses the `repo:` qualifier (422). Resolved as the Agent Router move above, so this is a
+  *resolved* miss, not an open one.
+- **`microsandbox/microsandbox`** — `repo:` returns 422 and no plausible successor surfaced. Do
+  not cite it; use `e2b-dev/E2B` or `opensandbox-group/OpenSandbox` for isolation.
+- **A LATAM-origin repository in any of the six new layers** — gateway, metering, red teaming,
+  eval, sandboxing and document AI were each searched; **zero LATAM-origin repositories
+  appeared in any of them.** Consistent with the agent-framework finding in `intel/market.md`
+  and recorded here so the gap reads as measured, not unexamined.
+- **`microsoft/agent-framework`** — still not located; not re-probed this pass, since the second
+  pass checked five channels. Treat as unavailable per `agents/top.md`.
+
+
 ## 2026-11-20 — second pass (later same day)
 
 Measured against the GitHub star ceiling rather than a curated watchlist: a

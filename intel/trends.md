@@ -88,6 +88,23 @@ downloads/month.
 integration bet. Put a gateway — [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge)
 (Apache-2.0) — in front of it so tool access stays governed.
 
+**Update, third pass 2026-11-20 — the AAIF now governs the control plane too, not just the
+protocols.** [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router)
+(Apache-2.0, 2,423 ★, pushed 2026-11-19) is **Envoy AI Gateway, renamed and donated**; its
+`README` states it is "An Agentic AI Foundation project" under LF Projects, LLC, with *the same
+code, maintainers, release cadence and Apache 2.0 license*. So the foundation's remit now spans
+MCP (how an agent reaches a tool), A2A's rival surface, AGENTS.md (how an agent is instructed),
+goose (an agent) **and the plane where model and tool traffic is authorised, routed, quota'd and
+attributed**.
+
+**Why this is the strongest version of the trend:** trend 10 and `intel/market.md` both record
+that the agent-governance toolchain is overwhelmingly NVIDIA's — including
+`ai-openshell/OpenShell`, whose vendor-neutral org name carries an NVIDIA copyright. A client
+asking "which part of this stack is not owned by one vendor" previously had no good answer at
+the enforcement layer. Now the answer is the control plane, and it is checkable in the
+repository. **Pair Agent Router with `mcp-context-forge` rather than choosing between them:**
+the forge is the MCP registry and proxy, Agent Router is the model-and-tool traffic plane.
+
 ## 6. Consolidation: point tools are being absorbed into platforms
 
 Unframe reports enterprises moving **away from fragmented AI point tools toward unified
@@ -226,6 +243,53 @@ inside the client's estate, then go and scan it.
 
 ---
 
+## 12. Agent FinOps: cost stopped being a finance report and became a governance control
+
+**New in the third pass of 2026-11-20, and the most sellable trend in this file.**
+
+Through 2025 the agent question was "can it do the task". In 2026 it is "what did the task
+cost, who authorised it, and can you show me per workflow" — and the evidence says enterprises
+cannot answer:
+
+- **IDC FERS Wave 4 (July 2026): 95% of enterprises worldwide run at least one company-funded
+  agent-enabled workflow in production**, but **only 45.4% have real-time dashboards tracking
+  token consumption by workflow** — while **61.8% rate their own cost governance as "defined"
+  or "optimizing".** Self-assessment is running roughly 16 points ahead of instrumentation.
+- **Gartner: spending on AI models and platforms rises 63.4% year on year to $64B in 2026.**
+- **FinOps Foundation (via AvePoint): 98% of FinOps practitioners now manage AI spend, up from
+  31% two years ago** — a discipline-wide shift in 24 months.
+- **IDC: budgeting for token- and inference-based pricing is now the largest barrier**
+  organisations cite, and IDC expects FinOps to be folded **into** AI governance frameworks.
+- **EY: agentic AI converts fixed labour cost into variable compute consumption**, which is why
+  it needs "agentic FinOps" spanning infrastructure, governance and failure recovery. EY also
+  predicts **40% of agentic projects cancelled by 2027** — a prediction, not a measurement.
+- **Named failure modes** (AvePoint): untracked token usage, **agent sprawl**, shadow AI, and
+  unaccounted licences. Forrester expects **model routing to become critical** as cost bites,
+  and FinOps and AIOps to converge.
+
+**The framing to take into a client meeting comes from McKinsey: the unit of governance should
+be the completed business outcome, not the token cost.** That is worth saying out loud in a
+Globant context, because **Glob.AI already bills per output** (see `intel/market.md`). The
+commercial model Globant launched on 6 Aug 2026 and the governance model the market is
+converging on are the same model. That alignment is an argument no competitor billing by
+headcount can make, and it is also a warning: pay-per-output puts the token bill on Globant's
+side of the line, so the instrumentation below is margin protection, not just a client feature.
+
+**What to build, and it is all permissive** (verified 2026-11-20, see `repos/foundations.md`):
+a gateway that attributes usage — [agent-router](https://github.com/theagentrouter/agent-router)
+(Apache-2.0) or [litellm](https://github.com/BerriAI/litellm) (MIT core) —
+metering and entitlements in [openmeter](https://github.com/openmeterio/openmeter)
+(Apache-2.0), infrastructure cost in [opencost](https://github.com/opencost/opencost)
+(Apache-2.0), spans named per the
+[OpenTelemetry GenAI semantic conventions](https://github.com/open-telemetry/semantic-conventions)
+(Apache-2.0) so the data lands in the client's existing APM, and the whole thing reported in
+[Superset](https://github.com/apache/superset) (Apache-2.0). Recipe in
+`compose/patterns.md` Receta 9.
+
+**So what:** the cost dashboard is the cheapest credible entry point into an enterprise that has
+already deployed agents — which, per IDC, is 95% of them. It needs no model work, touches no
+business logic, and produces the number that unlocks the budget for everything else in this KB.
+
 ## Trend sources that disagree — recorded, not reconciled
 
 - **North American adoption:** Stanford AI Index 2026 says **90%** organisational AI use;
@@ -237,6 +301,19 @@ inside the client's estate, then go and scan it.
 - **EU AI Act high-risk date:** older secondary sources still say August 2026. They predate
   the Digital Omnibus. **2 December 2027** (Annex III) is correct per Regulation (EU)
   2026/1744 — corroborated independently by this KB's energy pass.
+- **How many enterprises actually run agents in production — the sharpest contradiction in this
+  KB, added third pass.** **IDC FERS Wave 4 (July 2026) says 95%** run at least one
+  company-funded *agent-enabled workflow* in production. **Digitate and a separate 120,000+
+  respondent survey both say 8.6%** of companies have *AI agents deployed* in production, with
+  **63.7% having no formalised AI initiative at all**. Gartner lands between them at **22%**
+  having scaled AI across multiple business units, and a US survey at **31% of AI initiatives in
+  full production**. These are not reconcilable by averaging — they measure different objects:
+  *a workflow with an AI step somewhere in it* (95%), *a deployed autonomous agent* (8.6%), and
+  *organisation-wide scaling* (22%). **Practical rule: never quote 95% and 8.6% in the same
+  deck without defining both.** The honest and still-compelling version is that nearly every
+  enterprise has agent-adjacent workflows in production while fewer than one in ten has a
+  governed agent — which is precisely the gap this KB sells into. Every one of these figures is
+  second-hand; see the verification note below.
 
 ---
 
