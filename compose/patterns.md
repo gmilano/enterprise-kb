@@ -227,6 +227,128 @@ agent per country. **Do not promise Microsoft Agent Framework on this stack** un
 canonical repo is located (see `agents/top.md`); Semantic Kernel (MIT) is the verified
 Microsoft-stack fallback.
 
+## Receta 7 — Govern an adopted harness and its skill supply chain
+
+**For:** the client whose developers already installed a harness (OpenClaw, DeepSeek Harness,
+Hermes Agent, Deep Agents) and whose security function has just realised that the agent is
+running community skills with its own OS permissions. **This is the highest-conviction new
+offer in this KB** — the exposure is universal among 2026 harness adopters, nobody sold them
+a control for it, and the controls are Apache-2.0 and exist today.
+
+| Layer | Component | License | Verified |
+|-------|-----------|---------|----------|
+| Skill inventory | [openclaw/clawhub](https://github.com/openclaw/clawhub) (registry) + [VoltAgent/awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills) (5,400+ skill corpus) | MIT | 9,557 ★ / 53,885 ★ |
+| Pre-install scanning | [NVIDIA/SkillSpector](https://github.com/NVIDIA/SkillSpector) — 71 patterns / 17 categories | Apache-2.0 | 27,027 ★ |
+| Quality + behaviour gates | [NVIDIA/SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator) — ships reusable CI templates | Apache-2.0 | 4,224 ★ |
+| Runtime containment | [ai-openshell/OpenShell](https://github.com/ai-openshell/OpenShell) or [opensandbox-group/OpenSandbox](https://github.com/opensandbox-group/OpenSandbox) | Apache-2.0 | 21,829 ★ / 17,707 ★ |
+| Harness → governed runtime bridge | [NVIDIA/NemoClaw](https://github.com/NVIDIA/NemoClaw) | Apache-2.0 | 23,057 ★ |
+| Per-call enforcement point | [NVIDIA/NeMo-Relay](https://github.com/NVIDIA/NeMo-Relay) — middleware on tool and LLM calls | Apache-2.0 | 254 ★ |
+| Policy decision | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) or [cerbos/cerbos](https://github.com/cerbos/cerbos) | Apache-2.0 | 12,501 ★ / 4,664 ★ |
+| Agent process identity | [spiffe/spire](https://github.com/spiffe/spire) | Apache-2.0 | 2,630 ★ |
+| Human identity | [keycloak/keycloak](https://github.com/keycloak/keycloak) | Apache-2.0 | 37,980 ★ |
+| Durability | [temporalio/temporal](https://github.com/temporalio/temporal) | MIT | 24,518 ★ |
+
+**Wiring — in this order, because each step produces the evidence for the next:**
+
+1. **Inventory first, and expect it to be the whole sale.** Enumerate every skill, plugin
+   and MCP server installed across the client's harnesses. Research on public registries
+   found **26.1% of 31,132 skills carried at least one vulnerability** and **36% of 3,984
+   ClawHub skills contained prompt-injection techniques** — so an inventory with a scan
+   attached is a finding, not a formality. (Figures second-hand; see `intel/trends.md` §10.)
+2. **Scan with SkillSpector in CI, not on a laptop.** Point it at the client's actual skill
+   set. Its 17 categories map almost one-to-one onto what a CISO already asks about: prompt
+   injection, data exfiltration, privilege escalation, excessive agency, system-prompt
+   leakage, memory poisoning, tool misuse, MCP tool poisoning, MCP least privilege.
+3. **Assume the scanner misses things, and say so out loud.** Trail of Bits bypassed the
+   ClawHub, Cisco and `skills.sh` detectors, and CSA recorded five malicious skills evading
+   updated ClawScan *and* VirusTotal between Feb–May 2026. **A scan-only deliverable is
+   mis-sold.** This is why steps 4–6 exist, and saying it first is what makes Globant
+   credible rather than another scanner reseller.
+4. **Add behavioural gates with SkillEvaluator.** Separate research found **80% of skills
+   had a mismatch between declared and actual behaviour** — mostly bad documentation, not
+   malice, which is exactly why a *declaration-vs-behaviour* check is the right control: it
+   catches the 80% cheaply and surfaces the malicious remainder by exception. Use its CI
+   templates so the gate lives in the client's pipeline after Globant leaves.
+5. **Pin provenance and mirror the registry.** No direct pulls from a public registry into
+   an environment that can write. Mirror internally, pin by digest, re-scan on update. This
+   is ordinary supply-chain hygiene; the novelty is only that the artefact is prose.
+6. **Contain at runtime.** Skills execute with the agent's own OS permissions, so scanning
+   is necessary and not sufficient. Run the harness inside OpenShell (via NemoClaw) or
+   OpenSandbox.
+7. **Enforce per call, don't log per call.** NeMo-Relay's middleware on tool and LLM calls is
+   where an OPA/Cerbos decision is actually applied. Logging a violation after the ERP write
+   is an incident report, not a control.
+8. **Give the agent *process* an identity, not just a user.** Keycloak answers "who is this
+   agent acting for"; SPIRE answers "is this the build we approved". Both are needed to
+   attest a tool call.
+9. **Wrap the whole thing in durable execution.** Temporal, so a half-applied multi-step
+   write is recoverable rather than discovered.
+
+**Licence watch:** `anthropics/skills` (197,931 ★) and `multica-ai/andrej-karpathy-skills`
+(234,677 ★) have **no licence file**. Scan and reference them; never vendor them into the
+deliverable. See `agents/top.md`.
+
+**Vendor-concentration watch:** five of the components above are NVIDIA's, including
+OpenShell despite its vendor-neutral `ai-openshell` org name. Deliberately pair them with
+non-NVIDIA controls (OPA/Cerbos, Keycloak, SPIRE, OpenSandbox, Giskard) so the client is not
+handed single-vendor dependence as the price of governance.
+
+**Deliverable:** a scanned and gated skill inventory, a CI pipeline that blocks on
+regression, a contained runtime, an enforcement point with per-call policy, and a written
+statement of residual risk that names the bypass research. Verifiable, repeatable across
+clients, and priceable per output under Glob.AI.
+
+---
+
+## Receta 8 — Agentic process orchestration on an existing BPM engine
+
+**For:** the client with a real process estate — BPM engine, SLAs, audit history, human task
+lists — who has been pitched "agentic workflow" and correctly suspects it means replacing
+something that works. It does not. The agent becomes a **service task**.
+
+| Layer | Component | License |
+|-------|-----------|---------|
+| Process engine (new build) | [flowable/flowable-engine](https://github.com/flowable/flowable-engine) | Apache-2.0 |
+| Process engine (lighter / YAML-first) | [kestra-io/kestra](https://github.com/kestra-io/kestra) | Apache-2.0 |
+| Process engine (client already runs it) | [camunda/camunda](https://github.com/camunda/camunda) | **Camunda Licence 1.0 — not open source** |
+| Semantic layer | [NVIDIA/auto-ontology](https://github.com/NVIDIA/auto-ontology) | Apache-2.0 |
+| Transformation | [dbt-labs/dbt](https://github.com/dbt-labs/dbt) | Apache-2.0 |
+| Catalog / lineage | [datahub-project/datahub](https://github.com/datahub-project/datahub) | Apache-2.0 |
+| Agent layer | [langchain-ai/deepagents](https://github.com/langchain-ai/deepagents) or [crewAIInc/crewAI](https://github.com/crewAIInc/crewAI) | MIT |
+| Tool gateway | [IBM/mcp-context-forge](https://github.com/IBM/mcp-context-forge) | Apache-2.0 |
+| Human approval console | [appsmithorg/appsmith](https://github.com/appsmithorg/appsmith) | Apache-2.0 |
+| Durability | [temporalio/temporal](https://github.com/temporalio/temporal) | MIT |
+
+**Wiring:**
+
+1. **Model the process in BPMN and leave it there.** The engine keeps the audit trail,
+   SLA timers and task assignment. A process owner can read a BPMN diagram; they cannot read
+   an agent's trace. That legibility *is* the governance deliverable.
+2. **Make the agent one service task with a typed contract.** In, out, timeout,
+   compensation. If the agent fails, the engine's existing error-boundary handling takes
+   over — behaviour the client already trusts and has already signed off.
+3. **Fix the semantics before the reasoning.** Give the agent an ontology
+   (`auto-ontology`) over curated dbt models with DataHub lineage, so queries are generated
+   deterministically against tables the agent is allowed to believe. The common failure here
+   is prompt-engineering a join that a semantic layer should have made impossible.
+4. **Human tasks stay human tasks.** Writes route to the engine's existing task list, or to
+   an Appsmith console. Do not invent a parallel approval path beside the one audit already
+   covers.
+5. **Durability belongs underneath, not inside.** Temporal for agent-side multi-step work;
+   the BPM engine stays the system of record for the business process. Two different
+   guarantees — do not collapse them.
+6. **If it is Camunda, read the licence before writing a line.** Zeebe, Operate and Tasklist
+   are Camunda Licence 1.0. Build only against the Apache-2.0 parts — Java Client,
+   Spring Boot Starter, Exporter API, Protocol, Gateway Protocol Implementation, BPMN Model
+   API — and generated gRPC stubs, which Camunda explicitly states are not derivative works.
+   Same containment discipline as a copyleft ERP. Details in `verticals/solutions.md`.
+
+**Deliverable:** one existing business process with an agent in a named service task, its
+approval path unchanged, its audit trail intact, and a measured cycle-time delta. The least
+glamorous and most repeatable agentic engagement available in 2026.
+
+---
+
 ---
 
 ## Anti-patterns — each one observed in this pass's evidence
@@ -249,3 +371,24 @@ Microsoft-stack fallback.
   `OpenHands/OpenHands`, `block/goose` → `aaif-goose/goose`, `NVIDIA/NeMo-Guardrails` →
   `NVIDIA-NeMo/Guardrails`, `Giskard-AI/giskard` → `Giskard-AI/giskard-oss`.
 - **Starting new work on AutoGen.** Superseded; use AG2 or a verified alternative.
+- **Installing community skills straight into an environment that can write.** They run with
+  the agent's own OS permissions, **26.1% of a 31,132-skill sample carried a vulnerability**,
+  and the registry scanners have documented bypasses. Mirror, pin, scan, gate, sandbox.
+- **Selling a skill scan as the control.** Trail of Bits bypassed three production detectors
+  and five malicious skills evaded ClawScan and VirusTotal in Feb–May 2026. Scanning is the
+  first of six layers in Receta 7, not the deliverable.
+- **Vendoring an unlicensed skill repository.** `anthropics/skills` (197,931 ★) and
+  `multica-ai/andrej-karpathy-skills` (234,677 ★) have **no licence file**. Huge star counts,
+  zero redistribution rights.
+- **Ranking a shortlist by stars.** Single-author skill collections now out-star every
+  framework in Tier 1 combined. Rank by licence, governance and maintenance; use stars only
+  to learn what is already installed in the client's estate.
+- **Assuming Camunda is open source because it says "open" and "agentic".** It is
+  **Camunda Licence 1.0** with named Apache-2.0 parts and no root `LICENSE` file.
+- **Writing "the repo does not exist" after one 404.** `dbt-labs/dbt-core` 404s on
+  `github.com` and is simply **renamed to `dbt-labs/dbt`** — the old path still serves on
+  `raw.githubusercontent.com`. Probe three channels (HTML, search API with `repo:`, and
+  `<name> in:name user:<owner>`) before recording a gap. Applied correctly, the same three
+  probes still find nothing for `microsoft/agent-framework`.
+- **Replacing a working BPM engine to be "agentic".** The agent goes in a service task. The
+  audit trail, SLA timers and task lists are the reason the client can approve it at all.

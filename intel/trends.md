@@ -28,9 +28,21 @@ agent pilots were failing at scale.** TechRepublic frames 2026 as the push to br
 production**. BCG finds **only ~30% of APAC enterprise workflows are mature enough to
 support AI safely at scale.**
 
+**Measured again this pass, and the numbers are worse than "pilot purgatory" suggests.**
+Four independent 2026 figures, each measuring something slightly different:
+**only 8.6% of companies report AI agents deployed in production** (survey of 120,000+
+respondents, corroborated separately by Digitate's North American IT-leader study);
+**Gartner 2026 finds only 22% have successfully scaled AI across multiple business units**;
+a US survey puts **31% of AI initiatives at full production despite 88% of organisations
+using AI**; and IDC's March 2026 EMEA survey finds **only 9% of EMEA organisations delivered
+measurable business outcomes from most of their AI projects over the past two years**. The
+sharpest single statistic is Veeam's: **88% of EMEA organisations are already operating AI
+agents, but only 7% feel fully prepared to manage them.**
+
 **So what:** durable execution, data remediation and process readiness are the billable
 work. [temporalio/temporal](https://github.com/temporalio/temporal) (MIT) belongs in the
-default architecture, not as an optional extra.
+default architecture, not as an optional extra. And the 88%/7% gap is the opening line of
+the pitch: the agents are already running — what is missing is the ability to manage them.
 
 ## 3. Governance became a buying requirement, with a board-level trigger
 
@@ -120,6 +132,98 @@ requirements push the same way.
 serving layer keeps a deployment portable across sovereign, on-prem and cloud. Designing
 API-only locks out EMEA and APAC sovereignty-constrained clients.
 
+## 9. The unit of adoption became the harness, not the framework
+
+The clearest conceptual shift of the second half of 2026. Salesforce's 2026 framing is the
+usable definition: *"whose permissions does it operate under? what systems can it reach, and
+what is it explicitly prevented from doing? Together, these configurations and integrations
+comprise the agent's harness."* Note what that is — three procurement questions and no
+modelling question.
+
+The repositories confirm it. There are now **three MIT harnesses at a scale no agent
+framework approaches**: [openclaw/openclaw](https://github.com/openclaw/openclaw)
+(394,891 ★), [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+(284,581 ★) and [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+(264,904 ★), plus [langchain-ai/deepagents](https://github.com/langchain-ai/deepagents)
+(MIT, 31,472 ★) describing itself as "the batteries-included agent *harness*". An
+IBM-sourced analyst makes the same argument from the other direction: the enterprise payoff
+lies **not in building the agent's "brain"** but in standardising the tools agents call.
+
+**So what:** stop opening with framework selection. By the time Globant arrives the client's
+developers have picked a harness, and the decisions that remain are the ones that were
+always Globant's: which identity it runs as, which systems it can reach, what it is forbidden
+to do, and how that is proven. Framework comparison tables are now a commodity; harness
+constraint is the engagement.
+
+## 10. The agent skill supply chain is the new attack surface — and the scanners are already bypassed
+
+Adopting a harness means adopting its skill ecosystem:
+[openclaw/clawhub](https://github.com/openclaw/clawhub) (MIT, 9,557 ★) is the registry and
+[VoltAgent/awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills)
+(MIT, 53,885 ★) curates **5,400+** skills from it. Skills are natural-language instructions
+plus code that **execute with the agent's own OS permissions**, installed from a public
+registry, usually without review.
+
+What the 2026 research found (**provenance warning: this session's network policy reaches
+GitHub only, so the papers themselves could not be opened — the figures below come from
+WebSearch result summaries and are second-hand. They are recorded because four independent
+samples point the same way, and they should be re-verified from source before going in a
+client deck**):
+
+- arXiv **2601.10338** (Jan 2026): **31,132 skills analysed, 26.1% contained at least one
+  vulnerability**, across 14 distinct patterns in four categories.
+- Snyk *ToxicSkills*: of **3,984 ClawHub skills, 36% contained prompt-injection techniques.**
+- A third analysis of the same corpus: **13.4% carried critical-severity flaws.**
+- A fourth: **80% of skills showed a mismatch between declared and actual behaviour** — but
+  concluded most were documentation errors rather than malice. Worth stating, because it is
+  the difference between a security programme and a hygiene programme.
+- **Scanners are bypassable.** Trail of Bits reportedly bypassed the malicious-skill
+  detectors of ClawHub, Cisco and Vercel's `skills.sh`. The Cloud Security Alliance recorded
+  **five malicious skills evading updated ClawScan *and* VirusTotal between February and
+  May 2026.** Separate work on multimodal hidden-instruction attacks reaches the same
+  conclusion.
+- CSA's own observation is the one to quote to a CISO: enterprises pull skills **directly
+  from public registries without manual review**, and skills **run with the agent's own OS
+  permissions** — so runtime containment matters as much as pre-install scanning.
+
+The defences are now open source and permissive, which is the part that makes this
+sellable rather than merely alarming:
+[NVIDIA/SkillSpector](https://github.com/NVIDIA/SkillSpector) (Apache-2.0, 27,027 ★) scans
+with **71 vulnerability patterns across 17 categories** — *this figure was read from the
+repository's own README; a secondary roundup reported "64 patterns / 16 categories", and the
+README is authoritative* — [NVIDIA/SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator)
+(Apache-2.0, 4,224 ★) adds quality gates and **reusable CI templates**,
+[ai-openshell/OpenShell](https://github.com/ai-openshell/OpenShell) (Apache-2.0, 21,829 ★)
+and [opensandbox-group/OpenSandbox](https://github.com/opensandbox-group/OpenSandbox)
+(Apache-2.0, 17,707 ★) contain execution, and
+[NVIDIA/NeMo-Relay](https://github.com/NVIDIA/NeMo-Relay) (Apache-2.0) puts middleware on
+tool and LLM calls so a policy decision is *enforced* rather than logged.
+
+**So what:** this is the highest-conviction new offer in this KB. Every client that adopted
+a harness in 2026 also adopted an unaudited dependency tree that executes with their agent's
+privileges, and nobody sold them a control for it. The consensus remedy — scan, pin
+provenance, check declared capability against observed behaviour, sandbox — is four
+Apache-2.0 repositories and a CI pipeline. See `compose/patterns.md` **Receta 7**.
+
+## 11. Star count has decoupled from enterprise suitability
+
+A methodological trend, and this KB had to correct itself for it. A `stars:>150000` sweep of
+GitHub shows the top 40 now contains single-author agent-skill collections —
+[mattpocock/skills](https://github.com/mattpocock/skills) (MIT, 328,581 ★),
+[obra/superpowers](https://github.com/obra/superpowers) (MIT, 322,580 ★),
+[affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT, 307,599 ★) — each more starred than
+every framework in `agents/top.md` Tier 1 combined, and each one person's repository: no CLA,
+no organisational security response process, no release governance. Two of the largest in the
+category have **no licence file at all**:
+[anthropics/skills](https://github.com/anthropics/skills) (197,931 ★) and
+[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)
+(234,677 ★), both checked across five filenames on two branches.
+
+**So what:** stars measure what a client's developers have already installed — which is
+genuinely useful intelligence, and a good opening question. They do not measure what Globant
+may ship. Rank by licence, governance and maintenance; use stars to find out what is already
+inside the client's estate, then go and scan it.
+
 ---
 
 ## Trend sources that disagree — recorded, not reconciled
@@ -133,3 +237,19 @@ API-only locks out EMEA and APAC sovereignty-constrained clients.
 - **EU AI Act high-risk date:** older secondary sources still say August 2026. They predate
   the Digital Omnibus. **2 December 2027** (Annex III) is correct per Regulation (EU)
   2026/1744 — corroborated independently by this KB's energy pass.
+
+---
+
+## Verification channel for this pass — what could and could not be checked
+
+Recorded so a future pass does not mistake a network limit for a research gap. In this
+session, outbound access reaches **GitHub only**: `gh api search/repositories` (metadata) and
+`raw.githubusercontent.com` (file contents, including `LICENSE`) both work;
+`api.github.com/repos/...`, `github.com` HTML, `arxiv.org`, `labs.cloudsecurityalliance.org`
+and every other host fail to resolve or are refused by the proxy.
+
+**Consequence:** every repository, star count, push date and licence in this KB is
+first-hand and reproducible. Every market statistic, survey percentage and research finding
+came from WebSearch result summaries and is **second-hand** — attributed to its source but
+not read at source. The two tiers of evidence are not interchangeable, and this pass has
+flagged the second tier wherever it is load-bearing.

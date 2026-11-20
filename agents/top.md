@@ -11,12 +11,48 @@ updated: 2026-11-20
 > Every row below was verified against the GitHub API on 2026-11-20 (existence,
 > SPDX license, stars, description). Licenses reported as `NOASSERTION` by GitHub
 > were resolved by reading the repository's actual `LICENSE` file.
+>
+> **Second pass, 2026-11-20 (later same day):** Tier 0 added. Every Tier-0 row had its
+> `LICENSE` file read directly from `raw.githubusercontent.com`, not taken from the badge.
+> Tier 1 is unchanged except that OpenClaw moved up into Tier 0, where it belongs.
 
-## Tier 1 — Permissive license, enterprise-ready (16 verified)
+## Tier 0 — The harness layer (new category this pass, all MIT)
+
+The unit enterprises now adopt is not a framework but a **harness**: the agent plus the
+permissions it runs under, the systems it can reach, and what it is explicitly forbidden
+to do. Salesforce's 2026 framing is the cleanest client-facing definition — *"whose
+permissions does it operate under? what systems can it reach, and what is it explicitly
+prevented from doing? together, these configurations and integrations comprise the agent's
+harness."* That is a procurement question, not a modelling one, which is why it matters here.
+
+Three MIT harnesses are now at a scale no framework in Tier 1 approaches. This corrects
+this KB's own earlier claim that OpenClaw led "by a wide margin" — it leads the harness
+category, but it is not alone in its order of magnitude.
+
+| Harness | Repo | License (read from `LICENSE`) | Stars | Pushed | What it is |
+|---------|------|-------------------------------|-------|--------|------------|
+| OpenClaw | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | 394,891 | 2026-11-20 | The AI that really does things. Any OS, any platform. Largest harness; the de facto skill-ecosystem centre of gravity. |
+| DeepSeek Harness | [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness) | MIT (c) 2026 DeepSeek | 284,581 | 2026-11-18 | "Everything is a Plugin." Plugin-first harness from DeepSeek. **Absent from this KB until now.** |
+| Hermes Agent | [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | MIT (c) 2025 Nous Research | 264,904 | 2026-11-20 | "The agent that grows with you." Persistent-memory harness from Nous Research. |
+| Deep Agents | [langchain-ai/deepagents](https://github.com/langchain-ai/deepagents) | MIT (c) LangChain, Inc. | 31,472 | 2026-11-20 | "The batteries-included agent harness." The LangChain/LangGraph-native option — JS sibling: [langchain-ai/deepagentsjs](https://github.com/langchain-ai/deepagentsjs) (MIT, 1,650 ★). |
+| NemoClaw | [NVIDIA/NemoClaw](https://github.com/NVIDIA/NemoClaw) | Apache-2.0 | 23,057 | 2026-11-20 | **The enterprise answer to the other four.** Runs Hermes, LangChain Deep Agents and OpenClaw *more securely* inside NVIDIA OpenShell with managed inference. The only governance-first entry in this tier. |
+
+Also in this tier but a different shape: [anomalyco/opencode](https://github.com/anomalyco/opencode)
+(MIT, 228,170 ★) — "the open source coding agent" — and
+[morluto/rea](https://github.com/morluto/rea) (MIT, 470,997 ★), an agent-based reverse
+engineering tool that is the single most-starred agent repository on GitHub. `rea` is an
+application, not a platform; it is listed so nobody is surprised to find something above
+OpenClaw in the rankings.
+
+**Why Tier 0 matters commercially:** a client who has already picked a harness has already
+made the decisions Globant used to make for them — identity, permission surface, tool
+reach. The engagement then starts from *constraining* an adopted harness, not choosing a
+framework. See `compose/patterns.md` Receta 7.
+
+## Tier 1 — Permissive license, enterprise-ready (15 verified; OpenClaw moved to Tier 0)
 
 | Agent | Repo | License | Stars | Description |
 |-------|------|---------|-------|-------------|
-| OpenClaw | [openclaw/openclaw](https://github.com/openclaw/openclaw) | MIT | 394,887 | The AI that really does things. Any OS. Any Platform. |
 | Langflow | [langflow-ai/langflow](https://github.com/langflow-ai/langflow) | MIT | 156,801 | Building and deploying AI-powered agents and workflows (visual builder). |
 | OpenHands | [OpenHands/OpenHands](https://github.com/OpenHands/OpenHands) | MIT | 93,898 | AI-driven software development agents. |
 | Mem0 | [mem0ai/mem0](https://github.com/mem0ai/mem0) | Apache-2.0 | 69,277 | The memory layer for AI agents — drop-in memory infrastructure. |
@@ -64,4 +100,42 @@ Licenses below were read from each repo's `LICENSE` file, not from GitHub's badg
   [microsoft/Agent-Framework-Samples](https://github.com/microsoft/Agent-Framework-Samples) (MIT, 395 ★).
   **Do not promise MAF to a client until the canonical repo is located.** Semantic
   Kernel (MIT, 28,790 ★) is the verified Microsoft-stack fallback.
-- **No LATAM-origin agent framework of any scale exists.** See `intel/market.md`.
+- **MAF still missing — now confirmed on a third channel.** The earlier pass recorded
+  `github.com/microsoft/agent-framework` as 404 via HTTP fetch and the GitHub search API.
+  Re-checked this pass through a fourth and fifth probe:
+  `raw.githubusercontent.com/microsoft/agent-framework/{main,master}/{README.md,LICENSE}`
+  returns **404 on all four**, and `agent-framework in:name user:microsoft` returns 14
+  repositories, **none of which is the canonical one** — only
+  [microsoft/agent-framework-go](https://github.com/microsoft/agent-framework-go) (MIT, 686 ★),
+  [microsoft/agent-framework-durable-extension](https://github.com/microsoft/agent-framework-durable-extension)
+  (MIT, 25 ★) and [microsoft/Agent-Framework-Samples](https://github.com/microsoft/Agent-Framework-Samples)
+  (MIT, 395 ★), plus workshop and conference repos. A global `agent-framework in:name stars:>500`
+  search returns no Microsoft canonical repo either. **Treat MAF as unavailable, not
+  unverified.** Verified fallbacks: Semantic Kernel (MIT, 28,790 ★) for the Microsoft stack —
+  noting that vendor material describes Semantic Kernel as *folding into* MAF, so the
+  Microsoft agent story has no verifiable canonical repository at all right now. For a
+  client who needs a Microsoft-shaped answer today, `agent-framework-go` is real and MIT
+  but is 686 stars and language-specific.
+- **No LATAM-origin agent framework of any scale exists** — re-measured this pass, and the
+  number moved slightly. The largest LATAM-origin agent repository found is
+  [whitebeardit/agents-team-crafter](https://github.com/whitebeardit/agents-team-crafter)
+  (38 ★, **NOASSERTION — no usable license**, last pushed 2026-06-23, Portuguese: *"Cria
+  time de agentes de IA por empresas e permite execução e isolamento entre os workspaces"*).
+  Last pass measured "one repo, 0 stars"; it is now one repo, 38 stars, still unlicensed and
+  five months stale. Also located this pass: the **`latam-gpt` GitHub organisation** (8 public
+  repos, Chile/CENIA-led Latam-GPT initiative) — see `intel/market.md` LATAM. Both are
+  recorded because an unlicensed repo is a *measured* dead end, not an unexplored one.
+- **Star count has decoupled from enterprise suitability — a caveat on this file's own
+  rankings.** The GitHub top-40 by stars now contains single-author skill collections:
+  [mattpocock/skills](https://github.com/mattpocock/skills) (MIT, 328,581 ★),
+  [obra/superpowers](https://github.com/obra/superpowers) (MIT, 322,580 ★) and
+  [affaan-m/ECC](https://github.com/affaan-m/ECC) (MIT, 307,599 ★) are each more starred
+  than every framework in Tier 1 combined, and each is one person's repository — no CLA,
+  no organisational security response, no release governance. Worse for procurement, the
+  two largest *unlicensed* repos in the category are enormous:
+  [anthropics/skills](https://github.com/anthropics/skills) (**197,931 ★, no `LICENSE`
+  file — checked `main` and `master` against five filenames**) and
+  [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)
+  (**234,677 ★, no `LICENSE` file**, last pushed 2026-04-20). **Implication: stars tell you
+  what engineers install, not what Globant may ship.** Rank Tier 1 by license and
+  governance; use stars only to know what a client's developers have already pulled in.

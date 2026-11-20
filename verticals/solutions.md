@@ -17,6 +17,11 @@ updated: 2026-11-20
 > copyleft (GPL/AGPL/LGPL) while the agent layer is permissive. That asymmetry is the
 > single most important commercial fact in this file: Globant's IP belongs in the agent
 > layer, integrating over a documented API, not in a fork of the base platform.
+>
+> **Second pass, 2026-11-20 (later same day):** process orchestration / BPM and ITSM &
+> service-desk sections added, Dolibarr added to ERP, and Camunda's licence read in full —
+> it is **not** open source, which matters because it now sells itself as an "Agentic
+> Orchestration Platform" and will come up in exactly these conversations.
 
 ## ERP & business suites
 
@@ -26,6 +31,7 @@ updated: 2026-11-20
 | ERPNext | [frappe/erpnext](https://github.com/frappe/erpnext) | GPL-3.0 | 41,472 | Python / Frappe / MariaDB | Full ERP. **APAC-origin (Frappe, Mumbai)** — the natural base for an India engagement. |
 | Frappe Framework | [frappe/frappe](https://github.com/frappe/frappe) | **MIT** | 11,133 | Python / JavaScript | The permissive layer under ERPNext. Build custom apps here and the MIT license travels with them. |
 | Apache OFBiz | [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | Apache-2.0 | 1,151 | Java / Groovy | Lowest star count here but the **only fully Apache-2.0 ERP+CRM+SCM suite.** When a client's legal team rejects copyleft outright, this is the answer. |
+| Dolibarr | [Dolibarr/dolibarr](https://github.com/Dolibarr/dolibarr) | GPL-3.0 (read from `COPYING`) | 7,888 | PHP / MySQL | ERP+CRM aimed at mid-market and smaller entities, with a large module ecosystem. Easiest to stand up for a pilot or a proof-of-value; same copyleft containment rule as ERPNext. |
 
 ## CRM & customer platforms
 
@@ -43,6 +49,39 @@ updated: 2026-11-20
 | NocoBase | [nocobase/nocobase](https://github.com/nocobase/nocobase) | **Proprietary EULA** (NocoBase License Agreement, Singapore entity, rev. 2026-02-24) | 24,972 | TypeScript / Node | No-code platform for business systems. **Not open source** despite appearances — commercial terms required. Flagged so no one scopes against it by accident. |
 | Budibase | [Budibase/budibase](https://github.com/Budibase/budibase) | **GPL-3.0, per-package** | 28,427 | TypeScript / Svelte | Apps, automations and agents for operations. License varies *per package* — check each one individually. |
 | Frappe Insights | [frappe/insights](https://github.com/frappe/insights) | AGPL-3.0 | 1,046 | Python / Vue | BI over the Frappe/ERPNext data model. **APAC-origin.** |
+
+## Process orchestration & BPM — where an agentic workflow actually lands
+
+Enterprises do not run processes in an agent framework; they run them in a BPM engine with
+audit history, SLAs and human task lists. Agent-enabling a *process* means putting the agent
+in a service task, not replacing the engine. This section is new this pass and the licence
+column is the whole point.
+
+| Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
+|----------|------|--------------|-------|-------|--------------------|
+| Flowable | [flowable/flowable-engine](https://github.com/flowable/flowable-engine) | **Apache-2.0** | 9,669 | Java | BPMN/CMMN/DMN engine, compact and embeddable. **The permissive BPM choice** — an agent can be a service task and Globant's wiring code stays Apache-2.0. Where a process-heavy engagement should start. |
+| Kestra | [kestra-io/kestra](https://github.com/kestra-io/kestra) | **Apache-2.0** | 30,293 | Java / Vue | Declarative, YAML-first orchestration across data, infrastructure *and* business processes. Lower ceremony than BPMN; good fit where the "process" is really a pipeline with approvals. |
+| Camunda | [camunda/camunda](https://github.com/camunda/camunda) | **Camunda License 1.0 — NOT open source** | 4,367 | Java | Now describes itself as an *"Agentic Orchestration Platform"*, so it will be proposed. Read the licence first: Zeebe, Operate and Tasklist are under the Camunda Licence 1.0; only named parts are Apache-2.0 — **Java Client** (`clients/java`), **Spring Boot Starter**, **Exporter API**, **Protocol**, **Gateway Protocol Implementation** and **BPMN Model API**. There is no `LICENSE` file at the repository root (checked `main` and `master` plus `licenses/`, `NOTICE` and five filenames); the terms are declared in the README and in `licenses/CAMUNDA-LICENSE-1.0.txt`. Useful carve-out: generating gRPC stubs from `gateway-protocol` is explicitly *not* a derivative work, so client-side stubs are unencumbered. |
+| Apache OFBiz | [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | Apache-2.0 | 1,151 | Java / Groovy | Listed again here because it carries its own process/workflow engine — relevant when a client wants suite and orchestration under one permissive licence. |
+
+**Scoping rule:** build on **Flowable** (Apache-2.0) unless the client already runs Camunda.
+If they do, integrate against the Apache-2.0 Java client and generated gRPC stubs and keep
+Globant code out of anything Camunda-Licence-1.0, exactly as with a copyleft ERP.
+
+## ITSM, service desk & asset management
+
+The highest-volume agent use case in a large enterprise is not a new product — it is ticket
+triage, asset lookup and first-line response over systems that already exist.
+
+| Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
+|----------|------|--------------|-------|-------|--------------------|
+| Chatwoot | [chatwoot/chatwoot](https://github.com/chatwoot/chatwoot) | **MIT ("MIT Expat") core + `enterprise/` carve-out** | 40,242 | Ruby / Vue | Omni-channel support desk (live chat, email, social). The cleanest licence in this section — the `LICENSE` file states everything outside `enterprise/` is MIT. The natural front door for a customer-service agent with human handoff. |
+| GLPI | [glpi-project/glpi](https://github.com/glpi-project/glpi) | GPL-3.0 | 6,642 | PHP | Asset and IT management, data-centre and ITIL-style service desk. Widely deployed in EMEA public sector and mid-market. Agent opportunity: asset-aware incident triage over its API. |
+| Zammad | [zammad/zammad](https://github.com/zammad/zammad) | AGPL-3.0 | 6,131 | Ruby | Web-based helpdesk. **AGPL — run it stock in the client's estate**, put the triage agent beside it over the REST API. |
+
+**Licence shape of this section:** one MIT core (Chatwoot), one GPL, one AGPL. So the
+pattern is the same as ERP — the service desk stays in the client's deployment, the agent and
+its evaluation harness live in a separate permissive repository owned by the engagement.
 
 ## Knowledge, HR & front door
 
@@ -86,3 +125,14 @@ client's own instance, never as a component inside a Globant product.
    mutates an ERP record goes through an Appsmith (Apache-2.0) approval console.
 6. **Localise last and separately.** Pull the OCA `l10n-*` module for the target country
    into the client's deployment; never vendor it into Globant code.
+7. **Gate every skill the agent is given.** Platform vendors now publish agent skill
+   bundles — [dbt-labs/dbt-agent-skills](https://github.com/dbt-labs/dbt-agent-skills)
+   (Apache-2.0, 766 ★) and [NVIDIA/skills](https://github.com/NVIDIA/skills) (Apache-2.0,
+   4,095 ★) are both real and useful. They are still third-party code that executes with
+   the agent's permissions: scan with [NVIDIA/SkillSpector](https://github.com/NVIDIA/SkillSpector)
+   (Apache-2.0) and gate with [NVIDIA/SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator)
+   (Apache-2.0) in CI before any of it reaches an environment that can write to an ERP.
+   See `compose/patterns.md` Receta 7.
+8. **Put the agent in a service task, not in place of the engine.** If the client has a BPM
+   engine, the process stays there and keeps its audit trail; the agent is one step inside it
+   (Flowable, Apache-2.0). This is what makes "agentic" auditable to a process owner.
