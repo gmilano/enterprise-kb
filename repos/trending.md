@@ -8,7 +8,57 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — sixth pass (latest)
+## 2026-11-20 — seventh pass (latest)
+
+**Theme: the entitlement boundary.** Not "what can the agent do" (six passes covered that) but
+**"what may the person it is acting for see"** — a layer with no agents in it, which is why it
+was missed. Full tables in `repos/foundations.md`; build in `compose/patterns.md` Receta 16.
+
+**Verified additions (API + `raw.githubusercontent.com`, both channels, 2026-11-20):**
+
+| Repo | Licence (read from `LICENSE`) | ★ | Pushed | Default branch |
+|------|-------------------------------|---|--------|----------------|
+| [apache/casbin](https://github.com/apache/casbin) | Apache-2.0 | 20,508 | 2026-11-20 | `master` |
+| [ory/hydra](https://github.com/ory/hydra) | Apache-2.0 | 17,675 | **2026-07-29** (idle) | `master` |
+| [oauth2-proxy/oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy) | MIT | 15,392 | 2026-11-19 | `master` |
+| [authzed/spicedb](https://github.com/authzed/spicedb) | Apache-2.0 | 7,233 | 2026-11-20 | `main` |
+| [openfga/openfga](https://github.com/openfga/openfga) | Apache-2.0 | 6,168 | 2026-11-20 | `main` |
+| [ory/keto](https://github.com/ory/keto) | Apache-2.0 | 5,421 | **2026-09-04** (idle) | `master` |
+| [modelcontextprotocol/ext-auth](https://github.com/modelcontextprotocol/ext-auth) | MIT | 179 | 2026-11-10 | `main` |
+| [apache/casbin-node-casbin](https://github.com/apache/casbin-node-casbin) | Apache-2.0 | 2,921 | 2026-11-19 | `master` |
+| [apache/casbin-jcasbin](https://github.com/apache/casbin-jcasbin) | Apache-2.0 | 2,652 | 2026-11-15 | `master` |
+| [apache/casbin-pycasbin](https://github.com/apache/casbin-pycasbin) | Apache-2.0 | 1,778 | 2026-11-20 | `master` |
+
+**Rename ledger — fifth catch, first one into a foundation.** `casbin/casbin` → `apache/casbin`.
+`repo:casbin/casbin` returns **422**; the old path 404s on `main` but **serves 200 on `master`**
+(redirect, not deletion — same signature as the Presidio move); and the old path's README now
+opens with the **ASF contributor-licence header**. Ten of the twelve repositories matching
+`casbin in:name stars:>300` are now under `apache/`. The ledger's rate holds near **one rename
+per ten repositories checked**.
+
+**A licence class this KB had not recorded: partial relicensing in progress.**
+[modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol)
+(9,734 ★) reports `NOASSERTION`, and its manifest says `"license": "SEE LICENSE IN LICENSE"` —
+so the manifest-first rule yields nothing and the file must be read. The file says the project
+is *"undergoing a licensing transition from the MIT License to the Apache License, Version
+2.0"*: new contributions are Apache-2.0, documentation is CC-BY-4.0, and **contributions whose
+authors have not granted relicensing consent remain MIT**. **There is no single SPDX identifier
+for this repository**, and which licence governs depends on the file and the contributor. Record
+it as mixed; do not write one licence into a dependency inventory.
+
+**Two method corrections for this environment, both reusable across the rotation:**
+
+1. **`curl -sI https://github.com/<repo>` is useless here as an existence check.** Probed
+   against 18 repositories known alive from the API, it returned **403 for all 18** — the proxy
+   refuses github.com HTML browsing regardless of whether the path exists. Use the search API's
+   exact `repo:` qualifier plus `raw.githubusercontent.com`.
+2. **`modelcontextprotocol.io`, `datatracker.ietf.org` and `www.ietf.org` are all unreachable**
+   (DNS failure; HTTP 000 for the last). The MCP specification was still read in full because
+   **GitHub-hosted specs can be read over `raw.githubusercontent.com` even when the docs site
+   is blocked** — a route around a blocked host that this KB should try before recording a
+   source as unread. The IETF draft state has **no such route** and remains unverified.
+
+## 2026-11-20 — sixth pass
 
 **Method: searched by what the agent reads, not by what the agent is.** Pass 3 swept by
 architectural layer, pass 4 by consequence, pass 5 by counterparty. This pass went *downward* —

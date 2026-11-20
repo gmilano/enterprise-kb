@@ -57,6 +57,22 @@ updated: 2026-11-20
 > category's real deliverable is the semantic layer underneath it, not the agent; see
 > `repos/foundations.md` and `compose/patterns.md` **Recetas 14–15**.
 
+> **Seventh pass, 2026-11-20 (latest): no agent rows changed — for the third pass running, and
+> the reason is now a finding in its own right.** This pass searched by **the question a client's
+> security team asks first**: *when an employee asks the agent something, does the agent only see
+> what that employee may see?* The layer that answers it — relationship-based authorization and
+> delegated identity — was **absent from all eight files**: `OpenFGA`, `Casbin`, `OAuth` and
+> token exchange returned **zero matches** before this pass. It contains **no agents at all**,
+> which is why six passes of this file missed it. Four verified engines added in
+> `repos/foundations.md` ("The entitlement boundary"), the build is `compose/patterns.md`
+> **Receta 16**, and the commercially sharpest result is in `verticals/solutions.md`: in Onyx,
+> the most popular open-source enterprise search platform, **document permission sync exists
+> only inside the enterprise-licensed `ee/` directory** — verified at file level. Also this
+> pass: **`casbin/casbin` moved to the Apache Software Foundation** (rename ledger), and
+> **three passes in a row have now found their headline one layer below the agent.** Taken
+> together the message to an engagement lead is unchanged and stronger: *the agent is the least
+> consequential choice on the page.*
+
 ## Tier 0 — The harness layer (new category this pass, all MIT)
 
 The unit enterprises now adopt is not a framework but a **harness**: the agent plus the
@@ -131,7 +147,7 @@ Licenses below were read from each repo's `LICENSE` file, not from GitHub's badg
 |-------|------|--------------|-------|----------------------|
 | n8n | [n8n-io/n8n](https://github.com/n8n-io/n8n) | Sustainable Use License ("fair-code") | 211,510 | Not OSI open source. Restricts hosting-as-a-service; non-`master` branches are explicitly unlicensed. |
 | Dify | [langgenius/dify](https://github.com/langgenius/dify) | Modified Apache-2.0 + extra conditions | 161,564 | Multi-tenant-service and branding conditions added on top of Apache-2.0. |
-| Onyx | [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) | MIT core + `ee/` enterprise carve-out | 33,484 | Core is MIT; everything under `ee/` is separately licensed. |
+| Onyx | [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) | MIT core + `ee/` enterprise carve-out | 33,488 | Core is MIT; everything under `ee/` is separately licensed. **Seventh pass, verified at file level: the carve-out contains document permission sync** — `backend/ee/onyx/external_permissions/` returns 200 and there is **no copy outside `ee/`** (404). The MIT build therefore retrieves over a flat index for every user. See `verticals/solutions.md`. |
 | Mastra | [mastra-ai/mastra](https://github.com/mastra-ai/mastra) | Apache-2.0 core + `ee/` carve-out | 29,691 | TypeScript framework; `ee/` directories separately licensed. |
 | Activepieces | [activepieces/activepieces](https://github.com/activepieces/activepieces) | MIT core + `packages/ee/` carve-out | 25,638 | ~400 MCP servers bundled; enterprise packages carved out. |
 | AutoGen | [microsoft/autogen](https://github.com/microsoft/autogen) | CC-BY-4.0 (per GitHub) | 61,955 | **Legacy.** Superseded — active work moved to AG2 and Microsoft Agent Framework. Do not start new work here. |

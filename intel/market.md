@@ -214,6 +214,35 @@ diligence. Pair it with the **auditable metric definition** from `compose/patter
 Receta 14: in a region with no federal rule, a signed metric set is the control that passes a
 board, and it is a deliverable rather than a policy document.
 
+
+**Seventh pass, 2026-11-20 — the entitlement boundary, and where this region's numbers actually point.**
+The scaling figures have not moved in a direction that helps: a **Gartner survey of 1,303
+enterprises with at least $50M revenue** finds only **22% have successfully scaled AI across
+multiple business units**, and a separate survey of **120,000+ respondents** puts agents in
+production at **8.6%**. Market sizing for the region is **$254,860M in 2026 at a reported 27.0%
+CAGR** through 2031, with North America holding **38.5%** of global share — both single-source
+market-research figures, quoted for order of magnitude only. The named incumbents are
+unchanged: Google, Microsoft, IBM, AWS, Nvidia, Oracle, Salesforce, OpenAI, Meta.
+
+**The regional reading that matters is regulatory, and it is counter-intuitive:** sources
+describe US federal requirements as varying by agency and sector, and one May-2026 analysis
+argues that **regulatory fragmentation — not strictness — is what slows enterprise scale-up**,
+while a Dentons survey finds few organisations have an integrated, auditable AI management
+system even where governance guidance is used selectively. **Fragmentation rewards exactly the
+control this pass added.** Under sectoral regimes (HIPAA, GLBA, SOX), "who was allowed to see
+this" is an auditable question with a per-sector answer, and an entitlement boundary
+(`compose/patterns.md` Receta 16) produces the evidence directly: a permission graph plus a
+zero-leak adversarial suite is an artefact an auditor can read, in any sector, without a
+federal standard existing.
+
+**This is also the region where the delegation standard is being built, vendor-first.** The MCP
+Enterprise-Managed Authorization profile's reported early support is US-vendor support — Okta as
+first IdP, Atlassian shipping it in Rovo MCP, Microsoft Entra documenting the `act` claim. **The
+entry point for an NA engagement is therefore the client's existing IdP**, not a new component:
+if they are on Okta or Entra, the delegation chain is a configuration and integration project
+rather than a platform build. Confirm which IdP before scoping — it is the single variable that
+decides the shape of the work.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -382,6 +411,50 @@ and measures to address bias. Two consequences for this layer:
   warning already in `intel/trends.md` is load-bearing and should not be trimmed. Per this KB's
   own rule: a fresher secondary source does not beat a verified record, and the discrepancy is
   explained here rather than overwritten.
+
+
+**Seventh pass, 2026-11-20 — the entitlement boundary is a legal control here, not a security feature.**
+This region's execution gap is now measured from several directions and all of them point the
+same way: **IDC** (Future Enterprise and Resiliency Survey, Wave 1, March 2026) finds only
+**9% of EMEA organisations have delivered measurable business outcomes from most of their AI
+projects** over the past two years; a **Veeam** study reports **88% already operating AI agents
+while only 7% believe they are fully prepared to manage them**; and **Gartner** projects AI
+governance spend of **$492M in 2026** against only **12% of organisations having dedicated
+governance structures**. The 88%-versus-7% pair is the most actionable number in this section:
+**the agents are already running, and the management layer is not there.** That is a remediation
+market, and it matches `compose/patterns.md` Receta 4 (rescue a stalled pilot) more closely than
+any greenfield pitch.
+
+**Why the entitlement boundary lands differently in EMEA.** Under GDPR, purpose limitation and
+data minimisation make "this employee could retrieve a document they have no business reading"
+a **compliance** finding, not merely a security one — so Receta 16 is billable here as
+regulatory work rather than hardening. Three supporting facts make it an unusually clean EMEA
+story: **Keycloak is Apache-2.0 and Red Hat–originated**, the whole authorization stack
+(`apache/casbin`, `authzed/spicedb`, `openfga/openfga`) is permissive and self-hostable, and
+therefore **an EMEA client can run the entire entitlement layer on EU-hosted infrastructure
+with no US-vendor dependency in the decision path** — the same digital-sovereignty argument the
+energy KB found for its metering stack, reproduced in the governance layer. Note the sovereignty
+pressure is real and measured: the Veeam work is framed around EMEA companies trading data
+sovereignty for deployment speed. Also recorded: **HSBC partnered with Mistral AI** for
+enterprise deployment with full data ownership, and **Denmark's enterprise AI adoption now
+exceeds the US enterprise average** per Stanford figures cited secondhand — useful because it
+breaks the "Europe is behind" frame a client may arrive with.
+
+**A date discrepancy this KB will not resolve by averaging, and must not quietly overwrite.**
+Multiple sources read this pass (IDC commentary, WWT, TNW) state the EU AI Act's high-risk
+obligations apply from **2 August 2026**, with penalties up to **€35M or 7% of global revenue**.
+**That contradicts `intel/trends.md` §4 of this KB, which records the deadline as having
+moved.** The sibling energy KB records the same correction in more detail — Reg(EU) 2026/1744,
+published in the Official Journal 24 July 2026, moving most Annex III high-risk obligations to
+**2 December 2027** and Annex I embedded systems to 2 August 2028. The secondary sources read
+this pass are **consistent with the pre-amendment timeline**, which is what a search of
+2026-dated commentary would be expected to return. **Per this KB's own rule that a newer
+negative does not beat a verified positive merely by being newer, the §4 record stands and
+these sources are logged as disagreeing.** The primary register remains unread after four
+passes — `eur-lex.europa.eu` was not reachable from this environment either. **Do not put
+either date in a client proposal without reading the Official Journal text**; the commercial
+risk is symmetrical and real, because the earlier date inflates a compliance budget and the
+later one may understate an obligation.
 
 ### APAC
 
@@ -555,6 +628,45 @@ licensed, in-warehouse data plane, with nothing extracted to a US SaaS. **One ca
 into the sale:** Zingg's AGPL means the region's best-marketed entity-resolution tool is the one
 Globant must contain behind a process boundary; the MIT substitute (Splink) is EMEA-origin, so
 an "all-APAC stack" is not achievable at the resolution layer and should not be promised.
+
+
+**Seventh pass, 2026-11-20 — sovereignty makes the permissive authorization stack the regional advantage.**
+The demand signal is the strongest of the four regions: **Lenovo's CIO Playbook** reports
+**96% of APAC organisations planning to increase AI investment, by an average of 15% in 2026**,
+and **Forrester** finds **Singapore, Australia, New Zealand and South Korea ahead of most North
+American and European countries** in enterprise AI adoption. The region is explicitly **not
+homogeneous** — AlphaSense's 2026 survey describes **Japan as cautious**, with **security
+concerns the region's top adoption barrier**, and **Confluent** reports **49% of APAC businesses
+citing insufficient infrastructure for real-time data processing**. Google Cloud's agentic
+platform at **Woolworths** is a named regional deployment.
+
+**The regulatory driver points directly at this pass's stack.** Sources describe governments
+continuing to refine data-protection, privacy and **cross-border transfer** requirements, which
+pushes enterprises toward locally governed systems — regional commentary is already using the
+phrase **"sovereign RAG"**. **Singapore** has run consultations on AI use in financial
+institutions focused on transparency and accountability; **China's national "AI Plus" programme**
+pairs adoption targets with extensive governance measures; and industry group **BSA** warns that
+some policy developments risk slowing adoption in **India** and raising costs in **Vietnam**.
+**Sovereign RAG is an entitlement problem before it is a hosting problem:** keeping the corpus
+in-country is worthless if every in-country user can retrieve all of it. Receta 16 is the part
+that makes a sovereign deployment defensible, and because every component is Apache-2.0 or MIT
+and self-hostable, **there is no cross-border dependency in the authorization path at all.**
+
+**One concrete regional fit worth naming in a proposal.** `apache/casbin` ships first-party JVM
+and .NET ports (`apache/casbin-jcasbin`, `apache/casbin-Casbin.NET`), and this KB's
+`compose/patterns.md` **Receta 6** exists precisely because Japanese and Korean enterprise cores
+are JVM-heavy. **Authorization that runs in-process on the JVM, with no new network service and
+no new vendor, is a materially easier sell into those cores** than a sidecar — and the move to
+Apache Software Foundation governance (`repos/foundations.md` rename ledger) is itself an
+argument in procurement-conservative markets, where ASF stewardship is a recognised quantity in
+a way a single-vendor repository is not.
+
+**Standing gap, carried forward from the sibling energy KB and still unaddressed:** the IEA
+*"Energy and AI in East Asia"* report remains unread, and more relevant here, **no APAC-origin
+authorization or agent-identity project surfaced in this pass's sweep** — the entitlement layer's
+supply is NA- and EMEA-origin (Auth0/Okta, Authzed, Ory, Red Hat), with the ASF now stewarding
+Casbin, whose origin is Chinese academic work. That last point is worth stating positively: **the
+most-starred component in this layer has APAC origins and now has foundation governance.**
 
 ### LATAM
 
@@ -769,6 +881,52 @@ where the data estate is fragmented across local ERP localisations — which thi
 catalogues via the OCA `l10n-*` modules for Argentina, Brazil, Chile and Mexico — the
 duplicate-rate delta is a measurable, unarguable first win, and it is the prerequisite that
 makes a "customer 360" agent buildable at all.
+
+
+**Seventh pass, 2026-11-20 — the governance gap and the scaling intent are the same number, and that is the opening.**
+The two most useful regional figures this pass are from one **RSM survey of 400+ business
+leaders**: roughly **40% of organisations are already implementing AI**, **68% of those adopters
+are preparing to expand within 12 months**, and **fewer than one in five report having a formal
+AI governance framework.** Those are not three facts, they are one: **a region scaling faster
+than it is governing.** The oversharing failure mode in `compose/patterns.md` Receta 16 is most
+likely to occur first where adoption is accelerating and governance frameworks are absent, which
+is precisely this profile. **This makes the entitlement boundary the cleanest first-engagement
+offer LATAM has in this KB** — it is concrete, it is cheap relative to a platform build, its
+acceptance test is a hard pass/fail (zero leaks on an adversarial set), and it does not require
+the client to have an AI strategy first.
+
+**Regulation: fragmented, EU-shaped, and moving.** Baker McKenzie describes the landscape as
+fragmented, with **no Latin American country currently having a fully mature, harmonised AI
+regime** across all sectors. Dated anchors worth carrying: **Uruguay signed the Council of
+Europe's AI treaty in 2025**, and **Peru published the implementing regulation for its AI law in
+September 2025**. The IBA's reading is that the region is **following the EU model**, with live
+debate over whether over-regulation would hinder innovation. **Commercially this is the
+strongest argument for building the entitlement layer on EU-shaped assumptions** — purpose
+limitation and data minimisation — because work done to that standard travels to the next LATAM
+jurisdiction as those regimes converge on it, instead of being rebuilt per country.
+
+**Two market figures that do not reconcile — recorded, not averaged.** **Thomson Reuters**
+reports the region accounted for **1.12% of worldwide AI spending in 2025**. The CEPAL-linked
+**ILIA 2025** index states Latin America accounts for approximately **15–20% of the global
+market for AI applications**. Those differ by more than an order of magnitude and **cannot both
+be describing the same quantity** — almost certainly *spending on AI* versus *addressable market
+for AI applications*, but neither source read this pass defines its denominator well enough to
+confirm it. **Do not put either number in a client deck without its denominator.** For scale
+framing, the **WEF/McKinsey** estimate that AI adoption could lift regional productivity by
+**1.9–2.3% annually** is the least ambiguous figure available and the IDB has published a 2026
+technical note on startup AI adoption across the region.
+
+**Supply-side zero, re-measured and unchanged in its conclusion.** This pass's authorization and
+agent-identity sweep returned **no LATAM-origin project of any scale** — the supply is NA- and
+EMEA-origin (Auth0/Okta, Authzed, Ory, Red Hat) with ASF-stewarded Casbin of Chinese academic
+origin. This is **consistent with, and does not re-measure, this KB's standing finding** that no
+LATAM-origin agent framework of any scale exists (`agents/top.md`), which has now been measured
+across multiple passes with Spanish and Portuguese vocabulary. The conclusion carries over
+intact: **in this layer there is no regional open ecosystem to compete with, so publishing one
+remains the cheapest positioning move available** — and the entitlement boundary is an unusually
+good candidate for it, because the hard part is the per-system ACL connector, and the systems
+that lack open connectors are precisely the regional ERP localisations this KB already
+catalogues through the OCA `l10n-*` modules for Argentina, Brazil, Chile and Mexico.
 
 ## Posicionamiento Globant
 

@@ -568,3 +568,150 @@ plus commercial). Cube's manifest says `MIT` while its `LICENSE` says Apache-2.0
 (both permissive, no harm). Airbyte's marketing says Apache-2.0 while its `LICENSE` says ELv2
 (false positive, and the dangerous direction). **Read both, and when they disagree, say so
 rather than picking the convenient one.**
+
+---
+
+## The entitlement boundary — who the agent is acting for, and what that person may see (added seventh pass, 2026-11-20)
+
+**Why this section exists.** Six passes of this file built the substrate around the agent:
+policy engines that decide *which tool* an agent may call (OPA, Cerbos, Cedar), workload
+identity that attests *which process* is calling (SPIRE), an IAM that gives the agent a
+user-shaped login (Keycloak), and a vault for its credentials (OpenBao). Every one of those
+answers a question about the **agent**. None of them answers the question a client's security
+team actually asks first:
+
+> *"When an employee asks the agent something, does the agent only see what **that employee**
+> is allowed to see?"*
+
+That is a different control, in a different place, and this KB had **no component for it at
+all** — `OpenFGA`, `Casbin`, `OAuth` and token exchange returned **zero matches across all
+eight files** before this pass. The failure mode it prevents is the most common real-world
+enterprise AI incident: an agent indexes a corpus once, with the permissions of whoever built
+the index, and then answers everyone out of that flat index. Nothing is hacked. The agent
+simply tells a contractor what the board papers say.
+
+### Relationship-based authorization engines (the Zanzibar family)
+
+Role-based checks are the wrong shape here: entitlements in a document estate are
+*relationships* ("this user is in this group, which inherits this folder"), not roles. The
+engines below are all modelled on Google's Zanzibar paper. Licences were read from each
+repository's own `LICENSE` file; stars, push dates and archived status come from the GitHub
+API on 2026-11-20.
+
+| Engine | Repo | Licence (read from `LICENSE`) | ★ | Pushed | Role in the stack |
+|--------|------|-------------------------------|---|--------|-------------------|
+| Casbin | [apache/casbin](https://github.com/apache/casbin) | Apache-2.0 | 20,508 | 2026-11-20 | **The most-starred authorization library in open source, and it moved to the Apache Software Foundation** — see the rename ledger entry below. Library-embedded rather than a service: ACL, RBAC, ABAC and ReBAC models in one policy engine, with first-party ports for Java, Python, Node, .NET, Go and Rust. The right choice when authorization must run *inside* the application process with no network hop. |
+| SpiceDB | [authzed/spicedb](https://github.com/authzed/spicedb) | Apache-2.0 | 7,233 | 2026-11-20 | The most-starred Zanzibar *database*. Stores and queries the permission graph itself, with consistency guarantees designed for exactly the "check 400 retrieved chunks before they reach the model" problem. Pinecone's own access-control tutorial is built on it. |
+| OpenFGA | [openfga/openfga](https://github.com/openfga/openfga) | Apache-2.0 | 6,168 | 2026-11-20 | CNCF-hosted (its README carries the `cncf_#openfga` Slack badge); created at Auth0 and **in production behind Auth0 FGA since December 2021**, with Grafana Labs, Canonical and Docker named as adopters in its own `ADOPTERS.md`. The best-documented option for the agent case specifically — Auth0 publishes worked RAG-filtering integrations, including a LangChain4j/Java one, which matters for the JVM cores in `compose/patterns.md` Receta 6. |
+| Ory Keto | [ory/keto](https://github.com/ory/keto) | Apache-2.0 | 5,421 | **2026-09-04** | A permission server from the Ory stack, genuinely Apache-2.0. **Caveat: two and a half months since last push** — the only entry here not pushed the day it was measured. Verify activity before committing a client to it. |
+
+### Delegated authority — carrying the *user's* identity to the tool
+
+A permission engine is useless if the agent reaches the downstream system as itself. The
+enterprise pattern is **delegation**: the human stays the subject, the agent is named as the
+actor, and the token's authority is narrowed below the user's own grant.
+
+| Piece | Repo | Licence | ★ | Pushed | Role |
+|-------|------|---------|---|--------|------|
+| MCP auth extensions | [modelcontextprotocol/ext-auth](https://github.com/modelcontextprotocol/ext-auth) | MIT | 179 | 2026-11-10 | **The primary source for the enterprise MCP authorization profile** (see below). Small star count, canonical status — this is a specification repository, so rank it by provenance, not traction. |
+| OAuth2 / OIDC provider | [ory/hydra](https://github.com/ory/hydra) | Apache-2.0 | 17,675 | **2026-07-29** | OpenID-certified OAuth 2.1 provider, usable as the authorization server that performs the token exchange. **Nearly four months idle** — recorded with that caveat, not as a recommendation. |
+| Auth at the edge | [oauth2-proxy/oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy) | MIT | 15,392 | 2026-11-19 | A reverse proxy that terminates OIDC in front of a service. The pragmatic way to put a real enterprise identity in front of an agent endpoint that has none, without modifying the agent. |
+
+### The MCP enterprise authorization profile — read from the primary source
+
+`modelcontextprotocol.io` **does not resolve from this environment** (see the verification-channel
+note at the end of this file), so the specification was read directly from the repository over
+`raw.githubusercontent.com`, at
+`specification/stable/enterprise-managed-authorization/2026-07-28/enterprise-managed-authorization.mdx`
+(HTTP 200). **Protocol revision `2026-07-28`.** Quoting the spec's own structure:
+
+- The profile is an application of the **Identity Assertion JWT Authorization Grant**
+  (`draft-ietf-oauth-identity-assertion-authz-grant`, "ID-JAG"), which is itself a profile of
+  **Identity Chaining Across Trust Domains** (`draft-ietf-oauth-identity-chaining`).
+- The flow is three steps: **(1)** SSO to the MCP Client over OpenID Connect or SAML →
+  **(2)** Token Exchange, **RFC 8693** → **(3)** JWT Authorization Grant, **RFC 7523**.
+- The authorization server that issues tokens for the MCP Server is the one "advertised in the
+  MCP Server's Protected Resource Metadata (**RFC 9728**)".
+- In this profile the **Client** is the MCP Client, the **Resource Server** is the MCP Server,
+  and the **IdP Authorization Server** is the enterprise identity provider used for SSO.
+
+**What it buys the client, in the spec's own terms:** end users stop having to "manually connect
+and authorize the MCP Client to each MCP Server", and enterprise admins get "visibility and
+control over which MCP Servers are able to be used within the organization." That second one is
+a procurement capability, not a developer convenience — it is the answer to "how do we stop
+staff wiring arbitrary MCP servers into our data", which is the question `intel/trends.md` §10
+says the skill supply chain raised and left open.
+
+**The honest status, which must be said before this is proposed to a client.** The MCP
+extension is published as stable at revision `2026-07-28`, but **the IETF draft underneath it
+is unfinished**: secondary sources put ID-JAG at `draft-04`, published 21 May 2026 and
+expiring 22 November 2026 — *two days from this pass*. An expiring Internet-Draft is normal
+IETF mechanics and does not mean the work is dead, but it does mean **the normative base can
+still change**. `datatracker.ietf.org` and `www.ietf.org` are both unreachable from this
+environment (DNS failure and HTTP 000 respectively), so **this KB has not verified the draft
+revision or its status against the IETF directly** — the revision number above is
+single-sourced from vendor and blog material and is the weakest datum in this section. Treat
+it as "specified and shipping, not yet standardised": vendor material reports Okta as the
+first IdP, **Keycloak support as experimental**, and Atlassian shipping the flow in Rovo MCP.
+
+### Licence traps in this layer — and they are the dangerous direction
+
+Authorization tooling markets itself in the same language whether it is permissive or not, and
+three of the best-known names in the category are **not** usable the way a reader would assume:
+
+| Repo | What the licence actually is | ★ | What it blocks |
+|------|------------------------------|---|----------------|
+| [Permify/permify](https://github.com/Permify/permify) | **AGPL-3.0** — confirmed by reading `LICENSE` on `master` ("GNU AFFERO GENERAL PUBLIC LICENSE, Version 3"). | 5,975 | Network copyleft, and it sits on the request path of every authorization check. Deployable as a separate service; **not** embeddable in a proprietary client product. It presents as "authorization as a service inspired by Google Zanzibar" — the same sentence SpiceDB and OpenFGA use, with a materially different licence. |
+| [osohq/oso](https://github.com/osohq/oso) | Apache-2.0, but **ARCHIVED on 2026-10-22**. Its own description now reads *"Legacy Oso open source library (archived)"*. | 3,480 | Read-only. No security response. **Four prior passes of this KB found the same shape** (three archived chat UIs, then archived Vanna at 23.8k ★) — this is the fifth archived-but-highly-starred project found in six passes, and the pattern is now a standing check rather than an observation. |
+| [zitadel/zitadel](https://github.com/zitadel/zitadel) | **AGPL-3.0.** | 15,622 | Frequently suggested as the modern open alternative to Keycloak for agent identity. Keycloak is **Apache-2.0**; Zitadel is AGPL. If a client wants an identity provider they can modify and embed, that difference decides it. |
+
+**The rule this layer adds to the KB's licence method:** in the authorization layer the
+*category name is not a licence signal*. "Zanzibar-inspired", "open source", "authorization as
+a service" describe Apache-2.0 SpiceDB, Apache-2.0 OpenFGA and **AGPL-3.0 Permify** equally
+well. This is the same structural finding the energy KB recorded in the metering layer — *the
+licence filter runs before the popularity filter* — reproduced in a completely different
+industry, which is evidence it generalises across this whole rotation.
+
+### Rename ledger addition — `casbin/casbin` → `apache/casbin` (seventh pass)
+
+| Was | Is now | Evidence |
+|-----|--------|----------|
+| `casbin/casbin` | [apache/casbin](https://github.com/apache/casbin) (Apache-2.0, 20,508 ★, pushed 2026-11-20) | `repo:casbin/casbin` returns **422** from the search API. `casbin in:name stars:>300` returns **12** repositories, **ten of them under `apache/`**: the core plus `casbin-jcasbin` (2,652 ★), `casbin-node-casbin` (2,921 ★), `casbin-pycasbin` (1,778 ★), `casbin-Casbin.NET` (1,344 ★), `casbin-rs` (1,153 ★), `casbin-gorm-adapter`, `casbin-server` and `casbin-gateway`. The old path still serves files on **`master` (200)** but **404s on `main`**, so it is a redirect, not a deletion — the same signature as the Presidio move. The old path's `README.md` now opens with the **ASF licence header** ("Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements"), which is the confirmation: this is a donation to a foundation, not a vanity rename. |
+
+**Why this one matters more than a dead link.** It is the fifth rename this ledger has caught in
+roughly fifty repositories checked across four passes — the rate is holding near one in ten —
+but it is the first where the destination is a **foundation**. `intel/trends.md` §5 records
+protocols moving from vendor control to foundation governance (MCP → Linux Foundation, Envoy AI
+Gateway → Agentic AI Foundation). Casbin is the same movement reaching the *authorization*
+layer, and it is the direction an enterprise client should want: ASF governance brings a
+trademark policy, a security process and a release process that a single-vendor repository does
+not have. **Note the whole family lives on `master`, not `main`** — a detail that matters because
+this KB's own probe lists default to `main` first, and the energy KB has a documented false
+negative from exactly that assumption.
+
+### Method notes from this pass — two new ways to be wrong
+
+**1. A new way to measure a false *positive* — the name-collision cluster.** This KB has nine
+documented ways to measure a false *zero*. This pass found the inverse. A web search for the
+precise technical phrase `permission-aware RAG ... entitlements` returned, in its top ten, **six
+GitHub repositories all named essentially `permission-aware-rag`**, with confident, specific,
+professional READMEs — one advertising *"0 restricted chunks leaked in 330 adversarial tests"*,
+another *"a benchmark of three filtering strategies on 50K chunks"*. Verified against the API,
+their star counts are **1, 0, 0, 19, 0 and 0**, and **three have no licence file at all**. They
+are personal demos. **The cause is structural and will recur in every industry in this
+rotation: web search ranks on semantic match to the README, and when the search phrase *is* the
+repository name, the whole result page fills with near-identical zero-traction projects.** The
+discriminator is unchanged and cheap — resolve every candidate through the API before writing
+it down — but the *trigger* is new and worth naming: **a page of search results that all share
+one repository name is a warning sign, not a confirmation.** Had this pass trusted the result
+page, it would have written six fictional components into a recipe.
+
+**2. `curl -sI https://github.com/...` is not an existence check in this environment.** Probed
+against **eighteen** repositories known from the API to be alive, it returned **403 for all
+eighteen** — the agent proxy refuses github.com HTML browsing uniformly, regardless of whether
+the path exists. A pass that used it naively would conclude every repository in this KB is
+dead. The two channels that do work, and that every row above was verified on, are
+**(a)** the GitHub search API with an exact `repo:` qualifier, which also returns licence,
+archived status, stars and push date in one call, and **(b)** `raw.githubusercontent.com` for
+file-level existence, which additionally reveals the default branch. All seventeen repositories
+named in this section returned **200 on raw** for `README.md` or `LICENSE`.

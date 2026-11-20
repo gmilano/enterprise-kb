@@ -864,6 +864,104 @@ delta — the prerequisite that makes "customer 360 agent" a buildable sentence.
 
 ---
 
+## Receta 16 — The entitlement boundary: an agent that answers each employee only from what that employee may read
+
+**Added seventh pass, 2026-11-20.** The engagement this unlocks is the one every knowledge-agent
+pilot hits on the day it stops being a pilot: it worked on the handbook, so the client connects
+SharePoint, and now the agent is a data-leakage incident waiting for the right question.
+Receta 2 (knowledge agent) and Receta 14 ("ask our data in English") both assume the retrieved
+corpus is safe for the asker. **This recipe is what you build when it is not.**
+
+### The failure mode, stated plainly so it can be sold
+
+An agent indexes a corpus **once**, using the credentials of whoever built the index — then
+answers **everyone** out of that single flat index. No attacker, no prompt injection, no model
+failure: the retrieval layer was never told who was asking. The client's existing access
+controls still work perfectly in SharePoint; they simply were never carried into the vector
+store. **Oversharing is the default behaviour of every RAG pipeline that nobody explicitly
+made entitlement-aware**, which is why it must be designed in at the start and cannot be
+bolted on after the index exists.
+
+### Wiring
+
+| Layer | Component | Licence | Why this one |
+|-------|-----------|---------|--------------|
+| Permission graph | [authzed/spicedb](https://github.com/authzed/spicedb) **or** [openfga/openfga](https://github.com/openfga/openfga) | Apache-2.0 / Apache-2.0 | Stores the client's entitlements as a *relationship* graph. SpiceDB if the graph is large and checks are hot; OpenFGA if you want the published agent/RAG integration patterns and the Auth0 documentation trail. |
+| In-process checks | [apache/casbin](https://github.com/apache/casbin) | Apache-2.0 | When authorization must run inside the app with no network hop, or when the client's core is JVM/.NET — first-party ports exist for both (`apache/casbin-jcasbin`, `apache/casbin-Casbin.NET`). Now ASF-governed. |
+| Agent identity | [keycloak/keycloak](https://github.com/keycloak/keycloak) | Apache-2.0 | The user's identity and group memberships, which are the *input* to the permission graph. **Apache-2.0 — do not substitute Zitadel, which is AGPL-3.0.** |
+| Delegation | [modelcontextprotocol/ext-auth](https://github.com/modelcontextprotocol/ext-auth) profile | MIT (spec) | Carries the *human* as subject and the agent as actor: SSO → token exchange (RFC 8693) → JWT grant (RFC 7523), with the resource server advertised via Protected Resource Metadata (RFC 9728). |
+| Edge auth | [oauth2-proxy/oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy) | MIT | Puts real OIDC in front of an agent endpoint that has none, without modifying the agent. |
+| Process identity | [spiffe/spire](https://github.com/spiffe/spire) | Apache-2.0 | Already in this KB. Attests that the thing presenting the token is the build you approved. |
+| Tool-level policy | [open-policy-agent/opa](https://github.com/open-policy-agent/opa) / [cerbos/cerbos](https://github.com/cerbos/cerbos) | Apache-2.0 | Already in this KB. **Complementary, not redundant:** these decide *which tool* the agent may call; the permission graph decides *which rows and documents* the asker may see. A client who has OPA does **not** have this. |
+
+### Build order — and the order is the deliverable
+
+1. **Mirror the source-system ACLs before embedding anything.** For each connector, pull the
+   document's permission set at ingest and write it into the permission graph keyed to the
+   document id. This is the expensive, unglamorous 60–70% of the work, exactly as the energy
+   KB found that connectors and normalisation — not AI — were 70% of a metering pilot.
+2. **Decide pre-filter or post-filter, and write the decision down.** *Pre-filter* resolves the
+   asker's authorized document ids first and constrains the vector query to them: safe by
+   construction, but the id set can be enormous. *Post-filter* retrieves by similarity and then
+   drops what the asker may not see: simple, but it over-fetches and the top-k you asked for is
+   not the top-k you get, so recall silently degrades for exactly the users with least access.
+   **Default to pre-filter where the store supports constrained search; use post-filter only
+   with an over-fetch factor you have measured.**
+3. **Enforce at retrieval, never in the prompt.** The permission decision is made by
+   deterministic backend code before any content enters the context window. **Do not instruct
+   the model to respect permissions** — that is a request, not a control, and it fails under
+   paraphrase. This is the same rule the automotive and energy KBs reached from the other
+   direction: *model reasoning text never reaches the actuator*; here, *unauthorized text never
+   reaches the context*.
+4. **Make revocation cheap.** Entitlements change daily. If revoking access requires
+   re-embedding, the system is wrong: store ACLs as data the query joins against, so a
+   revocation is a row update and takes effect on the next question.
+5. **Chunk-level, not just document-level.** Document is the natural unit of permission;
+   chunks inherit it. State the limit explicitly, because a single document containing both
+   public and restricted sections breaks the inheritance and needs splitting at ingest.
+6. **Gate the pilot on a leak test, not an accuracy test.** Build an adversarial set: for each
+   restricted document, questions whose answer is only in it, asked as a user without access.
+   **The release criterion is zero leaks**, and it is a hard gate — unlike accuracy, which is a
+   negotiation. Wire it into the CI gate from Receta 10 so it runs on every change.
+
+### Sizing and the milestone to fix
+
+**4–6 weeks** for one connector with a real ACL model (SharePoint or Drive) against a corpus
+the client already trusts, including the adversarial leak suite. **10–14 weeks** for three or
+more connectors with differing permission models, group inheritance, and revocation SLAs.
+
+**The milestone to fix before any model work:** *for a named test user, the set of document ids
+the retrieval layer will return equals the set that user can open in the source system —
+measured, not asserted.* If that set does not reconcile, the agent is not the problem and no
+amount of prompt work will fix it.
+
+### Licence posture
+
+Every component above is **Apache-2.0 or MIT**. There is no copyleft and no carve-out in this
+build, which is the point: the equivalent capability in the most popular open-source enterprise
+search platform sits inside an enterprise-licensed directory
+(`verticals/solutions.md`, "Enterprise search & the permission-sync carve-out"). **Avoid in
+this layer:** `Permify/permify` (AGPL-3.0, sits on the request path), `osohq/oso` (archived
+2026-10-22), `zitadel/zitadel` (AGPL-3.0).
+
+### What to tell the client the limits are
+
+- **This does not make the agent trustworthy, only correctly scoped.** It enforces *who may see
+  what*; it says nothing about whether the answer is right.
+- **The permission graph is now a production dependency on the critical path of every query.**
+  It needs the availability, monitoring and failure design of a database — and it must **fail
+  closed**.
+- **The ACL mirror is eventually consistent with the source system.** Name the lag and make it
+  a number in the SLA. For most clients minutes are fine; for board papers during an
+  acquisition, minutes are not.
+- **The delegation standard is not finished.** The MCP enterprise-managed authorization profile
+  is published stable at revision `2026-07-28`, but the ID-JAG draft underneath it is an
+  unfinished IETF Internet-Draft, and this KB could not reach the IETF to verify its state
+  (`repos/foundations.md`). Build the delegation step behind an adapter, and do not write a
+  standards-compliance promise into a statement of work.
+
+---
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation

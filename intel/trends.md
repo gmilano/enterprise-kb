@@ -626,3 +626,97 @@ disagree, record the disagreement rather than resolving it to the convenient ans
 same precedence logic — that the manifest governs published artefacts while the licence file
 governs repository sources — which is corroboration from a project maintainer rather than from
 another pass of this KB.
+
+---
+
+## Seventh pass, 2026-11-20 — authorization became the bottleneck, and the licence filter moved again
+
+### 18. The constraint on enterprise agents moved from capability to entitlement
+
+Six passes of this file tracked the constraint as it moved: capability → production
+(§2) → governance as a buying requirement (§3) → inventory (§16) → the semantic layer (§15,
+sixth pass). This pass found where it sits now, and it is narrower and more concrete than any
+of those: **an agent cannot be deployed against a client's real document estate until the
+retrieval layer knows who is asking.**
+
+The evidence is in the shape of the market, not in a forecast:
+
+- **The capability is carved out of the open-source product that needs it most.** In
+  [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) (33,488 ★), the most popular
+  open-source enterprise search platform, document permission sync lives **only** under
+  `backend/ee/onyx/external_permissions/` — verified 200 inside `ee/`, **404 outside it** — and
+  the root `LICENSE` places everything under `ee/` beyond the MIT grant. Eleven connectors with
+  a `doc_sync.py` were proved by probe. **When a vendor puts one feature behind the commercial
+  line, that is a market signal about which feature is load-bearing.**
+- **The standards bodies are mid-flight.** The MCP **Enterprise-Managed Authorization** profile
+  is published at revision `2026-07-28` and builds a three-step chain — SSO → token exchange
+  (**RFC 8693**) → JWT authorization grant (**RFC 7523**), with the resource server advertised
+  through Protected Resource Metadata (**RFC 9728**). But the ID-JAG Internet-Draft underneath
+  it is **unfinished**, and vendor support is uneven: Okta reported as first IdP, **Keycloak
+  experimental**, Atlassian shipping it in Rovo MCP. A protocol surface is being standardised
+  *while* enterprises deploy on it.
+- **The tooling exists and is permissive, which means this is buildable now.** Four
+  Apache-2.0 engines (`apache/casbin`, `authzed/spicedb`, `openfga/openfga`, `ory/keto`) plus
+  Apache-2.0 Keycloak and MIT oauth2-proxy. **Nothing in this layer needs to be bought.**
+
+**What it means commercially.** This is the rare trend where the open-source answer is complete
+and the commercial product is the one with the gap, inverted from the usual shape. The billable
+work is integration — mirroring each source system's ACL model into a permission graph, which is
+60–70% of the build (`compose/patterns.md` Receta 16). **It is also the first layer in this KB
+where the deliverable is a negative result**: the acceptance test is *zero leaks on an
+adversarial set*, not an accuracy number, and unlike accuracy it is a hard gate rather than a
+negotiation.
+
+### The licence-concentration rule reproduced in a third layer
+
+The sixth pass generalised a rule first measured in the energy KB's metering layer: *in some
+layers the licence filter must run before the popularity filter.* This pass reproduces it in the
+authorization layer, and the mechanism is now clear enough to state as a cause rather than an
+observation:
+
+**In any layer where the product category is described by an architectural pattern rather than
+by a vendor, the category name carries no licence information.** "Zanzibar-inspired
+authorization as a service" describes Apache-2.0 SpiceDB, Apache-2.0 OpenFGA and **AGPL-3.0
+Permify** equally accurately. Likewise "modern open-source identity provider" covers
+Apache-2.0 Keycloak and **AGPL-3.0 Zitadel**. The pattern name is the thing engineers search
+for, so it is the thing that fills the result page, and it is uncorrelated with what Globant
+may ship. Three industries, three layers, same finding — treat it as a property of this
+rotation, not of one sector.
+
+### A sixth licence class: relicensing in progress
+
+This KB has recorded permissive-OSI, `ee/` carve-out, ELv2, fair-source with a user cap,
+Polyform noncommercial, revocable, bespoke-permissive-non-OSI and time-delayed FSL. The MCP
+specification repository
+([modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
+9,734 ★) is a class none of those cover. GitHub reports `NOASSERTION`; the manifest says
+`"license": "SEE LICENSE IN LICENSE"`, so **the manifest-first rule returns nothing** and the
+file must be read. It states the project is *"undergoing a licensing transition from the MIT
+License to the Apache License, Version 2.0"*: new code and specification contributions are
+Apache-2.0, documentation is CC-BY-4.0, and **contributions whose authors have not granted
+relicensing consent remain under MIT**.
+
+**There is no single SPDX identifier that describes this repository**, and which licence applies
+depends on the file and on which contributor wrote it. Both licences here are permissive, so
+nothing is blocked — but an inventory that records one SPDX value for it records something
+false, and **§16's point was that governance begins with an accurate inventory.** The
+generalisable rule: *a licence file can describe a process rather than a state, and when it
+does, the honest inventory entry is "mixed — see file", not a guess.*
+
+### Method: a new way to be wrong, and it is the opposite of the previous nine
+
+This KB family has nine documented ways to measure a **false zero**. This pass found a false
+**positive** with a structural cause. Searching the exact name of an architectural pattern
+returned six GitHub repositories **all named essentially the same thing**, with specific,
+credible, metric-bearing READMEs — and real star counts of **1, 0, 0, 19, 0, 0**, three with no
+licence file. They were personal demonstrations of the pattern, named after it.
+
+**The cause generalises to every industry in this rotation:** web search ranks documents by
+semantic match to their text, so when a technical phrase is simultaneously a *pattern name* and
+therefore a natural *repository name*, the result page is dominated by projects that match the
+words perfectly and carry no adoption at all. The energy KB's rule said the discriminator is
+*the proper name of a technical artefact* — a protocol, an ontology, an organisation. This pass
+adds the counterpart: **a pattern name is not a proper name**, and a result page whose entries
+all share one repository name should be read as a warning rather than as corroboration. The fix
+is cheap and unchanged — resolve every candidate through the API before writing it down — but
+without naming the trigger, the next pass walks into it again.

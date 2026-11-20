@@ -92,7 +92,7 @@ its evaluation harness live in a separate permissive repository owned by the eng
 
 | Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
 |----------|------|--------------|-------|-------|--------------------|
-| Onyx | [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) | **MIT core + `ee/` carve-out** | 33,484 | Python / React | Enterprise search and AI chat across every connector. The most reusable "day one" deliverable; keep strictly out of `ee/`. |
+| Onyx | [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) | **MIT core + `ee/` carve-out** | 33,488 | Python / React | Enterprise search and AI chat across every connector. The most reusable "day one" deliverable; keep strictly out of `ee/`. **But see "Enterprise search & the permission-sync carve-out" below: document permission sync is itself inside `ee/`, so the MIT build has no ACL enforcement.** |
 | Open WebUI | [open-webui/open-webui](https://github.com/open-webui/open-webui) | **Open WebUI License** (BSD-3 derivative + branding clause) | 159,142 | Python / Svelte | Self-hosted chat front end. The branding clause blocks silent white-labelling — read it before promising a client-branded UI. |
 | Frappe HR | [frappe/hrms](https://github.com/frappe/hrms) | GPL-3.0 | 9,088 | Python / Frappe | Open source HR and payroll. **APAC-origin.** |
 
@@ -318,3 +318,61 @@ decision does three things at once — it keeps the agent's numbers identical to
 numbers, it keeps Globant's code out of an AGPL process, and it means swapping the BI tool later
 does not touch the agent. If the agent is built *into* Metabase, the client has an AGPL
 obligation and a rewrite the next time they change BI vendor.
+
+---
+
+## Enterprise search & the permission-sync carve-out — read this before quoting an "open source Glean" (added seventh pass, 2026-11-20)
+
+Enterprise search over the client's own document estate is one of the most requested
+agentic deliverables, and the open-source answer everyone reaches for is
+[onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) — which this KB already lists in
+`agents/top.md` Tier 2 as "MIT core + `ee/` enterprise carve-out", 33,488 ★. That row was
+correct and is unchanged. What it did not say is **which feature is inside the carve-out**,
+and the answer changes the engagement.
+
+**Verified at file level this pass, on `main`, over `raw.githubusercontent.com`:**
+
+| Path probed | Result | Meaning |
+|-------------|--------|---------|
+| `backend/ee/onyx/external_permissions/__init__.py` | **200** | The permission-sync package exists — **inside `ee/`**. |
+| `backend/ee/onyx/external_permissions/sharepoint/doc_sync.py` | **200** | SharePoint document-permission sync: enterprise-licensed. |
+| `backend/ee/onyx/external_permissions/google_drive/doc_sync.py` | **200** | Google Drive document-permission sync: enterprise-licensed. |
+| `backend/onyx/external_permissions/__init__.py` | **404** | **There is no copy outside `ee/`.** The MIT tree does not contain this capability at all. |
+
+And the root `LICENSE` states the boundary in its own words: *"All content that resides under
+'ee' directories of this repository is licensed under the Onyx Enterprise License"* — naming
+`backend/ee/LICENSE`, `web/src/app/ee/LICENSE` and `web/src/ee/LICENSE` — with everything
+outside those directories "available under the 'MIT Expat' license".
+
+**Probing seventeen candidate connector names, eleven have a `doc_sync.py` under `ee/`:**
+`sharepoint`, `google_drive`, `confluence`, `jira`, `slack`, `gmail`, `teams`, `github`, `box`,
+`linear`, `hubspot`. That is a **verified lower bound, not a count** — secondary blogs claim 12,
+13 and 16 and do not agree, and the directory listing could not be enumerated from this
+environment (repository scope), so this KB states the eleven it proved and does not pick a
+number it cannot support.
+
+**So what — and this is the commercially decisive sentence of the pass.** The single feature
+that stops an enterprise search agent from overserving documents is precisely the feature
+carved out of the MIT licence. A client who self-hosts "open source Onyx" to keep their
+documents in-house gets retrieval over **everything that was ingested, flat, for every user**.
+The privacy-motivated choice and the oversharing failure mode are the *same decision*, and the
+client will not discover it until someone asks the agent a question about a colleague's salary.
+
+**The three honest paths, which is what an engagement lead should be able to say in the room:**
+
+1. **Buy the Onyx Enterprise Edition / Cloud.** The capability exists, it is theirs, it is not
+   a Globant build. Fastest, and the correct recommendation when the client's connectors are
+   the eleven proved above.
+2. **Build the entitlement boundary on the permissive stack** — the components are in
+   `repos/foundations.md` under "The entitlement boundary", and the build is
+   `compose/patterns.md` **Receta 16**. This is the right answer when the client's systems are
+   *not* mainstream connectors (a mainframe, a regional ERP, a government filing portal), which
+   is exactly the LATAM and public-sector situation in `intel/market.md`.
+3. **Ship the MIT build scoped to a genuinely flat corpus** — published policies, product
+   documentation, the handbook. Legitimate, cheap, and honest, *provided* it is written down
+   that the corpus is flat by design and no entitled content may enter it. This is the one that
+   silently becomes option 2 when the pilot succeeds and someone connects SharePoint.
+
+**Never quote path 3 and then let SharePoint be added without re-pricing.** That transition —
+from flat corpus to entitled corpus — is the whole of Receta 16, and it is not a configuration
+change.

@@ -8,7 +8,46 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — sixth pass (latest)
+## 2026-11-20 — seventh pass (latest)
+
+**No new agents. The newsworthy thing in the agent category this pass is a category that
+contains no agents** — and three archived or copyleft surprises inside it.
+
+**What was searched:** the entitlement boundary — relationship-based authorization, delegated
+identity, permission-aware retrieval. Chosen because it is the first question a client's
+security team asks and this KB had **zero** coverage of it (`OpenFGA`, `Casbin`, `OAuth`, token
+exchange: no matches in any of the eight files).
+
+**New this pass, all verified against the GitHub API and `raw.githubusercontent.com`:**
+
+| Piece | Licence | ★ | Pushed | Note |
+|-------|---------|---|--------|------|
+| [apache/casbin](https://github.com/apache/casbin) | Apache-2.0 | 20,508 | 2026-11-20 | **Moved to the Apache Software Foundation.** The most-starred authorization library in open source. Family re-homed under `apache/casbin-*` (jcasbin, pycasbin, node-casbin, Casbin.NET, casbin-rs). **Lives on `master`, not `main`.** |
+| [authzed/spicedb](https://github.com/authzed/spicedb) | Apache-2.0 | 7,233 | 2026-11-20 | Zanzibar-style permission database; the store behind permission-aware retrieval. |
+| [openfga/openfga](https://github.com/openfga/openfga) | Apache-2.0 | 6,168 | 2026-11-20 | CNCF-hosted, Auth0 origin, best-documented for the agent/RAG case. |
+| [modelcontextprotocol/ext-auth](https://github.com/modelcontextprotocol/ext-auth) | MIT | 179 | 2026-11-10 | Specification repo — rank by provenance, not stars. Carries the enterprise MCP authorization profile, revision `2026-07-28`. |
+
+**Three traps in the same category, which is the trend worth recording:**
+
+- [osohq/oso](https://github.com/osohq/oso) — Apache-2.0, 3,480 ★, **ARCHIVED 2026-10-22**, its
+  own description now reading *"Legacy Oso open source library (archived)"*. **This is the fifth
+  archived-but-highly-starred project this KB has found in six passes** (three chat UIs → Vanna
+  at 23.8k ★ → now Oso). The pattern has graduated from observation to standing check.
+- [Permify/permify](https://github.com/Permify/permify) — **AGPL-3.0**, 5,975 ★, confirmed by
+  reading `LICENSE`. Markets itself in the same sentence as Apache-2.0 SpiceDB and OpenFGA.
+- [zitadel/zitadel](https://github.com/zitadel/zitadel) — **AGPL-3.0**, 15,622 ★. Commonly
+  suggested as the modern alternative to Keycloak, which is **Apache-2.0**.
+
+**And a negative result worth more than the positives — six repositories that do not count.**
+A search for the exact pattern name returned six GitHub projects all named essentially
+`permission-aware-rag`, with confident READMEs (*"0 restricted chunks leaked in 330 adversarial
+tests"*, *"a benchmark of three filtering strategies on 50K chunks"*). Their real star counts:
+**1, 0, 0, 19, 0, 0**, and **three have no licence file**. They are personal demos. The cause is
+structural: **web search ranks on README semantics, so when the search phrase *is* the
+repository name, the result page fills with zero-traction look-alikes.** A results page whose
+entries all share one repository name is a warning, not a confirmation.
+
+## 2026-11-20 — sixth pass
 
 **Headline: the agent an enterprise asks for first was missing from this file entirely, and its
 second most-starred implementation has been archived since March.**
