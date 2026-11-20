@@ -55,7 +55,6 @@ and recoverable enough to go to production."
 | **NVIDIA** | Silicon + now the agent *governance* toolchain | Ships [SkillSpector](https://github.com/NVIDIA/SkillSpector) (Apache-2.0, 27,027 ★), [SkillEvaluator](https://github.com/NVIDIA/SkillEvaluator), [NemoClaw](https://github.com/NVIDIA/NemoClaw), [NeMo-Relay](https://github.com/NVIDIA/NeMo-Relay), [auto-ontology](https://github.com/NVIDIA/auto-ontology) and the [OpenShell](https://github.com/ai-openshell/OpenShell) runtime — **all Apache-2.0** | New entrant in this map, and the most consequential one for Globant. NVIDIA is giving away exactly the agent-governance layer this KB positions Globant to sell, which **lowers Globant's build cost and raises the bar on pure tooling plays**. Note the vendor-concentration risk: OpenShell's neutral `ai-openshell` org carries an NVIDIA copyright, so a "governed agent" stack assembled naively is an NVIDIA stack. Mitigate by pairing it with non-NVIDIA controls (OPA, Cerbos, Keycloak, OpenSandbox, Giskard). |
 | Cognizant | SI competitor | **Launched EMEA AI unit 28 Jul 2026** | Direct competitor on exactly the pilots-to-production pitch. |
 | UiPath / Automation Anywhere | RPA incumbents | Installed automation base | Agentic transition is their existential risk and a migration opportunity. |
-
 | **Linux Foundation / AAIF** | Neutral steward, not a vendor | Stewards **MCP**, **goose**, **AGENTS.md** and — new this pass — **[Agent Router](https://github.com/theagentrouter/agent-router)** (Apache-2.0), the control plane formerly called Envoy AI Gateway | **Not a competitor — the answer to an objection.** It is what lets Globant say the layer holding a client's model credentials is governed by a foundation, not a vendor. Directly mitigates the NVIDIA concentration risk in the row above. |
 
 **Open-source governance shift to watch:** the Linux Foundation's **Agentic AI Foundation
@@ -126,6 +125,21 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
 - **Named players in the region** (one market report): Google, Microsoft, IBM, AWS, NVIDIA,
   Oracle, Salesforce, OpenAI and Meta, with AWS, Azure and Google Cloud anchoring generative-AI
   infrastructure. No systems-integration name in that list — which is the opening.
+- **New this pass (fourth, 2026-11-20) — ISO/IEC 42001 is turning into an RFP line item.** US
+  federal buyers are reported to lean on **NIST AI RMF** as the common checklist, with **ISO/IEC
+  42001** adding the auditable governance layer on top; some sources claim certification is
+  already scored decisively in major government procurements, without naming a contract. Pair
+  this with the **Dentons** finding already recorded above — that few North American
+  organisations have implemented an integrated, auditable AI management system — and the offer
+  writes itself: **Globant builds the management system, not just the agent.** Certification is
+  reported to take **6–18 months**, so a client who wants it for a 2027 bid has to start now.
+  Sources disagree on mandatory vs preferred; see `intel/trends.md` §14. All second-hand.
+- **New this pass — the agent payments layer is a North American standards fight.** AP2
+  (Google-initiated, ~60 organisations), ACP (OpenAI/Stripe lineage) and the x402 rail are all
+  US-origin and all permissively licensed, and **none is settled** — the most-starred is five
+  months idle. For a NA retail, travel or marketplace client this is a *positioning*
+  conversation, not an implementation one: build the signed-mandate and approval step now,
+  stay rail-agnostic. See `repos/foundations.md` and Receta 11.
 
 ### EMEA
 
@@ -205,6 +219,19 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   become an unexpected blocker on a self-hosted GPU proposal. Pair the cost dashboard in
   Receta 9 with energy reporting and it becomes an answer instead of an objection.
 - **Competitive note:** Cognizant's EMEA AI unit (28 Jul 2026) targets this exact pitch.
+- **New this pass (fourth, 2026-11-20) — 42001 is reported to be moving fastest through European
+  procurement.** European buyers are described as folding **ISO/IEC 42001** into vendor due
+  diligence, and asking for the **scope statement and sample risk registers**, not merely the
+  certificate. Critically, 42001 is reported to **reduce** EU AI Act compliance risk but **not**
+  to satisfy the Act — a conflation an EMEA client will make, and correcting it early is free
+  credibility. Combine with the EU-origin evaluation stack already recorded above and the AI-Act
+  build in Receta 3: the artefacts overlap almost completely, so one engagement can produce both
+  the Act evidence and the 42001 scope pack. Second-hand; see `intel/trends.md` §14.
+- **New this pass — sovereignty now has a de-identification answer, not just a hosting answer.**
+  The EMEA objection recorded above is where data runs. [Presidio](https://github.com/data-privacy-stack/presidio)
+  (MIT, 11,989 ★) lets personal data be removed *before* a prompt crosses any boundary, which
+  changes the conversation from "which region is the GPU in" to "no personal data left the
+  estate". Cheapest credible answer to the first question asked in every EMEA engagement.
 
 ### APAC
 
@@ -294,6 +321,22 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
 - **Regulatory risk to watch, sharpened:** a BSA post flags **training-data disclosure as the
   sharpest live issue for enterprise software in Japan**, and warns that **Indian and Vietnamese
   measures could slow adoption** in those markets. Thin sourcing — verify before quoting.
+- **Fourth pass, 2026-11-20 — re-searched, and the regional picture did not move.** The
+  mandated APAC sweep returned the same body of evidence already recorded in this subsection:
+  Forrester on Singapore, Australia, New Zealand and South Korea leading North American and
+  European countries on adoption; Lenovo's CIO Playbook on **96%** of APAC organisations planning
+  to raise AI investment by an average of **15%** in 2026; Japan as the most cautious market;
+  China's national **"AI Plus"** programme pairing adoption targets with governance; IDC on
+  unified AI governance moving from optional to mandatory; Forrester predicting **sovereignty
+  shapes AI infrastructure choices for half of firms**. **No new APAC-specific finding this
+  pass** — recorded explicitly, because a silent subsection looks like coverage.
+- **One new named deployment:** **Woolworths** (Australia) is reported running a shopping
+  assistant on Google Cloud's agentic platform — useful as the regional retail reference when
+  the agent-payments conversation in `intel/trends.md` §13 comes up. Second-hand.
+- **Gap that remains open:** this pass again found **no APAC-origin repository in the four new
+  layers** (payments, PII, catalog, graph RAG) — unlike the harness layer, where two of the four
+  largest MIT harnesses are APAC-origin. The APAC strength is in agent runtimes, not in the
+  governance substrate around them.
 
 ### LATAM
 
@@ -398,6 +441,26 @@ servers** reported in production, with MCP SDKs downloaded ~97M times/month.
   startups, **CEPAL/ECLAC** regional material, and the **ILIA 2025** index (weak talent
   pipelines and uneven data readiness as binding constraints). All second-hand — none read at
   source from this session.
+- **Fourth pass, 2026-11-20 — re-searched, nothing new on the market side.** The mandated LATAM
+  sweep returned evidence already recorded here: RSM's survey of 400+ leaders (**~40%** already
+  implementing, roughly **two-thirds of those** planning to scale within 12 months, efficiency
+  the top motivation at **67%**), governance and employee-use policies lagging adoption, Mexico
+  and Brazil leading on project volume and funding followed by Chile, Colombia and Argentina,
+  **Peru's Law No. 31814** as the most advanced risk-based regime, **Uruguay** as first regional
+  signatory to the Council of Europe AI convention, and **Latam-GPT** (Chile/CENIA, 30+
+  institutions, eight countries). **No new LATAM finding this pass** — stated plainly rather
+  than left silent.
+- **Globant is named in the regional player set** alongside IBM México and Nisum, with Rappi,
+  Bitso and Clip named on the startup side. Useful in a credentials slide; second-hand.
+- **The supply-side gap was measured again, in four new layers, and is still zero.** Payments,
+  PII/anonymisation, catalog/lineage and graph RAG were each searched in English, Spanish and
+  Portuguese (`pagos agentes IA`, `agente pagamento IA`, `anonimizacion datos IA`). Everything
+  returned was **0–3 stars with NOASSERTION — no usable licence**: landing pages, a WhatsApp
+  payment-receipt OCR bot, student final-year projects. **Fifth consecutive pass, fifth zero.**
+  The strategic reading is unchanged and now very well evidenced: **LATAM is a demand market and
+  a delivery market, not a supply market, for agent infrastructure.** Globant's regional moat is
+  integration and localisation on top of North American and EMEA-origin open source — not
+  regional open source, because there is none to build on.
 
 ## Posicionamiento Globant
 

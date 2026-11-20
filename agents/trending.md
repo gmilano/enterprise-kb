@@ -8,6 +8,81 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-20 — fourth pass (latest)
+
+**Headline: the agent layer and the control plane are now both covered, and the thing still
+missing was consequence. What is this agent allowed to *do* — spend money, read personal data,
+believe a table?** Those three questions each turned out to be a layer this KB did not have.
+
+The first three passes today moved through the stack in order: Tier-0 harnesses (pass 1), the
+skill supply chain (pass 2), the control plane — gateway, quotas, cost, red-teaming (pass 3).
+Each pass found the previous one had been looking one level too high. This pass went one level
+*past* the control plane, to the blast radius, and found **sixteen repositories absent from the
+KB entirely**, across four layers: agent payments, PII de-identification, catalog/lineage, and
+graph RAG. The tables are in `repos/foundations.md`; the trend reading is in `intel/trends.md`
+§13 and §14.
+
+**1. There is now a payments layer, and it is not ready — which is itself the finding.**
+Three permissively-licensed protocols compete at different layers:
+[AP2](https://github.com/google-agentic-commerce/AP2) (Apache-2.0, 3,281 ★),
+[ACP](https://github.com/agentic-commerce-protocol/agentic-commerce-protocol) (Apache-2.0,
+1,607 ★) and the [A2A x402 extension](https://github.com/google-agentic-commerce/a2a-x402)
+(Apache-2.0, 571 ★). **AP2 has 5.7× the stars of the x402 extension and has not been pushed
+since 2026-06-17; the extension was pushed 2026-11-11.** The star ranking inverts the activity
+ranking inside one protocol family. The client-facing consequence is specific: *the signed-mandate
+model is the durable idea, the settlement rail is still contested, and no agent should reach a
+payment rail in 2026 without a human approval step.* Anyone who says "AP2 is the standard" is
+reading stars, not commits.
+
+**2. Agent identity is the unsolved half of agent payments.** The payment specs answer *how
+much* and *on whose mandate*; none answers *is this agent who it claims to be*.
+[forter/trusted-agentic-commerce-protocol](https://github.com/forter/trusted-agentic-commerce-protocol)
+(MIT, 180 ★) is the only entry addressing it, and it is small. This connects directly to the
+workload-identity section already in `repos/foundations.md` (SPIFFE) — the same problem, now
+with money attached, which is how it gets budget.
+
+**3. Presidio left Microsoft.** The de facto PII engine is now
+[data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) (MIT, 11,989 ★),
+not `microsoft/presidio`. Evidenced rather than assumed: the old path still serves files, but
+`LICENSE` from both paths is **byte-identical (1,083 bytes, md5 `cef898d1…`)**, four other paths
+return 200 on both, the copyright line now reads **"Presidio Contributors"**, and the search
+index carries only the new org. **A redirect, not a deletion** — so existing installs keep
+working, and that is exactly why nobody notices. Fourth repo in two passes to change
+organisation; see the rename ledger.
+
+**4. The data catalog category rebranded itself as agent infrastructure.**
+[OpenMetadata](https://github.com/open-metadata/OpenMetadata) (Apache-2.0, 15,823 ★, **new to
+this KB**) calls itself "The Open **Context Layer** for Data and AI";
+[DataHub](https://github.com/datahub-project/datahub) (Apache-2.0, 13,006 ★) calls itself "The
+**Context Platform** for your Data and AI Stack". Two independent vendors, pushed the same day,
+converging on the same word. For an agent that writes to a system of record, the catalog is what
+says which table it may *believe*, and lineage is how you answer "where did this number come
+from?" after it has already acted. Commercially this is the best news in the pass: it is usually
+**already installed** at the client.
+
+**5. A 36,699-star MIT repo was missing.** [microsoft/graphrag](https://github.com/microsoft/graphrag)
+had zero mentions across all eight files. Vector search finds the passage; graph retrieval answers
+what connects entities across a whole corpus — an entity's exposure across contracts, suppliers or
+incidents, which is the shape of the questions clients actually ask. **Scope the graph-construction
+indexing cost explicitly**; it is paid per corpus, re-paid on refresh, and clients do not expect it.
+
+**6. ISO/IEC 42001 is moving from a standard to cite to a gate you pass.** The KB already named it
+as a standard to anchor on. The new reading is procurement: buyers are reported to be scoring it in
+vendor questionnaires and RFPs, and to be asking for the **scope statement and sample risk
+registers**, not just the certificate. Sources disagree on mandatory versus preferred, and
+certification is reported to take **6–18 months** — so it is a pipeline question for Globant now,
+not a 2027 one. Recorded with its disagreement intact in `intel/trends.md` §14.
+
+**7. LATAM-origin: fifth consecutive zero, now measured in four new layers.** Payments, PII,
+catalog and graph RAG were each searched in English, Spanish and Portuguese. Everything returned
+was 0–3 stars and **NOASSERTION** — no usable licence. The gap is measured, not unexamined, and it
+is the same answer five passes running.
+
+**Evidence standard for this pass:** 16/16 licences read from each repository's own `LICENSE` over
+`raw.githubusercontent.com`, none taken from a GitHub badge. Every non-GitHub host still fails to
+resolve in this session, so **every market statistic below and in `intel/` remains second-hand** and
+is attributed rather than asserted.
+
 ## 2026-11-20 — third pass (later still)
 
 **Headline: the agent choice stopped being the interesting decision. The control plane is the

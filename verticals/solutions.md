@@ -171,6 +171,43 @@ documents cannot be touched. Where ingestion is a scheduled ETL job rather than 
 15,769 ★) instead. **This is the clearest example in this file of the licence asymmetry working
 in Globant's favour.**
 
+## Catalog & metadata platforms — the context layer a vertical agent needs
+
+**New section, fourth pass 2026-11-20.** These belong in this file for the same reason Odoo and
+ERPNext do: they are **real platforms the client is usually already running**, and an agentic
+layer goes on top without forking them. The difference is what they contribute — not a business
+process but the answer to *"which table is this agent allowed to believe, and where did this
+number come from?"* All four are **permissive**, which is rare in this file.
+
+| Platform | Repo | Real license | Stars | Stack | Agentic opportunity |
+|----------|------|--------------|-------|-------|--------------------|
+| OpenMetadata | [open-metadata/OpenMetadata](https://github.com/open-metadata/OpenMetadata) | **Apache-2.0** | 15,823 | Java / TypeScript | Self-described "**Open Context Layer for Data and AI**". Most-starred in the category. Already deployed at many data-mature clients — expose its metadata as agent tools and grounding is free. |
+| DataHub | [datahub-project/datahub](https://github.com/datahub-project/datahub) | **Apache-2.0** (LICENSE on **`master`**) | 13,006 | Java / Python / React | "Context Platform for your Data and AI Stack." Same play as OpenMetadata; pick whichever the client already runs rather than migrating. |
+| Unity Catalog | [unitycatalog/unitycatalog](https://github.com/unitycatalog/unitycatalog) | **Apache-2.0** | 3,581 | Java / Scala | "Open, Multi-modal Catalog for Data & AI." The open-governance option where the client is otherwise locked into a single vendor's catalog. |
+| OpenLineage | [OpenLineage/OpenLineage](https://github.com/OpenLineage/OpenLineage) | **Apache-2.0** | 2,773 | Java / Python / SQL | A **standard**, not a product — which makes it the integration point instead of another migration. Emit lineage from agent actions and "what did the agent change?" becomes queryable. |
+
+**Why this is the cheapest section in the file.** Every other platform here needs an agent built
+*over* it. These need an agent *pointed at* them, and the client already paid for the deployment.
+Two independent vendors in this table pushed on the same day and both now lead with the word
+**"context"** — the category has re-positioned itself as agent infrastructure, which means the
+client's data team is already budgeted for the thing Globant needs. Recipe: Receta 11.
+
+## Agentic commerce — reference implementations, not yet platforms
+
+**New section, fourth pass 2026-11-20, and deliberately short.** There is no mature open-source
+*platform* for agent-led commerce the way Odoo is a platform for ERP. What exists is one runnable
+reference implementation and a set of competing protocols:
+
+| Thing | Repo | Real license | Stars | Pushed | Status |
+|-------|------|--------------|-------|--------|--------|
+| Retail Agentic Commerce blueprint | [NVIDIA-AI-Blueprints/Retail-Agentic-Commerce](https://github.com/NVIDIA-AI-Blueprints/Retail-Agentic-Commerce) | Apache-2.0 | 89 | 2026-11-18 | Reference implementation of **ACP + UCP**. Runnable architecture — the fastest way to show a client the shape. 89 stars: a demo asset, **not** a production base. |
+
+**Say this plainly to a client:** the commerce platform stays whatever it is today (Odoo, a
+vendor suite, custom), the agent sits above it exactly as in Receta 1, and the payment rail gets
+a **human approval step** because the protocols are not settled — the most-starred of the three
+has been idle five months. Protocol detail in `repos/foundations.md`; the reasoning is in
+`intel/trends.md` §13; the build is Receta 11.
+
 ## Where the control plane sits relative to everything in this file
 
 Every platform in this file is a system of record the client already runs, mostly copyleft, and

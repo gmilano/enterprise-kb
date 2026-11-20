@@ -16,6 +16,19 @@ updated: 2026-11-20
 > `LICENSE` file read directly from `raw.githubusercontent.com`, not taken from the badge.
 > Tier 1 is unchanged except that OpenClaw moved up into Tier 0, where it belongs.
 >
+> **Fourth pass, 2026-11-20 (latest): no agent rows changed, and that is the finding.** This pass
+> searched by *consequence* rather than by capability — what does an enterprise agent touch that
+> has a blast radius? — and the sixteen repositories it found are **none of them agents**. They are
+> the layers around the agent: an **agent payments** stack (three competing permissive protocols,
+> the most-starred of which is five months idle), **PII de-identification**
+> ([data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio), MIT, 11,989 ★ —
+> **moved out of `microsoft/`**), **catalog and lineage** as the grounding layer, and
+> **[microsoft/graphrag](https://github.com/microsoft/graphrag)** (MIT, 36,699 ★), which this KB had
+> never once mentioned. Tables in `repos/foundations.md`; build in `compose/patterns.md` Receta 11.
+> **Taken with the third pass, the message to an engagement lead is now unambiguous: the agent is
+> the least consequential choice on the page.** Tier 0 and Tier 1 below are unchanged and still
+> correct — they are just no longer where the risk or the billable work lives.
+>
 > **Third pass, 2026-11-20 (later still):** three large MIT repositories that belong in this
 > file were found missing entirely — **deer-flow** (85,545 ★, APAC-origin harness),
 > **browser-use** (121,597 ★) and **letta** (25,503 ★, stateful agents). Added below. The

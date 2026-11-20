@@ -290,6 +290,69 @@ metering and entitlements in [openmeter](https://github.com/openmeterio/openmete
 already deployed agents — which, per IDC, is 95% of them. It needs no model work, touches no
 business logic, and produces the number that unlocks the budget for everything else in this KB.
 
+## 13. Agent payments: the authorisation boundary moved from tools to money
+
+**New trend, fourth pass 2026-11-20.** Through 2026 the governance question was *which tools
+may an agent call*. A payments layer now exists, and the question becomes *how much may it
+spend, on whose mandate, with what non-repudiable record*. That is a different control, owned
+by different people — treasury, risk and audit, not the platform team.
+
+**Evidence (repositories, first-hand).** Three permissively-licensed protocols compete at
+different layers of one stack, all verified on 2026-11-20:
+[AP2](https://github.com/google-agentic-commerce/AP2) (Apache-2.0, 3,281 ★, pushed 2026-06-17),
+[ACP](https://github.com/agentic-commerce-protocol/agentic-commerce-protocol) (Apache-2.0,
+1,607 ★, 2026-07-18), the
+[A2A x402 extension](https://github.com/google-agentic-commerce/a2a-x402) (Apache-2.0, 571 ★,
+2026-11-11), plus agent-identity work in
+[forter/trusted-agentic-commerce-protocol](https://github.com/forter/trusted-agentic-commerce-protocol)
+(MIT, 180 ★) and a runnable ACP/UCP reference in
+[NVIDIA-AI-Blueprints/Retail-Agentic-Commerce](https://github.com/NVIDIA-AI-Blueprints/Retail-Agentic-Commerce)
+(Apache-2.0, 89 ★, 2026-11-18).
+
+**The non-obvious part: this layer is not ready, and the star counts hide it.** AP2 carries 5.7×
+the stars of the x402 extension and has been idle five months, while the extension was pushed
+nine days before this pass. The same decoupling as §11, now *inside a single protocol family*.
+
+**Second-hand and flagged:** multiple secondary sources report Google donating AP2 to the
+**FIDO Alliance** (one comparison dates it April 2026). No primary source was reachable this
+session. Do not put the donation in a client deck unverified.
+
+**So what:** sell the *mandate and evidence trail*, not the rail. The durable, portable idea is
+a signed record of what the user authorised, which survives whichever protocol wins. Concretely:
+no agent reaches a payment rail in 2026 without a human approval step, and the spend cap belongs
+at the gateway (§12, Receta 9) where it is already enforceable. Recipe: Receta 11.
+
+## 14. ISO/IEC 42001 is becoming a procurement gate, not a standard to cite
+
+**New trend, fourth pass 2026-11-20.** This KB already named ISO/IEC 42001 and NIST AI RMF as
+standards to anchor on. The shift reported in 2026 is about *who asks for it and when*: buyers
+are scoring it in vendor questionnaires and RFPs rather than treating it as a maturity badge.
+
+**What the sources say — all second-hand, and they disagree.**
+
+- Several consultancy and vendor sources report enterprise procurement teams embedding ISO 42001
+  status into vendor questionnaires, and European procurement folding it into due diligence.
+- Buyers are reported to ask for the **scope statement plus sample risk registers** before
+  awarding points — the certificate alone is not the artefact. Certification applies only to a
+  defined scope, so a narrow scope statement is a weak signal.
+- **The disagreement, recorded:** sources split on mandatory versus preferred. One (Brightdefense,
+  updated Sept 2026) states plainly that the unresolved issue is how quickly 42001 becomes a
+  default RFP requirement rather than a preferred assurance signal. A claim that it is "the new
+  SOC 2" is a claim about trajectory, not current policy.
+- **It does not discharge regulation.** 42001 is reported to reduce EU AI Act compliance risk
+  but **not** to automatically satisfy the Act. Do not let a client conflate them — see §4.
+- **Public sector splits by region.** US federal buyers are reported to lean on **NIST AI RMF**
+  as the common checklist, with 42001 adding an auditable governance layer on top.
+- **Timing is the actionable part:** certification is reported to take **6–18 months**. That makes
+  it a pipeline question now, not a 2027 one.
+
+**So what, two ways.** For clients: the deliverable is the auditable AI management system — the
+thing a Dentons survey of North American leaders found few organisations have actually
+implemented (see `intel/market.md`, North America). For Globant: a studio that can produce the
+scope statement, risk register and evidence trail is selling the *audit artefact*, which is
+exactly what the red-team and eval-gate tooling in `repos/foundations.md` already generates as a
+by-product. Receta 10 produces the evidence; this trend explains who buys it.
+
 ## Trend sources that disagree — recorded, not reconciled
 
 - **North American adoption:** Stanford AI Index 2026 says **90%** organisational AI use;
@@ -298,6 +361,15 @@ business logic, and produces the number that unlocks the budget for everything e
   matches the question being asked, and say which.
 - **Enterprise AI spend:** Menlo Ventures' **$176.8B / 5.4x YoY (Sept 2026)** is a single
   vendor estimate and the only figure of its kind found. Treat as directional.
+- **Depth of adoption (new source, fourth pass):** a **Deloitte** survey of **3,235 senior
+  leaders** reports **two-thirds** of organisations seeing efficiency gains but only **one in
+  five** seeing increased revenue, and just **34%** using AI for deep transformation (new
+  products or reinvented core processes). Read alongside Gartner's **22%** scaling figure and
+  the **8.6%** agents-in-production figure already in this file: four sources, four different
+  questions, all pointing the same way — breadth is real, depth is not. Deloitte's own framing
+  is that deploying a copilot is the easy part and redesigning the work around it is the
+  leadership test, which is the single most useful sentence in this pass for a client
+  conversation. **Second-hand:** `deloitte.com` was not reachable this session.
 - **EU AI Act high-risk date:** older secondary sources still say August 2026. They predate
   the Digital Omnibus. **2 December 2027** (Annex III) is correct per Regulation (EU)
   2026/1744 — corroborated independently by this KB's energy pass.

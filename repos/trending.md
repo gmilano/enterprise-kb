@@ -8,6 +8,92 @@ updated: 2026-11-20
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-20 — fourth pass (latest)
+
+**Method change: searched by what an agent is allowed to *do*, not by what it is built with.**
+The third pass swept by architectural layer and found the control plane. This pass asked a
+different question — what does an enterprise agent *touch* that has consequences? Money,
+personal data, and the systems of record that tell it what is true. Each answer was a layer
+this KB did not have. **Sixteen repositories below were absent entirely**, and the most
+consequential one has 89 stars while the most-starred one in its own family is five months idle.
+
+All metadata from the GitHub search API on 2026-11-20. **Every licence below was read from the
+repository's own `LICENSE` file over `raw.githubusercontent.com` — 16/16 verified, none taken
+from a GitHub badge.** Full tables and the commercial reading are in `repos/foundations.md`.
+
+### Agent payments & commerce protocols — zero prior coverage in this KB
+
+`AP2`, `x402`, `agentic-commerce` and the bare word `payment` each returned **no match** across
+all eight files before this pass. This is the first layer where an agent's mistake debits a real
+account.
+
+| Repo | Real license | Stars | Pushed | Why it is here |
+|------|--------------|-------|--------|----------------|
+| [google-agentic-commerce/AP2](https://github.com/google-agentic-commerce/AP2) | Apache-2.0 | 3,281 | **2026-06-17** | Agent Payments Protocol; A2A extension, ~60 payments/tech organisations. The signed-mandate model is the durable idea. **Idle five months.** |
+| [agentic-commerce-protocol/agentic-commerce-protocol](https://github.com/agentic-commerce-protocol/agentic-commerce-protocol) | Apache-2.0 | 1,607 | 2026-07-18 | ACP — OpenAI/Stripe lineage, now under its **own neutral organisation**. |
+| [google-agentic-commerce/a2a-x402](https://github.com/google-agentic-commerce/a2a-x402) | Apache-2.0 | 571 | **2026-11-11** | HTTP 402 as a machine-payable rail. **The only actively-pushed repo in the family.** |
+| [forter/trusted-agentic-commerce-protocol](https://github.com/forter/trusted-agentic-commerce-protocol) | MIT | 180 | 2026-07-08 | Agent↔merchant authentication and encryption — the identity question the payment specs leave open. |
+| [NVIDIA-AI-Blueprints/Retail-Agentic-Commerce](https://github.com/NVIDIA-AI-Blueprints/Retail-Agentic-Commerce) | Apache-2.0 | 89 | 2026-11-18 | Runnable reference implementation of ACP + UCP. Lowest stars here, highest demo value. |
+
+**The finding, not the list:** three protocols at three layers, all permissive, **and the star
+ranking inverts the activity ranking.** AP2 has 5.7× the stars of the x402 extension and has not
+been touched since June. This reproduces `intel/trends.md` §11 *inside a single protocol family*.
+
+### PII de-identification — the layer between an agent and customer data
+
+| Repo | Real license | Stars | Pushed | Note |
+|------|--------------|-------|--------|------|
+| [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) | MIT | 11,989 | 2026-11-19 | PII detection, redaction, masking, anonymisation. **Moved out of `microsoft/` — see the rename ledger.** |
+| [data-privacy-stack/presidio-research](https://github.com/data-privacy-stack/presidio-research) | MIT | 321 | 2026-11-19 | Recogniser evaluation harness — makes tuning an evidenced claim. |
+
+### Catalog & lineage — and the "context layer" rebrand
+
+| Repo | Real license | Stars | Pushed | Self-description |
+|------|--------------|-------|--------|------------------|
+| [open-metadata/OpenMetadata](https://github.com/open-metadata/OpenMetadata) | Apache-2.0 | 15,823 | 2026-11-20 | "The Open **Context Layer** for Data and AI." New to this KB. |
+| [unitycatalog/unitycatalog](https://github.com/unitycatalog/unitycatalog) | Apache-2.0 | 3,581 | 2026-11-20 | "Open, Multi-modal Catalog for Data & AI." |
+| [OpenLineage/OpenLineage](https://github.com/OpenLineage/OpenLineage) | Apache-2.0 | 2,773 | 2026-11-20 | "An Open Standard for lineage metadata collection." |
+
+**Observation worth selling:** two independent catalog vendors — OpenMetadata and the already-listed
+[datahub-project/datahub](https://github.com/datahub-project/datahub) — pushed the same day and
+both now lead with the word **"context"**. The category has re-described itself as agent
+infrastructure. These are usually *already installed* at the client, which makes them the
+cheapest grounding layer in the KB.
+
+### Graph RAG — a 36,699-star MIT repo this KB had never mentioned
+
+| Repo | Real license | Stars | Pushed | Note |
+|------|--------------|-------|--------|------|
+| [microsoft/graphrag](https://github.com/microsoft/graphrag) | MIT | 36,699 | 2026-11-19 | Category leader, actively pushed. |
+| [gusye1234/nano-graphrag](https://github.com/gusye1234/nano-graphrag) | MIT | 4,010 | 2026-01-27 | "Easy-to-hack" — **idle ~10 months.** |
+| [circlemind-ai/fast-graphrag](https://github.com/circlemind-ai/fast-graphrag) | MIT | 3,972 | **2025-11-01** | **Idle over a year — verify before proposing.** |
+| [DEEP-PolyU/Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | MIT | 2,686 | 2026-06-02 | Survey/benchmark index — a reading list, not a dependency. |
+
+### A branch trap that will silently misreport a licence
+
+[datahub-project/datahub](https://github.com/datahub-project/datahub) keeps its `LICENSE` on
+**`master`**, not `main`. A verification script that probes only `main` reports this Apache-2.0
+repo as **unlicensed**. Three repos in this pass needed the `master` fallback; this KB's own
+checker tries both, and that is why. Worth stating because the failure mode is a *false
+negative on licence* — the direction that loses Globant a usable repo rather than risking one.
+
+### Searched and not found this pass
+
+- **A LATAM-origin repository in any of the four new layers** — payments/commerce, PII and
+  anonymisation, catalog/lineage, and graph RAG were each searched, including Spanish and
+  Portuguese vocabulary (`pagos agentes IA`, `agente pagamento IA`, `anonimizacion datos IA`).
+  **Result: zero usable.** Everything returned was 0–3 stars with **NOASSERTION (no usable
+  licence)** — landing pages, a WhatsApp payment-receipt OCR bot, and student final-year
+  projects. This is the **fifth consecutive pass** measuring this gap and the fifth zero.
+  Recorded so it reads as measured, not unexamined.
+- **A dedicated enterprise DLP repo above 500 stars** — `pii redaction anonymization llm
+  stars:>500` returned **no results at all**. Presidio is not merely the leader in this
+  category; above 500 stars it is close to the only thing in it.
+- **Primary sources for every market figure** — `www.idc.com` and every other non-GitHub host
+  fail to resolve in this session (`ENOTFOUND`), as in the third pass. GitHub search API and
+  `raw.githubusercontent.com` both work. The evidence split in `intel/trends.md` therefore
+  still holds: **repositories are first-hand, market statistics are second-hand.**
+
 ## 2026-11-20 — third pass (later still)
 
 Searched by **layer** rather than by star ceiling this time: the earlier passes swept

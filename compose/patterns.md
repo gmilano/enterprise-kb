@@ -487,10 +487,107 @@ probes plus a runtime validator is defence in depth where each layer fails diffe
 evidence archive is what a regulated client's risk committee actually signs — the thing
 `intel/market.md` identifies as the hard part of shipping an agent, as opposed to demoing one.
 
+## Receta 11 — A commerce agent that may spend money, with de-identification and catalog grounding
+
+**New this pass (fourth, 2026-11-20).** Covers the three layers the KB was missing: *may it
+spend?*, *may it see this personal data?*, *may it believe this table?* Use when a retail,
+travel, marketplace or B2B-distribution client wants an agent that completes a transaction
+rather than drafting one.
+
+**The honest framing to open with.** The payment protocols are **not settled**: AP2
+(Apache-2.0, 3,281 ★) has been idle since **2026-06-17**, the x402 extension (Apache-2.0, 571 ★)
+was pushed **2026-11-11**, and ACP (Apache-2.0, 1,607 ★) sits between them. So this recipe does
+**not** pick a rail. It builds the two things that survive whichever rail wins — a **signed
+mandate** and a **human approval step** — and keeps the rail behind an adapter.
+
+### Wiring
+
+1. **System of record stays stock.** Odoo ([odoo/odoo](https://github.com/odoo/odoo), LGPL-3.0)
+   or the client's existing commerce suite, integrated over its API exactly as Receta 1. Never
+   forked — the copyleft containment rule in this file applies unchanged.
+
+2. **Grounding: the catalog answers what is true.** Point the agent at the client's existing
+   [OpenMetadata](https://github.com/open-metadata/OpenMetadata) (Apache-2.0, 15,823 ★) or
+   [DataHub](https://github.com/datahub-project/datahub) (Apache-2.0, 13,006 ★) as **read-only
+   MCP tools** — which products, prices and inventory tables are authoritative. Emit every agent
+   action as [OpenLineage](https://github.com/OpenLineage/OpenLineage) (Apache-2.0, 2,773 ★)
+   events, so "what did the agent change, and from which source?" is queryable *afterwards*.
+   This is the audit trail, and it costs a connector because the client already runs the catalog.
+
+3. **De-identification at both boundaries.**
+   [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) (MIT, 11,989 ★)
+   runs **twice**: once on the way in, before any customer text reaches a model, and once on the
+   way out, before any model output reaches a log or a trace. Note the path — it is **no longer
+   `microsoft/presidio`**. Tune recognisers for the client's data with
+   [presidio-research](https://github.com/data-privacy-stack/presidio-research) (MIT, 321 ★) so
+   detection quality is an evidenced number, not a claim. Keep
+   [protectai/llm-guard](https://github.com/protectai/llm-guard) (MIT, 3,221 ★) for
+   injection/leakage — it is a complement, not a substitute.
+
+4. **Retrieval that spans documents.** Where the question is relational rather than lexical
+   ("what is this supplier's exposure across our contracts?"), use
+   [microsoft/graphrag](https://github.com/microsoft/graphrag) (MIT, 36,699 ★). **Price the graph
+   construction explicitly** — per corpus, re-paid on refresh. If the client needs to own and
+   modify the pipeline, [nano-graphrag](https://github.com/gusye1234/nano-graphrag) (MIT, 4,010 ★)
+   is the hackable option, **but it has been idle ~10 months** — check before proposing.
+
+5. **The spend cap lives at the gateway, not in the agent.** Enforce budget in
+   [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) (Apache-2.0,
+   2,423 ★) or [BerriAI/litellm](https://github.com/BerriAI/litellm) (MIT core, 63,615 ★) as in
+   Receta 9. An agent that polices its own budget in a prompt has no budget control at all: the
+   limit must sit where it is *enforced*, outside the reasoning loop.
+
+6. **Agent identity before agent payment.** SPIFFE workload identity (see
+   `repos/foundations.md`) establishes *which* agent is acting;
+   [forter/trusted-agentic-commerce-protocol](https://github.com/forter/trusted-agentic-commerce-protocol)
+   (MIT, 180 ★) covers agent↔merchant authentication. The payment specs answer *how much* and
+   *on whose mandate* — neither answers *who is this*. Do not skip this step because the
+   protocols do.
+
+7. **The mandate and the approval step — the part that survives.** Record a signed, replayable
+   artefact of exactly what the user authorised (scope, amount ceiling, expiry, counterparty),
+   modelled on AP2's mandate/verifiable-credential shape even if AP2 is never adopted. Then
+   require a **human approval** before any irreversible debit. Put the rail behind an adapter
+   interface with one implementation today; the blueprint in
+   [NVIDIA-AI-Blueprints/Retail-Agentic-Commerce](https://github.com/NVIDIA-AI-Blueprints/Retail-Agentic-Commerce)
+   (Apache-2.0, 89 ★) shows the ACP/UCP shape end to end — treat it as a **demo asset, not a
+   production base**.
+
+8. **Gate it in CI.** Receta 10's red-team and eval gate applies with one addition: a test
+   class that asserts **no payment path is reachable without a valid mandate and an approval
+   record**, and that Presidio's egress filter is on. That assertion is the deliverable an
+   auditor wants, and it is also the ISO/IEC 42001 evidence artefact (`intel/trends.md` §14).
+
+### Licence posture
+
+Everything Globant writes — connectors, mandate service, adapters, approval UI — sits in a
+separate **MIT or Apache-2.0** repository. Every component above is MIT or Apache-2.0 except the
+client's own ERP, which is reached over its API and never forked. **There is no copyleft
+obligation on Globant's code in this recipe**, which is the point.
+
+### What to tell the client the limits are
+
+- **No agent gets an unsupervised payment rail in 2026.** The protocols are contested and the
+  most-starred one is five months idle. Anyone promising otherwise is reading star counts.
+- **Graph construction is a real, recurring cost line**, not a one-off index.
+- **Presidio reduces personal-data exposure; it does not eliminate it.** Detection has a
+  measurable error rate — measure it with `presidio-research` and report the number.
+- **The FIDO Alliance donation of AP2 is reported, not verified** by this KB (no primary source
+  was reachable). Verify before it reaches a deck.
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation
   on Globant code. Integrate over the API.
+- **Letting the agent hold its own spend limit.** A budget enforced inside the reasoning loop is
+  not enforced. It belongs at the gateway (Receta 9, Receta 11 step 5).
+- **Citing `microsoft/presidio`.** Moved to [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio);
+  the old path still redirects, so the error is invisible until a client's security review asks
+  who maintains it. Same class of mistake as the three renames in the ledger.
+- **Picking a payment protocol on star count.** AP2 has 5.7x the stars of the actively-maintained
+  x402 extension and has not been pushed since June 2026. Build the mandate, adapter the rail.
+- **Treating ISO/IEC 42001 as EU AI Act compliance.** Reported to reduce Act risk, **not** to
+  satisfy it. Clients conflate them; correcting it early is free credibility.
 - **Taking a license from a badge, a directory or a blog.** This pass corrected four:
   Phoenix is **Elastic-2.0** (not open source), NocoBase is a **proprietary EULA**, Huly is
   **EPL-2.0** (not Apache-2.0), and NeMo Guardrails **is** Apache-2.0 despite GitHub showing

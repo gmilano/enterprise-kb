@@ -250,7 +250,100 @@ agents" — a hosted product. The permissive repository is the examples, not the
 unusable in a deliverable. Same category as the unlicensed skill collections above: reference
 by URL, never by copy.
 
-## Rename ledger — three canonical repos moved, verified this pass
+## Agent payments & commerce protocols — the layer that decides whether an agent may spend money
+
+**New section, fourth pass 2026-11-20.** This KB had **zero** coverage of this layer: `AP2`,
+`x402`, `agentic-commerce` and even the bare word `payment` each returned no match across all
+eight files. That is a load-bearing gap, because this is the first layer where an agent's
+mistake debits a real account. The authorisation question stops being *"which tool may it
+call"* and becomes *"how much may it spend, on whose mandate, and with what non-repudiable
+evidence afterwards"* — which is a procurement and audit question, not a modelling one.
+
+Three protocols now compete at **different layers of the same stack**, and all are
+permissively licensed. Metadata from the GitHub search API on 2026-11-20; every licence below
+was read from the repository's own `LICENSE` file.
+
+| Repo | License (read from `LICENSE`) | Stars | Pushed | What it is |
+|------|-------------------------------|-------|--------|------------|
+| [google-agentic-commerce/AP2](https://github.com/google-agentic-commerce/AP2) | Apache-2.0 | 3,281 | **2026-06-17** | **Agent Payments Protocol.** "Building a Secure and Interoperable Future for AI-Driven Payments." Google-initiated with ~60 payments and technology organisations; built as an extension to A2A. The mandate/verifiable-credential model — a signed record of *what the user authorised* — is the part worth stealing even if the protocol is not adopted. **Caveat: idle five months.** |
+| [agentic-commerce-protocol/agentic-commerce-protocol](https://github.com/agentic-commerce-protocol/agentic-commerce-protocol) | Apache-2.0 | 1,607 | 2026-07-18 | **ACP.** "An interaction model and open standard for connecting buyers, AI agents and businesses." OpenAI/Stripe lineage, now under its own neutral GitHub organisation — an ownership signal worth noting against the KB's foundation-governance trend. |
+| [google-agentic-commerce/a2a-x402](https://github.com/google-agentic-commerce/a2a-x402) | Apache-2.0 | 571 | **2026-11-11** | The **A2A x402 extension** — HTTP 402 "Payment Required" revived as a machine-payable rail, bringing cryptocurrency settlement to A2A. **The only actively-pushed repo in this table.** |
+| [forter/trusted-agentic-commerce-protocol](https://github.com/forter/trusted-agentic-commerce-protocol) | MIT | 180 | 2026-07-08 | Authentication and data encryption between agents, merchants and merchant vendors. Addresses the question the payment protocols leave open: *is this agent who it claims to be, acting for whom?* Cleanest licence in the category. |
+| [NVIDIA-AI-Blueprints/Retail-Agentic-Commerce](https://github.com/NVIDIA-AI-Blueprints/Retail-Agentic-Commerce) | Apache-2.0 | 89 | 2026-11-18 | Reference implementation of **ACP and the Universal Commerce Protocol (UCP)**. Small and new, but it is runnable architecture rather than a specification — the fastest way to show a client what this looks like end to end. |
+
+**Read the push dates against the star counts.** AP2 is five times more starred than the x402
+extension and has not been touched since June; the extension was pushed nine days ago. This is
+the same decoupling recorded in `intel/trends.md` §11, now reproduced inside a single
+protocol family. **Do not tell a client "AP2 is the standard" on the strength of 3,281 stars.**
+The honest statement is: the mandate model is the durable idea, the settlement rail is still
+contested between three protocols, and nothing here is yet safe to build a payment path on
+without a human approval step.
+
+**Governance caveat, explicitly second-hand.** Multiple secondary sources report that Google
+donated AP2 to the **FIDO Alliance** (one comparison table dates the donation to April 2026).
+This pass could not reach `blog.google`, `cloud.google.com`, `fidoalliance.org` or
+`ap2-protocol.org` — every non-GitHub host fails to resolve in this session. **The donation is
+reported, not verified here.** Verify before it appears in a client deck.
+
+## PII de-identification & data minimisation — the layer between an agent and customer data
+
+**New section, fourth pass 2026-11-20.** `presidio`, `DLP` and `redact` each returned **zero**
+matches across this KB before this pass. `PII` appeared only as prose. For an enterprise
+agent, de-identification is not a nice-to-have: it is what lets a prompt crossing a model
+boundary stop being a personal-data export.
+
+| Repo | License (read from `LICENSE`) | Stars | Pushed | Role |
+|------|-------------------------------|-------|--------|------|
+| [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) | MIT | 11,989 | 2026-11-19 | **The de facto PII engine** — detects, redacts, masks and anonymises sensitive data across text, images and structured data. **Moved out of the `microsoft/` organisation; see the rename ledger below.** Put it at ingest *and* at egress: once before text reaches a model, once before output reaches a log. |
+| [data-privacy-stack/presidio-research](https://github.com/data-privacy-stack/presidio-research) | MIT | 321 | 2026-11-19 | Evaluation harness for building and scoring new PII recognisers. The piece that makes "we tuned detection for this client's data" an evidenced claim rather than an assertion. |
+| [protectai/llm-guard](https://github.com/protectai/llm-guard) | MIT | 3,221 | 2026-07-08 | Already in this KB — listed here so the boundary is clear. `llm-guard` is prompt/response *security* (injection, toxicity, leakage); Presidio is *identification and removal* of personal data. They are complements, not alternatives, and clients routinely conflate them. |
+
+**The engagement line:** Presidio is MIT, mature, and the single cheapest credible
+answer to "can you prove customer data is not leaving our boundary?" — which is the first
+question asked in every EMEA and regulated-sector engagement in `intel/market.md`.
+
+## Catalog, lineage & the "context layer" convergence
+
+**New section, fourth pass 2026-11-20.** `openmetadata`, `unitycatalog` and `openlineage` were
+each absent from this KB. The strategically interesting part is not the individual tools — it
+is that **the data-catalog category has re-described itself as agent context infrastructure**,
+in its own words, on its own repositories.
+
+| Repo | License (read from `LICENSE`) | Stars | Pushed | Self-description and why it matters |
+|------|-------------------------------|-------|--------|-------------------------------------|
+| [open-metadata/OpenMetadata](https://github.com/open-metadata/OpenMetadata) | Apache-2.0 | 15,823 | 2026-11-20 | "**The Open Context Layer for Data and AI.**" **New to this KB** and the most-starred entry in the category. |
+| [datahub-project/datahub](https://github.com/datahub-project/datahub) | Apache-2.0 (LICENSE on **`master`**, not `main`) | 13,006 | 2026-11-20 | "**The Context Platform for your Data and AI Stack.**" Already in this KB; the branch detail is recorded because a licence check that only probes `main` will wrongly report this repo as unlicensed. |
+| [unitycatalog/unitycatalog](https://github.com/unitycatalog/unitycatalog) | Apache-2.0 | 3,581 | 2026-11-20 | "Open, Multi-modal Catalog for Data & AI." The open-governance answer where a client is otherwise locked into one vendor's catalog. |
+| [OpenLineage/OpenLineage](https://github.com/OpenLineage/OpenLineage) | Apache-2.0 | 2,773 | 2026-11-20 | "An Open Standard for lineage metadata collection." The *standard*, not a product — which is what makes it the integration point rather than another thing to migrate. |
+
+**Why this is a finding and not a list:** two independent catalog vendors, pushed the same day,
+both now lead with the word **"context"**. An agent that writes to an ERP has to know which
+table it is *allowed to believe*, and lineage is how you answer "where did this number come
+from?" after the agent has already acted. That makes the catalog a governance control, not a
+data-team tool — and it is usually already installed at the client, which makes it the
+cheapest grounding layer available. All four are permissive.
+
+## Graph RAG — the retrieval shape for questions that span documents
+
+**New section, fourth pass 2026-11-20.** `graphrag` returned **zero** matches across this KB,
+despite the lead repository being MIT with 36,699 stars. Vector search answers "find me the
+passage"; graph-based retrieval answers "what connects these entities across the whole corpus"
+— which is the shape of most real enterprise questions (an entity's exposure across contracts,
+suppliers, incidents or policies).
+
+| Repo | License (read from `LICENSE`) | Stars | Pushed | Note |
+|------|-------------------------------|-------|--------|------|
+| [microsoft/graphrag](https://github.com/microsoft/graphrag) | MIT | 36,699 | 2026-11-19 | "A modular graph-based Retrieval-Augmented Generation (RAG) system." The reference implementation and comfortably the category leader. Actively pushed. |
+| [gusye1234/nano-graphrag](https://github.com/gusye1234/nano-graphrag) | MIT | 4,010 | 2026-01-27 | "Simple, easy-to-hack." The right choice when the client needs to own and modify the pipeline. **Idle ~10 months.** |
+| [circlemind-ai/fast-graphrag](https://github.com/circlemind-ai/fast-graphrag) | MIT | 3,972 | **2025-11-01** | Adaptive retrieval. **Idle over a year — verify before proposing.** |
+| [DEEP-PolyU/Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | MIT | 2,686 | 2026-06-02 | Curated survey/benchmark index. A reading list, not a dependency — listed so nobody scopes against it. |
+
+**Cost warning to carry into scoping:** graph construction is an indexing cost paid per corpus
+and re-paid on refresh, and it is the line item clients do not expect. Price it against the
+gateway metering in the control-plane section above, which is where that token spend becomes
+visible.
+
+## Rename ledger — four canonical repos moved (three verified third pass, one fourth pass)
 
 The method note at the end of this file says to probe three channels before writing "does not
 exist". Applied again, it caught three moves that would each have produced a dead link or a
@@ -261,10 +354,12 @@ stale dependency:
 | `envoyproxy/ai-gateway` | [theagentrouter/agent-router](https://github.com/theagentrouter/agent-router) (Apache-2.0, 2,423 ★) | Old path's `raw` README returns **200** and renders as "Agent Router … **Formerly Envoy AI Gateway**"; the search API's `repo:` qualifier returns **422** for the old name. Project moved to the **Agentic AI Foundation**. |
 | `Azure/PyRIT` | [microsoft/PyRIT](https://github.com/microsoft/PyRIT) (MIT, 4,980 ★, pushed 2026-11-20) | Old org still resolves but is **128 ★ / 2026-03-25**; a `PyRIT in:name stars:>100` search ranks `microsoft/PyRIT` first by two orders of magnitude. |
 | `explodinggradients/ragas` | [vibrantlabsai/ragas](https://github.com/vibrantlabsai/ragas) (Apache-2.0, 16,389 ★) | `repo:explodinggradients/ragas` returns **422**; `ragas in:name stars:>500` returns exactly one repository, under a **new organisation**. Treat as an ownership change, not just a rename. |
+| `microsoft/presidio` | [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) (MIT, 11,989 ★, pushed 2026-11-19) | **Found fourth pass, 2026-11-20.** `presidio in:name` indexes only the new path; `presidio in:name user:microsoft` returns **no main repo** — only `presidio-genproto` (10 ★, 2021) and a dstoolkit sample. The old path still serves files, so it is a **redirect, not a deletion**: `LICENSE` fetched from both paths is **byte-identical (1,083 bytes, md5 `cef898d1f3cfb58e111560aa3c250f10`)** and `docs/index.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` and `pyproject.toml` all return 200 on both. Copyright line reads **"Presidio Contributors"**, not Microsoft Corporation — consistent with a move out of the vendor organisation. |
 
 **Why this keeps happening, and what it means commercially:** three of roughly thirty-five
-repositories checked in a single pass had moved, and two of the three changed *organisation*,
-not just name. A client's `requirements.txt` or Helm chart pinned to the old coordinates keeps
+repositories checked in the third pass had moved, and two of the three changed *organisation*,
+not just name. The fourth pass checked roughly twenty more and caught a fourth move — Presidio
+out of `microsoft/` — so the rate is holding at close to one in ten. A client's `requirements.txt` or Helm chart pinned to the old coordinates keeps
 working until it silently does not. **Offer dependency-provenance review as a line item** — it
 is cheap, it is evidenced by this ledger, and it is exactly the kind of finding that justifies
 the governance work in `compose/patterns.md`.
