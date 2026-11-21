@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 🗺️ Mapa de mercado — Enterprise
@@ -243,6 +243,61 @@ if they are on Okta or Entra, the delegation chain is a configuration and integr
 rather than a platform build. Confirm which IdP before scoping — it is the single variable that
 decides the shape of the work.
 
+#### The write boundary — North America, added eighth pass 2026-11-21
+
+**The region owns the evidence format.** OSCAL is NIST's, its profile ecosystem is
+FedRAMP-shaped, and [oscal-compass/compliance-trestle-fedramp](https://github.com/oscal-compass/compliance-trestle-fedramp)
+exists specifically for it. This is the only region where "we will hand your auditor
+machine-readable OSCAL assessment results" maps onto a programme the client is
+**already** required to satisfy. For federal, federal-adjacent and FedRAMP-pursuing
+clients that is not a governance nicety — it is the submission format.
+
+**Regulatory shape: still state-by-state, with the operative detail being churn.**
+
+- **No federal AI statute.** Federal action is executive: one overview lists
+  **Executive Order 14409, "Promoting Advanced Artificial Intelligence Innovation and
+  Security" (2026)**, as in force. A **bipartisan preemption draft released June 2026
+  has stalled** since. *Secondary sources; the EO number and title should be checked
+  against the Federal Register before it goes in a client deliverable.*
+- **Five state AI laws already bind companies** as of August 2026, including
+  **California SB 53** (frontier models), **Texas TRAIGA**, and **Illinois**' rules on
+  AI in employment. All three were already recorded here; the count is new.
+- **Colorado is the cautionary tale and it is new this pass.** Per one source, **xAI
+  sued to block the Colorado law in April 2026 and the state repealed and replaced it
+  in May, before it ever took effect**, with the rewrite narrowed toward automated
+  decisions that carry real consequences for people. *Single secondary source —
+  attribute it, and do not build a compliance timeline on it.* The commercial reading
+  is durable even if the detail is not: **a US state AI obligation can be litigated out
+  of existence between a proposal and a go-live**, so NA governance work must be sold
+  as *control architecture* that survives a statute change, never as compliance with a
+  named state law.
+- **NIST launched a dedicated initiative to develop standards for autonomous AI agents
+  in February 2026.** This is the most important NA line in this pass for Globant:
+  the standards body that produced OSCAL is now writing agent standards, in the region
+  whose evidence format this KB just acquired. Positioning the write-boundary build on
+  NIST-shaped artefacts is a bet on the same institution twice.
+- **Canada** has no comprehensive AI law. The **June 2026 "AI for All" strategy** covers
+  AI literacy, watermarking and a **Canada Trusted AI Certification** programme;
+  **PIPEDA** and **Quebec Law 25** already bite on any system touching personal
+  information. A certification programme is a procurement gate in waiting — the same
+  shape trend 14 describes for ISO/IEC 42001.
+
+**The number to sell against.** In OneTrust's survey, **87% of organisations encourage
+the use of AI agents while only 47% say that use is backed by clear governance and
+controls.** That 40-point gap *is* the write-boundary engagement, stated as the
+client's own self-report rather than as Globant's opinion. Pair it with the census-vs-
+Stanford adoption split already recorded here (19.8% of US businesses using AI in any
+function, against Stanford's 90% for North America) — the same methodological gap, and
+the reason a client's "we have already adopted AI" and a consultant's "you have not
+scaled it" are both true.
+
+**Sellable shape in NA:** OSCAL-backed control evidence for the agent estate, with the
+authority matrix and segregation-of-duties enforcement in the tool layer (Receta 17),
+positioned as *audit-readiness that survives regulatory churn* rather than as
+compliance with any one state's statute.
+
+---
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -456,6 +511,72 @@ either date in a client proposal without reading the Official Journal text**; th
 risk is symmetrical and real, because the earlier date inflates a compliance budget and the
 later one may understate an obligation.
 
+#### The write boundary — EMEA, added eighth pass 2026-11-21
+
+**The honest finding first, because it is a gap and not an opportunity.** The EU AI
+Act's **Annex IV technical documentation** obligation has **no machine-readable
+canonical format and no equivalent open-source toolchain.** OSCAL is a NIST artefact
+with a FedRAMP-shaped profile ecosystem. It is genuinely useful in EMEA as an evidence
+*substrate* — a place to keep control definitions, assessment plans and results in a
+validatable form — but **it is not an AI Act conformity format and must never be
+presented to an EMEA client as one.** Anyone quoting "OSCAL for AI Act compliance" is
+selling a substrate as a certificate. Searched for an EU/EN-standard equivalent this
+pass and found none; recorded as an informed gap, not as coverage.
+
+**The board-level trigger is now measured, by name, in this region.** An **IBM study
+dated 14 October 2026** reports:
+
+- **80% of surveyed EMEA executives** say an AI-related incident reached their **board
+  or C-suite** in the past year;
+- **only 40% changed AI governance policy or frameworks** in response;
+- **41% of EU executives are accelerating governance investment** ahead of the AI Act's
+  high-risk obligations in **December 2027**.
+
+The first two numbers together are the single best EMEA sales artefact this KB holds:
+**the incident already reached the board, and in 60% of cases nothing changed.** That is
+not a client who needs convincing that governance matters — it is a client who has
+already had the conversation and lacks the architecture to act on it. Sell the build,
+not the problem.
+
+**And the third number settles this KB's most-repeated correction.** December 2027 is
+the date this KB has defended for five consecutive passes against searches that keep
+returning "2 August 2026": Regulation (EU) 2026/1744, the Digital Omnibus, moved Annex
+III high-risk obligations to **2 December 2027** and Annex I to **2 August 2028**. IBM's
+figure is the **third independent confirmation and the first from an enterprise survey
+rather than from the regulation**, which makes it citable to an executive who will not
+read a regulation. *This pass's searches still returned the stale August 2026 date from
+other sources in the same result set — the error is not retreating.*
+
+**The delivery-market signal.** **Cognizant launched a dedicated EMEA AI unit on 28
+July 2026**, explicitly to move agentic AI from failed pilots into production, citing an
+**IDC-documented 88% pilot failure rate**. Two readings, both true and both worth
+saying to a client:
+
+1. **Receta 4 (rescue a stalled pilot) is now a contested market in EMEA,** not an
+   open one. A competitor has built a regional unit around precisely that motion.
+2. **The differentiator cannot be "we move pilots to production"** — that is now the
+   category claim. It has to be the thing the 88% actually fail on. This KB's own
+   evidence says that is the boundary work: entitlement (Receta 16), the write path and
+   the evidence trail (Receta 17). A pilot that was never going to pass a security
+   review does not fail at the production step; it fails at the authorisation
+   conversation, and it fails late.
+
+**Adoption base rate, for sizing.** EU enterprise AI adoption reached **19.95% in 2025**
+(up 6.47pp year on year) with a **38-point gap between large (55%) and small (17%)
+enterprises**; OECD firm adoption **more than doubled from 8.7% (2023) to 20.2%
+(2025)**. *Desk-research benchmark, not an official statistic.* The large-enterprise 55%
+is the segment Globant sells to, and it means the EMEA conversation is rarely
+greenfield: there is an existing deployment with an existing governance debt.
+
+**Sellable shape in EMEA:** the write boundary as **Annex IV readiness** — human
+authorisation in the path, initiator separated from authoriser in the record, reversal
+rather than deletion — built on permissive components with an OSCAL evidence substrate
+presented honestly as a substrate. Sovereignty is a live constraint here, which is why
+`camel-semantic-wolf-defender` (local prompt-injection inference, no call out) and
+self-hostable `block/buzz` matter more in this region than their star counts suggest.
+
+---
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -667,6 +788,65 @@ authorization or agent-identity project surfaced in this pass's sweep** — the 
 supply is NA- and EMEA-origin (Auth0/Okta, Authzed, Ory, Red Hat), with the ASF now stewarding
 Casbin, whose origin is Chinese academic work. That last point is worth stating positively: **the
 most-starred component in this layer has APAC origins and now has foundation governance.**
+
+#### The write boundary — APAC, added eighth pass 2026-11-21
+
+**A second binding, dated instrument lands in the region, and this one was not in this
+KB.** Alongside **Korea's AI Basic Act (in force 22 January 2026)**, already recorded:
+
+- **Vietnam's AI law took effect 1 March 2026**, with **Decree 142/2026, issued 30 April
+  2026**, providing the first implementing detail. A law plus an implementing decree is
+  a *filing-shaped* duty, which is the shape that changes an engagement's scope rather
+  than its marketing.
+- **China** remains the region's most developed binding regime, layering rules on
+  algorithmic recommendation, deepfakes and generative AI.
+- **Singapore** stays light-touch and sandbox-based, and **MAS is consulting on
+  comprehensive AI Risk Management Guidelines**, with a response possibly due late 2026.
+  For a financial-services client in Singapore the guidelines are the live document, not
+  the AI governance framework.
+- **Japan**'s AI Act is principles-based, relying on cooperation and existing law rather
+  than penalties — **strategy, not an enforceable duty.** Do not scope Japanese work as
+  compliance.
+- **India** signalled in **July 2026** that it may pursue dedicated AI legislation, with
+  industry groups warning of an adoption slowdown. Sources conflict; **record as in
+  transition and do not cite a date.**
+- **Korea declined to introduce a text-and-data-mining exception into its Copyright Act
+  in February 2026.** Easy to miss and directly relevant: it constrains what a client
+  may legally do with their *own* corpus when fine-tuning in Korea, which is a write-path
+  question about training data rather than about transactions.
+
+**The adoption constraint is data readiness, not appetite.** One industry analysis puts
+APAC as the **second-fastest region globally for GenAI adoption** while only about
+**30% of enterprise workflows are mature enough to support AI safely at scale**, naming
+siloed systems, inconsistent data quality and an AI-skills shortage; regulated sectors
+(healthcare, financial services) are flagged for gaps in **guardrails and
+auditability**. *Vendor analysis — directional.*
+
+That 30% is the most useful APAC number in this pass because of what it implies for
+sequencing. A write-boundary engagement presupposes a system of record with clean
+entities and a working integration layer. **In APAC the honest first deliverable is
+more often the data plane (Receta 14, Receta 15) and the integration inventory than the
+write boundary itself** — and saying so is a credibility asset, because the client
+already knows their workflows are not ready. Compare the energy KB's APAC finding
+recorded in `rotation.json`: sell *planning*, not real-time control. The same shape
+holds here — sell the layer beneath the one the client asked for.
+
+**APAC-origin permissive supply, byte-read.**
+[Tencent/LoopForge](https://github.com/Tencent/LoopForge) — 5,481 ★, **MIT** (GitHub
+badge says `NOASSERTION`; resolved by reading the file), pushed 2026-11-21 — self-hosted
+workflows for coding-agent delivery. It vendors a Tencent-modified copy of
+[obra/superpowers](https://github.com/obra/superpowers), which this KB already tracks.
+Also relevant: `agentscope-ai/agentscope-java` and **[google/adk-java](https://github.com/google/adk-java)**
+(new this pass) for the JVM-native enterprise cores that dominate the region's banking
+and telco estates — see **Receta 6**.
+
+**Sellable shape in APAC:** country-by-country, never a regional platform — the
+regulatory instruments are national and do not transfer, and `rotation.json` records
+the same conclusion reached independently in the energy rotation. Lead with the data
+plane and the integration inventory; land the write boundary second, on JVM-native
+components where the core is JVM-native.
+
+---
 
 ### LATAM
 
@@ -927,6 +1107,79 @@ remains the cheapest positioning move available** — and the entitlement bounda
 good candidate for it, because the hard part is the per-system ACL connector, and the systems
 that lack open connectors are precisely the regional ERP localisations this KB already
 catalogues through the OCA `l10n-*` modules for Argentina, Brazil, Chile and Mexico.
+
+#### The write boundary — LATAM, added eighth pass 2026-11-21
+
+**Two binding or near-binding instruments, and the region's problem is volume rather
+than absence.**
+
+- **Peru has a binding risk-based regime in force since 22 January 2026** — **Supreme
+  Decree No. 115-2025-PCM**, the regulation of **Law No. 31814**. This is the region's
+  clearest dated, enforceable instrument and it was not in this KB.
+- **Uruguay is the first country in the region to sign the Council of Europe's Framework
+  Convention on AI.** A treaty signature is not a domestic obligation, but it signals the
+  direction of travel and it is the kind of fact a regional CIO has not heard.
+- **Brazil is contested and must be recorded as contested.** One source credits Brazil
+  with leading the region via a 2024 AI Legal Framework; another, more specific, reports
+  the bill **still awaiting the rapporteur's opinion in a Chamber special committee, with
+  a vote possibly after the October 2026 elections.** The second is the more precise
+  claim and neither was verified against an official source. **Do not tell a Brazilian
+  client their AI law is settled.**
+- **Mexico is irreconcilable in this pass's sources.** One says Mexico still lacks
+  AI-specific legislation as of mid-2026; a Mexican law-firm chapter refers to
+  "landmark legislative amendments enacted in 2026". **Recorded as unresolved — check
+  Mexican primary sources before any Mexico engagement, and do not quote either claim.**
+- **The structural finding: 716 AI-related regulatory instruments, rules and legislative
+  proposals across 23 countries and territories.** The LATAM compliance problem is not a
+  missing rulebook, it is **fragmentation at a scale no client can track manually** —
+  which is itself the argument for machine-readable control evidence. A control
+  catalogue expressed once in OSCAL and profiled per jurisdiction is a better answer to
+  716 instruments than a document per country, and this is the one region where the
+  *volume* argument for the OSCAL layer makes itself.
+- **The EU AI Act reaches the region commercially, not legally.** Latin American
+  companies that cannot certify their systems risk exclusion from tenders and global
+  supply chains. For an exporter, EMEA's Annex IV conversation is a LATAM revenue
+  question.
+
+**Adoption: the gap between "in production" and "working" is the whole market.** A
+secondary source citing IDB and McKinsey reports **67% of large regional enterprises
+already have at least one AI project in production, and only 23% report measurable
+impact on business metrics.** *Could not be traced to the original report — attribute
+it, do not adopt it.* If directionally right it describes a region of **Receta 4
+rescues**: the pilots exist, they are live, and two-thirds of them cannot show a number.
+Financial services leads — thin-file credit scoring, real-time fraud, AML,
+conversational banking — with **Nubank, Mercado Pago, Bancolombia and Itaú** named as
+adopters, and **Softtek** cited for nearshore delivery into Mexican and Colombian
+clients. One source records **no firm-level adoption data for any Latin American
+country**, which is the more reliable statement about the statistics than any of the
+percentages.
+
+**The supply-side gap, now measured with the right instrument — write this down.**
+This pass ran the **short Spanish** query `agentes IA empresa código abierto github
+2026`, because `rotation.json` flags prior LATAM zeros as having been measured with
+long English queries that do not discriminate. Result: **Spanish-language articles
+about global repositories** — Peruvian, Spanish and Italian blogs ranking OpenCode,
+Codex, Gemini CLI, OpenHands, Dify and Langflow. **Not one LATAM-origin enterprise
+agent repository.**
+
+So the zero is now a **measured zero, not an unmeasured silence**, and it is the second
+independent measurement for this KB. **The Spanish-language layer of this ecosystem is
+commentary and translation, not supply.** What LATAM *does* originate, and what this KB
+holds, is the **regulatory and linguistic fitness layer**: `oca/l10n-argentina`,
+`oca/l10n-brazil`, `oca/l10n-chile`, `oca/l10n-mexico` and the `latam-gpt/*`
+data-preparation tools (anonymisation, deduplication, language identification,
+toxicity, data evaluation). That is a real differentiator and it should be sold as
+exactly what it is — **fiscal, legal and linguistic fitness that no global framework
+ships** — and never dressed up as a regional agent runtime.
+
+**Sellable shape in LATAM:** localisation-plus-agentic (Receta 5) remains the entry
+motion; the write boundary attaches to it naturally, because a Brazilian or Mexican
+fiscal posting is precisely a write to a system of record that must be reversible,
+attributable and auditable under a regime that may change. The 716-instrument number
+is the reason to express the controls once, in a machine-readable catalogue, and
+profile them per country.
+
+---
 
 ## Posicionamiento Globant
 

@@ -1,14 +1,85 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 📈 Agentes trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — seventh pass (latest)
+## 2026-11-21 — eighth pass (latest) — the write boundary
+
+> Theme: the seventh pass asked *what may the agent read*. This one asks **what may the
+> agent change**, and **what proves afterwards that it was allowed to**. Every row
+> verified live on 2026-11-21 (`git ls-remote`) with the licence read byte-for-byte from
+> the repository's own `LICENSE`, never from GitHub's SPDX badge — this pass found
+> **four repositories where that badge is wrong**, and in all four it was wrong in the
+> *permissive* direction, which is the opposite of every previous pass.
+
+### The inventory hole: the KB held three of the four hyperscaler agent frameworks
+
+A KB with 234 distinct repository addresses was missing **Google's**. Not a judgement
+call, not a licence exclusion — simply absent, through eight passes, while
+`microsoft/agent-framework`, `openai/openai-agents-python` and the Anthropic-adjacent
+harness layer were all present and tiered.
+
+| Repo | Stars | Licence | Last push | Why it belongs in an enterprise KB |
+|---|---|---|---|---|
+| [google/adk-python](https://github.com/google/adk-python) | 22,295 ★ | Apache-2.0 (11,357 B, byte-read) | 2026-11-21 | Google's Agent Development Kit, the reference implementation of the A2A protocol this KB already tracks via [a2aproject/a2a](https://github.com/a2aproject/a2a). Pushed the day of this pass. |
+| [google/adk-go](https://github.com/google/adk-go) | 8,992 ★ | Apache-2.0 (11,340 B, byte-read) | 2026-11-20 | Go runtime. Matters where the agent must ship as a single static binary into a locked-down estate. |
+| [google/adk-java](https://github.com/google/adk-java) | 1,778 ★ | Apache-2.0 (11,357 B, byte-read) | 2026-11-20 | The JVM option beside `agentscope-java` and `camel-langchain4j-agent`. Relevant to Receta 6 (APAC enterprise core). |
+| [google/adk-python-community](https://github.com/google/adk-python-community) | 188 ★ | Apache-2.0 | 2026-11-20 | Community extension surface, held separately from the supported core — the same split Microsoft uses for `agent-framework-samples`. |
+
+**The lesson is about method, not about Google.** This KB's discovery instrument is
+queries about *problems* ("entitlement", "the data plane", "cost governance"). An
+artefact that answers no single problem — a general framework from a vendor whose
+protocol work was already held — falls through every one of them. **A problem-shaped
+instrument cannot find a category-shaped object.** Any KB in this fleet that has run
+more than three passes should spend one query per pass on a flat inventory check
+against the obvious incumbents, not on a problem.
+
+### Durable agents: the write path's recovery story
+
+| Repo | Stars | Licence | Last push | Notes |
+|---|---|---|---|---|
+| [dapr/dapr-agents](https://github.com/dapr/dapr-agents) | 778 ★ | Apache-2.0 (11,356 B, byte-read) | 2026-11-12 | `DurableAgent` runs as a Dapr Workflow instance; every LLM and tool interaction is persisted to a durable state store, so a half-finished write survives a restart. v1.0 GA March 2026 per Diagrid's announcement (vendor source — the GA *date* is attributed, the repo and licence are verified). |
+| [dapr/dapr](https://github.com/dapr/dapr) | 26,212 ★ | Apache-2.0 (11,411 B, byte-read, `master` branch) | 2026-11-19 | CNCF. The substrate underneath the above. **Workflow versioning landed in v1.17 (February 2026)**: running instances keep replaying against the code they started on while new instances use the updated code. For an agent that is mid-write when you deploy, this is the difference between a resumed transaction and a corrupted one. |
+
+### Trending this week, filtered to what an enterprise would actually run
+
+| Repo | Stars | Licence | Last push | Note |
+|---|---|---|---|---|
+| [block/buzz](https://github.com/block/buzz) | 37,646 ★ | Apache-2.0 (11,337 B, byte-read) | 2026-11-21 | "A hive mind communication platform" — a self-hostable workspace where agents are first-class members beside people, on Nostr. Relevant to the *agent-to-user layer* this KB opened in the sixth pass; self-hostable matters for the sovereignty cases in EMEA and APAC. Pre-1.0 per its own ecosystem. |
+| [Tencent/LoopForge](https://github.com/Tencent/LoopForge) | 5,481 ★ | **MIT** — GitHub reports `NOASSERTION`; see the trap below | 2026-11-21 | Self-hosted workflows for coding-agent delivery, orchestrating CodeBuddy, Codex and others. **APAC-origin supply with a byte-read permissive licence.** Notably it vendors a Tencent-modified copy of [obra/superpowers](https://github.com/obra/superpowers), which this KB already tracks in the skill supply chain — a Big Tech delivery tool shipping a modified community skill framework is exactly the supply-chain shape trend 10 describes. |
+| [openai/codex-security](https://github.com/openai/codex-security) | 14,249 ★ | Apache-2.0 (10,925 B, byte-read) | 2026-11-21 | Security CLI and TypeScript SDK for finding, validating and fixing vulnerabilities. Sits beside `NVIDIA/SkillSpector` and `nvidia/garak` in the red-team section. |
+| [SWE-agent/SWE-agent](https://github.com/SWE-agent/SWE-agent) | 20,845 ★ | MIT (1,146 B, byte-read) | 2026-11-16 | **Rename.** Every roundup still cites `princeton-nlp/SWE-agent`; the canonical owner is now the `SWE-agent` org. See the rename ledger in `repos/foundations.md`. |
+| [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent) | 9,925 ★ | MIT | 2026-11-16 | The stripped-down sibling. Useful as a *readable* reference when a client asks what an agent loop actually is. |
+
+### The licence trap of this pass, and it runs the opposite way to all seven before it
+
+Every previous pass found repositories that **looked permissive and were not**
+(Permify AGPL-3.0, `osohq/oso` archived, FSL, BSL 1.1, the "MIT incipit" impostor).
+This pass found four that **look restricted and are not**:
+
+| Repo | GitHub badge | Byte-read reality |
+|---|---|---|
+| [usnistgov/OSCAL](https://github.com/usnistgov/OSCAL) | `NOASSERTION` | `LICENSE.md`, 5,254 B, first line *"This project is in the worldwide public domain"* |
+| [usnistgov/oscal-cli](https://github.com/usnistgov/oscal-cli) | `NOASSERTION` | `LICENSE.md`, 3,540 B, worldwide public domain |
+| [usnistgov/oscal-content](https://github.com/usnistgov/oscal-content) | `NOASSERTION` | `LICENSE.md`, 2,105 B, worldwide public domain |
+| [Tencent/LoopForge](https://github.com/Tencent/LoopForge) | `NOASSERTION` | `LICENSE`, 3,516 B — *"LoopForge is licensed under MIT, except for the third-party components listed below"*, then the full MIT grant |
+
+**`NOASSERTION` is not a verdict. It is the absence of one.** It means GitHub's
+classifier did not recognise the file, and the two commonest reasons are a
+US-Government public-domain dedication and a corporate preamble above an otherwise
+standard grant. This KB — and, per `rotation.json`, the energy KB last run — has been
+treating `NOASSERTION` as a hard exclusion. That rule produces **false exclusions**,
+and it excluded the entire NIST compliance stack until this pass.
+
+See `repos/foundations.md` for the full new sections, and `intel/trends.md` for the
+three method rules this pass added.
+
+## 2026-11-20 — seventh pass
 
 **No new agents. The newsworthy thing in the agent category this pass is a category that
 contains no agents** — and three archived or copyleft surprises inside it.

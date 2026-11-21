@@ -1,3 +1,9 @@
+---
+industry: enterprise
+region: Global
+updated: 2026-11-21
+---
+
 # 🏢 Enterprise KB
 
 > Knowledge base de la industria **Enterprise** para Globant AI Studios.

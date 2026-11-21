@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 📡 Tendencias — Enterprise
@@ -720,3 +720,231 @@ adds the counterpart: **a pattern name is not a proper name**, and a result page
 all share one repository name should be read as a warning rather than as corroboration. The fix
 is cheap and unchanged — resolve every candidate through the API before writing it down — but
 without naming the trigger, the next pass walks into it again.
+
+---
+
+## Eighth pass, 2026-11-21 — the write boundary, and a licence rule that runs backwards
+
+### 19. The constraint moved again: from what the agent may *read* to what it may *change*
+
+The seventh pass found that the binding constraint on enterprise agents had moved from
+capability to **entitlement** — who the agent acts for and what that person may see.
+One pass later the same clients are asking the next question, and it is harder:
+**what may the agent change in the system of record, and what proves afterwards that
+it was allowed to?**
+
+The evidence that this is the live question, not a predicted one:
+
+- **Segregation of duties is the named failure mode.** Practitioner analyses this
+  quarter are explicit that an agent wired into every step of a workflow can *initiate*
+  an action and then *execute its own approval* inside a single run, collapsing the
+  human separation that SoD exists to enforce. The prescribed fix is structural, not
+  prompt-based: put a human back in the authorisation step, scope what the agent may do
+  alone, and keep an audit trail that **separates who initiated from who authorised**.
+- **The enforcement point is the tool, not the prompt.** The pattern being published is
+  an `approve_invoice` tool that **refuses any call where `requester_id ==
+  approver_id`**, regardless of whether the agent's prompt mentions segregation of
+  duties at all. Authority limits are read from the ERP's own authority matrix rather
+  than restated in the system prompt.
+- **Reversal, not deletion.** The audit guidance is that a wrong posting is corrected
+  by an **approved reversal** in the ERP, never by deleting the record. An agent with
+  delete capability on a financial record is not a control problem, it is an
+  unauditable system.
+- **Read-only is the entry point.** Most deployments described start read-only, with
+  the agent assembling the case and proposing the action for a person to approve, and
+  materiality tiers deciding what it may commit alone.
+
+**Source discipline:** these are vendor, consultancy and practitioner sources — a
+finance-automation guide, an ERP-patterns write-up, a SaaS-governance analysis — plus
+two arXiv preprints on auditable agent claims. **None of them is an audit standard, and
+there is no SoD standard specific to agent write access to an ERP.** The convergence
+across independent commercial sources is the signal; the specifics must be checked
+against the client's own auditor and SOX scope. Recorded as practitioner consensus, not
+as a requirement.
+
+### The protocol-level finding: MCP's only marker for "this changes things" is explicitly untrustworthy
+
+Read from the primary source — `schema/2025-06-18/schema.ts` and
+`docs/specification/2025-06-18/server/tools.mdx` in
+[modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
+because **`modelcontextprotocol.io` does not resolve through this session's egress
+proxy** (see the verification channel note below).
+
+The `ToolAnnotations` interface carries four behavioural flags, and the schema's own
+doc comment opens:
+
+> *"NOTE: all properties in ToolAnnotations are **hints**. They are not guaranteed to
+> provide a faithful description of tool behavior (including descriptive properties
+> like `title`). Clients should never make tool use decisions based on ToolAnnotations
+> received from untrusted servers."*
+
+The specification page states it normatively:
+
+> *"For trust & safety and security, clients **MUST** consider tool annotations to be
+> untrusted unless they come from trusted servers."*
+
+**And the defaults are the part nobody quotes:**
+
+| Flag | Default | Meaning of the default |
+|---|---|---|
+| `readOnlyHint` | **false** | Assume the tool **does** modify its environment |
+| `destructiveHint` | **true** | Assume the modification is **destructive**, not merely additive |
+| `idempotentHint` | **false** | Assume calling it twice has **additional effect** |
+| `openWorldHint` | **true** | Assume it touches an **open world** of external entities |
+
+So the protocol's defaults are correctly conservative: **an unannotated MCP tool is, by
+specification, a non-idempotent destructive open-world operation.** But the only party
+who can declare otherwise is the server — the party clients are instructed not to
+trust.
+
+**The consequence is architectural and it is the whole of Receta 17:** write-path
+safety **cannot** live in tool metadata. `destructiveHint` is useful as *documentation*
+and as a *default-deny input to a policy decision*; it can never be the enforcement
+point. Enforcement has to sit where the call is mediated — the integration route, the
+gateway, the policy engine — in something the client controls rather than something the
+tool author asserts. Any vendor who tells a client their platform "respects MCP tool
+annotations" has described a documentation feature as a security control.
+
+### 20. Compliance evidence became a machine-readable artefact, and the tooling is a decade old
+
+The governance trends in this file (3, 14, 16) all end at the same wall: the client
+accepts that governance is a buying requirement, and then asks what they hand the
+auditor. Until this pass this KB had **no answer in the form of tooling** — zero
+occurrences of OSCAL across all nine files.
+
+NIST's **OSCAL** expresses control catalogs, profiles, component definitions, system
+security plans, assessment plans and assessment results as validatable XML/JSON/YAML.
+Around it: `compliance-trestle` for authoring with CI, `complyctl` as a runtime that
+pulls **Gemara** policy from an **OCI registry** and emits **OSCAL, SARIF, EvaluationLog
+and Markdown**, and providers bridging to **OpenSCAP, Ampel and OPA**. Full table in
+`repos/foundations.md`.
+
+Three things make this a trend rather than a tool list:
+
+1. **The evidence format is now agent-addressable.**
+   [oscal-compass/compliance-trestle-mcp](https://github.com/oscal-compass/compliance-trestle-mcp)
+   exposes trestle's operations over MCP. The agent can author the control evidence
+   describing its own governance. That is either the most useful closing of the loop in
+   this KB or the most obvious conflict of interest in it, **depending entirely on
+   whether the evidence is signed by something the agent cannot write to** — which is
+   why Receta 17 puts the evidence store outside the agent's own write boundary.
+2. **Policy is shipping as an OCI artefact.** complyctl pulls Gemara policy layers from
+   a container registry. The client's compliance policy gets the same distribution,
+   versioning and signing machinery as their container images — and the same supply
+   chain risk, which is trend 10's problem arriving in a new layer.
+3. **The surface limiter is in the product, not the proposal.**
+   `compliance-trestle-mcp` ships a `TRESTLE_MCP_TOOLS` environment variable; `all`
+   exposes every tool and **the default exposes only the authoring lifecycle.** A
+   maintainer shipping a narrower-than-maximal default tool surface is the first
+   instance this KB has recorded of the write-boundary principle appearing *inside* an
+   MCP server rather than in guidance about them. Cite it: it is evidence the practice
+   is real.
+
+### A seventh licence class, and the first one that runs in the permissive direction
+
+Every licence trap in the seven previous passes ran the same way: **looked permissive,
+was not.** Permify AGPL-3.0 behind SpiceDB-identical marketing copy. `osohq/oso`
+archived. FSL's time-delayed permissiveness. BSL 1.1 reading as open source. The "MIT
+incipit" impostor whose title said *PROPRIETARY AND NON-COMMERCIAL* above a verbatim
+MIT grant sentence. The EUPL enumerating five foreign licence names and defeating every
+keyword detector.
+
+This pass found four that run the other way — **looked restricted, were not**:
+
+| Repo | GitHub badge | Byte-read reality | Why the classifier failed |
+|---|---|---|---|
+| [usnistgov/OSCAL](https://github.com/usnistgov/OSCAL) | `NOASSERTION` | worldwide public domain, 5,254 B | US-Government public-domain dedication — not an SPDX licence at all |
+| [usnistgov/oscal-cli](https://github.com/usnistgov/oscal-cli) | `NOASSERTION` | worldwide public domain, 3,540 B | same |
+| [usnistgov/oscal-content](https://github.com/usnistgov/oscal-content) | `NOASSERTION` | worldwide public domain, 2,105 B | same |
+| [Tencent/LoopForge](https://github.com/Tencent/LoopForge) | `NOASSERTION` | **MIT**, 3,516 B | a corporate preamble above the grant, plus a bundled third-party licence appendix |
+
+**The rule: `NOASSERTION` is not a verdict, it is the absence of one.** It records that
+GitHub's classifier did not recognise the file. It must be resolved by byte-read **in
+both directions**, and the two commonest causes of a false restriction are a
+government public-domain dedication and a vendor preamble above a standard grant.
+
+This matters beyond one KB. `rotation.json` records the energy pass closing with *"4
+hard exclusions, all `NOASSERTION`, all with traction"*. Those exclusions may be
+correct — but if they were made **on the badge rather than on the file**, some of them
+are false, and the method that produced them is the method that hid the entire NIST
+compliance stack from this KB for seven passes.
+
+**And the corollary that is easy to miss:** public domain is not strictly more
+permissive than Apache-2.0. A US-Government dedication carries **no express patent
+grant and no warranty disclaimer**. For redistribution inside a client deliverable, the
+Apache-2.0 sibling may be the better legal choice than the nominally freer NIST
+original.
+
+### Method — three more ways to be wrong, bringing the count to thirteen
+
+**Eleven. A problem-shaped instrument cannot find a category-shaped object.** This KB
+holds 234 distinct repository addresses and, through seven passes, **three of the four**
+hyperscaler agent frameworks. `google/adk-python` — 22,295 ★, Apache-2.0, pushed the day
+of this pass — was simply never found, because every query this KB runs is shaped like a
+*problem* ("the data plane", "the entitlement boundary", "cost governance") and a
+general-purpose framework answers no single problem. The `rotation.json` rule *"the
+query vocabulary matters more than the query count"* is true and insufficient: a
+vocabulary of problems has a blind spot shaped exactly like a product. **Any KB past
+its third pass should spend one query per pass on a flat inventory check against the
+obvious incumbents.**
+
+**Twelve. The org-named repo is not the product.**
+`complytime/complytime` has **1 star** and holds design proposals.
+`complytime/complyctl` has 38 ★ and is the runtime. Composing `owner/owner` from an org
+name — which looks like the safest possible guess — would have placed a one-star
+proposals repository into a foundations table as a flagship. **List the org, read the
+descriptions, and never compose a slug.** This is the mirror image of rule twelve's
+neighbour: the slug that resolves is not necessarily the slug that matters.
+
+**Thirteen. Read the manifest, not the announcement.** Apache's own blog names the
+Camel MCP component "camel-mcp"; the tree contains **`camel-mcp-server`**, and the
+blog's name resolves to nothing. The same `components/camel-ai/pom.xml` read revealed
+**`camel-a2a`**, which no blog, release note or roundup mentioned at all. The
+manifest-first rule already existed in this fleet for *licences*; this pass extends it
+to **capabilities**. When a layer is new enough that the vendor is still writing about
+it, the build file is more current than the prose — and the prose is where the wrong
+dependency coordinates come from.
+
+### Archived-but-recommended: now seven, and the pattern has a tell
+
+[complytime/complyscribe](https://github.com/complytime/complyscribe), 21 ★,
+Apache-2.0, **archived** with its last push 2026-05-11 — while a ComplyTime QuickStart
+site and a May-2026 write-up both still present it as the way to bring trestle into
+CI/CD. That is the seventh instance across this KB and the energy KB.
+
+**The tell, stated so it can be checked in one step:** in all seven cases the project
+was *recommended by documentation that shipped alongside it* rather than by an
+independent source. Project-adjacent documentation is written once, at the moment of
+enthusiasm, and is never revised when the code is abandoned. **A recommendation from a
+project's own site or a launch post is not evidence of liveness — only the repository's
+`archived` flag and last-push date are.** Check both, every time, even when the
+recommending page looks official. Especially then.
+
+### Independent confirmation of this KB's most-repeated correction
+
+This pass's EMEA search surfaced an IBM study dated **14 October 2026** reporting that
+**41% of surveyed EU executives are accelerating governance investment ahead of the EU
+AI Act's high-risk obligations in December 2027.** This KB has corrected the stale
+"2 August 2026" date in five consecutive passes.
+
+That IBM date is now the **third independent confirmation** of the position recorded in
+`intel/market.md` — Regulation (EU) 2026/1744, the Digital Omnibus, moved Annex III
+high-risk obligations to **2 December 2027** and Annex I to 2 August 2028 — and the
+first that comes from an **enterprise survey rather than the regulation itself.** It is
+usable in front of a client who will not read a regulation but will read IBM.
+
+**The stale date has not gone away.** This pass's searches *again* returned
+"2 August 2026" alongside the correct date, from different sources, in the same result
+set. Expect clients to arrive with the wrong deadline for at least another quarter, and
+expect it from reputable-looking sources.
+
+### Verification channel for this pass — what could and could not be checked
+
+| Channel | Status | Consequence |
+|---|---|---|
+| `git ls-remote` | **working** | Every repository in this pass's tables confirmed live on 2026-11-21. |
+| `raw.githubusercontent.com` | **working** | All 23 licences byte-read from the repository's own `LICENSE`; four `NOASSERTION` badges resolved. Primary-source reads of the MCP schema and spec, Camel's `pom.xml`, complyctl's and trestle-mcp's READMEs. |
+| `gh api search/repositories` | **working, with one blind spot** | Stars, SPDX badge, last push and the `archived` flag — which is how complyscribe was caught. **Blind spot: `ossf/gemara` returns no result at all** (including for `repo:ossf/gemara`, HTTP 422), so **no star count is quoted for it**. A repository absent from the search index is not a repository that does not exist — `git ls-remote` says it is live and its licence was byte-read. |
+| `gh api repos/<owner>/<repo>` | **denied by session scope** | Confirmed again. The default branch cannot be queried, so licence probing iterates `main`/`master`/`develop` blind — `dapr/dapr` and `ComplianceAsCode/content` were both found on `master`. Per `rotation.json`: a "no artefact" result from this endpoint is a permission failure wearing the costume of a finding. |
+| `modelcontextprotocol.io` | **does not resolve** (`ENOTFOUND`, outside the session's allowed domains) | The MCP specification was read instead from `modelcontextprotocol/modelcontextprotocol` on `raw.githubusercontent.com`, which is the same text at its source of truth. **No loss of primary-source quality** — unlike the arXiv gap the energy pass had to declare, this one was fully substituted. The host should be allowed in the session's network settings if a future pass needs the rendered site. |
+| arXiv | **not attempted** | `rotation.json` records arxiv.org as proxy-rejected (403). Two arXiv preprints appeared in this pass's SoD search results and are recorded as **search-listed and unverified**, never as bibliography. |

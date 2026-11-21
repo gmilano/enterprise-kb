@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 🏭 Verticales de partida — Enterprise
@@ -376,3 +376,55 @@ client will not discover it until someone asks the agent a question about a coll
 **Never quote path 3 and then let SharePoint be added without re-pricing.** That transition —
 from flat corpus to entitled corpus — is the whole of Receta 16, and it is not a configuration
 change.
+
+---
+
+## Integration platforms — the system the client already runs, and the cheapest agent surface they own (added eighth pass, 2026-11-21)
+
+Every vertical in this file — ERP, CRM, ITSM, BPM, collaboration — is reached from
+outside through an integration layer. In most enterprises of the size Globant sells
+to, **that layer is already deployed, already connected and already owned by a team
+with a change process.** Treating it as a platform to agent-enable, rather than
+something to work around, is the single largest cost reduction available in a Receta 1
+engagement.
+
+| Plataforma | Repo | Licencia | Stars | Qué es | Cómo se customiza con AI |
+|---|---|---|---|---|---|
+| Apache Camel | [apache/camel](https://github.com/apache/camel) | Apache-2.0 (byte-read, 11,357 B) | 6,419 ★ | The enterprise integration runtime: 300+ components for SAP, Salesforce, JDBC, JMS, FTP, mainframe and message buses, expressed as routes. | **`camel-ai-tool` turns an existing route into a tool** callable from LangChain4j, Spring AI, OpenAI-shaped clients and any MCP client at once; `camel-mcp-server` publishes them; `camel-ai-resource` exposes a route as a read-only MCP resource; `camel-a2a` speaks A2A. No new integration code. |
+| Conductor | [conductor-oss/conductor](https://github.com/conductor-oss/conductor) | Apache-2.0 (11,309 B) | 32,494 ★ | Netflix-origin workflow orchestration, now community-governed. | Agent steps as workers in an existing workflow definition, with the orchestration decision staying in Conductor rather than in the prompt. |
+| Dapr | [dapr/dapr](https://github.com/dapr/dapr) | Apache-2.0 (11,411 B) | 26,212 ★ | CNCF. State, pub/sub, bindings and workflow as sidecar APIs. | [dapr/dapr-agents](https://github.com/dapr/dapr-agents) makes each agent a durable workflow and an actor — the write survives a restart. |
+
+### Why this is a *different* claim from the one in `compose/patterns.md` Receta 1
+
+Receta 1 agent-enables an ERP by writing an MCP server in front of it. That is correct
+and still the right answer when no integration layer exists. But where one does:
+
+- The connections, credentials and network paths **already exist and are already
+  approved**. The security review you would otherwise run for a new MCP service has
+  mostly been run already, years ago, for the route.
+- The transformations **already encode the client's business rules** — field mappings,
+  validation, the reason invoice posting needs three fields the API docs do not
+  mention. A hand-written MCP server starts from the API; a Camel route starts from the
+  accumulated institutional knowledge of how that API is actually used here.
+- There is **an owning team with a change process**. This matters more than it sounds:
+  the commonest reason an agent pilot stalls in month three is that nobody owns the
+  integration it depends on.
+
+**Star counts mislead badly here**, and this file's own trend 11 predicted it: Camel at
+6,419 ★ is far below the agent frameworks, and it is the most enterprise-ready thing in
+this table. The star count measures developer enthusiasm; Camel's constituency is
+integration architects, who do not star repositories.
+
+### What to check before quoting this
+
+1. **Camel version.** The unified `camel-ai-tool` and the built-in MCP server are
+   recent (the 4.2x line). A client on 4.8 or 3.x does not have them, and an upgrade
+   across a Camel major is a project in itself. **Ask for the version before the
+   proposal, not after.**
+2. **The artefact name is `camel-mcp-server`.** Apache's blog says "camel-mcp"; the
+   tree does not contain that. Verified by reading `components/camel-ai/pom.xml`.
+3. **Routes are not tools just because they can be published.** A route that posts a
+   financial transaction must not be exposed as a tool without the write-boundary
+   controls in **Receta 17** — least of all on the strength of an MCP
+   `destructiveHint`, which the specification itself says clients must treat as
+   untrusted.

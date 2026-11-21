@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 🧩 Patrones de composición — Enterprise
@@ -962,6 +962,219 @@ this layer:** `Permify/permify` (AGPL-3.0, sits on the request path), `osohq/oso
 
 ---
 
+---
+
+## Receta 17 — The write boundary: an agent that may change the system of record, and an auditor who can verify it afterwards
+
+**When to use it.** The client has accepted Receta 16's read boundary and the agent now
+answers each employee from only what that employee may read. The next request is always
+the same: *"can it just do it?"* — post the invoice, raise the PO, close the ticket,
+issue the credit. This recipe is the answer that survives an audit.
+
+**Who buys it.** The CFO's organisation and Internal Audit, jointly — not IT alone.
+That is unusual for an agent engagement and it is the reason this one closes: the
+budget holder and the blocker are the same conversation.
+
+### The failure mode, stated plainly so it can be sold
+
+An agent wired into every step of a workflow **can initiate an action and then execute
+its own approval inside a single run.** It is not malicious and it is not a bug; the
+agent has both tools, so it uses both. What breaks is **segregation of duties** — the
+control that requires the person who raises a transaction to be different from the
+person who approves it. SoD is not a best practice in a regulated client; it is a SOX
+control, and collapsing it is a material weakness.
+
+Say it to the client in one sentence: **"the moment your agent can both request and
+approve, you have not automated a control — you have removed one."**
+
+### The architectural finding that determines the whole design
+
+Read from the MCP specification's own source
+([modelcontextprotocol/modelcontextprotocol](https://github.com/modelcontextprotocol/modelcontextprotocol),
+`schema/2025-06-18/schema.ts` and `docs/specification/2025-06-18/server/tools.mdx`):
+
+> *"NOTE: all properties in ToolAnnotations are **hints**. They are not guaranteed to
+> provide a faithful description of tool behavior… Clients should never make tool use
+> decisions based on ToolAnnotations received from untrusted servers."*
+
+> *"For trust & safety and security, clients **MUST** consider tool annotations to be
+> untrusted unless they come from trusted servers."*
+
+And the defaults: `readOnlyHint` **false**, `destructiveHint` **true**,
+`idempotentHint` **false**, `openWorldHint` **true**.
+
+**So the only protocol-level marker that a tool changes something is a hint the client
+is instructed not to trust.** Write-path safety therefore **cannot live in tool
+metadata**. `destructiveHint` is good documentation and a sound default-deny input to a
+policy decision; it is never the enforcement point. Enforcement has to sit where the
+call is mediated, in something the client controls. That is this recipe's spine.
+
+### Wiring
+
+```
+                    ┌──────────── the agent ────────────┐
+                    │  adk-python / MAF / LangGraph /   │
+                    │  dapr-agents  (proposes only)     │
+                    └───────────────┬───────────────────┘
+                                    │  every write attempt
+                                    ▼
+  ┌──────────────────── THE ONLY WRITE CHANNEL ────────────────────┐
+  │  apache/camel  —  camel-mcp-server publishes camel-ai-tool     │
+  │  routes that ALREADY connect to the ERP/CRM                    │
+  │   · camel-semantic-wolf-defender  → local prompt-injection     │
+  │     inference, in-route, no call out                           │
+  │   · the route classifies the operation itself; the server's    │
+  │     destructiveHint is recorded, never believed                │
+  └───────────────┬────────────────────────────────────────────────┘
+                  ▼
+  ┌──── DECISION ────┐   open-policy-agent/opa  or  cerbos/cerbos
+  │ may THIS user,   │   + openfga/openfga (relationship check from Receta 16)
+  │ via THIS agent,  │   authority limits read from the ERP's own
+  │ change THIS?     │   authority matrix — never restated in a prompt
+  └────────┬─────────┘
+           ▼
+  ┌──── SoD GATE (in the tool, not the prompt) ────┐
+  │  reject if requester_id == approver_id         │
+  │  reject if agent identity == approver identity │
+  │  spiffe/spire gives the agent its own workload │
+  │  identity so it can never BE the approver      │
+  └────────┬───────────────────────────────────────┘
+           ▼
+  ┌──── HUMAN AUTHORISATION ────┐  humanlayer/humanlayer
+  │ above the materiality tier  │  (a component, not a convention)
+  └────────┬────────────────────┘
+           ▼
+  ┌──── DURABLE, IDEMPOTENT EXECUTION ────┐
+  │ temporalio/temporal | restatedev/restate | dapr/dapr workflow │
+  │ idempotency key per business action    │
+  │ compensation = an APPROVED REVERSAL in the ERP, never a DELETE │
+  └────────┬───────────────────────────────┘
+           ▼
+  ┌──── EVIDENCE, OUTSIDE THE AGENT'S WRITE BOUNDARY ────┐
+  │ complytime/complyctl  → OSCAL + SARIF + EvaluationLog │
+  │   providers: OpenSCAP · Ampel · OPA (already in stack)│
+  │ oscal-compass/compliance-trestle → the SSP, in CI     │
+  │ usnistgov/oscal-cli  → validation gate                │
+  │ langfuse/langfuse + openllmetry → the behavioural log │
+  └───────────────────────────────────────────────────────┘
+```
+
+### Build order — and the order is the deliverable
+
+1. **Inventory the write surface before building anything.** Enumerate every tool the
+   agent can reach and classify each one yourself: read-only, additive, destructive,
+   idempotent or not. Record the server's declared `destructiveHint` beside your own
+   classification. **Where they disagree, your classification wins and the disagreement
+   is a finding** — it is the first concrete artefact of the engagement and it is
+   usually the moment the client realises how large the surface already is.
+2. **Make the integration layer the only write channel.** If the client runs Apache
+   Camel, publish the existing routes with `camel-ai-tool` through
+   `camel-mcp-server` and **block every other write path at the network layer**. One
+   mediated channel is the precondition for every control below it; two channels means
+   none. *Check the Camel version first — the unified tool component and the built-in
+   MCP server are 4.2x-line features, and the artefact is `camel-mcp-server`, not
+   `camel-mcp`.*
+3. **Give the agent its own identity, distinct from the user's.** `spiffe/spire` for the
+   workload identity, token exchange (Receta 16) to carry the user's identity for the
+   *read*. The agent must be structurally incapable of being the approver, and that is
+   an identity property, not a policy rule.
+4. **Move the authority limits out of the prompt.** Read thresholds from the ERP's
+   authority matrix at decision time via OPA or Cerbos. A limit written in a system
+   prompt is a suggestion to a language model; a limit read from the authority matrix
+   is the client's existing control, reused. **This is the step that converts an agent
+   project into an internal-controls project, and it is where the CFO's organisation
+   starts paying attention.**
+5. **Enforce SoD inside the tool.** `approve_invoice` refuses any call where
+   `requester_id == approver_id`, and refuses any call where the approver identity is
+   the agent's own — **regardless of what the prompt says, and regardless of what the
+   model intended**. Test it with a prompt that explicitly instructs the agent to
+   self-approve; the tool must refuse and the refusal must be logged.
+6. **Set materiality tiers with the client's auditor in the room.** Small, reversible,
+   policy-bounded actions commit autonomously; everything above the tier goes to
+   `humanlayer`. The tier is the auditor's number, not Globant's and not the CFO's.
+7. **Make execution durable and idempotent.** One idempotency key per business action,
+   so a retry after a timeout cannot double-post. Use Temporal, Restate or Dapr
+   Workflow. **If Dapr: require v1.17 or later for workflow versioning** — without it,
+   a deploy while a write is in flight replays the workflow against changed code, which
+   is how a durability mechanism corrupts the transaction it was protecting.
+8. **Compensate by reversal, never by deletion.** A wrong posting is corrected with an
+   approved reversal in the ERP. Remove delete capability on financial records from the
+   agent's tool surface entirely — an agent that can delete a record is not a control
+   problem, it is an unauditable system.
+9. **Emit evidence into a store the agent cannot write to.** `complyctl` produces OSCAL
+   assessment results, SARIF and EvaluationLog; `compliance-trestle` assembles the SSP
+   in CI; `oscal-cli` validates it as a merge gate. **The agent's write boundary must
+   not include the evidence store.** This is the one hard rule in the recipe.
+10. **Only then let the agent author compliance documentation.**
+    `oscal-compass/compliance-trestle-mcp` exposes trestle over MCP, so the agent can
+    draft control narratives and component definitions. Keep `TRESTLE_MCP_TOOLS` at its
+    **default**, which exposes only the authoring lifecycle rather than `all`. Note what
+    this means: the maintainers shipped a narrower-than-maximal default tool surface —
+    **the write-boundary principle, implemented inside an MCP server by its own
+    authors.** Cite it to the client; it is evidence the practice is not a consultancy
+    invention.
+
+### Licence posture
+
+| Component | Licence | Verified |
+|---|---|---|
+| [apache/camel](https://github.com/apache/camel) | Apache-2.0 | 11,357 B `LICENSE.txt`, byte-read 2026-11-21 |
+| [dapr/dapr](https://github.com/dapr/dapr) · [dapr/dapr-agents](https://github.com/dapr/dapr-agents) | Apache-2.0 | 11,411 B (`master`) / 11,356 B, byte-read |
+| [complytime/complyctl](https://github.com/complytime/complyctl) | Apache-2.0 | 11,342 B, byte-read |
+| [oscal-compass/compliance-trestle](https://github.com/oscal-compass/compliance-trestle) · [-mcp](https://github.com/oscal-compass/compliance-trestle-mcp) | Apache-2.0 | 11,357 B each, byte-read |
+| [usnistgov/OSCAL](https://github.com/usnistgov/OSCAL) · [oscal-cli](https://github.com/usnistgov/oscal-cli) · [oscal-content](https://github.com/usnistgov/oscal-content) | **worldwide public domain** (GitHub badge: `NOASSERTION`) | `LICENSE.md` byte-read: 5,254 B / 3,540 B / 2,105 B |
+| [open-policy-agent/opa](https://github.com/open-policy-agent/opa) · [cerbos/cerbos](https://github.com/cerbos/cerbos) · [openfga/openfga](https://github.com/openfga/openfga) · [spiffe/spire](https://github.com/spiffe/spire) | Apache-2.0 | held from earlier passes, re-verified live |
+| [humanlayer/humanlayer](https://github.com/humanlayer/humanlayer) · [temporalio/temporal](https://github.com/temporalio/temporal) · [restatedev/restate](https://github.com/restatedev/restate) | per earlier passes — **check `restate`'s BUSL note in `repos/foundations.md` before quoting** | — |
+
+**Every component is permissive**, with one deliberate flag: Restate's licence caveat is
+already recorded in this KB and Temporal or Dapr Workflow substitutes for it cleanly.
+
+**Two licence warnings specific to this recipe.** First, the NIST repositories are
+**public domain, which is not strictly better than Apache-2.0**: there is no express
+patent grant and no warranty disclaimer, so for anything redistributed inside a client
+deliverable the `oscal-compass/*` and `complytime/*` Apache-2.0 siblings may be the
+better legal choice than the nominally freer NIST original. Second,
+**`complytime/complyscribe` is archived** (last push 2026-05-11) although its own
+QuickStart documentation still presents it as the CI route — use `complyctl` plus
+`complytime-providers`.
+
+### Sizing and the milestone to fix
+
+**Twelve to sixteen weeks.** The fixed milestone, in the contract, at **week six**:
+
+> *A tool that refuses to let the agent approve its own request, demonstrated live
+> against a prompt that explicitly instructs it to, with the refusal visible in the
+> audit log — and the same action completing successfully when a second human approves
+> it.*
+
+That demo is short, it is adversarial, and it is the only thing that moves Internal
+Audit from blocker to sponsor. It also fails honestly: if the authority matrix cannot
+be read programmatically, week six is when everyone finds out, rather than week
+fourteen.
+
+### What to tell the client the limits are
+
+- **This does not make the agent's judgement correct.** It makes every action
+  attributable, bounded, reversible and evidenced. The agent will still occasionally
+  propose the wrong invoice; the control is that a human approved it and the record
+  shows who.
+- **There is no audit standard for agent write access to an ERP.** The SoD patterns,
+  approval thresholds and audit-trail contents in this recipe come from practitioner,
+  vendor and consultancy sources that **converge but are not authoritative**. The
+  client's own auditor sets the standard. Say so in the proposal — claiming otherwise
+  is the fastest way to lose Internal Audit.
+- **OSCAL is a North American artefact.** It is a sound evidence substrate anywhere, and
+  it is **not** an EU AI Act Annex IV conformity format — no machine-readable canonical
+  format for Annex IV exists. Do not let the OSCAL deliverable be heard as AI Act
+  certification in EMEA.
+- **If the client has no integration layer, step 2 becomes a project.** This recipe is
+  dramatically cheaper where Camel, Conductor or Dapr is already deployed and owned by a
+  team with a change process. Where there is none, Receta 1's hand-written MCP server is
+  the correct starting point and this recipe follows it rather than replacing it.
+- **Materiality tiers drift.** A tier set with the auditor in week three is a control
+  that needs re-approval when the business changes. Build the tier as configuration with
+  its own approval workflow, not as a constant in code.
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation
@@ -1038,3 +1251,34 @@ this layer:** `Permify/permify` (AGPL-3.0, sits on the request path), `osohq/oso
 - **Treating a stale README as a live project.** None of the three archived repositories says
   it is archived. Check the API's `archived` flag and the last push date for every dependency
   you put in a proposal.
+- **Letting `destructiveHint` be a security control.** The MCP specification says clients
+  **MUST** consider tool annotations untrusted unless they come from trusted servers, and
+  its schema says all `ToolAnnotations` properties are *hints* that may not faithfully
+  describe behaviour. Classify the write surface yourself and enforce at the mediation
+  point. A vendor claiming their platform "respects MCP tool annotations" has described
+  documentation as a control. (Eighth pass.)
+- **Giving the agent write access to its own evidence store.** `compliance-trestle-mcp`
+  makes it genuinely useful for an agent to author control documentation — which means the
+  evidence store must sit **outside** the agent's write boundary, or the audit trail is
+  self-certified. Useful and self-certifying are one configuration apart. (Eighth pass.)
+- **Automating an approval instead of automating the work.** An agent that can both request
+  and approve has not automated a control, it has removed one. Segregation of duties is a
+  SOX control in a regulated client; collapsing it is a material weakness, not an
+  efficiency. Enforce `requester_id != approver_id` in the tool, and prove it with a prompt
+  that explicitly instructs the agent to self-approve. (Eighth pass.)
+- **Deleting to fix a wrong write.** Corrections to a system of record are approved
+  reversals. Remove delete capability on financial records from the agent's tool surface
+  entirely. (Eighth pass.)
+- **Reading `NOASSERTION` as a restriction.** Four repositories this pass carried the badge
+  and were permissive: three NIST repos are **worldwide public domain** and
+  `Tencent/LoopForge` is **MIT** behind a corporate preamble. `NOASSERTION` is the absence
+  of a verdict, not a verdict — resolve it by byte-read **in both directions**. Treating it
+  as a hard exclusion hid the entire NIST compliance stack from this KB for seven passes.
+  (Eighth pass.)
+- **Composing a repository slug from an org name.** `complytime/complytime` has 1 star and
+  holds design proposals; the product is `complytime/complyctl` at 38 ★. List the org and
+  read the descriptions. (Eighth pass.)
+- **Quoting a dependency coordinate from a release blog.** Apache's own blog names the Camel
+  MCP component "camel-mcp"; the tree contains `camel-mcp-server`. The same manifest read
+  revealed `camel-a2a`, which no blog mentioned at all. Read the build file, not the
+  announcement. (Eighth pass.)

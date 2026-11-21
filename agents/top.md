@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 🎯 Agentes AI — Enterprise
@@ -310,3 +310,78 @@ defensible with the three numbers above. Components in `repos/foundations.md`; t
 > unchanged. What was missing was everything needed to *act* on it — and, separately, a
 > non-NVIDIA option, since `intel/market.md` flags vendor concentration as a live risk in the
 > governance layer. Cube, MetricFlow and Malloy are that option.
+
+---
+
+## Tier 1 addition — Google ADK, the framework this KB had missed for eight passes (added eighth pass, 2026-11-21)
+
+A knowledge base holding 234 distinct repository addresses held **three of the four**
+hyperscaler agent frameworks. Microsoft's, OpenAI's and the Anthropic-adjacent harness
+layer were all present and tiered; Google's was absent entirely. Not excluded on
+licence, not rejected on maturity — never found, because this KB's discovery queries
+are shaped like *problems* and a general-purpose framework answers no single problem.
+
+All four rows verified live on 2026-11-21 (`git ls-remote`), licence byte-read from
+each repository's own `LICENSE`.
+
+| Agente | Repo | Licencia | Stars | Último push | Qué aporta |
+|---|---|---|---|---|---|
+| Google ADK (Python) | [google/adk-python](https://github.com/google/adk-python) | Apache-2.0 (11,357 B) | 22,295 ★ | 2026-11-21 | The reference implementation of **A2A**, the protocol this KB already tracked through [a2aproject/a2a](https://github.com/a2aproject/a2a) without holding its primary consumer. Pushed on the day of this pass. |
+| Google ADK (Go) | [google/adk-go](https://github.com/google/adk-go) | Apache-2.0 (11,340 B) | 8,992 ★ | 2026-11-20 | Single static binary. The option when the agent must be deployed into an estate that will not host a Python runtime. |
+| Google ADK (Java) | [google/adk-java](https://github.com/google/adk-java) | Apache-2.0 (11,357 B) | 1,778 ★ | 2026-11-20 | The JVM-native choice beside `agentscope-java` and `camel-langchain4j-agent`. Directly relevant to **Receta 6** (APAC enterprise core). |
+| ADK community extensions | [google/adk-python-community](https://github.com/google/adk-python-community) | Apache-2.0 | 188 ★ | 2026-11-20 | Held separately from the supported core — the same supported/community split Microsoft uses with `agent-framework-samples`. Read the boundary before quoting support. |
+
+**How to position it.** The honest line to a client is that the three permissive
+hyperscaler frameworks are now close enough in capability that **the choice is a
+runtime and an ecosystem decision, not a capability one**: Python/Go/Java coverage,
+which protocol the client has already committed to (A2A vs MCP-only), and whose
+support contract they can buy. This KB's trend 9 holds — the unit of adoption is the
+harness, not the framework — so none of these four should be sold as the centrepiece
+of an engagement.
+
+## Tier 1 addition — the durable agent (added eighth pass, 2026-11-21)
+
+Relevant specifically because this pass's theme is **writes**. An agent that only reads
+can be restarted at will. An agent that was halfway through posting a journal entry
+cannot.
+
+| Agente | Repo | Licencia | Stars | Último push | Qué aporta |
+|---|---|---|---|---|---|
+| Dapr Agents | [dapr/dapr-agents](https://github.com/dapr/dapr-agents) | Apache-2.0 (11,356 B) | 778 ★ | 2026-11-12 | `DurableAgent` runs as a Dapr Workflow instance and each agent is an actor; every LLM and tool interaction is persisted to a durable state store, so an interrupted write resumes instead of restarting. Child-workflow composition for fixed multi-agent patterns, runtime discovery for dynamic ones. |
+
+**The detail that matters more than the framework**: Dapr Workflow gained **versioning
+in v1.17 (February 2026)** — running instances keep replaying against the code they
+started on, while new instances use the updated code. Deploying mid-transaction is a
+routine event in an enterprise, and without versioning a replay against changed code
+is how a durable workflow corrupts the thing it was protecting.
+
+**Attribution note:** the v1.0-GA date (March 2026) and the claim that Diagrid ships
+durable-workflow integrations for LangGraph, Microsoft Agent Framework, OpenAI Agents
+SDK and Pydantic AI come from **vendor sources** (Diagrid's own blog). The repository,
+its licence and its last push are verified; the GA date is attributed, not verified.
+
+## Rename — every roundup still cites the old owner (added eighth pass, 2026-11-21)
+
+| Cited as | Canonical today | Evidence |
+|---|---|---|
+| `princeton-nlp/SWE-agent` | [SWE-agent/SWE-agent](https://github.com/SWE-agent/SWE-agent) | 20,845 ★, MIT (1,146 B, byte-read), pushed 2026-11-16. The old path still redirects, which is why the roundups never notice. Sibling: [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent), 9,925 ★, MIT — the stripped-down version, genuinely useful as a *readable* answer when a client asks what an agent loop is. |
+
+## Gap re-measured this pass — LATAM-origin enterprise agents, with the short instrument
+
+**Still zero, and now measured properly.** The fleet's standing concern (recorded in
+`rotation.json` as open item 15-R2) is that prior LATAM zeros were measured with
+long English queries, which do not discriminate. This pass ran the **short Spanish**
+instrument — `agentes IA empresa código abierto github 2026`.
+
+What came back: Spanish-language *articles about global repositories* — Peruvian,
+Italian and Spanish blogs ranking OpenCode, Codex, Gemini CLI, OpenHands, Dify and
+Langflow. **Not one LATAM-origin enterprise agent repository.** The Spanish-language
+layer of this ecosystem is commentary and translation, not supply.
+
+So the zero is now a **measured zero rather than an unmeasured silence**, and it is the
+second independent measurement. The LATAM-origin repositories this KB *does* hold
+remain the localisation and data-quality layers — `oca/l10n-argentina`,
+`oca/l10n-brazil`, `oca/l10n-chile`, `oca/l10n-mexico`, `resilient-tech/india-compliance`
+(APAC, for contrast) and the `latam-gpt/*` data-preparation tools. **That is the shape
+of LATAM supply: regulatory and linguistic fitness, not agent runtimes.** Sell it that
+way — it is a real and defensible differentiator, and it is not a framework.

@@ -1,14 +1,104 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-20
+updated: 2026-11-21
 ---
 
 # 📈 Repos trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-20 — seventh pass (latest)
+## 2026-11-21 — eighth pass (latest) — the write channel and the evidence trail
+
+> Two layers this KB did not have at all, found by asking what happens *after* the
+> agent decides to act: the **integration runtime that carries the write into the
+> system of record**, and the **machine-readable format that proves the write was
+> authorised**. Both verified live on 2026-11-21 with licences byte-read from each
+> repository's own `LICENSE`.
+
+### Enterprise integration — the write channel that is already deployed at the client
+
+The KB held workflow-automation tools (`n8n`, `activepieces`, `kestra`) but not the
+classic enterprise integration layer. That is the layer that *already* holds the
+client's connections to SAP, Salesforce, JDBC, JMS, AS/400 and the rest — and as of
+2026 it speaks MCP and A2A natively.
+
+| Repo | Stars | Licence | Last push | Note |
+|---|---|---|---|---|
+| [apache/camel](https://github.com/apache/camel) | 6,419 ★ | Apache-2.0 (11,357 B `LICENSE.txt`, byte-read) | 2026-11-21 | **The finding of this pass.** Read from the code, not the release notes: `components/camel-ai/pom.xml` lists `camel-ai-tool` (one unified tool component), `camel-mcp-server` + `camel-mcp-server-api`, `camel-ai-resource` (a route exposed as a read-only MCP resource), **`camel-a2a`**, `camel-ai-observability`, `camel-langchain4j-agent`, `camel-docling`, and vector-store components for Qdrant, pgvector, Milvus, Neo4j, Pinecone and Weaviate. |
+| [conductor-oss/conductor](https://github.com/conductor-oss/conductor) | 32,494 ★ | Apache-2.0 (11,309 B, byte-read) | 2026-11-20 | Netflix-origin workflow orchestration, now community-governed. The high-star alternative to Camel where the shape is *orchestration of services* rather than *mediation between protocols*. |
+| [dapr/dapr](https://github.com/dapr/dapr) | 26,212 ★ | Apache-2.0 (11,411 B, byte-read, `master`) | 2026-11-19 | CNCF. Workflow versioning since v1.17 (Feb 2026) — running instances replay against the code they started on. |
+| [dapr/dapr-agents](https://github.com/dapr/dapr-agents) | 778 ★ | Apache-2.0 (11,356 B, byte-read) | 2026-11-12 | Agents as durable workflows; each agent is an actor. |
+
+**Two corrections the primary source made to the secondary one.** Apache's own blog
+calls the MCP piece "camel-mcp"; the artefact in the tree is **`camel-mcp-server`** —
+copying the blog's name yields a dependency coordinate that does not resolve. And
+**no blog or roundup mentioned `camel-a2a` at all**; it was found only by reading the
+module list. When a layer is this new, the `pom.xml` is more current than the
+announcement written about it.
+
+One component deserves its own line: **`camel-semantic-wolf-defender`**, whose POM
+describes it as *"Detect prompt injection in text using local Wolf-Defender
+inference"*. Every guardrail this KB holds (`llm-guard`, `guardrails-ai`,
+`nvidia-nemo/guardrails`) sits beside the *model*. This one sits inside the
+*integration route* — on the path the data actually travels, and running locally with
+no call out. That is a different and better placement for an estate that will not send
+its payloads to a scanning service.
+
+### Machine-readable control evidence — the OSCAL layer
+
+The KB has argued since the fourth pass that governance is a buying requirement, and
+since trend 14 that ISO/IEC 42001 is a procurement gate. It had **no tooling that
+produces the evidence** — zero occurrences of OSCAL across all nine files before this
+pass. This is the format auditors and US federal programmes actually ingest.
+
+| Repo | Stars | Licence (byte-read) | Last push | Role |
+|---|---|---|---|---|
+| [usnistgov/OSCAL](https://github.com/usnistgov/OSCAL) | 972 ★ | **worldwide public domain** (GitHub badge: `NOASSERTION`) | 2026-11-16 | NIST's Open Security Controls Assessment Language — the schema itself. Catalogs, profiles, component definitions, SSPs, assessment plans and results, as XML/JSON/YAML. |
+| [usnistgov/oscal-content](https://github.com/usnistgov/oscal-content) | 477 ★ | worldwide public domain | 2026-10-27 | NIST SP 800-53 and friends, already expressed as OSCAL catalogs. You do not transcribe controls; you import them. |
+| [usnistgov/oscal-cli](https://github.com/usnistgov/oscal-cli) | 72 ★ | worldwide public domain | 2026-11-19 | Validate and convert OSCAL documents. The CI gate. |
+| [oscal-compass/compliance-trestle](https://github.com/oscal-compass/compliance-trestle) | 292 ★ | Apache-2.0 (11,357 B) | 2026-11-17 | The authoring platform — compliance-as-code over OSCAL, with CI. v5 is current and supports OSCAL 1.2.1; PyPI shows 5.2.1 and v4 in maintenance. |
+| [oscal-compass/compliance-trestle-mcp](https://github.com/oscal-compass/compliance-trestle-mcp) | 2 ★ | Apache-2.0 (11,357 B) | 2026-11-11 | **The keystone.** Trestle's operations exposed over MCP, so the agent can author its own control evidence. Registered as `io.github.oscal-compass/compliance-trestle-mcp`. |
+| [oscal-compass/compliance-trestle-fedramp](https://github.com/oscal-compass/compliance-trestle-fedramp) | 3 ★ | Apache-2.0 | 2026-08-27 | FedRAMP profile support. Relevant only to North America; see `intel/market.md`. |
+| [complytime/complyctl](https://github.com/complytime/complyctl) | 38 ★ | Apache-2.0 (11,342 B) | 2026-11-21 | The runtime. Pulls [Gemara](https://github.com/ossf/gemara) policies from an **OCI registry** and executes scans through pluggable providers, emitting **EvaluationLog, OSCAL, SARIF and Markdown**. OpenSSF Best Practices and Scorecard badges in its README. |
+| [complytime/complytime-providers](https://github.com/complytime/complytime-providers) | 1 ★ | Apache-2.0 | 2026-11-20 | The providers themselves — standalone executables bridging complyctl to **OpenSCAP, Ampel and OPA**. Discovered by naming convention (`complyctl-provider-*`). Note the description: *"complyctl providers (formerly plugins)"*. |
+| [complytime/complypack](https://github.com/complytime/complypack) | 1 ★ | Apache-2.0 | 2026-11-20 | Assessment-logic packaging for complyctl. |
+| [complytime/complytime-collector-components](https://github.com/complytime/complytime-collector-components) | 5 ★ | Apache-2.0 | 2026-11-18 | *"A policy-driven observability toolkit for compliance monitoring"* — the continuous half, as opposed to the point-in-time scan. |
+| [ossf/gemara](https://github.com/ossf/gemara) | star count **not measured** — the repo is not indexed by the GitHub search API, so no figure is quoted | Apache-2.0 (11,379 B, byte-read) | live on 2026-11-21 | The OpenSSF policy model complyctl consumes. |
+| [ComplianceAsCode/content](https://github.com/ComplianceAsCode/content) | — | **BSD-3-Clause** (1,552 B, SPDX identifier on line 1) | — | The hardening-content project. Its `LICENSE` is the only one in this batch whose first line is a machine-readable SPDX identifier. |
+| [ComplianceAsCode/oscal-content](https://github.com/ComplianceAsCode/oscal-content) | 7 ★ | Apache-2.0 (11,356 B) | 2026-05-11 | OSCAL test content paired with ComplyTime, synced bidirectionally with `ComplianceAsCode/content`. |
+
+**OPA is already in this KB**, held since the governance-substrate section. It turns
+out to be a *provider* in a compliance runtime, which means the policy engine Globant
+already proposes for authorisation decisions can also be the thing that generates the
+auditor's evidence. That is one component doing two jobs, and it is the cheapest
+sentence in a governance proposal.
+
+### Two traps in this layer, both of which would have landed wrong data
+
+**1. The archived tool that its own documentation still presents as live.**
+[complytime/complyscribe](https://github.com/complytime/complyscribe) — 21 ★,
+Apache-2.0 — is **archived**, last pushed 2026-05-11. A ComplyTime QuickStart site and
+a May-2026 write-up both describe it as the way to bring trestle into CI/CD. The live
+path is `complyctl` plus `complytime-providers`. This is the **seventh**
+archived-or-abandoned-but-recommended project this KB has caught, after `osohq/oso`
+(seventh pass) and the five the energy KB counted.
+
+**2. The org-named repo is not the product.**
+[complytime/complytime](https://github.com/complytime/complytime) has **1 star** and
+contains *"design and proposed enhancements"*. The product is
+[complytime/complyctl](https://github.com/complytime/complyctl), 38 ★. Guessing the
+obvious slug — org name as repo name — would have put a one-star proposals repository
+into a foundations table as a flagship runtime. **Resolve the flagship by listing the
+org and reading descriptions, never by composing `owner/owner`.**
+
+### Also added this pass
+
+| Repo | Stars | Licence | Last push | Note |
+|---|---|---|---|---|
+| [lancedb/lancedb](https://github.com/lancedb/lancedb) | 11,960 ★ | Apache-2.0 (11,357 B, byte-read) | 2026-11-21 | Embedded multimodal vector store. Fills the local/embedded slot beside `qdrant`; relevant where retrieval must run inside the client's own process with no service to procure. Watch the siblings: `lancedb/lancedb-mcp-server` is `NOASSERTION` **and** last pushed 2025-04-25 — do not pick it up with the parent. |
+
+## 2026-11-20 — seventh pass
 
 **Theme: the entitlement boundary.** Not "what can the agent do" (six passes covered that) but
 **"what may the person it is acting for see"** — a layer with no agents in it, which is why it
