@@ -2621,3 +2621,123 @@ ejecutan en una shell**, el timeout de un pre-hook son **30 s por defecto** y `o
 **`Fail`**. El resultado por defecto de intentar *quiesce* de un almacén vectorial grande no es un
 backup inconsistente: es un **backup fallido**. Es el default correcto, y aun así sorprende la
 primera vez — así que conviene descubrirlo en un laboratorio y no en el primer incidente.
+
+## Vigesimoprimer pase — 2026-11-24 — el límite de la voz: 2026 es el año en que el canal hablado se volvió el más regulado y el peor cubierto por el código abierto
+
+### Tendencia 29 — La voz es la única capa donde la obligación legal entra *en el artefacto*, no alrededor de él
+
+Todas las fronteras anteriores de esta KB se cumplían **alrededor** del agente: una política de
+autorización, un SBOM, un registro de evidencia, un informe de accesibilidad. La voz es distinta y
+es la primera vez que ocurre: **la obligación va dentro del flujo de salida**.
+
+- **EMEA**: el **Art. 50(1)** del Reglamento de IA exige, desde el **2026-08-02**, informar a la
+  persona de que habla con una IA — para voz, audiblemente y al inicio. Y el **Art. 50(2)** exige
+  marcado **legible por máquina** del contenido sintético, con plazo hasta el **2026-12-02** para lo
+  ya puesto en el mercado antes de agosto.
+- **APAC**: las Medidas chinas (en vigor **2025-09-01**, estándar obligatorio **GB 45438-2025**)
+  contemplan para audio **avisos de voz o señales rítmicas** al principio, en medio o al final del
+  propio audio. Corea exige etiquetado de sonido sintético indistinguible de la realidad
+  (**Art. 31**, Ley Marco en vigor **2026-01-22**).
+
+**La consecuencia técnica es una sola frase: la divulgación no puede vivir en el prompt.** Un aviso
+que depende de que el modelo lo diga es un aviso que el modelo puede omitir, reformular o ser
+inducido a saltarse; y una obligación legal no admite un cumplimiento probabilístico. Tiene que ser
+**una propiedad del pipeline de TTS** — un enunciado pregrabado o sintetizado que se inserta antes
+de que la sesión entregue el primer token de audio del agente, fuera del alcance del LLM. Eso es
+arquitectura, y se decide en la semana 1.
+
+### Tendencia 30 — La obligación existe y el instrumento no: ninguno de los 39 repositorios verificados marca audio
+
+Buscado explícitamente y medido: **ninguno** de los 39 repositorios de voz verificados en este pase
+—Kokoro, Piper, sherpa-onnx, los pipelines de Pipecat y LiveKit, Moshi, Qwen3-Omni, speaches,
+wyoming, OVOS— implementa **marca de agua de audio** ni **inyección de etiqueta audible**. El
+ecosistema abierto de voz está construido para *sonar bien*, no para *ser identificable*, y las dos
+normativas que lo exigen son de **dos mercados distintos que piden el mismo artefacto**: el marcado
+legible por máquina del Art. 50(2) europeo y el aviso audible/rítmico chino.
+
+Es la misma forma de hallazgo que la ausencia de formato legible por máquina para el Anexo IV (sexto
+pase): **una obligación sin instrumento**. Y es la forma de hallazgo que más vale en esta KB, porque
+un hueco entre lo exigido y lo disponible es exactamente donde cabe trabajo facturable que nadie ha
+empaquetado todavía.
+
+### Tendencia 31 — En voz, el entregable es el peso, y la licencia del peso no es la del código
+
+Primera vez que esta KB necesita **dos columnas de licencia en la misma fila**.
+[kyutai-labs/moshi](https://github.com/kyutai-labs/moshi) tiene código **MIT + Apache-2.0** (ambos
+ficheros presentes y leídos) y **pesos CC-BY-4.0 según su README**. En texto esa divergencia es una
+nota al pie; en voz **el peso es la voz que sale por el teléfono del cliente**, es decir el
+entregable mismo. Y **CC-BY no es Apache**: obliga a atribuir en el producto del cliente y **no
+concede patentes** — la misma lección que el sexto pase aprendió con el dominio público del NIST,
+ahora en la capa de pesos.
+
+El corolario metodológico, que vale para toda la flota: **una fila de modelo sin licencia de pesos
+verificada está a medio verificar**, y hay que decirlo en la fila. En esta sesión
+`huggingface.co` está **rechazado por el proxy de egreso** (403, `connect_rejected`), así que las
+licencias de pesos de este pase **se declaran no verificadas** en lugar de copiarse de un README
+como si fueran medidas.
+
+### Tendencia 32 — El catálogo de «archivado pero estrellado» tiene tres especies, y dos no las detecta ninguna herramienta
+
+Esta KB lleva ocho proyectos archivados-pero-recomendados en veintiún pases. Este pase añade dos
+especies nuevas, y las nuevas son peores porque **el campo `archived` de la API no las delata**:
+
+| Especie | Ejemplar | Señal disponible |
+|---|---|---|
+| Archivado **y con banner** | [rhasspy/piper](https://github.com/rhasspy/piper) (11,300 ★) | «Public archive … archived by the owner on Oct 6, 2025» — detectable automáticamente |
+| **Retirado sin archivar** | [resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox) (28,100 ★) | sólo prosa del README: «As of August 2026 … retired research and is no longer maintained» |
+| **Huérfano sin puntero** | [coqui-ai/TTS](https://github.com/coqui-ai/TTS) (46,300 ★) | **ninguna**: sin banner, sin aviso, sin enlace al fork mantenido ([idiap/coqui-ai-TTS](https://github.com/idiap/coqui-ai-TTS)) |
+
+Y Piper añade un **eje que esta KB no tenía**: el sucesor **cambió de licencia**.
+[OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl) es **GPL-3.0** mientras el
+archivado era **MIT**. La decisión deja de ser «¿está mantenido?» y pasa a ser **«MIT archivado o
+GPL-3.0 mantenido»** — que es una decisión de contrato, no de ingeniería, y la toma el cliente, no
+el arquitecto.
+
+### Tendencia 33 — Los listados de 2026 describen licencias de voz que no existen, y el delator está en la barra lateral
+
+[TEN-framework/ten-framework](https://github.com/TEN-framework/ten-framework) (11,200 ★) figura en
+al menos tres comparativas de 2026 como «Apache-2.0» sin salvedad. Su `LICENSE` es **Apache-2.0 con
+condiciones adicionales de Agora** que **prohíben el despliegue en dispositivos de usuario final y
+móviles** y **prohíben «enabling any third party to develop or deploy Applications»** — es decir,
+prohíben el modelo de negocio de un integrador.
+
+**Regla de detección, barata y reutilizable:** cuando la barra lateral de GitHub muestra
+**«License» sin nombre SPDX**, es una licencia modificada; y **Apache-2.0 íntegra pesa ~11,3 kB**,
+así que un fichero que dice «Apache License» y pesa **2,2 kB** no lo es. Medido en el mismo pase
+con el mismo instrumento: `livekit/agents` → «Apache-2.0 license», 11.356 B (real);
+`pipecat-ai/pipecat` → «BSD-2-Clause», 1.300 B (real); `ten-framework` → «License», 2.234 B
+(modificada). Es la **inversa complementaria** de la regla `NOASSERTION` del sexto pase: allí la
+ausencia de veredicto escondía cuatro licencias *permisivas*; aquí esconde una *restrictiva*.
+**La ausencia de nombre SPDX no informa en ninguna dirección: obliga a leer, y en ambos sentidos.**
+
+### Tendencia 34 — El acento no se compra: la cifra de calidad que un cliente de LATAM pide no existe públicamente
+
+El **Open ASR Leaderboard** tiene pista multilingüe con español y portugués, pero publica como
+titular el inglés; y sus datos multilingües incluyen **CoVoST-2 bajo CC-BY-NC-4.0 — no comercial**.
+De ahí sale un hecho operativo incómodo y muy vendible: **el corpus público de referencia no puede
+usarse para validar un entregable comercial**, y **no existe una cifra pública de WER por acento
+latinoamericano** que sostenga una propuesta.
+
+La lectura para una propuesta: **medir el WER con audio del propio cliente es una línea del SOW**,
+no un dato que se cita. Y como el eslabón que más degrada una llamada real no es el modelo sino el
+**fin de turno** —el componente que distingue «mi número es…» (pausa, sigue hablando) de una frase
+terminada, y que casi ningún listado menciona
+([pipecat-ai/smart-turn](https://github.com/pipecat-ai/smart-turn), BSD-2-Clause)—, la batería de
+aceptación de un agente de voz tiene **al menos dos métricas que el cliente nunca pide y siempre
+nota**: WER en su acento y tasa de interrupción indebida. Las herramientas para medirlas existen y
+son MIT: [ServiceNow/eva](https://github.com/ServiceNow/eva) y
+[sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck).
+
+### Tendencia 35 — El comprador más maduro de IA agéntica es, exactamente, el dueño del canal de voz
+
+La IA agéntica está más avanzada en **telecomunicaciones (48%)** que en cualquier otro vertical
+(informe de NVIDIA citado por fuente secundaria), mientras en el conjunto de la economía sólo
+**8,6%** de las empresas declara agentes en producción y sólo **22%** de las grandes empresas ha
+escalado IA en varias unidades de negocio (Gartner, 1.303 grandes empresas). El mercado de agentes
+de voz se cifra entre **US$3.000 y 5.000 millones en 2026** con definición estrecha de plataforma
+(Grand View: US$3.500 M), **US$5.100 M** camino de **US$43.830 M en 2036 al 24,0% CAGR** (Meticulous)
+y hasta **US$22.000 M** con definiciones amplias que arrastran reconocimiento de voz genérico — **la
+dispersión es de definición, no de medición, y hay que etiquetar siempre cuál se usa**. La cifra de
+Gartner de **US$80.000 millones de ahorro en costes de agentes de contact centre en 2026** circula
+en todas partes y **es de 2022**: es una previsión vieja, no una medición actual.
+

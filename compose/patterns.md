@@ -3272,3 +3272,176 @@ servicio y entregar un activo.
 > estuvo inactivo es, al mismo tiempo, el más fácil de olvidar en el inventario y el más difícil
 > de recuperar a un punto en el tiempo. Si hay que elegir un solo agente del estate del cliente
 > por donde empezar, **empezar por el que corre una vez al mes.**
+
+## Receta 40 — El agente de voz permisivo de extremo a extremo: entrar por la red telefónica sin tocar una línea de GPL (added twenty-first pass, 2026-11-24)
+
+**El problema.** El cliente tiene un contact centre. El conmutador es Asterisk o FreeSWITCH, y el
+`LICENSE` de Asterisk dice, textualmente, que «**the GPL applies to all loadable Asterisk modules
+used on your system as well**». Si el conector de IA se escribe como módulo cargable, el entregable
+es obra derivada GPL-2.0. Si se escribe como proceso aparte, no lo es.
+
+**La cadena, con la licencia de cada eslabón leída de su fichero el 2026-11-24:**
+
+```
+PSTN / troncal SIP del cliente
+   │   (SIP, por protocolo — el conmutador del cliente queda intacto)
+   ▼
+livekit/sip                 Apache-2.0   puente SIP ↔ WebRTC
+   ▼
+livekit/livekit             Apache-2.0   transporte WebRTC (22.400 ★)
+   ▼
+livekit/agents              Apache-2.0   orquestación del agente (15.300 ★)
+   ├── snakers4/silero-vad          MIT           ¿hay voz?
+   ├── pipecat-ai/smart-turn        BSD-2-Clause  ¿terminó de hablar?  ← el eslabón que decide si suena humano
+   ├── SYSTRAN/faster-whisper       MIT           STT  (pesos: NO verificados en esta sesión)
+   ├── el LLM del cliente                         vía su gateway ya existente en esta KB
+   └── hexgrad/kokoro               Apache-2.0    TTS  (README afirma pesos Apache; NO verificado)
+   ▼
+speaches-ai/speaches        MIT          fachada compatible-OpenAI para STT/TTS → permite cambiar
+                                         de proveedor sin tocar el agente
+```
+
+**La alternativa MIT pura**, si el cliente prefiere no introducir WebRTC:
+[jambonz/jambonz-feature-server](https://github.com/jambonz/jambonz-feature-server) +
+[jambonz/jambonz-api-server](https://github.com/jambonz/jambonz-api-server) sobre
+[drachtio/drachtio-server](https://github.com/drachtio/drachtio-server) — **MIT los tres** — con el
+agente enganchado al webhook de llamada.
+
+**Las tres reglas que hacen que esto funcione comercialmente**
+
+1. **Nunca un módulo cargable.** Hablar con el conmutador del cliente por **ARI/AMI** (Asterisk) o
+   por **troncal SIP**. El código de Globant vive en su propio proceso y conserva su licencia.
+2. **Puentear, no migrar.** No se pide tocar el conmutador del que depende el negocio hoy: se pide
+   una troncal. Es la propuesta más fácil de aprobar en la sala y la más fácil de revertir.
+3. **La licencia más restrictiva de la cadena gobierna el entregable.** Con la cadena de arriba, la
+   más restrictiva es **BSD-2-Clause** — permisiva. Introducir `TEN-framework` la convertiría en
+   «Apache-2.0 + condiciones de Agora», que **prohíbe el despliegue en móvil y prohíbe habilitar a
+   terceros a desplegar aplicaciones**: fin del patrón. Verificar esto es **una** lectura de fichero.
+
+---
+
+## Receta 41 — La divulgación como propiedad del pipeline, no del prompt: cumplir Art. 50, China y TCPA con el mismo componente (added twenty-first pass, 2026-11-24)
+
+**El problema.** Tres regímenes piden cosas distintas sobre la misma llamada, y ninguno admite un
+cumplimiento probabilístico:
+
+| Región | Qué exige | Cuándo |
+|---|---|---|
+| EMEA | informar de que es una IA (Art. 50(1)); marcado legible por máquina del contenido sintético (Art. 50(2)) | **vigente desde 2026-08-02**; marcado para lo preexistente, **hasta 2026-12-02** |
+| APAC (China) | **aviso de voz o señal rítmica** al principio / en medio / al final del audio; estándar **GB 45438-2025** | vigente desde **2025-09-01** |
+| APAC (Corea) | etiquetar sonido sintético indistinguible de la realidad (Art. 31) | vigente desde **2026-01-22** |
+| NA | consentimiento previo expreso (voz «artificial» bajo TCPA); divulgación por estado: California al inicio, Texas en los primeros 30 s, Maine si es confundible | ya; la norma federal de divulgación **sigue propuesta** |
+| LATAM (Brasil) | consultar **Não Me Perturbe** antes de llamar; prefijo **`0303`** en telemarketing activo | ya |
+
+**Por qué no puede ir en el prompt.** Un aviso que depende de que el modelo lo diga es un aviso que
+el modelo puede omitir, reformular o ser inducido a saltarse. Una obligación legal no se cumple con
+una probabilidad. **La divulgación tiene que ser un eslabón del pipeline, fuera del alcance del LLM.**
+
+**La forma del componente** — un `DisclosureGate` delante del primer fotograma de audio del agente:
+
+```
+sesión aceptada
+   ▼
+[1] resolver jurisdicción   ← del DID/CLI de entrada, no de la configuración del tenant
+   ▼
+[2] ¿permitido llamar?      ← sólo salientes: registro Não Me Perturbe (BR), listas de exclusión
+   ▼
+[3] enunciado de divulgación  ← audio PREGRABADO o TTS de Kokoro (Apache-2.0) cacheado por locale,
+                                emitido ANTES del primer token del agente. Texto versionado en git.
+   ▼
+[4] consentimiento de grabación  ← por jurisdicción: estados de todas las partes (IL/CA/FL/MA…),
+                                   GDPR; la respuesta decide si se abre el fichero, no si se borra después
+   ▼
+[5] marca de la pista sintética  ← HUECO MEDIDO: ninguno de los 39 repos verificados en este pase
+                                   marca audio. Hay que construirlo. Un componente, dos mercados
+                                   (Art. 50(2) de la UE y GB 45438-2025 de China piden el mismo artefacto)
+   ▼
+el agente habla
+```
+
+**Lo que se escribe en el ADR de la semana 1**, porque después no es configurable: (a) el enunciado
+de divulgación es **un artefacto versionado**, con su locale, revisado por legal, no una cadena en el
+código; (b) la jurisdicción se **deriva del número**, no del tenant; (c) **el paso [5] es trabajo
+nuevo** — hay que cotizarlo, y el cliente debe saber que no existe pieza abierta que lo haga.
+
+**Y la pieza que ya está en esta KB**: el enunciado, el consentimiento y la jurisdicción son
+*evidencia*, y esta KB ya tiene dónde ponerla —
+[usnistgov/OSCAL](https://github.com/usnistgov/OSCAL) + [complytime/complyctl](https://github.com/complytime/complyctl)
+del octavo pase. Un agente que divulga pero no puede **probar** que divulgó en esa llamada no ha
+cumplido: ha afirmado.
+
+---
+
+## Receta 42 — Redactar PII de una grabación de llamada: el hueco de producto medido de este pase, construido con piezas que sí existen (added twenty-first pass, 2026-11-24)
+
+**El problema, y por qué es una oportunidad.** Se buscó explícitamente y **no existe librería
+mantenida que encadene diarización + detección de PII + silenciado por marca de tiempo** sobre una
+grabación de llamada. Lo que hay: un prototipo académico (OST, 2026) y ejemplos de proveedor atados
+a una nube. **Todas las piezas existen, son permisivas y están verificadas.**
+
+```
+grabación de la llamada (WAV/Opus)
+   ▼
+[1] m-bain/whisperX            BSD-2-Clause   transcripción con ALINEACIÓN POR PALABRA
+                                              ← el timestamp por palabra es lo que permite silenciar
+                                                el AUDIO y no sólo tachar el texto
+   ▼
+[2] pyannote/pyannote-audio    MIT            diarización: ¿quién dijo cada palabra, agente o cliente?
+                                              ← OJO: produce EMBEDDINGS de locutor. Ver el aviso de abajo
+   ▼
+[3] data-privacy-stack/presidio MIT           detección de PII sobre el texto alineado
+                                              (ya en esta KB desde el cuarto pase — movido de microsoft/)
+   ▼
+[4] EdyVision/pii-codex         (ya en la KB)  clasificación/severidad de lo detectado
+   ▼
+[5] ffmpeg                                     silenciado por intervalo: de los offsets de [1]+[3]
+                                              sale una lista de rangos; se sustituyen por silencio o tono
+   ▼
+audio redactado + mapa de redacción (qué se quitó, cuándo, por qué regla) → evidencia OSCAL
+```
+
+**El aviso que convierte esta receta en una decisión de arquitectura, no en un script.** El paso [2]
+genera **plantillas de voz**, y en Illinois eso es exactamente lo que está en litigio bajo **BIPA**
+ahora mismo: dos demandas colectivas propuestas contra Walmart en el N.D. Ill. (2026-07-28 y
+2026-08-06) alegan que su sistema telefónico de IA **captura la huella vocal de quien llama** sin
+consentimiento, y **la ley no define «voiceprint»**. Por tanto:
+
+> **Diarizar sin persistir.** El embedding de locutor se usa **en memoria**, para la duración del
+> trabajo de redacción, y **no se escribe en disco ni se indexa**. Lo que se conserva es la etiqueta
+> (`SPEAKER_00` = agente, `SPEAKER_01` = cliente) y los offsets — **no el vector**. Un embedding
+> persistido es una plantilla biométrica que nadie pidió y que puede costar la colectiva.
+
+**Y la pieza defensiva del mismo canal**: [clovaai/aasist](https://github.com/clovaai/aasist) (MIT)
+detecta voz sintética en la entrada. En 2026 el fraude por voz clonada llega por el mismo canal que
+el agente, así que el mismo pipeline que redacta es el lugar natural donde comprobar si quien llama
+es sintético.
+
+---
+
+## Receta 43 — La batería de aceptación de un agente de voz: las dos métricas que el cliente nunca pide y siempre nota (added twenty-first pass, 2026-11-24)
+
+**El problema.** Un agente de voz se acepta en demo y se rechaza en producción, y casi nunca por el
+LLM. Falla por **el turno** (interrumpe al cliente, o se queda callado) y por **el acento** (el WER
+del cliente real no es el del benchmark). Ninguna de las dos aparece en una definición de hecho
+típica.
+
+**El hallazgo que hay que poner en el SOW:** *no existe cifra pública de WER por acento
+latinoamericano.* El **Open ASR Leaderboard** cubre español y portugués en su pista multilingüe pero
+publica el inglés como titular, y sus datos multilingües incluyen **CoVoST-2 bajo CC-BY-NC-4.0 — no
+comercial**, de modo que **el corpus de referencia no puede usarse para validar un entregable
+comercial**. Conclusión operativa: **la medición es una línea facturable, con audio del cliente.**
+
+**La batería, toda con licencia verificada:**
+
+| Qué se mide | Con qué | Licencia | Umbral que se negocia, no se asume |
+|---|---|---|---|
+| WER en el acento real del cliente | [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) + grabaciones **del cliente**, alineadas con [m-bain/whisperX](https://github.com/m-bain/whisperX) | MIT / BSD-2-Clause | por acento y por canal (móvil, fijo, altavoz), no un número global |
+| Interrupción indebida (barge-in) | [sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck) | MIT | tasa de corte sobre frases con pausa interna («mi número es…») |
+| Latencia al primer byte de audio | [sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck) | MIT | medida **en la troncal**, no en localhost |
+| Calidad de conversación multi-turno | [ServiceNow/eva](https://github.com/ServiceNow/eva) | MIT | puntúa tarea **y** audio; su métrica de audio depende de un modelo propietario → usar el conjunto **sólo-texto** si el cliente exige soberanía |
+| Fin de turno | [pipecat-ai/smart-turn](https://github.com/pipecat-ai/smart-turn) como *componente*, evaluado contra el VAD puro de [snakers4/silero-vad](https://github.com/snakers4/silero-vad) | BSD-2-Clause / MIT | el A/B que justifica el componente ante el cliente |
+| Degradación de audio | [sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck) | MIT | con ruido añadido **sólo en la ruta usuario→agente**, como hace el arnés de NeMo |
+
+**La frase que cierra la venta:** las dos métricas que deciden si el agente sobrevive al primer mes
+—WER en el acento real y tasa de interrupción— **no se pueden citar de ningún ranking**, y por eso
+medirlas es trabajo, es defendible ante un comité técnico y casi nadie lo está cotizando.

@@ -8,7 +8,90 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigésimo pase (latest) — el límite del ciclo de vida: la identidad huérfana está en el esquema, no en el descuido
+## 2026-11-24 — vigesimoprimer pase (latest) — el límite de la voz: el agente que habla, y la licencia que ningún listado de 2026 menciona
+
+> Tema: **cuando el agente atiende el teléfono.** Veintiocho términos medidos en cero antes de
+> empezar (`livekit`, `pipecat`, `asterisk`, `freeswitch`, `jambonz`, `vocode`, `whisper`, `piper`,
+> `coqui`, `kokoro`, `silero`, `speech`, `telephony`, `contact centre`, `TTS`, `SIP`, `WebRTC`,
+> `diarization`, `barge-in`, `robocall`, `TCPA`…). **Ninguno aparecía tras veinte pases de
+> frontera.** Los únicos aciertos de `voice` en los ocho ficheros eran subcadenas de **`invoice`**.
+> El canal por el que la mayoría de las empresas atiende a sus clientes no estaba en la KB.
+
+**Las cinco filas reales de agente de voz** (licencia leída byte a byte el 2026-11-24):
+[pipecat-ai/pipecat](https://github.com/pipecat-ai/pipecat) (**BSD-2-Clause**, 17,400 ★ — primera
+BSD-2 de esta KB),
+[livekit/agents](https://github.com/livekit/agents) (Apache-2.0, 15,300 ★),
+[kyutai-labs/unmute](https://github.com/kyutai-labs/unmute) (MIT),
+[vocodedev/vocode-core](https://github.com/vocodedev/vocode-core) (MIT, 3,800 ★) y
+[openai/openai-realtime-agents](https://github.com/openai/openai-realtime-agents) (MIT).
+
+### El hallazgo de licencia del pase, y es el peor que esta KB ha encontrado *para un integrador*
+
+[TEN-framework/ten-framework](https://github.com/TEN-framework/ten-framework) (11,200 ★) aparece en
+al menos tres comparativas de 2026 como «Apache-2.0, open-source voice agent framework», **sin
+salvedad**. Su fichero `LICENSE` pesa **2,234 B** y dice «Apache License v2.0 … **with the following
+additional conditions**» (© 2025 Agora):
+
+- cláusula **1(i)**: prohíbe alojarlo «on any **End User devices**, including … **mobile terminal
+  devices**» → **prohíbe la voz en el móvil**;
+- cláusula **1(ii)**: prohíbe desplegarlo de forma que «**allows others to compete** with Agora's
+  offerings, **including without limitation enabling any third party to develop or deploy
+  Applications**»;
+- cláusula **2**: sólo se puede desplegar «**solely for your benefit** and the benefit of your
+  **direct** End Users».
+
+Dify, Camunda y Mattermost restringían *revender el producto*. Esta cláusula restringe **el modelo
+de negocio de un estudio**: construir un agente de voz *para un cliente* es, en la letra de 1(ii),
+habilitar a un tercero. **No es base para trabajo de cliente.** Tier 2, y hay que decirlo en la
+semana 0.
+
+### Instrumento nuevo, reutilizable por toda la flota
+
+**El enlace «License» de la barra lateral de GitHub *sin nombre SPDX* es el delator de una licencia
+modificada**, y el **tamaño en bytes** es el segundo delator: **Apache-2.0 íntegra pesa ~11,3 kB**.
+Medido en el mismo pase: `livekit/agents` → «Apache-2.0 license», 11,356 B (real);
+`pipecat-ai/pipecat` → «BSD-2-Clause», 1,300 B (real); `ten-framework` → **«License»** sin tipo,
+2,234 B (modificada). Es la **inversa complementaria** de la regla `NOASSERTION` del sexto pase:
+allí la ausencia de veredicto escondía licencias *permisivas*; aquí esconde una *restrictiva*. La
+ausencia de nombre SPDX **no informa en ninguna dirección** — obliga a leer, y en ambos sentidos.
+
+### Tres trampas de mantenimiento, y las tres son de una especie distinta
+
+| Proyecto | ★ | Lo que muestra GitHub | La realidad leída |
+|---|---|---|---|
+| [rhasspy/piper](https://github.com/rhasspy/piper) | 11,300 | **«Public archive … archived by the owner on Oct 6, 2025»** | MIT, congelado, y el README apunta al sucesor **[OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)**, que es **GPL-3.0** |
+| [resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox) | 28,100 | **Sin banner de archivado** | El README dice «**As of August 2026, Chatterbox is retired research and is no longer maintained**» |
+| [coqui-ai/TTS](https://github.com/coqui-ai/TTS) | 46,300 | **Sin banner y sin puntero a fork** | MPL-2.0; el fork mantenido es [idiap/coqui-ai-TTS](https://github.com/idiap/coqui-ai-TTS) y el original no lo menciona |
+
+**Es el octavo proyecto archivado-pero-estrellado de esta KB, y añade dos especies nuevas al
+catálogo.** Hasta ahora el patrón era «archivado y recomendado por su propia documentación». Las dos
+nuevas son peores porque **ninguna herramienta automática las detecta**: *retirado sin archivar*
+(el campo `archived` es `false`, sólo lo dice el README en prosa) y *huérfano sin puntero* (46,3k
+estrellas, empresa desaparecida, cero señal en el repositorio). Y Piper añade un tercer eje que la
+KB no tenía: **el sucesor cambió la licencia**. La elección no es «mantenido o no»; es **MIT
+archivado o GPL-3.0 mantenido**, y eso es una decisión de contrato, no de ingeniería.
+
+### Una trampa fresca
+
+[fishaudio/fish-speech](https://github.com/fishaudio/fish-speech) no es código abierto: su
+**«FISH AUDIO COMMUNITY LICENSE AGREEMENT» v1.0 está fechada el 2026-10-13** (hace seis semanas),
+limita el uso comercial a un umbral de ingresos y exige acuerdo escrito aparte para cualquier
+*Hosted Service*.
+
+### Lo que el pase *no* pudo medir, y por qué es la mitad del hallazgo
+
+`huggingface.co` está **rechazado por el proxy de egreso** (`connect_rejected`, 403), y
+`api.github.com`/`gh api`/`curl https://github.com` están **denegados por el alcance de sesión**.
+Funcionan `raw.githubusercontent.com` (leer `LICENSE`), `git ls-remote` (existencia) y `WebFetch`
+sobre el HTML de GitHub (estrellas, banner). Consecuencia que hay que escribir, no callar: **la
+licencia del código de este pase es de primera mano; la de los *pesos* no lo es.** Y en voz **el
+peso es el entregable** — la voz que sale por el teléfono del cliente. Primera vez que esta KB
+necesita **dos columnas de licencia en la misma fila**: [kyutai-labs/moshi](https://github.com/kyutai-labs/moshi)
+tiene código MIT + Apache-2.0 (ambos ficheros presentes, verificados) y **pesos CC-BY-4.0 según su
+README** — atribución obligatoria en el producto del cliente, y **sin concesión de patentes**,
+porque CC-BY no es Apache.
+
+## 2026-11-24 — vigésimo pase — el límite del ciclo de vida: la identidad huérfana está en el esquema, no en el descuido
 
 > Tema: **qué pasa con el agente cuando la persona que lo creó se va.** Trece términos
 > medidos en cero antes de empezar (`SCIM`, `IGA`, `non-human identity`, `offboarding`,

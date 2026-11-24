@@ -1163,3 +1163,82 @@ línea de un archivo con licencia MIT.
 > `MIRROR`, `COPY` o `NONE`. No es un detalle de configuración: decide si la baja del
 > empleado da de baja al agente. Y la función que lo gestiona en authentik está detrás de una
 > licencia cuyos términos **asignan al proveedor las modificaciones que escribas**.
+
+## El límite de la voz — la primera capa de esta KB en la que el agente *habla*, y la licencia que ningún listado menciona (added twenty-first pass, 2026-11-24)
+
+> Tema: **cuando el agente atiende el teléfono.** Veintiocho términos se midieron en cero antes
+> de empezar — `livekit`, `pipecat`, `asterisk`, `freeswitch`, `jambonz`, `vocode`, `whisper`,
+> `piper`, `coqui`, `kokoro`, `silero`, `speech`, `telephony`, `call centre`, `contact centre`,
+> `TTS`, `SIP`, `WebRTC`, `diarization`, `barge-in`, `robocall`, `TCPA` — **ninguno aparecía en
+> los ocho ficheros tras veinte pases.** Los únicos aciertos de `voice` eran subcadenas de
+> **`invoice`**, heredadas del pase decimoséptimo. Veinte pases de frontera (lectura, escritura,
+> procedencia, contención, forja, pesos, borrado, accesibilidad, huella, idioma, documento fiscal,
+> calendario, heredado, ciclo de vida) y el canal por el que la mayoría de los clientes
+> empresariales atiende a sus propios clientes **no estaba**.
+>
+> **Instrumento de este pase (y su límite, que es la mitad del hallazgo).** `api.github.com`,
+> `gh api` y `curl` contra `github.com` están **denegados por el alcance de sesión** (HTTP 403 del
+> proxy). Lo que **sí** funciona: `raw.githubusercontent.com` (200) para **leer el fichero
+> `LICENSE` byte a byte**, `git ls-remote` para probar existencia y rama por defecto, y `WebFetch`
+> sobre la página HTML de GitHub para estrellas / banner de archivado. `huggingface.co` está
+> **rechazado por el proxy de egreso** (`connect_rejected`, 403), y eso importa más aquí que en
+> cualquier pase anterior: **en voz, el entregable es el peso, no el código.** La licencia del
+> código de las 47 filas de este pase es de primera mano; **la licencia de los pesos no lo es, y
+> está marcada como tal en cada fila donde aplica.** Un peso que no se pudo leer no se afirma.
+
+### Las filas reales de agente de voz (5 verificadas, licencia leída byte a byte el 2026-11-24)
+
+| Framework | Repo | Licencia (leída de `LICENSE`) | ★ | Qué es |
+|---|---|---|---|---|
+| **Pipecat** | [pipecat-ai/pipecat](https://github.com/pipecat-ai/pipecat) | **BSD-2-Clause** | 17,400 | "Open Source framework for voice agents, multimodal apps, and realtime AI. Maintained by Daily and the community." El pipeline por composición: no asume transporte, se elige. v1.0 en abril de 2026 según fuente secundaria. La licencia **BSD-2-Clause es la primera de esta clase en la KB** — permisiva, sin cláusula de patentes (a diferencia de Apache-2.0) |
+| **LiveKit Agents** | [livekit/agents](https://github.com/livekit/agents) | **Apache-2.0** | 15,300 | "A framework for building realtime voice AI agents." La opción con batería incluida: sabe sobre qué corre, porque el transporte es de la misma casa ([livekit/livekit](https://github.com/livekit/livekit), Apache-2.0, 22,400 ★, "End-to-end realtime stack for connecting humans and AI") |
+| **Unmute** | [kyutai-labs/unmute](https://github.com/kyutai-labs/unmute) | **MIT** | n/m | El front-end full-duplex de Kyutai sobre Moshi: pone voz a un LLM de texto sin pasar por una API de voz propietaria |
+| **Vocode** | [vocodedev/vocode-core](https://github.com/vocodedev/vocode-core) | **MIT** | 3,800 | "🤖 Build voice-based LLM agents. Modular + open source." **Sin banner de archivado el 2026-11-24.** Una fuente secundaria afirma que no tiene mantenedor activo; **esta KB no lo afirma, porque no se midió** — la regla del pase decimonoveno sobre espejos obsoletos aplica igual aquí |
+| **OpenAI Realtime Agents** | [openai/openai-realtime-agents](https://github.com/openai/openai-realtime-agents) | **MIT** | n/m | Patrones de referencia de agentes de voz en tiempo real (handoff, supervisor). Útil como *forma*, no como dependencia: el runtime al que llama es de pago |
+
+`n/m` = no medido. Las estrellas sólo se obtienen de la página HTML de una en una en esta sesión
+(la API está denegada), así que se midieron donde deciden algo y se declaran sin medir donde no.
+
+### Tier 2 — la trampa de licencia de este pase, y es la peor que esta KB ha encontrado para un estudio
+
+| Framework | Repo | Lo que dicen los listados | Lo que dice el fichero `LICENSE` |
+|---|---|---|---|
+| **TEN Framework** | [TEN-framework/ten-framework](https://github.com/TEN-framework/ten-framework) (11,200 ★) | "Apache-2.0", "open-source framework for conversational voice AI agents" — en al menos tres comparativas de 2026, sin salvedad | **Apache-2.0 "with the following additional conditions"** (© 2025 Agora) |
+
+Las condiciones, citadas textualmente del fichero:
+
+> «You may not (i) host the TEN Framework or the Derivative Works on any **End User devices**,
+> including but not limited to any **mobile terminal devices** or (ii) Deploy the TEN Framework in
+> a way that competes with Agora's offerings and/or that allows others to compete with Agora's
+> offerings, **including without limitation enabling any third party to develop or deploy
+> Applications**.»
+>
+> «You may Deploy the TEN Framework **solely** to create and enable deployment of **your**
+> Application(s) **solely for your benefit** and the benefit of your **direct** End Users.»
+
+**Por qué esto es categóricamente distinto de las trampas anteriores de esta KB.** Dify, Camunda y
+Mattermost restringen *revender el producto*. Esta cláusula restringe **el modelo de negocio de un
+integrador**: un estudio que construye un agente de voz *para un cliente* está, en la letra de la
+cláusula 1(ii), «enabling a third party to develop or deploy Applications», y la cláusula 2 limita
+el despliegue a *tu propio* beneficio y a tus End Users **directos**. Y la cláusula 1(i) **prohíbe
+el despliegue en dispositivos de usuario final, móviles incluidos** — es decir, prohíbe el caso de
+uso de voz en el móvil, que es la mitad del mercado. **No es un marco sobre el que Globant pueda
+construir trabajo de cliente.** Debe quedar en Tier 2 y debe decirse en la semana 0, no en la
+revisión legal.
+
+### El instrumento reutilizable que sale de aquí (vale para toda la flota, no sólo para voz)
+
+**Cuando la barra lateral de GitHub muestra el enlace «License» *sin* nombre SPDX, eso es el
+delator de una licencia modificada.** Medido en el mismo pase, con el mismo instrumento:
+
+- `livekit/agents` → «Apache-2.0 license» (nombrada) → Apache-2.0 real, 11,356 B
+- `pipecat-ai/pipecat` → «BSD-2-Clause» (nombrada) → BSD-2-Clause real, 1,300 B
+- `TEN-framework/ten-framework` → **«License»**, sin tipo → Apache + restricciones, **2,234 B**
+
+El tamaño en bytes es el segundo delator y es más rápido que leer: **Apache-2.0 íntegra pesa
+~11,3 kB.** Un fichero que dice «Apache License» y pesa 2,2 kB no es Apache-2.0; es un preámbulo
+propio seguido del aviso corto. Esta regla es **la inversa complementaria** de la regla de
+`NOASSERTION` del sexto pase (allí la ausencia de veredicto escondía cuatro licencias
+*permisivas*; aquí la ausencia de veredicto esconde una *restrictiva*). Juntas: **la ausencia de un
+nombre SPDX no es información sobre la permisividad en ninguna dirección — obliga a leer, y hay que
+leer en ambos sentidos.**

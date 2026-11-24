@@ -2973,3 +2973,136 @@ secundaria.** Y el mismo sondeo mostró el riesgo gemelo: buscar `scim2-models i
 además del canónico, dos espejos automáticos con nombres mutilados
 (`Eternity-gaga/python-scim__scim2-models.55bb0a4b`, `autocode07/…`), 0 estrellas y la misma
 licencia. **Buscar por nombre devuelve señuelos; `repo:` devuelve el canónico.**
+
+## La capa de voz — el canal que faltaba tras veinte pases (added twenty-first pass, 2026-11-24)
+
+> **39 direcciones verificadas el 2026-11-24, las 39 nuevas para esta KB.** Instrumento:
+> `raw.githubusercontent.com` para **leer el fichero `LICENSE` byte a byte** (`api.github.com`,
+> `gh api` y `curl` a `github.com` están denegados por el alcance de sesión), `git ls-remote` para
+> existencia y rama por defecto, `WebFetch` sobre el HTML de GitHub para estrellas y banner de
+> archivado, y `pypi.org/pypi/<pkg>/json` para clasificadores de licencia independientes de la
+> forja. **`huggingface.co` está rechazado por el proxy de egreso (403), así que ninguna licencia
+> de *pesos* de esta sección es de primera mano** — están marcadas y no se afirman.
+
+### La cadena de un agente de voz, y por qué tiene seis eslabones y no uno
+
+Un agente de texto tiene un eslabón: el modelo. Un agente de voz tiene seis, y **cada uno lleva su
+propia licencia**: transporte (WebRTC/SIP) → VAD y detección de turno → STT → el agente →
+TTS → grabación y evidencia. La consecuencia comercial es que **la licencia más restrictiva de la
+cadena gobierna el entregable**, y en voz casi nunca es la del framework de agentes.
+
+### Transporte y borde telefónico
+
+| Repo | Licencia | ★ | Papel en la pila |
+|---|---|---|---|
+| [livekit/livekit](https://github.com/livekit/livekit) | Apache-2.0 | 22,400 | SFU WebRTC de extremo a extremo. El transporte permisivo por defecto |
+| [livekit/sip](https://github.com/livekit/sip) | Apache-2.0 | n/m | El puente SIP ↔ WebRTC de LiveKit. **Este es el componente que conecta el agente a la red telefónica pública sin tocar Asterisk** |
+| [jambonz/jambonz-feature-server](https://github.com/jambonz/jambonz-feature-server) | **MIT** | n/m | CPaaS auto-alojable: el servidor de aplicaciones de voz. La opción **permisiva** del borde telefónico |
+| [jambonz/jambonz-api-server](https://github.com/jambonz/jambonz-api-server) | **MIT** | n/m | API de provisión y control de jambonz |
+| [drachtio/drachtio-server](https://github.com/drachtio/drachtio-server) | **MIT** | n/m | El servidor SIP sobre el que se construye jambonz. MIT hasta la capa de señalización |
+| [signalwire/freeswitch](https://github.com/signalwire/freeswitch) | **MPL-1.1** | n/m | Conmutador de telefonía. MPL-1.1 (no 2.0): copyleft por fichero, 79,568 B de licencia |
+| [kamailio/kamailio](https://github.com/kamailio/kamailio) | **GPL-2.0** | n/m | Proxy SIP de alto volumen. Se integra por protocolo, no por enlazado |
+| [OpenSIPS/opensips](https://github.com/OpenSIPS/opensips) | **GPL-2.0** | n/m | Alternativa a Kamailio, misma postura de licencia |
+
+### VAD y turno — el problema que decide si el agente suena humano
+
+| Repo | Licencia | ★ | Papel en la pila |
+|---|---|---|---|
+| [snakers4/silero-vad](https://github.com/snakers4/silero-vad) | **MIT** | n/m | Detección de actividad de voz. El eslabón que decide cuándo el humano dejó de hablar |
+| [pipecat-ai/smart-turn](https://github.com/pipecat-ai/smart-turn) | **BSD-2-Clause** | n/m | Detección de **fin de turno semántica**, no por silencio: distingue «mi número es...» (pausa, sigue hablando) de una frase terminada. Es el componente que elimina la interrupción grosera, y casi ningún listado lo menciona |
+| [pipecat-ai/pipecat-flows](https://github.com/pipecat-ai/pipecat-flows) | **BSD-2-Clause** | n/m | Flujos conversacionales estructurados sobre Pipecat: la máquina de estados que un contact centre audita |
+
+### STT — reconocimiento
+
+| Repo | Licencia | ★ | Papel en la pila |
+|---|---|---|---|
+| [openai/whisper](https://github.com/openai/whisper) | **MIT** | n/m | La referencia multilingüe. Código MIT; **licencia de pesos no verificable en esta sesión** |
+| [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) | **MIT** | n/m | Reimplementación con CTranslate2. El runtime de producción habitual |
+| [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp) | **MIT** | n/m | Whisper en C/C++: CPU, borde, sin GPU. La vía para el on-prem con restricción de hardware |
+| [m-bain/whisperX](https://github.com/m-bain/whisperX) | **BSD-2-Clause** | n/m | Whisper con alineación a nivel de palabra y diarización. **La alineación temporal es lo que permite redactar PII de un audio**, no sólo del texto |
+| [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) | **Apache-2.0** | 16,200 | STT + TTS + diarización + VAD **en un solo runtime ONNX**, con servidor websocket y 12 lenguajes de programación. La pieza más subestimada de esta sección para despliegue embarcado |
+| [alphacep/vosk-api](https://github.com/alphacep/vosk-api) | **Apache-2.0** | n/m | STT offline, modelos pequeños, muchos idiomas. Apache-2.0 real (10,172 B: cuerpo sin el apéndice) |
+| [speechbrain/speechbrain](https://github.com/speechbrain/speechbrain) | Apache-2.0 | n/m | Toolkit de habla todo-en-uno (ASR, verificación de locutor, mejora) |
+| [espnet/espnet](https://github.com/espnet/espnet) | Apache-2.0 | n/m | Toolkit de habla de extremo a extremo, orientado a investigación reproducible |
+| [NVIDIA-NeMo/NeMo](https://github.com/NVIDIA-NeMo/NeMo) | Apache-2.0 | n/m | Donde viven los modelos Parakeet/Canary. **Ojo al renombrado: la organización es `NVIDIA-NeMo/`, no `NVIDIA/`** — esta KB ya tenía `NVIDIA-NeMo/Guardrails` y `NVIDIA/NeMo-Agent-Toolkit`, que son organizaciones distintas |
+
+### TTS — síntesis, y la capa con más trampas de licencia de toda la KB
+
+| Repo | Licencia (leída) | ★ | Veredicto |
+|---|---|---|---|
+| [hexgrad/kokoro](https://github.com/hexgrad/kokoro) | **Apache-2.0** | 10,300 | **La opción permisiva por defecto.** El README afirma pesos Apache («With Apache-licensed weights, Kokoro can be deployed anywhere»); **afirmación del README, no verificada en el origen de pesos** (HF rechazado) |
+| [remsky/Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) | Apache-2.0 | n/m | Kokoro servido con API compatible OpenAI. El eslabón de integración |
+| [rhasspy/piper](https://github.com/rhasspy/piper) | **MIT** | 11,300 | ⚠️ **ARCHIVADO por su dueño el 2025-10-06, de sólo lectura.** El README dice «Development has moved» y apunta al sucesor |
+| [OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl) | **GPL-3.0** (`COPYING`, 35,146 B) | n/m | El sucesor mantenido de Piper — **y relicenciado**. El nombre del repositorio lo dice y aun así los listados siguen llamando a Piper «open source TTS» sin más |
+| [coqui-ai/TTS](https://github.com/coqui-ai/TTS) | MPL-2.0 | 46,300 | **Sin banner de archivado y sin puntero a ningún fork**, con 46,3k estrellas, aunque la empresa que lo mantenía ya no existe |
+| [idiap/coqui-ai-TTS](https://github.com/idiap/coqui-ai-TTS) | MPL-2.0 | n/m | El fork mantenido (Idiap). Mismo texto de licencia, 16,724 B frente a 16,725 B del original |
+| [resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox) | MIT | 28,100 | ⚠️ **«As of August 2026, Chatterbox is retired research and is no longer maintained»** — en el README, **sin banner de archivado** |
+| [nari-labs/dia](https://github.com/nari-labs/dia) | Apache-2.0 | n/m | TTS de diálogo (dos voces, turnos). Código Apache-2.0 verificado |
+| [SWivid/F5-TTS](https://github.com/SWivid/F5-TTS) | **MIT** (código) | n/m | Código MIT verificado; **licencia de pesos no verificable aquí** y es el caso donde más importa, porque F5 clona voces |
+| [fishaudio/fish-speech](https://github.com/fishaudio/fish-speech) | ❌ **«FISH AUDIO COMMUNITY LICENSE AGREEMENT» v1.0, 2026-10-13** | n/m | **No es código abierto.** Uso comercial sólo por debajo de un umbral de ingresos; cualquier *Hosted Service* exige acuerdo escrito aparte. 19,684 B de licencia propia. Actualizada hace seis semanas: la trampa es **fresca** |
+
+### Voz a voz (full-duplex) — y la primera vez que esta KB separa licencia de código de licencia de pesos en la misma fila
+
+| Repo | Licencia de **código** (leída) | Licencia de **pesos** | ★ |
+|---|---|---|---|
+| [kyutai-labs/moshi](https://github.com/kyutai-labs/moshi) | **MIT + Apache-2.0** (`LICENSE-MIT` y `LICENSE-APACHE`, ambos presentes; GitHub rotula «Apache-2.0, MIT licenses found») | **CC-BY-4.0 según el README** — no verificable en esta sesión | 11,600 |
+| [fixie-ai/ultravox](https://github.com/fixie-ai/ultravox) | **MIT** | no verificable aquí | n/m |
+| [QwenLM/Qwen3-Omni](https://github.com/QwenLM/Qwen3-Omni) | **Apache-2.0** | no verificable aquí | n/m |
+
+**Por qué esta columna doble es nueva y necesaria.** En texto, la licencia del código y la de los
+pesos divergen y rara vez cambia la arquitectura. En voz **la voz es el entregable**: unos pesos
+CC-BY-4.0 obligan a **atribuir** en el producto del cliente, lo cual es una obligación que el
+cliente tiene que aceptar por contrato, no una nota de ingeniería. Y CC-BY no es Apache: **no hay
+concesión de patentes** (la misma lección que el sexto pase aprendió con el dominio público del
+NIST, ahora en la capa de pesos).
+
+### Locutor, diarización y antisuplantación — «quién está en la llamada»
+
+| Repo | Licencia | Papel |
+|---|---|---|
+| [pyannote/pyannote-audio](https://github.com/pyannote/pyannote-audio) | **MIT** | Diarización de locutores: separa agente de cliente en la grabación. Prerrequisito de cualquier redacción de PII por hablante |
+| [resemble-ai/resemblyzer](https://github.com/resemble-ai/resemblyzer) | Apache-2.0 | Embeddings de voz (verificación de locutor) |
+| [clovaai/aasist](https://github.com/clovaai/aasist) | **MIT** | Detección de *spoofing*/voz sintética. El lado defensivo del mismo problema: en 2026 el fraude por voz clonada entra por el mismo canal que el agente |
+
+> **Advertencia de dos filas, no de una.** `pyannote-audio` y `resemblyzer` producen **plantillas
+> de voz**. En Illinois eso es exactamente lo que está en litigio bajo BIPA ahora mismo
+> (ver `intel/market.md` → North America). Un *embedding* de locutor creado «sólo para separar
+> canales» puede ser un identificador biométrico según cómo lo lea el tribunal, y **la ley no
+> define «voiceprint»**. La decisión de arquitectura es: diarizar **sin persistir** el embedding.
+
+### Pegamento de servicio y plataforma on-prem
+
+| Repo | Licencia | Papel |
+|---|---|---|
+| [speaches-ai/speaches](https://github.com/speaches-ai/speaches) | **MIT** | Servidor auto-alojado con API **compatible con OpenAI** para STT y TTS. El adaptador que permite cambiar de proveedor sin tocar el agente |
+| [rhasspy/wyoming](https://github.com/rhasspy/wyoming) | **MIT** | Protocolo de servicios de voz por sockets: desacopla STT/TTS/VAD del orquestador |
+| [OpenVoiceOS/ovos-core](https://github.com/OpenVoiceOS/ovos-core) | Apache-2.0 | Plataforma de asistente de voz on-prem (sucesor comunitario del linaje Mycroft) |
+| [Mozilla-Ocho/llamafile](https://github.com/Mozilla-Ocho/llamafile) | Apache-2.0 | Empaquetado de un modelo como binario único. Relevante para el borde telefónico sin red |
+
+### Evaluación de agentes de voz — la capa que casi no existe
+
+| Repo | Licencia | Qué mide |
+|---|---|---|
+| [ServiceNow/eva](https://github.com/ServiceNow/eva) | **MIT** | Puntúa conversaciones **habladas multi-turno** en dimensiones de tarea *y* de audio; soporta agentes en cascada y voz-a-voz. Su métrica de audio depende de un modelo propietario (Gemini) — hay un conjunto sólo-texto para evitarlo |
+| [sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck) | **MIT** (clasificador PyPI y `LICENSE` leído) | Pruebas E2E del bucle de audio: latencia al primer byte, degradación de audio, **barge-in** y carga. v0.2.1 en PyPI |
+
+### Corpus
+
+| Repo | Licencia | Nota |
+|---|---|---|
+| [common-voice/common-voice](https://github.com/common-voice/common-voice) | **MPL-2.0** | La plataforma del corpus multilingüe. `mozilla/common-voice` sirve el mismo texto de licencia (16,725 B): es el mismo proyecto re-alojado, no dos |
+
+### Ceros medidos y direcciones que NO se escriben (porque un 404 no es un hallazgo)
+
+- **VICIdial** — la fuente secundaria más citada lo da como el mejor contact centre de código
+  abierto (>14.000 instalaciones). `vicidial/vicidial` **existe pero su `HEAD` apunta a
+  `gh-pages`**: es el sitio web, no el producto. `VICIDIAL/astguiclient` **no existe**. El código
+  vive en SVN fuera de GitHub. **Por eso no hay fila de VICIdial en esta KB con URL de GitHub.**
+- **Dograh** — descrito por su propio post como voz-IA auto-alojable BSD-2-Clause. `dograh-ai/dograh`
+  y `dograh/dograh` **no resuelven**. Sin slug, sin fila.
+- **Issabel** y **GOautodial** — citados como contact centres sobre Asterisk; `issabel/issabelPBX`,
+  `IssabelPBX/issabelPBX` y `GOautodial/GOautodial` **no resuelven**. Sin fila.
+- **Redacción de PII en audio**: buscado explícitamente. **No existe una librería mantenida que
+  encadene diarización + Presidio + silenciado por marca de tiempo.** Lo que hay es un prototipo
+  académico (OST, 2026) y ejemplos de proveedor atados a una nube. **Es un hueco de producto real**,
+  y la receta 42 de `compose/patterns.md` lo construye con piezas que sí existen y están verificadas.

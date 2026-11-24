@@ -838,6 +838,57 @@ producto de evidencia. El material ya está todo en esta KB: inventario con el c
 formato legible por máquina. Es la única región donde el formato de evidencia ya está
 estandarizado y financiado, así que el entregable es reutilizable entre clientes.
 
+
+#### El canal hablado — el pase vigesimoprimero (2026-11-24)
+
+**Norteamérica no regula «la IA» en voz; regula *la llamada*, y lleva treinta años haciéndolo.** Esa
+es la diferencia estructural con EMEA y la razón por la que un agente de voz aquí hereda un cuerpo
+normativo que ya existía antes de los LLM.
+
+- **Federal: no hay una ley general de divulgación de IA.** Lo que hay es **TCPA**: la FCC trata una
+  voz generada por IA como voz «**artificial**», lo que exige **consentimiento previo expreso** para
+  la llamada salida y **consentimiento escrito** para telemarketing. La propuesta de la FCC de
+  **agosto de 2024** que añadiría un deber explícito de divulgación de IA **seguía sin ser final**
+  según una fuente de septiembre de 2026, y otra de octubre de 2026 declara no haber encontrado
+  orden final. *Dos fuentes secundarias concordantes; no verificable de primera mano en esta sesión
+  (`fcc.gov` no se consultó; los hosts legales primarios están fuera de los dominios permitidos).*
+- **Estados: un mosaico, y las fechas no concuerdan entre fuentes.** Utah (divulgación **a petición**
+  del consumidor, y por adelantado en servicios regulados); Maine (siempre que el interlocutor
+  pudiera confundir al agente con una persona); **California AB 2905** (robocalls con voz de IA:
+  divulgar **al inicio** de la llamada); **Texas SB 140** (dentro de los **primeros 30 segundos** —
+  *una sola fuente de proveedor*); **Colorado HB 26-1263** (vigor **2027-01-01** — *una sola fuente,
+  y otras discrepan de la fecha*). Las fuentes también discrepan sobre si AB 2905 alcanza a agentes
+  bidireccionales o sólo a marcadores.
+- **BIPA es el riesgo vivo, y es de voz, no de texto.** Dos demandas colectivas propuestas contra
+  **Walmart** en el N.D. Ill. (presentadas el **2026-07-28** y el **2026-08-06**) alegan que su
+  **sistema telefónico de IA captura la huella vocal de quien llama** sin consentimiento bajo
+  **740 ILCS 14**. Nueve acciones relacionadas de **mayo de 2026** impugnan el uso de grabaciones de
+  locutores de Illinois para desarrollar IA de voz comercial. En **Delgado v. Meta Platforms**, una
+  orden publicada el **2026-06-25** **denegó** el juicio sumario a Meta. Reclamaciones contra
+  **Otter.ai** siguen adelante («Plaintiffs plausibly allege that Otter violated section 15(b) by
+  capturing their voiceprints during virtual meetings»), y un caso sobre **Microsoft Teams** alega
+  que el consentimiento del anfitrión **no basta** para los demás participantes. *Una demanda contra
+  Lowe's (mayo de 2026) aparece en una sola fuente y no se confirmó.*
+- **La pregunta abierta que decide el alcance: BIPA no define «voiceprint».** Si el tribunal exige
+  una *plantilla de identificación*, la mayor parte del entrenamiento de audio generativo cae fuera.
+  Si no, cualquier *embedding* de locutor entra. **Esto no es un detalle académico: es la diferencia
+  entre poder y no poder diarizar una llamada en Illinois.**
+- **Grabar es una obligación aparte.** Illinois, California, Florida, Massachusetts y otros estados
+  de **consentimiento de todas las partes** siguen exigiendo consentimiento para grabar,
+  independientemente de BIPA. Nada de lo encontrado explica **cómo interactúan** los dos regímenes
+  cuando el «grabador» es un agente.
+- **El comprador más maduro de la región es, precisamente, el de voz.** La IA agéntica está más
+  avanzada en **telecomunicaciones, al 48%** (informe de NVIDIA citado por fuente secundaria) —
+  por delante de cualquier otro vertical. Mercado de IA de Norteamérica: **US$254.860 millones en
+  2026, CAGR 27,0% hasta 2031** (MarketsandMarkets); EE. UU. captó **US$159.000 millones = 79% de
+  la inversión global en IA** en 2025.
+
+**La oportunidad, dicha como se vende:** en Norteamérica el entregable de un agente de voz **no es
+el agente** — es **la arquitectura que lo hace defendible**: divulgación al inicio de la llamada
+como propiedad del pipeline de TTS (no del guion), consentimiento de grabación por jurisdicción, y
+**diarización sin persistir el embedding** para no crear una plantilla biométrica que no se pidió.
+Las tres son decisiones de la semana 1 y ninguna es configurable después.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1742,6 +1793,49 @@ de aprovisionamiento, `scim2-tester` para probar que los endpoints cumplen los R
 soberanía resuelta con despliegue propio, el entregable es defendible ante un regulador europeo
 sin arrastrar copyleft al código del cliente.
 
+
+#### El canal hablado — el pase vigesimoprimero (2026-11-24)
+
+**EMEA es la única región donde el deber recae sobre *el agente* y no sobre *la llamada*, y ya está
+vigente.** El **Artículo 50(1) del Reglamento de IA** se aplica **desde el 2026-08-02**: hay que
+informar a la persona de que interactúa con un sistema de IA, salvo que sea obvio para una persona
+razonablemente informada. Para voz, las fuentes coinciden en que eso significa **al inicio del
+contacto y de forma audible**, no enterrado en los términos.
+
+- **No hay periodo de gracia.** El **Digital Omnibus de 2026** retrasó obligaciones de alto riesgo
+  pero **dejó intacta** la divulgación de chatbot.
+- **La fecha operativa más próxima de toda esta KB: 2026-12-02.** El **Artículo 50(2)** (marcado
+  **legible por máquina** del contenido sintético) concede a los sistemas generativos ya puestos en
+  el mercado **antes del 2026-08-02** plazo hasta el **2026-12-02** — **ocho días después de este
+  pase**. Es la única obligación con reloj corriendo que este pase encontró.
+- **Guías y sanciones.** La Comisión adoptó directrices sobre estas obligaciones el **2026-07-20**.
+  Incumplir el Art. 50 se cita en hasta **€15 M o 3% de la facturación mundial**; el régimen de alto
+  riesgo (aplicable desde el **2026-08-02**) se cita en hasta **€35 M o 7%**.
+- **Proveedor frente a implantador.** Quien sólo coloca el bot de un proveedor en su web es
+  *deployer*: no carga con el deber del apartado 1, **pero su configuración no puede eliminar la
+  divulgación**. Para Globant eso define la frontera contractual exacta en un proyecto de
+  integración.
+- **GDPR, en paralelo**: una huella vocal usada para **identificar** es dato biométrico del
+  **Artículo 9** — categoría especial, base jurídica propia. Separar «diarizar para separar canales»
+  de «identificar a la persona» es una decisión técnica con consecuencia jurídica directa.
+- **El contexto de adopción no acompaña.** Sólo el **9%** de las organizaciones de EMEA ha obtenido
+  resultados medibles de la mayoría de sus proyectos de IA (IDC, *Future Enterprise and Resiliency
+  Survey*, Wave 1, marzo de 2026); sólo el **12%** tiene estructuras dedicadas de gobernanza de IA
+  (WWT citando a Gartner, 2025); y un estudio de Veeam describe empresas de EMEA **sacrificando
+  soberanía de datos por velocidad**.
+
+**Hueco declarado, no silencio.** Ninguna de las fuentes consultadas **nombra un formato concreto de
+marcado legible por máquina para audio sintético**. El Art. 50(2) exige el marcado; el estándar
+técnico para marcar *audio* no aparece en nada de lo encontrado, y **ninguno de los 39 repositorios
+verificados en este pase implementa marca de agua de audio**. Es la misma forma de hallazgo que la
+ausencia de formato legible por máquina para el Anexo IV (sexto pase): **una obligación sin
+instrumento**. En una propuesta a cliente eso es un riesgo que hay que nombrar, y para Globant es
+trabajo de ingeniería que todavía nadie ha empaquetado.
+
+*Todas las citas normativas de esta subsección son **secundarias**: `eur-lex.europa.eu` no resuelve
+en esta sesión (fuera de los dominios de red permitidos), así que el texto del Art. 50 no se leyó de
+primera mano y no se cita como tal.*
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2565,6 +2659,50 @@ los SaaS de NHI del mercado. Todo el stack necesario es permisivo y autoalojable
 expresar "sin uso en 90 días → desactivar" como política ejecutable, `apache/syncope` (Apache-2.0)
 para el aprovisionamiento, y `velero-io/velero` + `restic` para que el propio almacén de evidencia
 tenga su copia dentro de la región.
+
+
+#### El canal hablado — el pase vigesimoprimero (2026-11-24)
+
+**APAC es la región que exige la etiqueta *dentro del audio*, y eso convierte el cumplimiento en un
+requisito del pipeline de TTS, no de la interfaz.** Es la diferencia más consecuente que este pase
+encontró entre regiones.
+
+- **China — Medidas de Etiquetado de Contenido Sintético Generado por IA, en vigor el
+  2025-09-01.** Etiquetas **explícitas e implícitas** para texto, imagen, **audio**, vídeo y escenas
+  virtuales. **Para audio específicamente** las medidas contemplan **avisos de voz o señales
+  rítmicas** en posiciones adecuadas **al principio, al final o en medio** del audio. El método
+  técnico lo fija el estándar nacional obligatorio **GB 45438-2025**.
+- **Corea — Ley Marco/Básica de IA, en vigor el 2026-01-22.** Su **Artículo 31** exige etiquetar
+  claramente como generados por IA los sonidos, imágenes o vídeos sintéticos **indistinguibles de la
+  realidad**, con excepciones para obra artística. Una fuente indica que **las multas están
+  diferidas al menos un año**.
+- **India — la normativa más nueva de este pase, y entró en vigor hace días.** La **Tercera
+  Enmienda** de TRAI al reglamento de comunicaciones comerciales, **fechada el 2026-09-18**, mete las
+  llamadas automatizadas **y de voz artificial o pregrabada** dentro del marco **A2P**: la empresa
+  debe **pre-declarar** a su operador la actividad A2P **y sus CLI**, y **lo no declarado se trata
+  como spam**. La mayoría de disposiciones rigen desde el **2026-10-18**, y las de **robocalls y uso
+  indebido de credenciales de remitente desde el 2026-11-17 — siete días antes de este pase**. *Una
+  segunda fuente afirma en cambio un escalonado de 30/60/90 días desde la publicación en el Gazette:
+  el conflicto se declara en lugar de promediarse.* La **DPDP Act 2023** y las **DPDP Rules 2025**
+  son una capa separada (qué se puede hacer con el dato, grabaciones y transcripciones incluidas),
+  con la mayoría de deberes desde **~2027-05-13**. **El permiso de TRAI y el consentimiento DPDP son
+  dos consentimientos distintos y hacen falta los dos.** No se encontró norma india que obligue a la
+  llamada a identificarse como IA (*fuente de proveedor, no confirmada*).
+- **Adopción: la región va delante.** Forrester sitúa a **Singapur, Australia, Nueva Zelanda y Corea
+  del Sur por delante de la mayoría de países de Norteamérica y Europa** en adopción empresarial de
+  IA. El *CIO Playbook* de Lenovo da **96% de las organizaciones de APAC aumentando inversión en IA,
+  +15% de media en 2026**. MAS (Singapur) mantiene consultas sobre IA en entidades financieras.
+
+**La consecuencia de arquitectura, y es un hueco de producto medido.** La exigencia china de un
+**aviso audible o rítmico insertado en el flujo de audio** no la satisface ningún componente de los
+39 verificados en este pase: ni Kokoro, ni Piper, ni sherpa-onnx, ni los pipelines de Pipecat o
+LiveKit incluyen un inyector de etiqueta audible ni marca de agua de audio. **Hay que construirlo**,
+y es el mismo artefacto que resolvería el hueco del Art. 50(2) europeo descrito en la subsección
+EMEA. Un componente, dos mercados.
+
+*Todas las citas normativas de esta subsección son **secundarias**: `www.chinalawtranslate.com` no
+resuelve en esta sesión (fuera de los dominios de red permitidos), así que ni el texto de las
+Medidas ni el GB 45438-2025 se leyeron de primera mano.*
 
 ### LATAM
 
@@ -3562,6 +3700,66 @@ construir y **probar** los endpoints SCIM, `cloud-custodian` para la política d
 `cloudnative-pg` + `pgbackrest` (MIT) para que la memoria del agente tenga un RPO declarado desde
 el día uno. **Nada de ese stack tiene coste de licencia, y eso es un argumento de venta regional,
 no un detalle técnico.**
+
+
+#### El canal hablado — el pase vigesimoprimero (2026-11-24)
+
+**LATAM no regula todavía la voz sintética, pero sí regula la llamada con más dureza que ninguna
+otra región de esta KB — y lo hace por la vía del regulador de telecomunicaciones.** Para un agente
+de voz saliente, Brasil es hoy la jurisdicción más restrictiva del mundo entre las cuatro regiones,
+y no por una ley de IA.
+
+- **Brasil — ANATEL.** En julio de 2026 ANATEL determinó que **todas** las prestadoras de servicios
+  de telecomunicaciones deben adherirse a la plataforma **«Não Me Perturbe»** (gratuita, cubre
+  telemarketing de telecomunicaciones y del sector financiero: crédito consignado, tarjetas). En
+  junio de 2026 **extendió hasta el 2028-10-31** el plazo para que los usuarios bloqueen llamadas, y
+  declaró haber **bloqueado más de mil empresas** que no cumplieron. Una fuente cifra en **14
+  millones** las líneas ya protegidas. Sigue vigente la **obligatoriedad del prefijo `0303`** en
+  telemarketing activo. *Una fuente secundaria define «alto volumen» como más de 10.000 llamadas en
+  al menos un día del periodo mensual de observación; no verificado contra el texto de ANATEL.*
+- **Brasil — LGPD / ANPD.** La **LGPD** trata el dato de voz como **sensible cuando identifica** a la
+  persona. *Una única fuente de proveedor afirma que la ANPD señaló en 2026 un escrutinio más
+  estricto de las campañas con voz sintética; no se pudo confirmar en otra fuente y no se afirma
+  aquí como hecho.* **No se encontró norma específica de ANATEL sobre voz de IA** (fuente de
+  proveedor).
+- **Perú** sigue siendo el caso más concreto de la región: reglamento publicado en **septiembre de
+  2025**, estructura basada en riesgo, prácticas prohibidas y **supervisión humana obligatoria para
+  usos de alto riesgo** — junto con el **D.S. 115-2025-PCM** en vigor desde el **2026-01-22** que ya
+  recogía esta KB.
+- **Uruguay** fue el **primer país de América Latina en firmar** el Convenio Marco del Consejo de
+  Europa sobre IA y derechos humanos, democracia y Estado de derecho (2025).
+- **El marco general sigue fragmentado**: ningún país latinoamericano tiene hoy un régimen de IA
+  plenamente maduro y armonizado entre sectores (Baker McKenzie).
+- **Adopción**: ~**40%** de las organizaciones ya implementan IA y **68% de quienes la adoptaron
+  prevén escalarla en 12 meses**; eficiencia como motivo principal (**67%**); y gobernanza y
+  políticas de uso por los empleados **no van al ritmo de la adopción** (RSM, encuesta a más de 400
+  líderes). WEF/McKinsey estiman **+1,9–2,3% de productividad anual** y **US$1,1–1,7 billones** de
+  valor adicional al año. México y Brasil lideran por volumen de proyectos y financiación, seguidos
+  de Chile, Colombia y Argentina.
+
+**Cero medido con el instrumento corto en español (no silencio).** Búsqueda ejecutada:
+`agente de voz código abierto español latinoamérica 2026 github reconocimiento de voz`. Lo que
+devolvió: **tesis académicas** (Universidad Pontificia Comillas —España—, y un repositorio
+institucional de la UVG de Guatemala), páginas de producto y listados. **Cero repositorios de voz de
+origen latinoamericano mantenidos.** Mismo resultado de forma que los ceros medidos de los pases
+anteriores, y por tanto la misma lectura comercial: en esta capa **no hay base regional sobre la que
+construir — hay un hueco regional que ocupar.**
+
+**El hallazgo que de verdad cambia una propuesta, y es el más vendible de este pase.** *No se puede
+comprar una cifra de WER en acento latinoamericano.* El **Open ASR Leaderboard** tiene pista
+multilingüe que cubre español y portugués, pero publica como titular los resultados en inglés; y sus
+datos multilingües incluyen **CoVoST-2 bajo CC-BY-NC-4.0 — no comercial**, de modo que **el corpus
+público de referencia no puede usarse para validar un entregable comercial**. Un *fine-tune* español
+de Whisper reporta CER 1,95 sobre FLEURS/Common Voice y su propia ficha advierte que otros dominios
+o dialectos pueden diferir. Consecuencia directa: **la medición de WER por acento es una línea
+facturable del SOW, con audio del propio cliente**, no un dato que se cita de un ranking. Es
+defendible ante un comité técnico, es trabajo real, y casi nadie lo está cotizando.
+
+**Y dos piezas de integración que sólo existen aquí**: el marcador saliente tiene que **consultar un
+registro** (Não Me Perturbe) antes de llamar, y el **prefijo `0303`** hace que la llamada sea
+**identificable como telemarketing antes de que la contesten** — lo que cambia el modelo de
+conversión de cualquier agente de voz saliente en Brasil y debe estar en el caso de negocio desde el
+primer día, no en el post-mortem.
 
 ## Posicionamiento Globant
 

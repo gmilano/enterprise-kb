@@ -1174,3 +1174,49 @@ abierta se puede modelar. En concreto, tres cosas que hay que escribir a mano en
 > el `LICENSE` empiece con esa frase, listar el directorio carveado con
 > `git ls-tree -r HEAD --name-only` y comprobar si **la función que el engagement necesita** está
 > dentro. Son tres minutos y cambia el presupuesto.
+
+## El borde telefónico — la plataforma que el cliente ya tiene y en la que el agente no puede vivir (added twenty-first pass, 2026-11-24)
+
+> Licencias leídas byte a byte de `LICENSE`/`COPYING` el **2026-11-24** vía
+> `raw.githubusercontent.com` (la API de GitHub está denegada en esta sesión).
+
+Un contact centre empresarial ya corre sobre una de estas plataformas. La asimetría de licencia
+que este fichero viene señalando desde el tercer pase **es más extrema aquí que en ERP o ITSM**:
+el borde telefónico es copyleft casi sin excepción, y la única excepción permisiva es también la
+más joven.
+
+| Plataforma | Repo | Licencia real | Pila | Oportunidad agéntica |
+|---|---|---|---|---|
+| **Asterisk** | [asterisk/asterisk](https://github.com/asterisk/asterisk) | **GPL-2.0**, doble licencia negociable con Sangoma US Inc. | C | El motor de telefonía de facto. **Integrar por AMI/ARI (API externa), nunca como módulo cargable** — ver el aviso de abajo |
+| **FreeSWITCH** | [signalwire/freeswitch](https://github.com/signalwire/freeswitch) | **MPL-1.1** | C | Conmutador. MPL es copyleft *por fichero*: un módulo nuevo en fichero propio no contamina, pero un parche a un fichero existente sí |
+| **Kamailio** | [kamailio/kamailio](https://github.com/kamailio/kamailio) | **GPL-2.0** | C | Proxy SIP de alto volumen. Se habla por protocolo: el agente nunca se enlaza con él |
+| **OpenSIPS** | [OpenSIPS/opensips](https://github.com/OpenSIPS/opensips) | **GPL-2.0** | C | Igual que Kamailio en postura de licencia y de integración |
+| **FreePBX** | [FreePBX/framework](https://github.com/FreePBX/framework) | **GPL-3.0** (35,146 B) | PHP / Asterisk | Sistema telefónico de empresa, **no** un contact centre: la gestión de campañas, el marcador y la supervisión de agentes hay que añadirlos |
+| **jambonz** | [jambonz/jambonz-feature-server](https://github.com/jambonz/jambonz-feature-server) + [jambonz-api-server](https://github.com/jambonz/jambonz-api-server) | **MIT** | Node.js / drachtio | **La única fila permisiva de esta tabla.** CPaaS auto-alojable: el webhook de llamada es el punto de enganche natural del agente, y el código que Globant escriba encima sigue siendo de Globant |
+| **drachtio** | [drachtio/drachtio-server](https://github.com/drachtio/drachtio-server) | **MIT** | C++ | El servidor SIP bajo jambonz. MIT hasta la señalización |
+| **LiveKit + SIP** | [livekit/livekit](https://github.com/livekit/livekit) + [livekit/sip](https://github.com/livekit/sip) | **Apache-2.0** ambos | Go | La ruta que **evita Asterisk por completo**: SIP entra en `livekit/sip`, sale como WebRTC, y el agente ([livekit/agents](https://github.com/livekit/agents), Apache-2.0) nunca toca código GPL |
+| **OpenVoiceOS** | [OpenVoiceOS/ovos-core](https://github.com/OpenVoiceOS/ovos-core) | Apache-2.0 | Python | Asistente de voz on-prem para planta, almacén o kiosko: el caso en que la nube no es opción |
+
+### El aviso de Asterisk, citado de su propio `LICENSE` (no de un resumen)
+
+> «Asterisk is distributed under the GNU General Public License version 2 and is also available
+> under alternative licenses negotiated directly with Sangoma US Inc. **If you obtained Asterisk
+> under the GPL, then the GPL applies to all loadable Asterisk modules used on your system as
+> well**, except as defined below.»
+
+**Esto decide la arquitectura de la primera semana.** Un conector de IA escrito como **módulo
+cargable de Asterisk** es obra derivada bajo GPL-2.0 y, si el entregable se distribuye al cliente,
+arrastra la obligación de código fuente. El mismo conector escrito como **proceso aparte que habla
+ARI/AMI por socket** no lo es. La diferencia entre las dos formas es de un día de trabajo al
+principio y de una renegociación de contrato al final. Sangoma puede conceder licencia alternativa
+— es una **negociación comercial**, no una casilla de configuración, y hay que abrirla antes del
+SOW, no después.
+
+### La consecuencia para el posicionamiento
+
+La tabla se lee en una sola frase: **el borde telefónico es de otro, y el único camino limpio de
+extremo a extremo es `livekit/sip` + `livekit/agents` (Apache-2.0) o jambonz (MIT).** Si el cliente
+ya tiene Asterisk o FreeSWITCH — y lo habitual es que sí — la arquitectura correcta no es tocar su
+conmutador: es **puentear una troncal SIP** hacia el agente permisivo y dejar el conmutador intacto.
+Eso también es el argumento comercial más fácil de defender en la sala, porque no pide tocar el
+sistema del que depende el negocio hoy.

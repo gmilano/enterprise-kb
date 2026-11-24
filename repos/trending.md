@@ -8,7 +8,89 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigésimo pase (latest) — la capa del ciclo de vida: 24 direcciones verificadas, 23 nuevas, y cuatro `NOASSERTION` con cuatro veredictos distintos
+## 2026-11-24 — vigesimoprimer pase (latest) — la capa de voz: 39 direcciones verificadas, 39 nuevas, y la cadena de seis eslabones con seis licencias
+
+> Tema: **el canal hablado.** **39 direcciones verificadas el 2026-11-24, las 39 nuevas para esta
+> KB** — el porcentaje de novedad más alto de cualquier pase (100%), porque la capa entera faltaba.
+> Instrumentos: `raw.githubusercontent.com` para **leer `LICENSE` byte a byte**, `git ls-remote`
+> para existencia y rama por defecto, `WebFetch` sobre el HTML de GitHub para estrellas/archivado,
+> y `pypi.org/pypi/<pkg>/json` para clasificadores de licencia **independientes de la forja**.
+> Denegados en esta sesión: `api.github.com`, `gh api`, `curl https://github.com` (403, alcance de
+> sesión) y **`huggingface.co` (403, `connect_rejected` del proxy de egreso)**.
+
+### La estructura del hallazgo: un agente de voz tiene seis eslabones, no uno
+
+transporte (WebRTC/SIP) → VAD y **detección de turno** → STT → el agente → TTS → grabación y
+evidencia. **Cada eslabón lleva su propia licencia, y gobierna la más restrictiva de la cadena** —
+que en voz casi nunca es la del framework de agentes. Por eso un pase que buscara «frameworks de
+voz» habría traído cinco filas; buscar por *eslabón* trajo 39.
+
+### Lo nuevo por capa (todas con licencia leída, no de badge)
+
+- **Transporte permisivo de extremo a extremo**: [livekit/livekit](https://github.com/livekit/livekit)
+  (Apache-2.0, 22,400 ★) + [livekit/sip](https://github.com/livekit/sip) (Apache-2.0) — **la ruta
+  que evita Asterisk por completo**; y la pila MIT [jambonz/jambonz-feature-server](https://github.com/jambonz/jambonz-feature-server)
+  + [jambonz/jambonz-api-server](https://github.com/jambonz/jambonz-api-server) sobre
+  [drachtio/drachtio-server](https://github.com/drachtio/drachtio-server).
+- **El borde copyleft que el cliente ya tiene**: [asterisk/asterisk](https://github.com/asterisk/asterisk)
+  (**GPL-2.0**, doble licencia con Sangoma), [signalwire/freeswitch](https://github.com/signalwire/freeswitch)
+  (**MPL-1.1**), [kamailio/kamailio](https://github.com/kamailio/kamailio) y
+  [OpenSIPS/opensips](https://github.com/OpenSIPS/opensips) (**GPL-2.0**),
+  [FreePBX/framework](https://github.com/FreePBX/framework) (**GPL-3.0**).
+- **El eslabón que nadie lista y decide si el agente suena humano**:
+  [pipecat-ai/smart-turn](https://github.com/pipecat-ai/smart-turn) (**BSD-2-Clause**) — fin de turno
+  **semántico**, no por silencio: distingue «mi número es…» (pausa, sigue) de una frase terminada.
+  Con [snakers4/silero-vad](https://github.com/snakers4/silero-vad) (MIT) debajo.
+- **STT**: [openai/whisper](https://github.com/openai/whisper), [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper),
+  [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp) (MIT los tres),
+  [m-bain/whisperX](https://github.com/m-bain/whisperX) (**BSD-2-Clause**, alineación por palabra),
+  [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) (Apache-2.0, 16,200 ★ — **STT+TTS+VAD+diarización
+  en un runtime ONNX**), [alphacep/vosk-api](https://github.com/alphacep/vosk-api) (Apache-2.0),
+  [speechbrain/speechbrain](https://github.com/speechbrain/speechbrain), [espnet/espnet](https://github.com/espnet/espnet),
+  [NVIDIA-NeMo/NeMo](https://github.com/NVIDIA-NeMo/NeMo) (Apache-2.0).
+- **TTS**: [hexgrad/kokoro](https://github.com/hexgrad/kokoro) (Apache-2.0, 10,300 ★) +
+  [remsky/Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI), [nari-labs/dia](https://github.com/nari-labs/dia)
+  (Apache-2.0), [SWivid/F5-TTS](https://github.com/SWivid/F5-TTS) (MIT), [idiap/coqui-ai-TTS](https://github.com/idiap/coqui-ai-TTS) (MPL-2.0).
+- **Voz a voz**: [kyutai-labs/moshi](https://github.com/kyutai-labs/moshi) (11,600 ★),
+  [fixie-ai/ultravox](https://github.com/fixie-ai/ultravox) (MIT), [QwenLM/Qwen3-Omni](https://github.com/QwenLM/Qwen3-Omni) (Apache-2.0).
+- **Locutor y antisuplantación**: [pyannote/pyannote-audio](https://github.com/pyannote/pyannote-audio) (MIT),
+  [resemble-ai/resemblyzer](https://github.com/resemble-ai/resemblyzer) (Apache-2.0),
+  [clovaai/aasist](https://github.com/clovaai/aasist) (MIT, detección de voz sintética).
+- **Pegamento y on-prem**: [speaches-ai/speaches](https://github.com/speaches-ai/speaches) (MIT, API
+  **compatible OpenAI** para STT/TTS auto-alojado), [rhasspy/wyoming](https://github.com/rhasspy/wyoming) (MIT),
+  [OpenVoiceOS/ovos-core](https://github.com/OpenVoiceOS/ovos-core) (Apache-2.0).
+- **Evaluación, la capa que casi no existe**: [ServiceNow/eva](https://github.com/ServiceNow/eva)
+  (MIT, puntúa conversación **hablada** multi-turno en tarea *y* audio) y
+  [sujitnoronha/voicecheck](https://github.com/sujitnoronha/voicecheck) (MIT, latencia al primer
+  byte, degradación de audio, **barge-in**, carga).
+- **Corpus**: [common-voice/common-voice](https://github.com/common-voice/common-voice) (MPL-2.0).
+
+### Cuatro direcciones que este pase se NEGÓ a escribir (un 404 no es un hallazgo)
+
+| Candidato | Por qué lo recomendaban | Qué se midió |
+|---|---|---|
+| **VICIdial** | la fuente secundaria más citada como mejor contact centre OSS, «>14.000 instalaciones» | `vicidial/vicidial` existe pero su **`HEAD` apunta a `gh-pages`** → es el sitio web, no el producto; `VICIDIAL/astguiclient` **no existe**. El código vive en SVN fuera de GitHub |
+| **Dograh** | su propio post lo da como voz-IA auto-alojable BSD-2-Clause | `dograh-ai/dograh` y `dograh/dograh` **no resuelven** |
+| **Issabel** | contact centre sobre Asterisk | `issabel/issabelPBX`, `IssabelPBX/issabelPBX` **no resuelven** |
+| **GOautodial** | contact centre comunitario sobre Asterisk | `GOautodial/GOautodial` **no resuelve** |
+
+**La regla que esto confirma, por si el próximo pase la necesita:** `git ls-remote --symref … HEAD`
+cuesta una llamada y distingue tres estados que un enlace no distingue — **existe y es el producto**
+(`HEAD → main/master`), **existe y es un sitio web** (`HEAD → gh-pages`), y **no existe** (git pide
+credenciales, que es el 404 de un repositorio público inexistente). El caso `gh-pages` es el
+peligroso: el enlace **funciona**, devuelve 200, y no es software.
+
+### El hueco de producto que queda abierto
+
+**No existe librería mantenida que encadene diarización + Presidio + silenciado por marca de
+tiempo** para redactar PII de una grabación de llamada. Buscado explícitamente; lo que hay es un
+prototipo académico (OST, 2026) y ejemplos de proveedor atados a una nube. Las piezas existen todas
+y están verificadas arriba (`whisperX` alinea por palabra, `pyannote-audio` diaríza,
+`data-privacy-stack/presidio` —ya en esta KB desde el cuarto pase— detecta PII, `ffmpeg` silencia).
+**Receta 42 de `compose/patterns.md` la construye.** Es trabajo facturable con un hueco de mercado
+medido detrás.
+
+## 2026-11-24 — vigésimo pase — la capa del ciclo de vida: 24 direcciones verificadas, 23 nuevas, y cuatro `NOASSERTION` con cuatro veredictos distintos
 
 > Tema: **el alta y la baja de la identidad del agente, y el RPO del estado que deja atrás.**
 > 24 direcciones verificadas el **2026-11-24**. **23 de las 24 eran nuevas** para esta KB (la
