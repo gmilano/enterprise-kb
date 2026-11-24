@@ -1298,3 +1298,51 @@ es **Apache James**, y por eso es la pieza que vale la pena conocer bien.
 > nombre de N clientes finales sin compartir clave— ni un **inyector de cabeceras RFC 8058** que un
 > test pueda afirmar. Se buscó y no está. Es el mismo tipo de hueco de producto que el pase
 > veintiuno midió para la etiqueta audible: **hay que construirlo**, y es la Receta 46.
+
+---
+
+## La plataforma de firma — la que el cliente ya compró, y el reparto de licencias que ya es una ley de esta KB (added twenty-fourth pass, 2026-11-24)
+
+> Todo cliente empresarial **ya tiene** firma electrónica, y casi siempre es DocuSign o Adobe.
+> La pregunta de un *engagement* no es «¿qué plataforma elegimos?», sino **«¿sobre qué podemos
+> poner un agente sin heredar una licencia que nos impida entregarlo?»**. Las cinco plataformas
+> libres reales de esta capa, verificadas el 2026-11-24 con licencia leída byte a byte:
+
+| Plataforma | Licencia (byte a byte) · último commit | Qué es, y qué significa para un estudio |
+|---|---|---|
+| [documenso/documenso](https://github.com/documenso/documenso) | **AGPL-3.0** (`LICENSE` **34.523 B**) · 2026-11-23 · `main` | La alternativa libre a DocuSign más conocida. **Única dirección de este pase que ya estaba en la KB** (2 apariciones). **AGPL ⇒ alcanza al servicio en red**, que es la forma de entrega. |
+| [docusealco/docuseal](https://github.com/docusealco/docuseal) | **AGPL-3.0** (`LICENSE` **34.520 B**) · 2026-11-23 · `master` | Rellenado de formularios y firma. Mismo régimen. |
+| [OpenSignLabs/OpenSign](https://github.com/OpenSignLabs/OpenSign) | **AGPL-3.0** (`LICENSE` **35.051 B**) · 2026-11-20 · `staging` | Igual. Nótese la rama por defecto `staging`, no `main`. |
+| [hanzoai/sign](https://github.com/hanzoai/sign) | **AGPL-3.0** (`LICENSE` **34.523 B**) · 2026-11-21 · `main` | Igual. |
+| [varops/signed-md](https://github.com/varops/signed-md) | **AGPL-3.0** (`LICENSE` **34.020 B**) · **2026-11-24** · `develop` | **La única nativa de agentes** (16 herramientas MCP) y la única con la puerta humana en el servidor. Mismo régimen. |
+
+### El reparto, y es la **quinta** confirmación independiente en pases consecutivos
+
+**Cinco de cinco aplicaciones de firma son AGPL-3.0. Cero excepciones.** Enfrente, en la misma
+capa y verificado en el mismo día: **las bibliotecas y los servidores son permisivos o LGPL** —
+`pyHanko` (MIT), `bc-java` (MIT), `pdfbox` (Apache-2.0), `c2pa-rs`/`c2patool`/`c2pa-python`/
+`c2pa-js` (MIT), `synthid-text` (Apache-2.0), `credo-ts`/`multipaz`/`sd-jwt-python` (Apache-2.0),
+`web-bot-auth` (Apache-2.0), `cfssl` (BSD-2-Clause), `smallstep/certificates` (Apache-2.0),
+`uts-server` (MIT), `esig/dss` (LGPL-2.1), `OpenSC` (LGPL-2.1), `EJBCA-CE`/`SignServer-CE`
+(LGPL-2.1).
+
+El pase 17 lo midió en el transporte AS4/Peppol, el 18 en las aplicaciones de calendario, el 22 en
+la tenencia y el 23 en el correo. **Con este pase son cinco capas sin relación técnica entre sí y
+el mismo reparto, y a estas alturas no es una observación: es una regla de diseño de oferta.**
+
+> **Lo empaquetable es la tubería; la aplicación con la que un humano hace el acto jurídico es
+> recíproca.** Y en esta capa la regla tiene una consecuencia más afilada que en las otras cuatro,
+> porque **el acto jurídico es precisamente el que no se puede automatizar** (ver el reparto
+> firma/sello en `agents/top.md`): la pieza AGPL es la pieza donde está la persona. **No es una
+> coincidencia de licencias, es que el humano y el copyleft viven en el mismo sitio.**
+
+### La plataforma que el agente debería usar y que nadie llama «plataforma»
+
+**`Keyfactor/signserver-ce` (LGPL-2.1, 2026-08-26)** es, de todo lo anterior, lo único diseñado
+para que **una máquina** sostenga la clave: firma en servidor, clave en HSM, sin humano en el
+bucle. Es la implementación del **sello**, no de la firma. **Que no aparezca en ninguna lista de
+«alternativas a DocuSign» es el síntoma**: las listas comparan productos para personas, y el sello
+no es un producto para personas. Edición *community*, con el reparto CE/EE de siempre — **cuarta
+vez que esta KB mide que lo que se licencia es la operación y no la función** (Onyx: *permission
+sync* sólo en `ee/`; Weaviate: licencia partida; Stalwart: multi-tenencia y SCIM en Enterprise;
+SignServer/EJBCA: CE frente a EE).

@@ -8,7 +8,88 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimotercer pase (latest) — la capa del remitente: 32 direcciones verificadas, 32 nuevas, y 9 licencias que la forja no sabe leer
+## 2026-11-24 — vigesimocuarto pase (latest) — la capa de la firma: 45 direcciones probadas, 44 existen, 44 nuevas, y el instrumento cambió de carril
+
+> **Dedup medido antes de escribir, no estimado:** de 45 direcciones de partida, **una sola** tenía
+> apariciones previas en los nueve ficheros (`documenso/documenso`, 2). **Las otras 44 son nuevas.**
+> La ausencia era estructural: 23 pases construyeron *qué puede hacer* el agente y ninguno *qué lo
+> prueba*.
+>
+> **EL INSTRUMENTO NUEVO, Y VALE PARA TODA LA FLOTA.** `api.github.com` y `github.com` devuelven
+> **403** en esta sesión —la API está limitada a los repositorios adjuntos—, así que **estrellas y
+> bandera `archived` no están disponibles y no se inventan**. Lo que **sí** funciona es el carril
+> de lectura anónima de git:
+> `git clone --bare --depth 1 --filter=blob:none` + `git log -1 --format=%cI` da la **fecha real
+> del último commit en ~0,5 s y 196 KB por repositorio**, y `raw.githubusercontent.com` da el
+> **fichero de licencia byte a byte**. **La fecha del último commit es mejor evidencia que
+> `pushed_at`**, que se mueve con cualquier rama mientras el commit no.
+> **Contrapartida honesta: sin `archived` no se puede distinguir «archivado» de «parado».**
+>
+> **Lo trending de verdad en esta capa son fechas de push, y son de esta misma semana:**
+> `contentauth/c2pa-rs` y `contentauth/c2patool` (**MIT**) con commit el **2026-11-24**;
+> `cloudflare/web-bot-auth` (**Apache-2.0**) el **2026-11-24**; `OpenSC/OpenSC` (**LGPL-2.1**) el
+> **2026-11-24**; `eudi-app-ios-wallet-ui` (**AGPL-3.0**) el **2026-11-24**;
+> `varops/signed-md` (**AGPL-3.0**) el **2026-11-24**; `MatthiasValvekens/pyHanko` (**MIT**) el
+> **2026-11-23** —*con un aviso de «beta / not production-ready» en su README más viejo que el
+> propio commit*—; `apache/pdfbox` (**Apache-2.0**) el 2026-11-22.
+>
+> **LA DECISIÓN DE PRESUPUESTO DE LA CAPA, MEDIDA:** la biblioteca **completa** es copyleft y la
+> **permisiva** se declara beta. `esig/dss` —de la **propia Comisión Europea**, la **única** con
+> PAdES + CAdES + XAdES + JAdES **y validación contra listas de confianza**— es **LGPL-2.1**
+> (`LICENSE`, **26.530 B**); `pyHanko` —única ruta permisiva completa a PAdES— es **MIT**
+> (**1.080 B**). **La LGPL-2.1 se enlaza dinámicamente sin contaminar el producto: decide el
+> empaquetado, no el permiso.**
+>
+> **EL REPARTO DENTRO DE UNA MISMA ORGANIZACIÓN, Y ES EL DATO COMERCIAL (T95).**
+> `eu-digital-identity-wallet` publica **las apps de cartera en AGPL-3.0** (`eudi-app-android-wallet-ui`,
+> `eudi-app-ios-wallet-ui`, **13.961 B**) y **las bibliotecas y el verificador en Apache-2.0**
+> (`eudi-lib-jvm-sdjwt-kt`, `eudi-srv-web-verifier-endpoint-23220-4-kt`, **9.425 B**).
+> **El lado en el que está una empresa cliente —el que verifica— es justo el permisivo:** se puede
+> entregar un verificador de cartera dentro de un producto cerrado; **no** se puede forkear la
+> cartera del Estado dentro de uno. **Cuarta confirmación de que la licencia es por
+> repo-entregable y no por organización** — y la primera que corta justo entre **producto** y
+> **biblioteca**.
+>
+> **TRES LICENCIAS QUE LA FORJA NO SABE LEER, Y LAS TRES SON DE ADMINISTRACIONES PÚBLICAS.**
+> (1) `open-eid/digidoc4j` y `open-eid/libdigidocpp` (Estonia): **13 rutas canónicas, 13 fallos**;
+> está en **`LICENSE.LGPL`**, que el README nombra → **LGPL-2.1, 26.436 B** (**T94**: si la sonda
+> dice «sin licencia», leer el README para el **nombre del fichero**; es el **inverso** de T92).
+> Y el README **llama a su licencia «GNU *Library* General Public License»**, el nombre antiguo de
+> la **2.0**, cuando el fichero es la **2.1**. (2) `ctt-gob-es/clienteafirma` (**AutoFirma**,
+> España): **sin fichero de licencia en absoluto**; el README declara en prosa **«GPL 2+ y
+> EUPL 1.1»** — dual, y sólo en prosa. (3) Las **especificaciones no son código**:
+> el ARF europeo trae `LICENCE` —ortografía británica, **249 B**— con **CC-BY-4.0**;
+> `c2pa-org/specifications` **CC-BY-4.0** (18.650 B); `italia/eudi-wallet-it-docs` **CC0-1.0**
+> (6.555 B). *Dos repos de especificación, dos licencias de documento distintas.*
+>
+> **CERO CLASES DE LICENCIA NUEVAS, Y SE DICE EN LUGAR DE INFLAR LA CIFRA.** Las 21 clases que ya
+> tenía la KB bastaron para las 44 direcciones: **CC-BY-4.0, CC0, LGPL-3.0, LGPL-2.1, GPL-2.0,
+> EUPL y BSD-2-Clause ya estaban registradas** (medido: 24, 6, 45, 5, 28, 51 y 38 apariciones
+> previas). **Lo único nuevo es una combinación**, no una clase: el **dual GPL-2.0+ / EUPL-1.1**
+> declarado sólo en un README.
+>
+> **FALLO DEL PROPIO INSTRUMENTO, ENCONTRADO Y CORREGIDO EN EL PASE (T93).** El clasificador
+> convirtió **GPL-2.0 en LGPL** porque **el texto de la GPL-2.0 contiene la cadena «GNU Lesser
+> General Public License» en su propio apéndice**: en el `LICENSE` de `dogtagpki/pki` aparece en la
+> **línea 18** mientras el encabezado de la **línea 1** dice `GNU GENERAL PUBLIC LICENSE /
+> Version 2`. **Se clasifica por la primera línea de encabezado, nunca por subcadena.** Veredicto
+> corregido: `dogtagpki/pki` = **GPL-2.0**.
+>
+> **EL CERO DE LATAM ERA DEL IDIOMA (T97).** La misma pregunta en **portugués** devolvió un corpus
+> nacional entero que la sonda en español no veía en pases anteriores: `demoiselle/signer`
+> (**LGPL-3.0**, del **SERPRO**, **2026-09-04**), `junior9283/assinador-icp-brasil` (**MIT**,
+> **2026-10-10**, el **único permisivo y vivo**), `evandrojr/signer` (fork, 2026-05-20) y las tres
+> de **`OpenICP-BR`**: `libICP` (**2018-09-24**), `wxApp` (**2018-07-11**) y `ktLib`
+> (**sin fichero de licencia**, **2018-11-05**). **3 de 6 llevan 8 años sin un commit y son los
+> primeros resultados de búsqueda** — decimoctavo caso de parado-pero-recomendado, y el más antiguo
+> que esta KB ha medido. **El hueco de LATAM aquí no es de ausencia: es de mantenimiento.**
+>
+> **Y un 404 que se registra en lugar de borrarse:**
+> `eu-digital-identity-wallet/eudi-srv-web-issuing-qeaa-py` **no existe**. El nombre lo dedujo este
+> pase por analogía con los repos hermanos y **no lo verificó antes de escribirlo**. De 45
+> direcciones, **44 reales y 1 conjetura propia**.
+
+## 2026-11-24 — vigesimotercer pase — la capa del remitente: 32 direcciones verificadas, 32 nuevas, y 9 licencias que la forja no sabe leer
 
 > **32 direcciones verificadas el 2026-11-24, las 32 nuevas para esta KB** (dedup medido: los 30
 > candidatos de partida daban **0 apariciones** en los nueve ficheros — la ausencia era estructural,

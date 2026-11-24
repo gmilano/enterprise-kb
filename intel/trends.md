@@ -2909,3 +2909,132 @@ aptos para correo del top-1M (jun-2026), con **56 % de los que publican MTA-STS 
 `enforce`** y **19,6 %** de los dominios emisores validando MTA-STS. *Una segunda medición sobre el
 Tranco top-10.000 da **MTA-STS 2,6 %, TLS-RPT 3 %, BIMI 9,5 %** y **sólo ~0,7 %** con todas las capas
 a la vez: la discrepancia es de **muestra**, no de contradicción, y se registran las dos.*
+
+---
+
+## Vigesimocuarto pase — 2026-11-24 — el límite de la firma: lo que el agente produce no vale porque esté bien hecho, sino porque alguien responde por él
+
+### Tendencia 43 — Dos fechas de diciembre de 2026, y el agente empresarial está justo en medio
+
+Dentro de un mes caen dos obligaciones que no tienen relación entre sí salvo que **las dos se
+resuelven en la capa de la firma**, y ningún pase anterior de esta KB registró ninguna:
+
+| Fecha | Qué vence | Para quién |
+|---|---|---|
+| **2026-08-02** (ya pasó) | Art. 50(2) AI Act: marcado **legible por máquina** de la salida sintética | Proveedores de IA generativa |
+| **2026-12-02** | Fin de la transición del Art. 50 para sistemas **ya en el mercado** (*AI Omnibus*) | Todo producto desplegado antes de agosto |
+| **2026-12-24** | Cada Estado miembro debe **ofrecer** al menos una **cartera de identidad digital (EUDI)** gratuita; **los organismos públicos deben aceptarla** desde esa fecha | Estados miembros y sector público |
+| **2027-12-24** | **Las partes privadas** que exigen autenticación fuerte deben **aceptar** la cartera (micro y pequeñas empresas exceptuadas) | Banca, telecos, plataformas |
+
+**El reloj de la cartera corre desde los actos de ejecución**, en vigor el 2024-12-24, más 24
+meses. **Conflicto declarado en lugar de promediado:** una fuente da **2026-12-31** en vez del
+**2026-12-24**; la fecha que sostiene el plazo de 24 meses es la del 24, y la del 31 parece un
+redondeo. *(Todo este bloque es de nivel resumen de búsqueda: `eur-lex`, el `datatracker` del IETF
+y las páginas oficiales de la Comisión **no son alcanzables desde esta sesión** — ver el canal de
+verificación abajo.)*
+
+**La lectura comercial:** no son dos proyectos, es uno. **Un agente empresarial en la UE tiene que
+poder (a) marcar lo que genera y (b) aceptar una identidad que no emitió él.** Las dos son la
+misma capa y la misma conversación con el mismo comprador, y la ventana para venderla como un solo
+trabajo **se cierra en diciembre**.
+
+### Tendencia 44 — La biblioteca completa es copyleft y la permisiva se declara beta: la capa de la firma no tiene una opción cómoda
+
+Medido byte a byte el 2026-11-24, no deducido de insignias:
+
+- **`esig/dss`** —la biblioteca de la **propia Comisión Europea**, la **única** que cubre PAdES +
+  CAdES + XAdES + JAdES **y la validación contra listas de confianza**— es **LGPL-2.1**
+  (`LICENSE`, 26.530 B). Último commit **2026-10-14**.
+- **`MatthiasValvekens/pyHanko`** —la única ruta permisiva completa a PAdES— es **MIT**
+  (1.080 B), y su README arrastra un aviso de *beta / not production-ready* **mientras recibía un
+  commit el 2026-11-23**, el día antes de medirlo.
+
+**No es una tendencia de licencias: es una decisión de presupuesto que no se puede esquivar.** La
+LGPL-2.1 **se enlaza dinámicamente sin contaminar el producto**, así que DSS es utilizable — pero
+obliga a la JVM y **decide el empaquetado del entregable**. La alternativa permisiva es Python y
+se autodescribe como no lista. **Hay que elegir entre una licencia que condiciona la arquitectura
+y un aviso de madurez que el propio repositorio desmiente.** Esta KB registra las dos cosas y
+**no resuelve el aviso en favor del repositorio**: un aviso de beta viejo sigue siendo lo que el
+proyecto dice de sí mismo, y es lo que un cliente leerá.
+
+### Tendencia 45 — Esta capa sí tiene agentes, y el único bien diseñado pone la puerta en el servidor
+
+Al contrario que la tenencia (pase 22) y el remitente (pase 23), donde la medición dio cero o casi,
+**la firma tiene cuatro agentes reales**, verificados el 2026-11-24: `varops/signed-md` (AGPL-3.0),
+`imagine-ai-inc/sign` (**MIT**), `hanzoai/sign` (AGPL-3.0) y `signbee/skill` (**MIT**).
+
+**Y el patrón que importa no es cuántos son, sino dónde ponen la puerta.** El README de
+`varops/signed-md`, leído en primario (12.754 B), dice: *«Guardrails the agent can't talk its way
+around. **These live in the server, not in a prompt**»*, *«Only a person approves a template, and
+an agent can only send the exact revision a person saw»* y *«there is no AI inside Signed.md
+itself»*.
+
+**Eso es, sin nombrarlo, exactamente el reparto firma/sello del Reglamento**: el agente hace el
+trabajo, la persona aporta la voluntad, y **la restricción es estructural y no textual**. Es la
+primera vez en 24 pases que esta KB encuentra una herramienta cuyo diseño coincide con una
+obligación jurídica que la herramienta no cita. **La pieza permisiva (`imagine-ai-inc/sign`, MIT)
+es la proponible y es la que no trae esa puerta**: hay que construirla (Receta 49). **El reparto
+de esta capa, entonces: lo que se puede entregar no tiene la puerta, y lo que tiene la puerta no se
+puede entregar.**
+
+### Tendencia 46 — El cero de LATAM era del idioma, no del ecosistema, y eso corrige hacia atrás varios pases
+
+Pases anteriores de esta KB midieron **cero repositorios de origen latinoamericano** en capa tras
+capa, usando —en sus propias palabras— «el instrumento corto en español». **Este pase repitió la
+pregunta en portugués y encontró seis**: `demoiselle/signer` (LGPL-3.0, del **SERPRO**, viva al
+2026-09-04), `junior9283/assinador-icp-brasil` (**MIT**, viva al 2026-10-10), `evandrojr/signer`
+(fork, 2026-05-20) y las tres de `OpenICP-BR`, **muertas desde 2018**.
+
+**El motivo es estructural y se puede generalizar:** cuando una capa depende de una
+**infraestructura estatal obligatoria**, el corpus libre está **en el idioma del Estado que la
+impuso**. Brasil tiene PKI nacional obligatoria desde 2001; ningún otro país de LATAM tiene una
+comparable, y la búsqueda en español **no puede ver** el único corpus que existe.
+
+**Pero el no-cero no es una buena noticia sin matices, y conviene decir las dos partes:** **3 de
+6 llevan 8 años sin un commit** y son los primeros resultados de búsqueda; una **no tiene fichero
+de licencia** (y sin licencia son todos los derechos reservados); y **sólo una es permisiva y
+viva**, con **un único mantenedor**. **El hueco de LATAM en esta capa no es de ausencia: es de
+mantenimiento**, y ésa es una venta distinta —y mejor— que la de un vacío.
+
+### Canal de verificación de este pase — lo que se pudo y lo que no
+
+**Lo medido byte a byte o en el carril de git (fiable):** las **45** direcciones probadas, de las
+que **44 existen**; **todas** las licencias (leídas de `raw.githubusercontent.com`, con el tamaño
+del fichero anotado); **todas** las fechas de último commit; **todas** las ramas por defecto.
+
+**El instrumento, nuevo y reutilizable:** en esta sesión `api.github.com` **y** `github.com`
+devuelven **403** —la API está limitada a los repositorios adjuntos—, así que **no hay ni una
+estrella ni una bandera `archived` en este pase y no se finge que las haya**. Lo que funciona es
+el carril anónimo de git: `git clone --bare --depth 1 --filter=blob:none` + `git log -1
+--format=%cI` da la fecha real del último commit en **~0,5 s y 196 KB** por repositorio. **Es
+mejor evidencia que `pushed_at`**, que se mueve con cualquier rama mientras el commit no.
+**Contrapartida honesta:** sin la bandera `archived` este pase **no puede distinguir «archivado»
+de «parado»**, así que dice **«sin commit desde X»** en todos los casos y nunca «archivado».
+
+**Nivel resumen, y va marcado donde aparece:** **todo** lo normativo. **Ninguna fuente primaria
+del hallazgo principal es alcanzable desde esta sesión**: `eur-lex.europa.eu`,
+`datatracker.ietf.org` y las páginas de la Comisión no responden. **No se leyeron en primario** el
+Reglamento (UE) 910/2014, el Reglamento (UE) 2024/1183, el Art. 50 del AI Act, el RFC 9421, ESIGN,
+UETA, la MP 2.200-2/2001 ni la Lei 14.063/2020. La distinción firma/sello —el hallazgo central—
+está sostenida por **blogs de proveedores con interés comercial directo**, y una de esas fuentes
+**sitúa mal el articulado del sello** (lo etiqueta «Art. 25» cuando corresponde a los Arts. 35–40),
+lo que confirma que la capa se documenta mal incluso donde acierta.
+
+**Conflictos declarados en lugar de promediados:** la fecha de la cartera (**2026-12-24** frente a
+2026-12-31); el estado del borrador de **Web Bot Auth** (grupo IETF constituido en 2026 **sin
+documentos adoptados** a agosto frente a «borrador activo del grupo de trabajo»); si **Googlebot**
+firma sus peticiones o sólo lo hace `Google-Agent`; la fecha de la Ley de Firma Electrónica de
+**China** (2004 / 2005 / revisión de 2019); el año de la ley japonesa (2000 / 2001); y la
+**Resolución 11/2025 argentina**, que una fuente describe como eliminación de la presencialidad
+obligatoria **sin que se haya podido corroborar su contenido** — por eso **no debe citarse a un
+cliente**.
+
+**Corrección que se apunta contra uno mismo, dos veces.** (1) El clasificador de licencias de este
+pase convirtió **GPL-2.0 en LGPL** porque el texto de la GPL-2.0 contiene la cadena «GNU Lesser
+General Public License» en su propio apéndice (línea 18); se corrigió el veredicto de
+`dogtagpki/pki` y se registró como **T93**. (2) El resumen de búsqueda afirmó que **ningún**
+proyecto de la capa documenta una puerta de aprobación humana; el README leído en primario dice lo
+contrario, y de haberlo creído este pase habría descartado **el único** proyecto bien diseñado de
+la capa (**T96**). **Dos de los cinco hallazgos de método de este pase son fallos del propio
+instrumento**, y es la segunda vez consecutiva que la sonda del pase va por detrás de la realidad
+que mide.

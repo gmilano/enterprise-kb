@@ -3363,3 +3363,138 @@ licencia no es la función, es el aislamiento y el aprovisionamiento entre clien
 > `mailpit`, **`7.x`** en `mautic`), frente a 19/34 del pase dieciocho. **La rama por defecto se lee,
 > no se asume**, y en esta capa se lee con `gh api search/repositories`, que la devuelve en la misma
 > llamada que la licencia.
+
+---
+
+## La capa de la firma — 45 direcciones probadas el 2026-11-24, 44 existen, 44 nuevas para esta KB (added twenty-fourth pass, 2026-11-24)
+
+> **Dedup medido antes de escribir**, no estimado: de las 45 direcciones de partida, **una sola
+> tenía apariciones previas** en los nueve ficheros (`documenso/documenso`, 2). Las otras **44 son
+> nuevas**. La ausencia era estructural, no un olvido: 23 pases construyeron el *qué* puede hacer
+> el agente y ninguno el *qué lo prueba*.
+>
+> **Instrumento de este pase, y es nuevo y reutilizable por toda la flota.** `api.github.com` y
+> `github.com` devuelven **403** en esta sesión (el acceso a la API está limitado a los repos
+> adjuntos), así que **no hay estrellas ni bandera `archived` en ningún dato de abajo** y no se
+> finge que los haya. Lo que **sí** funciona es el carril de lectura anónima de git:
+> `git clone --bare --depth 1 --filter=blob:none` + `git log -1 --format=%cI` da la **fecha real
+> del último commit** en ~0,5 s y 196 KB por repo, y `raw.githubusercontent.com` da el **fichero
+> de licencia byte a byte**. La fecha del último commit es **mejor evidencia que `pushed_at`** de
+> la API, porque `pushed_at` se mueve con cualquier rama y el commit no. **Todas las licencias y
+> fechas de abajo son medidas; ninguna es de una insignia ni de un resumen.**
+
+### 1. La biblioteca completa es copyleft y la permisiva se declara beta — y ésa es la decisión de presupuesto
+
+| Repo | Licencia (byte a byte) · último commit · rama | Qué resuelve |
+|---|---|---|
+| [esig/dss](https://github.com/esig/dss) | **LGPL-2.1** (`LICENSE` **26.530 B**) · 2026-10-14 · `master` | **La biblioteca de la propia Comisión Europea**, y la **única** que cubre **PAdES + CAdES + XAdES + JAdES** con creación, *augmentation* y **validación contra las listas de confianza**. Java. **LGPL-2.1 se enlaza dinámicamente sin contaminar el producto**, así que es usable: lo que decide es el **empaquetado**, no el permiso. |
+| [MatthiasValvekens/pyHanko](https://github.com/MatthiasValvekens/pyHanko) | **MIT** (`LICENSE` **1.080 B**) · **2026-11-23** · `master` | Firma y sellado de PDF (PAdES) con **PKCS#11** opcional, biblioteca y CLI. **La única ruta permisiva completa a PAdES.** Su README arrastra un aviso de *beta / not production-ready* **mientras recibía un commit anteayer**: el aviso es más viejo que el repo. **Se registra la contradicción, no se resuelve en su favor.** |
+| [bcgit/bc-java](https://github.com/bcgit/bc-java) | **MIT** (Bouncy Castle License, `LICENSE.md` **1.171 B**) — adaptación de MIT · 2026-11-20 · `main` | El proveedor criptográfico sobre el que se apoya media capa JVM (DSS incluida). Permisivo de verdad. |
+| [apache/pdfbox](https://github.com/apache/pdfbox) | **Apache-2.0** (`LICENSE.txt` **18.741 B**) · 2026-11-22 · `trunk` | Manipulación de PDF y firma básica. La pieza permisiva cuando no hace falta PAdES-LTA completo. |
+| [OpenSC/OpenSC](https://github.com/OpenSC/OpenSC) | **LGPL-2.1** (`COPYING` **26.522 B**) · **2026-11-24** · `master` | **PKCS#11** hacia tarjetas y tokens: es el borde físico donde vive la clave del sello. Commit el mismo día de la verificación. |
+
+### 2. El tramo PKI — donde se emite y se sella, y el tercer régimen de licencia de esta KB
+
+| Repo | Licencia (byte a byte) · último commit | Qué resuelve |
+|---|---|---|
+| [Keyfactor/signserver-ce](https://github.com/Keyfactor/signserver-ce) | **LGPL-2.1** (`LICENSE` **26.436 B**) · 2026-08-26 · `main` | **La pieza exacta del sello automatizado**: firma en servidor, con la clave en HSM, sin un humano en el bucle. Es lo que un agente debe usar **en vez de** el certificado de una persona. Edición **community** — el reparto CE/EE otra vez. |
+| [Keyfactor/ejbca-ce](https://github.com/Keyfactor/ejbca-ce) | **LGPL-2.1** (`LICENSE` **26.436 B**, byte-idéntico en tamaño al de SignServer) · 2026-08-31 · `main` | La CA empresarial. Emite los certificados de sello que SignServer usa. |
+| [dogtagpki/pki](https://github.com/dogtagpki/pki) | **GPL-2.0** (`LICENSE` **18.092 B**, resuelto por la **primera línea de encabezado** — ver T93) · 2026-11-23 · `master` | CA alternativa, la de Red Hat. **Copyleft fuerte**: se despliega, no se enlaza. |
+| [smallstep/certificates](https://github.com/smallstep/certificates) | **Apache-2.0** (`LICENSE` **11.351 B**) · 2026-11-23 · `master` | CA moderna con ACME. **Permisiva**, y la ruta corta cuando la PKI es interna y no tiene que ser *cualificada*. |
+| [cloudflare/cfssl](https://github.com/cloudflare/cfssl) | **BSD-2-Clause** (`LICENSE` **1.266 B**) · 2026-11-18 · `master` | Caja de herramientas de PKI. La más permisiva de las cinco. |
+| [kakwa/uts-server](https://github.com/kakwa/uts-server) | **MIT** (`LICENSE` **1.094 B**) · 2026-04-10 · `master` | **Autoridad de sellado de tiempo RFC 3161**, y la **única permisiva e independiente** que encontró este pase. Sin sello de tiempo no hay PAdES-LTA ni prueba de *cuándo*. **7 meses sin commit**: vivo pero quieto. |
+
+### 3. El marcado de lo que el agente generó — y C2PA no sabe marcar texto
+
+| Repo | Licencia (byte a byte) · último commit | Qué resuelve |
+|---|---|---|
+| [contentauth/c2pa-rs](https://github.com/contentauth/c2pa-rs) | **MIT** (`LICENSE-MIT` **1.083 B**; doble licencia MIT/Apache) · **2026-11-24** · `main` | El motor de **Content Credentials (C2PA)** en Rust. La base de todo lo demás. |
+| [contentauth/c2patool](https://github.com/contentauth/c2patool) | **MIT** (`LICENSE-MIT` **1.083 B**) · **2026-11-24** · `main` | CLI: **la pieza que se mete en un pipeline** para firmar el manifiesto de una salida. |
+| [contentauth/c2pa-python](https://github.com/contentauth/c2pa-python) | **MIT** · 2026-11-18 · `main` | Enlace Python, que es donde vive el agente. |
+| [contentauth/c2pa-js](https://github.com/contentauth/c2pa-js) | **MIT** (`LICENSE` **1.083 B**) · 2026-11-23 · `main` | Verificación en el navegador: el lado del que **lee** la credencial. |
+| [google-deepmind/synthid-text](https://github.com/google-deepmind/synthid-text) | **Apache-2.0** (`LICENSE` **11.358 B**) · 2026-11-18 · `main` | **La respuesta al hueco de C2PA**: el manifiesto C2PA vive **en el fichero**, así que **el texto plano no se puede marcar así**. Para texto hace falta marca de agua en el muestreo, y ésta es la única implementación permisiva. |
+| [c2pa-org/specifications](https://github.com/c2pa-org/specifications) | **CC-BY-4.0** (`LICENSE` **18.650 B**) — **documento, no código** · 2026-11-16 · `main` | La especificación. **No es software**: no se «usa», se implementa. |
+
+### 4. La identidad que el documento va a tener que aceptar a partir del 2026-12-24
+
+> **Y aquí está el reparto que decide qué se puede vender cerrado.** `eu-digital-identity-wallet`
+> publica **la aplicación de cartera bajo AGPL-3.0** y **las bibliotecas y el verificador bajo
+> Apache-2.0**. Cuarta confirmación de que **la licencia es por repo-entregable y no por
+> organización** (T87) — y la primera vez que esta KB mide el corte justo entre **producto** y
+> **biblioteca** dentro de la misma organización.
+
+| Repo | Licencia (byte a byte) · último commit | Lado del que está |
+|---|---|---|
+| [eu-digital-identity-wallet/eudi-lib-jvm-sdjwt-kt](https://github.com/eu-digital-identity-wallet/eudi-lib-jvm-sdjwt-kt) | **Apache-2.0** (`LICENSE` **9.425 B**) · 2026-11-18 · `main` | **Biblioteca** SD-JWT. **Embebible en producto cerrado.** |
+| [eu-digital-identity-wallet/eudi-srv-web-verifier-endpoint-23220-4-kt](https://github.com/eu-digital-identity-wallet/eudi-srv-web-verifier-endpoint-23220-4-kt) | **Apache-2.0** (`LICENSE` **9.425 B**) · 2026-11-16 · `main` | **El verificador (ISO 18013-5 / 23220-4)**: el lado *relying party*, que es el lado en el que está una empresa cliente. **Permisivo.** |
+| [eu-digital-identity-wallet/eudi-app-android-wallet-ui](https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui) | **AGPL-3.0** (`LICENSE.txt` **13.961 B**) · 2026-11-21 · `main` | **La cartera.** **No se forkea dentro de un producto cerrado.** |
+| [eu-digital-identity-wallet/eudi-app-ios-wallet-ui](https://github.com/eu-digital-identity-wallet/eudi-app-ios-wallet-ui) | **AGPL-3.0** (`LICENSE.txt` **13.961 B**) · **2026-11-24** · `main` | Igual en iOS. |
+| [eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework](https://github.com/eu-digital-identity-wallet/eudi-doc-architecture-and-reference-framework) | **CC-BY-4.0** (`LICENCE` —ortografía británica— **249 B**) · 2026-10-02 · `main` | El **ARF**. **Documento bajo CC-BY, no software.** El fichero de 249 B es el que delata que la sonda tiene que probar `LICENCE` y no sólo `LICENSE`. |
+| [openwallet-foundation/credo-ts](https://github.com/openwallet-foundation/credo-ts) | **Apache-2.0** (`LICENSE` **11.606 B**) · 2026-11-23 · `main` | Pila de credenciales verificables en TypeScript. **La alternativa permisiva a la app AGPL.** |
+| [openwallet-foundation/multipaz](https://github.com/openwallet-foundation/multipaz) | **Apache-2.0** (`LICENSE` **11.358 B**) · 2026-11-23 · `main` | mdoc/mDL (ISO 18013-5). Permisiva, y es la que permite construir cartera **propia**. |
+| [openwallet-foundation-labs/sd-jwt-python](https://github.com/openwallet-foundation-labs/sd-jwt-python) | **Apache-2.0** (`LICENSE` **11.357 B**) · 2026-08-17 · `main` | SD-JWT en Python, para el lado del agente. |
+| [italia/spid-cie-oidc-django](https://github.com/italia/spid-cie-oidc-django) | **Apache-2.0** (`LICENSE` **11.357 B**) · 2026-11-09 · `main` | Identidad nacional italiana (SPID/CIE) sobre OIDC. Permisiva. |
+| [italia/eudi-wallet-it-docs](https://github.com/italia/eudi-wallet-it-docs) | **CC0-1.0** (`LICENSE` **6.555 B**) · 2026-11-12 · `versione-corrente` | El perfil italiano de la cartera. **CC0 frente al CC-BY del ARF europeo**: dos repos de especificación, dos licencias de documento distintas. |
+
+### 5. Las implementaciones nacionales — y dos de ellas no tienen fichero de licencia donde se busca
+
+| Repo | Licencia (byte a byte) · último commit | Nota |
+|---|---|---|
+| [open-eid/digidoc4j](https://github.com/open-eid/digidoc4j) | **LGPL-2.1** (`LICENSE.LGPL` **26.436 B**) · 2026-11-05 · `develop` | Biblioteca estonia (ASiC-E/BDOC). **13 rutas canónicas dieron 404**; el README nombra el fichero `LICENSE.LGPL`, y ahí está — ver **T94**. Y el README **llama a su propia licencia «GNU *Library* General Public License»**, que es el nombre antiguo de la **LGPL-2.0**, cuando el fichero es **2.1**. |
+| [open-eid/libdigidocpp](https://github.com/open-eid/libdigidocpp) | **LGPL-2.1** (`LICENSE.LGPL` **26.436 B**) · 2026-11-20 · `master` | Igual, en C++. Mismo patrón, mismo tamaño de fichero. |
+| [ctt-gob-es/clienteafirma](https://github.com/ctt-gob-es/clienteafirma) | **Sin fichero de licencia.** El README dice, en prosa: *«Es **software libre** con licencia **GPL 2+** y **EUPL 1.1**»* · 2026-10-19 · `master` | **AutoFirma**, el cliente de firma del Estado español. **Dual GPL-2.0+/EUPL-1.1 declarada sólo en prosa**: tercera aparición del patrón T92 en un pase. Para un estudio, la rama **EUPL-1.1** es la utilizable; **no se propone sin que lo mire un abogado**, porque el dual no está en un fichero. |
+
+### 6. LATAM — el cero de los pases anteriores era del **idioma**, no del ecosistema
+
+> Pases anteriores midieron **cero repos de origen latinoamericano** con «el instrumento corto en
+> español». **Buscando en portugués aparece un corpus nacional entero.** El motivo es estructural:
+> **Brasil es el único país de LATAM con una PKI nacional obligatoria lo bastante profunda para
+> generar herramienta libre**, y una sonda sólo en español no puede verla. Ver **T97**.
+>
+> **Pero el no-cero es real y está casi todo muerto: 3 de 6 no reciben un commit desde 2018.**
+
+| Repo | Licencia (byte a byte) · último commit | Veredicto |
+|---|---|---|
+| [demoiselle/signer](https://github.com/demoiselle/signer) | **LGPL-3.0** (`License.txt` **7.650 B**) · **2026-09-04** · `master` | **La implementación de referencia de ICP-Brasil**, del **SERPRO** (empresa pública federal). CAdES + XAdES + PAdES según las políticas del **ITI**. **Viva.** Es la autoridad de la capa en Brasil. |
+| [junior9283/assinador-icp-brasil](https://github.com/junior9283/assinador-icp-brasil) | **MIT** (`LICENSE` **1.067 B**) · **2026-10-10** · `main` | **El único firmador ICP-Brasil permisivo y vivo que existe.** PAdES **AD-RB/AD-RT** con certificados A1, Linux y Windows. **Presupuestable** — con la advertencia de que es de **un solo mantenedor**. |
+| [evandrojr/signer](https://github.com/evandrojr/signer) | **LGPL-3.0** (`License.txt` **7.650 B**, mismo tamaño que el de Demoiselle) · 2026-05-20 · `master` | **Fork de `demoiselle/signer`.** Se registra para **no componerlo**: la regla de esta KB es no mezclar *upstream* y fork; se usa Demoiselle. |
+| [OpenICP-BR/libICP](https://github.com/OpenICP-BR/libICP) | **AGPL-3.0** (`LICENSE` **34.523 B**) · **2018-09-24** · `master` | CAdES en Go. **Muerta hace 8 años** y es primer resultado de búsqueda. |
+| [OpenICP-BR/wxApp](https://github.com/OpenICP-BR/wxApp) | **AGPL-3.0** (`LICENSE` **34.523 B**) · **2018-07-11** · `master` | Escritorio multiplataforma. **Muerta hace 8 años.** |
+| [OpenICP-BR/ktLib](https://github.com/OpenICP-BR/ktLib) | **Sin fichero de licencia** (13 rutas, 13 fallos; el README no nombra ninguno) · **2018-11-05** · `master` | **Sin licencia = todos los derechos reservados.** No se toca. Muerta y además inusable. |
+
+### Las cinco reglas de método que deja este pase (T93–T97, reutilizables por toda la flota)
+
+**T93 — El texto de la GPL-2.0 contiene la cadena «GNU Lesser General Public License», así que
+clasificar por subcadena convierte GPL-2.0 en LGPL.** Probado, no supuesto: en el `LICENSE` de
+`dogtagpki/pki` la cadena aparece en la **línea 18** (*«the GNU Lesser General Public License
+instead.»*, dentro del apéndice «How to Apply»), mientras el encabezado de la **línea 1** dice
+`GNU GENERAL PUBLIC LICENSE / Version 2, June 1991`. **Se clasifica por la primera línea de
+encabezado, nunca por presencia de subcadena.** Este pase encontró el fallo **en su propio
+instrumento** y corrigió el veredicto de `dogtagpki/pki` de «LGPL-?» a **GPL-2.0**.
+
+**T94 — Si la sonda dice «sin licencia», leer el README para obtener el NOMBRE DEL FICHERO antes
+de concluir que no hay licencia.** `open-eid/digidoc4j` y `open-eid/libdigidocpp` devolvieron 404
+en **13 rutas canónicas**; el README nombra `LICENSE.LGPL` y ahí hay **26.436 B de LGPL-2.1**.
+**Es el inverso exacto de T92**: T92 dice que *una insignia del README no es un fichero de
+licencia*; T94 dice que *el README puede ser el **índice** del fichero de licencia*. Las dos a la
+vez: el README **no sustituye** al fichero, pero **sí dice dónde está**.
+
+**T95 — Dentro de una misma organización, el corte de licencia separa el PRODUCTO de la
+BIBLIOTECA, y ése es el dato comercial.** `eu-digital-identity-wallet`: apps de cartera
+**AGPL-3.0**, bibliotecas y verificador **Apache-2.0**. No es descuido ni inconsistencia: es una
+decisión de reparto. **Antes de descartar una organización por una licencia, mirar repo a repo cuál
+de los dos lados se necesita** — aquí el lado que una empresa cliente necesita (el verificador) es
+justo el permisivo.
+
+**T96 — La afirmación NEGATIVA de un resumen de búsqueda no es un cero medido.** El resumen de
+búsqueda de este pase afirmó que *«none of these projects documents a human-approval gate»*. El
+**README de `varops/signed-md`, leído en primario (12.754 B), dice lo contrario y en el lugar
+arquitectónicamente correcto**: la puerta vive en el servidor y no en el *prompt*. **Un resumen
+puede no haber visto; eso no es que no exista.** Es el riesgo que T88 ya describía en la otra
+dirección —un hueco falso publicado como noticia— y aquí habría degradado al **único** proyecto de
+la capa bien diseñado.
+
+**T97 — Medir LATAM en PORTUGUÉS además de en español, o el cero es del instrumento.** La misma
+pregunta, en español, dio cero repos de origen latinoamericano en varios pases; en portugués dio
+**seis**, uno de ellos del SERPRO y otro el único permisivo de su tipo. **Cuando una capa depende
+de una infraestructura estatal, el corpus está en el idioma del Estado que la impuso.**

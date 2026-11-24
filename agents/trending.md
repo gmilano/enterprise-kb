@@ -8,7 +8,74 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimotercer pase (latest) — el límite del remitente: la novedad de la semana es que la implementación de referencia no se ha movido desde 2024
+## 2026-11-24 — vigesimocuarto pase (latest) — el límite de la firma: la capa sí tiene agentes, y lo nuevo de la semana es que el único bien diseñado pone la puerta en el servidor
+
+> Tema: **qué hace que lo que el agente produjo se sostenga.** Veintidós términos medidos en cero
+> antes de empezar, sobre **20.141 líneas y 23 pases previos**: `eIDAS` = 0, `PAdES` = 0,
+> `CAdES` = 0, `e-signature` = 0, `firma electrónica` = 0, `qualified signature` = 0,
+> `RFC 3161` = 0, `sello de tiempo` = 0, `no repudio` = 0, `non-repudiation` = 0,
+> `trust list` = 0, `TSP` = 0, `certificate authority` = 0, `C2PA` = 0, `RFC 9421` = 0,
+> `Web Bot Auth` = 0, `verifiable credential` = 0, `SD-JWT` = 0, `EUDI` = 0, `mDL` = 0,
+> `pyHanko` = 0, `EJBCA` = 0 — y `XAdES` = **2**, `DocuSign` = **4**.
+> **El pase noveno dio a esta KB la firma de un *build* (sigstore/SLSA/in-toto: 46, 54 y 44
+> apariciones). Firmar un build no es sellar un documento, y en 23 pases nadie preguntó qué prueba
+> que el contrato que el agente acaba de redactar vale ante un juez.**
+>
+> **EL HALLAZGO: UN AGENTE NO PUEDE FIRMAR; SÓLO PUEDE SELLAR.** El Reglamento (UE) 910/2014
+> separa la **firma** cualificada —**persona física**, acredita **voluntad**, Art. 25 y ss., **no
+> automatizable por definición**— del **sello** cualificado —**persona jurídica**, acredita
+> **origen e integridad y no voluntad**, Arts. 35–40, **automatizable: es su caso de uso**—.
+> Meter el certificado de firma de una persona en una tubería automática **no es un atajo: es una
+> atribución falsa de voluntad**. *(Nivel resumen; y una de las fuentes que lo explica **sitúa mal
+> el articulado**, lo etiqueta «Art. 25» en vez de 35–40: la capa se documenta mal incluso donde
+> acierta.)*
+>
+> **LO NUEVO DE LA SEMANA, Y ESTA VEZ SÍ ES UN AGENTE.** Al contrario que la tenencia (pase 22) y
+> el remitente (pase 23), **esta capa tiene cuatro agentes reales**, verificados el 2026-11-24 con
+> licencia leída byte a byte: `varops/signed-md` (**AGPL-3.0**, 34.020 B, commit **2026-11-24**),
+> `imagine-ai-inc/sign` (**MIT**, 1.072 B, 2026-11-16), `hanzoai/sign` (**AGPL-3.0**, 2026-11-21) y
+> `signbee/skill` (**MIT**, 1.064 B, 2026-10-31) —que no es un servidor sino una *skill*, y por eso
+> **traslada el límite al proveedor en vez de resolverlo**—.
+>
+> **Y el patrón no es cuántos son, sino dónde ponen la puerta.** El README de `varops/signed-md`,
+> **leído en primario (12.754 B)**: *«Your agents handle the paperwork. **People approve and
+> sign**»* · *«Only a person approves a template, and an agent can only send the exact revision a
+> person saw»* · *«**Guardrails the agent can't talk its way around. These live in the server, not
+> in a prompt**»* · *«there is no AI inside Signed.md itself»*. **Eso es el reparto firma/sello del
+> Reglamento sin citarlo**: primera vez en 24 pases que esta KB encuentra una herramienta cuyo
+> diseño coincide con una obligación jurídica que la herramienta no menciona.
+>
+> **El reparto cruel de la capa:** **lo que se puede entregar no tiene la puerta, y lo que tiene la
+> puerta no se puede entregar.** La pieza permisiva (`imagine-ai-inc/sign`, MIT) es la proponible y
+> **no** documenta puerta humana; la que la tiene es **AGPL-3.0**, que alcanza al servicio en red.
+> Se copia el **diseño**, no el código (Receta 49).
+>
+> **CORRECCIÓN QUE SE APUNTA CONTRA UNO MISMO (T96).** El resumen de búsqueda de este pase afirmó
+> que *«none of these projects documents a human-approval gate»*. **El byte a byte dice lo
+> contrario**, y de haber creído al resumen este pase habría descartado **el único proyecto bien
+> diseñado de la capa**. **La afirmación negativa de un resumen no es un cero medido.**
+>
+> **La tercera firma, que es otro acto y conviene no confundir:** `cloudflare/web-bot-auth`
+> (**Apache-2.0**, commit **2026-11-24**) hace que el agente firme **cada petición HTTP** con
+> **RFC 9421** (Ed25519 por agente, cabecera `Signature-Agent`, directorio en
+> `/.well-known/http-message-signatures-directory`). **RFC 9421 es un RFC; Web Bot Auth no lo es**
+> —grupo IETF constituido en 2026 y **sin documentos adoptados a agosto**, así que un RFC es cosa
+> de 2027 como muy pronto—. **Establece identidad, no permiso** (el permiso es el pase 7). Visa
+> **TAP** y Mastercard **Agent Pay** lo usan como capa de autenticación *(secundario)*.
+> **Esta KB ya sabe distinguir tres firmas: un *build* (pase 9), una *petición* (este pase) y un
+> *documento* (este pase). Las tres se llaman «firma» en una reunión.**
+>
+> **Trampa de la semana, decimoséptima de la serie:** `Sphereon-Opensource/eidas-signature-client`
+> es la **primera recomendación** de la búsqueda de bibliotecas eIDAS y **no recibe un commit desde
+> el 2024-04-09** (19 meses), con **LGPL-3.0**. El delator es el de siempre: lo recomienda la
+> documentación adyacente al propio ecosistema.
+>
+> **Límite del instrumento, declarado:** en esta sesión `api.github.com` **y** `github.com` dan
+> **403**, así que **no hay ni una estrella ni una bandera `archived` en este pase** y no se finge
+> que las haya. Este pase **no puede distinguir «archivado» de «parado»** y por eso dice siempre
+> **«sin commit desde X»**.
+
+## 2026-11-24 — vigesimotercer pase — el límite del remitente: la novedad de la semana es que la implementación de referencia no se ha movido desde 2024
 
 > Tema: **con qué dominio firma el agente.** Catorce términos medidos en cero antes de empezar,
 > sobre **19.436 líneas y 22 pases previos**: `DMARC` = 0, `DKIM` = 0, `SPF` = 0, `ARC` = 0,

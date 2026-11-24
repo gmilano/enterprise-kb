@@ -1307,3 +1307,73 @@ sobre piezas permisivas que sí existen (Receta 46).
 > (`MIT-0`, 0 apariciones en 22 pases).** Cuarta confirmación de la regla del pase dieciocho
 > —el registro gana a la insignia— y **la extiende**: en `date-fns` el fichero *faltaba*; aquí el
 > fichero **está y está roto**, que es el caso peor, porque invita a leerlo y confiar.
+
+---
+
+## El límite de la firma — qué hace que lo que el agente produjo se sostenga, y por qué un agente no puede firmar (added twenty-fourth pass, 2026-11-24)
+
+> **Medido antes de buscar**, sobre **20.141 líneas** y los nueve ficheros de 23 pases previos:
+> `eIDAS` **0** · `PAdES` **0** · `CAdES` **0** · `e-signature` **0** · `firma electrónica` **0** ·
+> `qualified signature` **0** · `RFC 3161` **0** · `sello de tiempo` **0** · `no repudio` **0** ·
+> `non-repudiation` **0** · `trust list`/`trusted list` **0** · `TSP` **0** ·
+> `certificate authority` **0** · `C2PA` **0** · `RFC 9421` **0** · `Web Bot Auth` **0** ·
+> `verifiable credential` **0** · `SD-JWT` **0** · `EUDI` **0** · `mDL` **0** · `pyHanko` **0** ·
+> `EJBCA` **0** — y `XAdES` **2**, `DocuSign` **4**, `PKCS#11` **4**.
+>
+> El **pase noveno** dio a esta KB la firma de un **artefacto de build** (sigstore, SLSA, in-toto:
+> 46, 54 y 44 apariciones). **Firmar un build no es sellar un documento**, y nada en 23 pases
+> preguntó qué prueba que el contrato, la factura o el informe que el agente acaba de redactar
+> **vale ante un juez o ante una administración**. El pase 17 le dio a esta KB el documento fiscal;
+> el 23, el canal para enviarlo. **Lo que lo firma no se había hecho nunca.**
+>
+> ### EL HALLAZGO DEL PASE: UN AGENTE NO PUEDE **FIRMAR**; SÓLO PUEDE **SELLAR**
+>
+> El Reglamento (UE) 910/2014 separa dos actos que el castellano comercial mezcla y que ningún
+> listado de herramientas distingue:
+>
+> | | **Firma** electrónica cualificada (QES) | **Sello** electrónico cualificado |
+> |---|---|---|
+> | Titular | **Persona física** | **Persona jurídica** |
+> | Qué acredita | Origen, integridad **y voluntad** | Origen e integridad — **no voluntad** |
+> | ¿Automatizable? | **No**: exige control exclusivo del firmante | **Sí**: es su caso de uso |
+> | Base | Art. 25 y ss. | Arts. 35–40 |
+>
+> **Consecuencia de arquitectura, y es la que se factura:** el agente puede preparar, rellenar,
+> enviar y **sellar**; la **firma** la pone una persona. Meter el certificado de firma de un humano
+> dentro de una tubería automática **no es un atajo técnico: es una atribución falsa de voluntad**,
+> y es exactamente el defecto que un abogado contrario busca primero. *(Nivel resumen: la
+> distinción está en el Reglamento, pero las fuentes que la explican son blogs de proveedores con
+> interés comercial; el articulado no se leyó en primario — ver el límite declarado abajo.)*
+
+### Las filas reales de esta capa (4 agentes verificados el 2026-11-24; licencia leída byte a byte)
+
+> Esta capa **sí tiene agentes**, al contrario que la tenencia (pase 22) y el remitente (pase 23),
+> donde la medición dio cero o casi. Son cuatro, y **se reparten dos MIT y dos AGPL-3.0**.
+
+| Agente | Licencia · último commit · rama | Por qué está aquí |
+|---|---|---|
+| [varops/signed-md](https://github.com/varops/signed-md) | **AGPL-3.0** (`LICENSE` **34.020 B**, byte a byte) · **2026-11-24** · `develop` | **El único de la capa cuyo diseño coincide con el reparto firma/sello del Reglamento**, y lo dice en su propio README (12.754 B, leído en primario): *«Your agents handle the paperwork. **People approve and sign**»*; *«Only a person approves a template, and an agent can only send the exact revision a person saw»*; y la frase que importa: *«**Guardrails the agent can't talk its way around. These live in the server, not in a prompt**»*. Plantillas en Markdown, **16 herramientas MCP** sobre Streamable HTTP, y *«there is no AI inside Signed.md itself»*. **AGPL-3.0 ⇒ no proponible como base de producto cerrado**, pero es el **plano de referencia** de cómo se pone la puerta humana. |
+| [imagine-ai-inc/sign](https://github.com/imagine-ai-inc/sign) | **MIT** (`LICENSE` **1.072 B**) · 2026-11-16 · `main` | **La única pieza agéntica permisiva de la capa.** Firma estilo DocuSign con servidor MCP para que un agente cree, envíe y siga sobres. **Es la base proponible**, y es también la que **no trae puerta humana documentada**: hay que construirla (Receta 49). |
+| [hanzoai/sign](https://github.com/hanzoai/sign) | **AGPL-3.0** (`LICENSE` **34.523 B**) · 2026-11-21 · `main` | Alternativa autoalojada a DocuSign. Catalogada para saber qué es y **por qué no**: misma AGPL, y sin capa agéntica visible en los resultados. |
+| [signbee/skill](https://github.com/signbee/skill) | **MIT** (`LICENSE` **1.064 B**) · 2026-10-31 · `main` | **No es un servidor: es una *skill* de agente** para flujos de NDA y contrato. Importa como forma de entrega —el agente trae la habilidad, el servicio es de un tercero— y por eso **traslada el límite al proveedor**, no lo resuelve. |
+
+### La pieza que firma lo que el agente **pide**, que es otro acto distinto
+
+| Repo | Licencia · último commit | Qué es, y qué no es |
+|---|---|---|
+| [cloudflare/web-bot-auth](https://github.com/cloudflare/web-bot-auth) | **Apache-2.0** (`LICENSE` **11.346 B**) · **2026-11-24** · `main` | Implementación de referencia de **Web Bot Auth**: el agente firma **cada petición HTTP** con **RFC 9421** (Ed25519 por agente, cabecera `Signature-Agent`, directorio público en `/.well-known/http-message-signatures-directory`). **RFC 9421 sí es un RFC; Web Bot Auth NO lo es**: es un borrador IETF —grupo constituido a principios de 2026 y **sin documentos adoptados a agosto de 2026**—, así que un RFC es un acontecimiento de 2027 como muy pronto *(nivel resumen; el *datatracker* del IETF no es alcanzable desde esta sesión)*. **Establece identidad, no permiso** — el permiso es el pase 7. Visa **TAP** y Mastercard **Agent Pay** lo usan como capa de autenticación de agente *(secundario, atribuido a Cloudflare)*. |
+
+### Las tres firmas que esta KB ahora sabe distinguir, y nombrarlas aparte es la aportación
+
+1. **Firmar un *build*** → `sigstore`/`cosign`/`in-toto` (pase 9). Lo firma una **máquina de CI**, prueba **procedencia de software**.
+2. **Firmar una *petición*** → **RFC 9421** / `web-bot-auth` (este pase). Lo firma el **agente**, prueba **quién llama**.
+3. **Sellar un *documento*** → **eIDAS**, PAdES/CAdES/XAdES (este pase). Lo sella la **persona jurídica**, prueba **origen e integridad de un entregable**; la **voluntad** la aporta una persona física y no es delegable.
+
+**Las tres usan criptografía de clave pública y las tres se llaman «firma» en una reunión.** Un
+cliente que pide «que el agente firme» casi siempre quiere la 3 y le están vendiendo la 1 o la 2.
+
+### Las trampas de este pase
+
+- **[`Sphereon-Opensource/eidas-signature-client`](https://github.com/Sphereon-Opensource/eidas-signature-client) es la primera recomendación de la búsqueda y lleva 19 meses sin un commit** (último: **2024-04-09**), con **LGPL-3.0** (`LICENSE.md` 7.676 B). No está archivada, así que la forja la muestra viva. **Decimoséptimo proyecto parado-pero-recomendado de esta KB**, y el delator vuelve a ser el mismo: lo recomienda la documentación adyacente al propio ecosistema.
+- **La organización `OpenICP-BR` entera está muerta desde 2018** y es el primer resultado para «assinatura digital ICP-Brasil open source»: `libICP` (AGPL-3.0, **2018-09-24**), `wxApp` (AGPL-3.0, **2018-07-11**) y `ktLib` (**sin fichero de licencia**, **2018-11-05**). **Decimoctavo caso**, y el más antiguo que esta KB ha medido.
+- **Una dirección que inventé no existe:** `eu-digital-identity-wallet/eudi-srv-web-issuing-qeaa-py` devolvió fallo de autenticación en `ls-remote`, que es cómo se ve un 404 en esta sesión. **Se registra el 404 en lugar de borrarlo**, porque es la prueba de que el nombre se dedujo y no se verificó: de 45 direcciones probadas, **44 existen y 1 fue una conjetura mía**.

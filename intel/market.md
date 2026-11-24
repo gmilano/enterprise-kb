@@ -956,6 +956,45 @@ con agentes **en producción**. *El canal de correo es un sitio donde «en produ
 demostrar con cabeceras, que es precisamente lo que falta en el 91,4 % restante.*
 
 
+
+#### El límite de la firma — vigesimocuarto pase (2026-11-24): «cualificado» no significa nada en EE. UU., y eso invierte lo que se factura
+
+**El dato estructural, y es el que casi todo estudio europeo supone al revés:** **EE. UU. no tiene
+nivel cualificado ni lista de confianza.** **ESIGN** (federal, comercio interestatal) y **UETA**
+(estatal, adoptada por **49 estados**; Nueva York usa su propia **ESRA**) son **de un solo nivel** y
+**neutrales tecnológicamente**: una firma no puede ser rechazada *sólo* por ser electrónica, y
+**ningún estatuto exige un certificado**. Lo que la ley pide son cuatro cosas —**intención,
+consentimiento, asociación y retención**— y hay exclusiones por tipo de documento (testamentos,
+entre otras, con variaciones por estado). *(Nivel resumen: fuentes de proveedores de firma; ESIGN y
+UETA **no se leyeron en primario**. No se encontró ningún anuncio de 2026 de lista de confianza
+federal ni de nivel cualificado, lo que sugiere que no existe.)*
+
+**La inversión comercial, que es la oportunidad:** **en la UE se vende el certificado y la lista de
+confianza; en EE. UU. se vende el rastro de auditoría.** Un dossier europeo (PAdES-LTA + cadena de
+QTSP) entregado en Chicago es un artefacto que **nadie pidió y ninguna norma reconoce como nivel**;
+y un rastro de auditoría entregado en Madrid **no basta** para un acto que exija QES. **El mismo
+agente, dos entregables** (Receta 50).
+
+**De dónde sale la tecnología de esta capa: de Norteamérica, y es permisiva.** Verificado el
+2026-11-24: **C2PA / Content Credentials** es de origen estadounidense (Adobe/CAI) y todo su
+tooling es **MIT** —`contentauth/c2pa-rs`, `c2patool`, `c2pa-python`, `c2pa-js`, los cuatro con
+commits entre el 2026-11-18 y el **2026-11-24**—; **`google-deepmind/synthid-text`** es
+**Apache-2.0**; **`cloudflare/web-bot-auth`** es **Apache-2.0** con commit el **2026-11-24**; y la
+PKI permisiva (`smallstep/certificates`, Apache-2.0; `cloudflare/cfssl`, BSD-2-Clause) también.
+
+**La consecuencia que hay que saber decir:** **Norteamérica produce las piezas permisivas de
+marcado e identidad de agente, y Europa produce la obligación de usarlas.** El Art. 50 del AI Act
+es el que crea la demanda; el código que la satisface es casi todo estadounidense y casi todo
+MIT/Apache. **Para un estudio es la combinación más favorable posible**: la norma que abre el
+presupuesto está en un continente y la base que se puede empaquetar, en el otro.
+
+**Oportunidad concreta, con fecha:** el deber de marcado legible por máquina del Art. 50 alcanza a
+cualquier proveedor que venda en la UE, **incluidos los estadounidenses**, y la transición para
+producto ya desplegado **termina el 2026-12-02**. Un proveedor norteamericano de SaaS con clientes
+europeos tiene **ocho días** desde este pase y **casi con seguridad no tiene la matriz de
+divulgación por tipo de salida** (Receta 51), porque la respuesta de manual —«usamos C2PA»— **no
+cubre texto**, que es su salida principal.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1981,6 +2020,61 @@ gobierno demostrable sobre un sistema que ya está en producción**, que es exac
 hueco que miden las tres cifras.
 
 
+
+#### El límite de la firma — vigesimocuarto pase (2026-11-24): la región donde la firma es un nivel, y donde en diciembre vencen dos cosas a la vez
+
+**EMEA es la única región donde esta capa es un producto regulado y no una práctica.** El
+Reglamento (UE) 910/2014 define **niveles** (SES / AES / QES), **listas de confianza** de
+proveedores cualificados y —el dato que ningún listado de herramientas recoge— **dos actos
+distintos**: la **firma** (persona **física**, acredita **voluntad**, Art. 25 y ss., **no
+automatizable**) y el **sello** (persona **jurídica**, acredita **origen e integridad**,
+Arts. 35–40, **automatizable por diseño**). **Es la base jurídica de que un agente pueda sellar y
+no pueda firmar**, y es el hallazgo central de este pase.
+
+**Las dos fechas de diciembre, y son una sola conversación de venta:**
+
+| Fecha | Obligación |
+|---|---|
+| **2026-12-02** | Fin de la transición del **Art. 50(2) del AI Act** (marcado legible por máquina de salida sintética) para sistemas ya en el mercado — *AI Omnibus* |
+| **2026-12-24** | Cada Estado miembro debe **ofrecer** una **cartera EUDI** gratuita; **el sector público debe aceptarla** desde esa fecha |
+| **2027-12-24** | **Las partes privadas** con autenticación fuerte deben **aceptarla** (micro y pequeñas empresas exceptuadas) |
+
+*Conflicto declarado: una fuente da 2026-12-31 para la cartera; la que sostiene el plazo de 24
+meses desde los actos de ejecución (en vigor 2024-12-24) es el **24**.*
+
+**El reparto de licencias de la propia Comisión, y es la decisión de arquitectura del *engagement*
+(verificado byte a byte el 2026-11-24):**
+
+- **`esig/dss` = LGPL-2.1** (26.530 B). La biblioteca de la Comisión, **única** con PAdES + CAdES +
+  XAdES + JAdES **y validación contra listas de confianza**. Sin sustituto permisivo.
+- **`eu-digital-identity-wallet`: el producto es AGPL y la biblioteca es Apache.** Las apps de
+  cartera (`eudi-app-android-wallet-ui`, `eudi-app-ios-wallet-ui`) son **AGPL-3.0** (13.961 B); la
+  biblioteca SD-JWT (`eudi-lib-jvm-sdjwt-kt`) y **el verificador**
+  (`eudi-srv-web-verifier-endpoint-23220-4-kt`) son **Apache-2.0** (9.425 B).
+- **El ARF es un documento, no software:** `LICENCE` de **249 B** con **CC-BY-4.0**.
+
+**La lectura comercial, en una frase:** **el lado en el que está una empresa cliente —el de
+*relying party*, el que verifica— es justo el lado permisivo.** Se puede construir y entregar un
+verificador de cartera EUDI dentro de un producto cerrado; **no** se puede forkear la cartera del
+Estado dentro de uno. **La obligación del 2026-12-24 recae sobre los Estados y el sector público;
+la oportunidad de 2027 recae sobre banca y telecos, y el código para servirla es Apache-2.0.**
+
+**Lo que la región tiene y no sabe que tiene: implementaciones nacionales maduras y mal
+etiquetadas.** Estonia (`open-eid/digidoc4j`, `open-eid/libdigidocpp`, **LGPL-2.1**, commits de
+noviembre de 2026) **no tiene fichero de licencia en ninguna de las 13 rutas canónicas**: está en
+`LICENSE.LGPL`, que el README nombra —y el README **llama a su propia licencia por el nombre
+antiguo** («GNU *Library* General Public License», que es la 2.0) cuando el fichero es la **2.1**.
+España (`ctt-gob-es/clienteafirma`, **AutoFirma**) **no tiene fichero de licencia en absoluto**: su
+README declara en prosa **«GPL 2+ y EUPL 1.1»**. Italia publica su perfil de cartera
+(`italia/eudi-wallet-it-docs`) en **CC0-1.0**, frente al **CC-BY-4.0** del ARF europeo. **Cuatro
+administraciones, cuatro formas distintas de no poder leer la licencia desde la forja** — y para un
+estudio eso es un riesgo de *due diligence* que se resuelve leyendo bytes, no insignias.
+
+**Oportunidad, y tiene una ventana corta:** el sector público de 27 Estados miembros necesita
+**aceptar** carteras el 2026-12-24 y la banca y las telecos el 2027-12-24. El componente es el
+**verificador Apache-2.0**, existe, y **recibió commits el 2026-11-16**. La venta no es «cartera
+digital»: es **«aceptar la cartera», con el AI Act del 2026-12-02 en la misma factura**.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2920,6 +3014,55 @@ de enviar**. Lo que hay son listas y bajas. **Hay que construir el registro de c
 un componente que sirve a Japón, Corea e India a la vez — **un componente, tres mercados**, y entra
 en el dossier de la **Receta 48** como «matriz de consentimiento por región».
 
+
+
+#### El límite de la firma — vigesimocuarto pase (2026-11-24): donde el obstáculo no es la fuerza de la firma, es el tipo de documento
+
+**El dato que cambia el diseño de un agente en APAC** no es qué nivel de firma se acepta, sino que
+**hay documentos que no se pueden firmar electrónicamente en absoluto**. En **India**, la **IT Act
+2000** sólo admite técnicas listadas en su **Segunda Lista** (*Second Schedule*): **Aadhaar eSign
+está dentro; una firma escrita a mano en pantalla o tecleada, no**. Y **transmisión de bienes
+inmuebles, títulos negociables, poderes y fideicomisos quedan excluidos de la ejecución electrónica
+por completo**.
+
+**Consecuencia operativa, y es una regla de producto:** un agente que redacte un **poder** en India
+produce un documento que **ninguna firma electrónica puede cerrar**, por buena que sea la
+criptografía. **La puerta es el tipo de documento, no la fuerza de la firma**, así que el
+clasificador de tipo documental tiene que estar **antes** del flujo de firma y no después. Es un
+requisito que ningún listado de herramientas de firma menciona.
+
+**El resto de la región, con las fechas y los conflictos declarados:**
+
+- **China** — Ley de Firma Electrónica, que distingue la firma **«fiable»** (proveedores de
+  certificación **licenciados**, mismo efecto que la manuscrita) del resto. **Novedad de 2026 con
+  fecha:** medidas de administración del **uso de criptografía en servicios de certificación
+  electrónica**, en vigor el **2026-07-01** (Administración Nacional de Criptografía). *Conflicto
+  declarado: las fuentes dan 2004, 2005 y una revisión de 2019 para la ley base.*
+- **Japón** — *Act on Electronic Signatures and Certification Services*: una firma que cumple
+  otorga **presunción de autenticidad**. Una interpretación del Gobierno de 2020 admitió métodos
+  simples, incluida la confirmación por correo, en contextos apropiados. *Conflicto declarado:
+  2000 frente a 2001 para el año de la ley.*
+- **Singapur** — **Electronic Transactions Act 2010**, basada en la Ley Modelo de la CNUDMI,
+  **neutral tecnológicamente**; **Singpass** es la vía habitual a mayor nivel de garantía.
+
+*(Todo el bloque anterior es **nivel resumen de búsqueda**: las fuentes son guías de proveedores de
+firma y las fuentes primarias —`sso.agc.gov.sg`, los textos de la IT Act y de la ley china— **no se
+leyeron**.)*
+
+**Hueco medido, no silencio: cero repositorios de origen APAC en esta capa.** Se buscó
+explícitamente herramienta libre de firma de origen asiático y **no apareció ninguna**: de las 44
+direcciones verificadas este pase, **ninguna es de origen APAC** —son norteamericanas, europeas o
+brasileñas—. **Es un cero medido.** Y tiene una explicación plausible que se registra **como
+hipótesis y no como hallazgo**: donde la firma válida depende de un **proveedor licenciado**
+(China) o de una **lista cerrada de técnicas** (India), el valor está en el **servicio acreditado**
+y no en la biblioteca, así que no hay incentivo para publicarla.
+
+**Oportunidad, y es de integración y no de producto:** en APAC el entregable no es una base libre
+—no existe— sino **el adaptador entre el agente y el proveedor acreditado local** (Aadhaar eSign en
+India, un CA licenciado en China, Singpass en Singapur), **con el clasificador de tipo documental
+delante** para que el agente no redacte lo que no se puede firmar. La pieza permisiva de esta capa
+que **sí** sirve en APAC es la de **marcado** (`c2patool`, `synthid-text`), porque la obligación de
+divulgación del AI Act alcanza a cualquier proveedor que venda en la UE, **incluidos los asiáticos**.
 
 ### LATAM
 
@@ -4062,6 +4205,63 @@ global en IA en 2025. **La venta no es una plataforma de correo: es el dossier d
 (Receta 48) construido sobre piezas permisivas que el cliente ya puede autohospedar**, con la
 evaluación de interés legítimo de la LGPD dentro.
 
+
+
+#### El límite de la firma — vigesimocuarto pase (2026-11-24): *** EL CERO DE LATAM ERA DEL IDIOMA, Y AL CORREGIRLO APARECE UN CORPUS NACIONAL ENTERO (CASI TODO MUERTO) ***
+
+**La corrección de método primero, porque afecta hacia atrás a varios pases de esta KB.** Pases
+anteriores midieron **cero repositorios de origen latinoamericano** capa tras capa, con lo que
+ellos mismos llamaron «el instrumento corto en español». **Este pase repitió la pregunta en
+portugués y encontró seis.** El motivo es estructural y generalizable: **cuando una capa depende de
+una infraestructura estatal obligatoria, el corpus libre está en el idioma del Estado que la
+impuso**, y **Brasil es el único país de LATAM con una PKI nacional obligatoria** lo bastante
+profunda para generar herramienta libre. **Una sonda sólo en español no puede ver el único corpus
+que existe** (regla **T97**).
+
+**El corpus, verificado byte a byte el 2026-11-24 — y el no-cero es real pero está casi todo
+muerto:**
+
+| Repo | Licencia · último commit | Veredicto |
+|---|---|---|
+| `demoiselle/signer` | **LGPL-3.0** (7.650 B) · **2026-09-04** | **La autoridad**: del **SERPRO** (empresa pública federal), CAdES + XAdES + PAdES **según políticas del ITI**. **Viva.** |
+| `junior9283/assinador-icp-brasil` | **MIT** (1.067 B) · **2026-10-10** | **El único firmador ICP-Brasil permisivo y vivo.** PAdES AD-RB/AD-RT, certificados A1. **Un solo mantenedor.** |
+| `evandrojr/signer` | **LGPL-3.0** (7.650 B) · 2026-05-20 | Fork de Demoiselle. **No se compone**: se usa el *upstream*. |
+| `OpenICP-BR/libICP` | **AGPL-3.0** · **2018-09-24** | **8 años sin commit**, y primer resultado de búsqueda. |
+| `OpenICP-BR/wxApp` | **AGPL-3.0** · **2018-07-11** | **8 años sin commit.** |
+| `OpenICP-BR/ktLib` | **Sin fichero de licencia** · **2018-11-05** | **Inusable por licencia además de muerta**: sin licencia, todos los derechos reservados. |
+
+**El marco jurídico brasileño, que es el más exigente de la región:** la **MP 2.200-2/2001** creó
+**ICP-Brasil**, con el **ITI** como autoridad certificadora raíz; la **Lei 14.063/2020** separa
+tres niveles —**simple, avanzada y cualificada**— y **sólo la cualificada** usa certificado
+ICP-Brasil y recibe la **presunción de veracidad del art. 10 §1** de la MP. El **art. 10 §2** admite
+otros medios cuando las partes los aceptan, y una fuente cita una decisión de la **3ª Turma del
+STJ** en el sentido de que **la falta de certificado no invalida por sí sola** una firma avanzada.
+*(Nivel resumen: todas las fuentes son blogs comerciales; ni el Planalto ni el ITI se leyeron en
+primario, y no se pudo confirmar la situación de la MP en 2026.)*
+
+**El resto de la región, con el mismo patrón de dos niveles y presunción desigual:** Argentina
+(**Ley 25.506**: «firma digital» con certificador licenciado frente a «firma electrónica», donde
+**la carga de la prueba recae en el firmante**); México (**FEA**, Código de Comercio y **NOM-151**);
+Uruguay (**Ley 18.600**, avanzada equivalente a la manuscrita); Chile (**Ley 19.799**); Perú
+(**Ley 27269**); Colombia (**Ley 527** y **Decreto 2364**). *Conflicto declarado y no promediado:
+una fuente atribuye a la **Resolución 11/2025** argentina la eliminación de la presencialidad
+obligatoria **sin que se haya podido corroborar su contenido en ninguna otra fuente**, por lo que
+**no debe citarse a un cliente**.*
+
+**La oportunidad, y es distinta —y mejor— que la de un vacío.** **El hueco de LATAM en esta capa no
+es de ausencia: es de mantenimiento.** Existe la implementación autorizada (Demoiselle, del
+SERPRO), existe la permisiva (un mantenedor), y lo que un cliente encuentra primero al buscar está
+**muerto desde 2018**. Eso es exactamente lo que un estudio puede vender: **fork mantenido,
+perfiles AD-RB/AD-RT verificados, y el puente de formato hacia Europa** —CAdES/XAdES/PAdES son los
+mismos, así que `esig/dss` **valida la estructura** de un documento brasileño **pero no su
+confianza**, porque **ICP-Brasil no está en la lista europea**. **El formato viaja; la confianza
+no**, y explicar eso a un cliente multinacional es la mitad del trabajo (Receta 52).
+
+**Hueco declarado dentro del hallazgo:** la búsqueda en portugués **sólo** devolvió corpus
+brasileño. **Para el resto de LATAM el cero sigue en pie y ahora se sabe que no es del idioma**:
+Argentina, México, Chile, Colombia, Perú y Uruguay tienen marco legal de firma y **ninguna
+herramienta libre de origen propio apareció**. Se registra como **cero medido con instrumento
+corregido**, que es un dato más fuerte que el de los pases anteriores.
 
 ## Posicionamiento Globant
 

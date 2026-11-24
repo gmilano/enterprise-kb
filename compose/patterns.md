@@ -3695,3 +3695,124 @@ se miden desde el primer día o se descubren cuando el dominio ya está quemado.
 > canal se reescribió en mayo de 2026 y la implementación de referencia que casi todos despliegan es
 > anterior a la reescritura.* **El trabajo no es «configurar DMARC»: es poner al día un canal cuya
 > norma cambió y cuya base de código no.**
+
+## Receta 49 — El agente sella, la persona firma: la arquitectura que el Reglamento obliga y ningún listado dibuja (added twenty-fourth pass, 2026-11-24)
+
+**Problema.** El cliente pide «que el agente firme los contratos». Si se le da el certificado de
+firma de una persona a un proceso automático, el entregable queda con un **defecto de atribución
+de voluntad** que es lo primero que busca un abogado contrario. Si no se le da nada, el agente no
+puede cerrar nada y el proyecto no tiene valor.
+
+**La salida está en el propio Reglamento (UE) 910/2014:** el agente no firma, **sella**. El sello
+electrónico cualificado pertenece a una **persona jurídica**, acredita **origen e integridad** y
+**es automatizable por diseño** (Arts. 35–40); la **firma** cualificada pertenece a una **persona
+física** y acredita además **voluntad**, que no es delegable (Art. 25 y ss.).
+
+**Montaje permisivo, pieza por pieza (todo verificado el 2026-11-24, licencia byte a byte):**
+
+| Paso | Pieza | Licencia | Por qué ésta |
+|---|---|---|---|
+| 1. CA que emite el certificado de **sello** de la persona jurídica | [Keyfactor/ejbca-ce](https://github.com/Keyfactor/ejbca-ce) | LGPL-2.1 | La única CA libre de grado empresarial del catálogo. Si la PKI es interna y **no** tiene que ser cualificada, [smallstep/certificates](https://github.com/smallstep/certificates) (**Apache-2.0**) es más barata de operar. |
+| 2. **El sello**, en servidor, con la clave en HSM y **sin humano** | [Keyfactor/signserver-ce](https://github.com/Keyfactor/signserver-ce) | LGPL-2.1 | Es literalmente la implementación del acto «sellar». **Aquí va el agente, y sólo aquí.** |
+| 3. Borde físico de la clave | [OpenSC/OpenSC](https://github.com/OpenSC/OpenSC) | LGPL-2.1 | PKCS#11 hacia el token/HSM. |
+| 4. Sello de **tiempo** RFC 3161 | [kakwa/uts-server](https://github.com/kakwa/uts-server) | **MIT** | Sin TSA no hay PAdES-LTA ni prueba de *cuándo*. Única TSA permisiva independiente del catálogo. |
+| 5. Producir el PDF firmado (PAdES) | [MatthiasValvekens/pyHanko](https://github.com/MatthiasValvekens/pyHanko) | **MIT** | Ruta permisiva completa a PAdES, con PKCS#11. Su README dice *beta*; recibió commit el 2026-11-23. |
+| 6. **Validar** contra las listas de confianza y hacer el *augmentation* a LTA | [esig/dss](https://github.com/esig/dss) | LGPL-2.1 | **No tiene sustituto permisivo.** Es la biblioteca de la Comisión y la única que valida contra *trusted lists*. Se enlaza dinámicamente: la LGPL-2.1 no contamina el producto, **decide el empaquetado**. |
+| 7. La **puerta humana**, en el servidor y no en el *prompt* | plano de referencia: [varops/signed-md](https://github.com/varops/signed-md) | AGPL-3.0 (**no se embebe**) | Se copia el **diseño**, no el código: plantilla que un agente redacta entra como *pending*; **sólo una persona la aprueba**; el agente sólo puede enviar **la revisión exacta que la persona vio**. |
+
+**Cómo se cablea (y el orden importa).**
+
+1. El agente redacta en Markdown y crea un borrador; el **servidor** valida el borrador contra los
+   límites de la plantilla (importes mínimos, plazos permitidos). *Los límites viven en el
+   servidor: un límite en el prompt es una sugerencia.*
+2. El borrador queda **pendiente**. Una persona lo aprueba en la UI, no por API.
+3. Al enviar, el servidor comprueba que el hash de la revisión es **el mismo** que el aprobado.
+4. La firma de la contraparte (persona física) se recoge por el flujo normal.
+5. **El agente sella el resultado** con el certificado de la persona jurídica vía SignServer, le
+   pone sello de tiempo RFC 3161 y lo lleva a PAdES-LTA con DSS.
+
+**Lo que esta receta NO te da, y hay que decirlo en la propuesta:** la condición de
+**cualificado** la da el certificado de un **QTSP** del *trusted list* europeo. **Ninguna
+biblioteca de esta lista la suministra, y ninguna puede.** El software produce la estructura
+correcta; la cualificación se compra. Prometer «firma cualificada» entregando sólo estas piezas es
+el error más caro de la capa.
+
+---
+
+## Receta 50 — El mismo agente, dos dossieres de evidencia: certificado en la UE, rastro de auditoría en EE. UU. (added twenty-fourth pass, 2026-11-24)
+
+**Problema.** Un cliente multinacional firma con el mismo agente en Madrid y en Chicago, y cree
+que el entregable es el mismo. No lo es, y **no por tecnología sino por dónde pone la ley la
+carga de la prueba**.
+
+- **UE (eIDAS):** hay **niveles** (SES / AES / QES) y hay **listas de confianza**. La prueba es el
+  **certificado** y su cadena. Lo que se audita es *de quién es la clave*.
+- **EE. UU. (ESIGN + UETA):** **un solo nivel**, neutral tecnológicamente, **sin nivel cualificado
+  y sin lista de confianza**. 49 estados con UETA y Nueva York con su propia **ESRA**. Lo que se
+  prueba son cuatro cosas: **intención, consentimiento, asociación y retención**. Lo que se audita
+  es *el rastro*. *(Nivel resumen: fuentes de proveedores; el texto de ESIGN/UETA no se leyó en
+  primario.)*
+
+**Entregable, y es lo que se factura distinto en cada continente:**
+
+| | Dossier UE | Dossier EE. UU. |
+|---|---|---|
+| Artefacto central | PDF **PAdES-LTA** + cadena del certificado | **Registro de eventos** firmado y encadenado por hash |
+| Pieza que lo produce | [esig/dss](https://github.com/esig/dss) (LGPL-2.1) para validar y augmentar | [kakwa/uts-server](https://github.com/kakwa/uts-server) (MIT) + hash chain propio |
+| Prueba de *cuándo* | Sello RFC 3161 incrustado en la firma | Sello RFC 3161 sobre cada evento del rastro |
+| Prueba de *quién* | Certificado de QTSP en *trusted list* | **No hay certificado que valga de por sí**: identificación + consentimiento registrados |
+| Prueba de *voluntad* | Firma de persona física (nunca el agente) | Evidencia de **intención** y de que vio el documento |
+| Lo que **no** sirve | Un rastro de auditoría sin certificado, para un acto que exija QES | Un certificado cualificado, que ningún estatuto reconoce como nivel |
+
+**La inversión comercial, dicha en una frase:** **en la UE se vende el certificado y la lista de
+confianza; en EE. UU. se vende el rastro de auditoría.** El agente puede ser el mismo binario; el
+dossier no. Un *engagement* que entregue el dossier europeo en EE. UU. entrega algo que nadie
+pidió, y al revés entrega algo que no basta.
+
+---
+
+## Receta 51 — La matriz de divulgación por tipo de salida: Art. 50 del AI Act vence el 2026-12-02 (added twenty-fourth pass, 2026-11-24)
+
+**Problema.** El Art. 50(2) del AI Act obliga a marcar la salida sintética en **formato legible
+por máquina**. Es aplicable desde el **2026-08-02**, con transición hasta el **2026-12-02** para
+sistemas ya en el mercado (*AI Omnibus*). **Dentro de ocho días** desde este pase. Y la respuesta
+habitual —«usamos C2PA»— **no cubre el caso más común de un agente empresarial, que es texto**.
+
+**El Reglamento es neutral tecnológicamente y NO nombra C2PA**; el Código de Buenas Prácticas de
+transparencia (publicado el **2026-06-10**, voluntario) lo cita como ejemplo. *(Nivel resumen.)*
+
+**La matriz, que es el entregable:**
+
+| Tipo de salida del agente | Mecanismo que sí aplica | Pieza | Licencia |
+|---|---|---|---|
+| Imagen, vídeo, PDF, audio | Manifiesto **C2PA** incrustado | [contentauth/c2patool](https://github.com/contentauth/c2patool) en el pipeline; [contentauth/c2pa-rs](https://github.com/contentauth/c2pa-rs) si hay que embeber | **MIT** |
+| **Texto plano** (correo, informe, ticket, contrato redactado) | **C2PA no sirve**: el manifiesto vive en el fichero. Hace falta marca de agua en el muestreo | [google-deepmind/synthid-text](https://github.com/google-deepmind/synthid-text) | **Apache-2.0** |
+| Verificación por el receptor (navegador) | Lectura del manifiesto | [contentauth/c2pa-js](https://github.com/contentauth/c2pa-js) | **MIT** |
+| Cualquiera, cuando el manifiesto se cae | **Almacén de manifiestos del lado servidor** + hash de la salida | construcción propia | — |
+
+**Los dos agujeros que hay que declarar al cliente, no esconder:**
+
+1. **Los manifiestos C2PA se desprenden.** Editores y CDN de redes sociales los eliminan. Por eso
+   la fila 4: la prueba tiene que existir **también** del lado del servidor, indexada por hash, o
+   la divulgación desaparece justo cuando hace falta.
+2. **El rótulo visible y la marca legible por máquina son obligaciones distintas.** Un pie de foto
+   «generado con IA» satisface el deber de divulgación de *deepfake* del **implementador**, y **no**
+   satisface el deber de marcado legible por máquina del **proveedor**. Cumplir uno y creer que se
+   cumplieron los dos es el error de lectura más frecuente del Art. 50.
+
+---
+
+## Receta 52 — Firmar para Brasil sin heredar un repositorio de 2018: la única ruta permisiva a ICP-Brasil (added twenty-fourth pass, 2026-11-24)
+
+**Problema.** Brasil es el único país de LATAM con una PKI nacional obligatoria
+(**MP 2.200-2/2001**, raíz gestionada por el **ITI**) y con tres niveles legales de firma
+(**Lei 14.063/2020**: simple, avanzada y **cualificada**, y sólo la cualificada usa certificado
+ICP-Brasil y recibe la presunción del art. 10 §1 de la MP). Y la primera recomendación de
+cualquier búsqueda —la organización **OpenICP-BR**— **no recibe un commit desde 2018**.
+
+**La ruta, en orden de preferencia y con la licencia medida:**
+
+1. **Política y formatos: [demoiselle/signer](https://github.com/demoiselle/signer) (LGPL-3.0, último commit 2026-09-04).** Es del **SERPRO**, empresa pública federal; implementa CAdES, XAdES y PAdES **según las políticas del ITI**, que es la parte que no se puede deducir de la norma. **Es la autoridad.** LGPL-3.0: se enlaza, no se absorbe.
+2. **Si hace falta permisivo: [junior9283/assinador-icp-brasil](https://github.com/junior9283/assinador-icp-brasil) (MIT, 2026-10-10).** PAdES **AD-RB/AD-RT** con certificados **A1**. **El único firmador ICP-Brasil permisivo y vivo que este pase encontró.** Riesgo que se declara en la propuesta: **un solo mantenedor**. Se usa como **referencia de implementación** de los perfiles AD-RB/AD-RT, no como dependencia crítica sin fork propio.
+3. **Lo que NO se usa, y conviene decirlo antes de que lo proponga el cliente:** `OpenICP-BR/libICP` (AGPL-3.0, **2018-09-24**), `OpenICP-BR/wxApp` (AGPL-3.0, **2018-07-11**) y `OpenICP-BR/ktLib` (**sin fichero de licencia**, **2018-11-05**). El tercero es inusable por licencia **además** de estar muerto: sin licencia son **todos los derechos reservados**.
+4. **El puente a Europa, si el cliente es multinacional:** los formatos son los mismos (CAdES/XAdES/PAdES), así que **`esig/dss` valida un documento brasileño** en estructura — pero **no** contra la *trusted list* europea, porque ICP-Brasil no está en ella. **El formato viaja; la confianza no.** Esto es exactamente lo que hay que explicar cuando un cliente supone que «firma digital» es una sola cosa en los dos lados del Atlántico.
