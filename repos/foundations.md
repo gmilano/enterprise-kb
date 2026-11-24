@@ -1233,3 +1233,231 @@ sections that were previously unconnected.
   subproject today. Do not call it CNCF in a deliverable.
 - **LATAM-origin repositories in this layer: zero, measured** with a Spanish-language instrument.
   See `intel/market.md`.
+
+## The forge boundary — the inventory was measured with one instrument (added eleventh pass, 2026-11-24)
+
+**This section is different from every other one in this file.** The ten passes before it each
+added a *layer* of the agent stack. This one adds nothing to the stack: it reports what happened
+when the KB was pointed at **itself** and asked how it knows what it knows. The answer changed
+what goes in the tables, so it belongs here rather than only in `intel/trends.md`.
+
+### The measurement, in one line, and it is reproducible
+
+```
+grep -roh 'github\.com/[A-Za-z0-9_.-]\+/[A-Za-z0-9_.-]\+' --include='*.md' . | sort -u | wc -l
+→ 314
+for f in gitlab.com sourceforge.net codeberg.org bitbucket.org git.sr.ht gitee.com huggingface.co; do
+  grep -roh "$f" --include='*.md' . | wc -l; done
+→ 0 0 0 0 0 0 0
+```
+
+**314 distinct repository addresses, every one of them on GitHub.** Not 314 of 320 — 314 of 314.
+Before this pass the KB had never cited a repository that was not on github.com.
+
+This is worth stating precisely because the obvious reading is wrong. It is **not** evidence that
+nothing relevant exists elsewhere, and it is **not** simply a research failure to be fixed by
+searching harder. It is both, in measurable proportions, and the proportions are the finding.
+
+### Why the zero has two causes, and only one of them is fixable in a pass
+
+Nine non-GitHub forges were probed directly from this session. **Eight refuse at the network
+layer, before any question about content can be asked:**
+
+| Forge | What it hosts that would matter here | Probe result, 2026-11-24 |
+|---|---|---|
+| `gitlab.com` | GitLab CE itself, Mayan EDMS, Flectra, GitLab's own AI work | **Reachable** — API `200`, unauthenticated |
+| `codeberg.org` | Forgejo and the Gitea-fork ecosystem | `curl (56) CONNECT tunnel failed, response 403` |
+| `foss.heptapod.net` | **Tryton** — a full ERP, canonical home | `CONNECT tunnel failed, 403` |
+| `gitlab.opencode.de` | **openCoDE** — the German public-sector forge | `CONNECT tunnel failed, 403` |
+| `git.openldap.org` | OpenLDAP — the directory under much of the estate | `CONNECT tunnel failed, 403` |
+| `pagure.io` | Fedora/RHEL-adjacent enterprise tooling | `CONNECT tunnel failed, 403` |
+| `gitee.com` | the dominant **APAC** forge | `CONNECT tunnel failed, 403` |
+| `atomgit.com` | OpenAtom-hosted Chinese projects | `CONNECT tunnel failed, 403` |
+| `invent.kde.org`, `salsa.debian.org` | upstream packaging of estate components | `CONNECT tunnel failed, 403` |
+
+So the honest statement about eight of nine forges is **"not measured"**, not **"empty"** — and
+the distinction is the whole point. `403 CONNECT` is the *instrument* failing, not the subject.
+A future pass with a wider network policy may find material there; a future pass that greps, sees
+zero and concludes "nothing exists" will publish a false finding. **Record the probe result next
+to the grep result, always.**
+
+The one forge that is reachable was then searched properly, and it was not empty. Everything
+below was absent from all 8,355 lines of this KB before this pass.
+
+### What is actually on the one reachable alternative forge — enterprise platforms
+
+All rows verified 2026-11-24 via `GET https://gitlab.com/api/v4/projects/<url-encoded-path>?license=true`,
+which returns licence, **default branch**, stars and last activity in a single call.
+
+| Platform | Repo | Real licence | Stars | Default branch | Last activity | Why it matters here |
+|---|---|---|---|---|---|---|
+| **Mayan EDMS** | [mayan-edms/mayan-edms](https://gitlab.com/mayan-edms/mayan-edms) | **GPL-2.0-only** — byte-read from `LICENSE`; the API reported `other` | **683** | `master` | **2026-11-24** | *"Advanced enterprise Free Open Source DMS (document management system)."* The most-starred enterprise platform found off GitHub, and **active the day it was found.** Compare the Document/records section of `verticals/solutions.md`, which held Paperless-ngx, Documenso and GLPI and nothing from this forge. |
+| **GitLab CE** | [gitlab-org/gitlab](https://gitlab.com/gitlab-org/gitlab) | **MIT** (API `mit`) | **6,209** | `master` | 2026-11-24 | The forge a large share of enterprise clients already self-host, and its community edition is **permissive**. Relevant as a *platform the agent plugs into*, in the same sense as Odoo. |
+| **Flectra** | [flectra-hq/flectra](https://gitlab.com/flectra-hq/flectra) | GPL-3.0 | 252 | **`3.0`** | **2026-07-15** — ~4 months idle | *"Open Source ERP and CRM system built using python and postgresql."* An Odoo-lineage suite. Note the idleness **and** the non-standard default branch before quoting it. |
+| **Dokos** | [dokos/dokos](https://gitlab.com/dokos/dokos) | GPL-3.0-or-later | 39 | **`develop`** | 2026-11-24 | *"based on ERPNext, powered by the Dodock/Frappe low-code framework."* A **French** ERPNext derivative, actively developed. The EMEA-localised sibling of the APAC-origin ERPNext this KB already holds. |
+
+**The default-branch column is not decoration.** Of the GitLab projects verified this pass the
+default branch was `master` four times, `main` seven times, `develop` once and **`3.0`** once. The
+blind `main` → `master` → `develop` iteration this KB has used when GitHub's API was out of scope
+would have failed outright on Flectra. GitLab returns the branch in the same call as the licence;
+use it.
+
+### What is on that forge in the agent layer — six permissive rows, and two refusals
+
+| Repo | Licence | Stars | Last activity | What it is |
+|---|---|---|---|---|
+| [fforster/gitlab-mcp](https://gitlab.com/fforster/gitlab-mcp) | **MIT** | **85** | 2026-11-24 | *"A Model Context Protocol (MCP) server for GitLab."* The most-starred permissive MCP component found off GitHub. |
+| [nagyv/gitlab-opencode](https://gitlab.com/nagyv/gitlab-opencode) | **MIT** | 59 | 2026-09-17 | *"Run any LLM model with a controlled environment in GitLab CI."* Runs a single LLM call with **custom tool permissions** inside CI — containment (pass 10) applied to the pipeline rather than to a pod. |
+| [lx-industries/rmcp-openapi](https://gitlab.com/lx-industries/rmcp-openapi) | **MIT** | 13 | 2026-11-24 | Exposes **OpenAPI endpoints as MCP tools** on the official Rust MCP SDK. The Rust counterpart to the `camel-ai-tool` route-as-tool mechanism recorded in the eighth pass. |
+| [lx-industries/rmcp-actix-web](https://gitlab.com/lx-industries/rmcp-actix-web) | **MIT** | 6 | 2026-11-23 | An `actix-web` backend for the same official Rust SDK. Pairs with the row above. |
+| [lx-industries/openblob](https://gitlab.com/lx-industries/openblob) | **MIT** | 4 | 2026-11-24 | *"Distributed agentic workloads, no one in charge, everything under control."* Early, but it is a genuine agentic-execution project and it is permissive. |
+| [gitlab-org/ai-engineering/agent-foundations/agentic-productivity](https://gitlab.com/gitlab-org/ai-engineering/agent-foundations/agentic-productivity) | **MIT** | 6 | 2026-10-01 | GitLab's own engineering org publishing *"agentic configs, skills, agents and workflows"* under MIT. Low stars, institutional origin — read it for the configs, not the code. |
+
+**Two refusals, stated so nobody re-finds them and assumes they were missed:**
+
+- **[gitlab-org/ai/lazy-mcp](https://gitlab.com/gitlab-org/ai/lazy-mcp)** — 20 stars, pushed
+  2026-11-08, **no licence file anywhere in the repository root** (verified by listing the tree,
+  not by trusting the API's empty licence field). GitLab Inc.'s own MCP project is therefore
+  **not proposable**: no licence is not a permissive licence. Same verdict, same reason, as the
+  LATAM energy project excluded in that KB's seventh pass.
+- **[gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph)** —
+  see immediately below. It is the most interesting thing found this pass and it cannot be built on.
+
+### The find of the pass, and it is a warning: GitLab Orbit
+
+| Property | Value, verified 2026-11-24 |
+|---|---|
+| Repo | [gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) |
+| Self-description | **"Software lifecycle context graph for AI agents"** |
+| Licence reported by the API | `other` |
+| **Licence actually in the repo** | **The GitLab Enterprise Edition (EE) licence** — byte-read from `LICENSE.md` |
+| Stars / activity | 58 / **2026-11-24** — pushed the day it was found |
+| Maturity | `version 1.9.1`, its own Helm charts, a published release badge |
+| Shape | Rust (`Cargo.toml`) + npm workspaces, and `AGENTS.md`, `CONTEXT.md`, `skills/`, `.claude/`, `.opencode/`, `.agents/` in the root — **agent-native tooling, not a library** |
+
+The EE licence text is unambiguous: the software *"may only be used in production, if you (and any
+entity that you represent) have agreed to, and are in compliance with, the GitLab Subscription
+Terms of Service … and otherwise have a valid GitLab Enterprise Edition subscription for the
+correct number of user seats."*
+
+**Three things follow, and all three are commercial rather than technical.**
+
+1. **It is source-available, not open source.** `package.json` even carries `"private": true`.
+   A client who finds it, reads "GitLab" and "knowledge graph for AI agents", and assumes the
+   licence follows GitLab CE's **MIT**, is wrong — within the *same* `gitlab-org` namespace one
+   project is MIT and this one requires paid seats. **The namespace is not the licence.**
+2. **The community fork does not rescue it.** The README links a community fork at
+   `gitlab-community/gitlab-org/orbit/knowledge-graph`. A fork of EE-licensed code carries the EE
+   licence; the fork changes who can contribute, not what you may deploy.
+3. **The permissive answer to the same problem is already in this KB, on the other forge.** Orbit
+   is a context graph for agents. `verticals/solutions.md` holds **OpenMetadata, DataHub, Unity
+   Catalog and OpenLineage — all Apache-2.0**. So the sentence for an engagement lead is:
+   *the proprietary option is the one with the best marketing line, and the four permissive options
+   are the ones the client can own.*
+
+### The air-gap reference implementation — MIT, and it deploys a payload that is not
+
+This is the single most directly reusable thing found this pass, and it extends the ninth pass's
+air-gap work package from a described pattern into a **runnable, pinned bill of materials**.
+
+| Property | Value, verified 2026-11-24 |
+|---|---|
+| Repo | [gitlab-com/public-sector/offline-lab](https://gitlab.com/gitlab-com/public-sector/offline-lab) |
+| Licence | **MIT** (`LICENSE` present in root) |
+| Stars | **4** |
+| Last activity | **2026-11-24** |
+| Owner | GitLab's **Public Sector** group — institutional origin, not a hobby repo |
+
+Its own hero line: *"deploy and prove GitLab, Duo Agent Platform and Orbit in an offline
+environment."* The request path it builds is **GitLab → AI Gateway → LiteLLM → AWS Bedrock**, with
+Alloy shipping logs to Loki and Grafana. LiteLLM is already held in this KB; here it appears in a
+stated reference topology rather than as a component.
+
+**Four facts from its air-gapped runbook that are worth more than the repository itself:**
+
+1. **It owns "the canonical list of external dependencies you must mirror internally."** That list
+   is the deliverable an air-gapped engagement actually needs, and almost nobody writes it down.
+2. **Every image is pinned by tag *and digest*** in `ansible/group_vars/all/versions.yml`, with the
+   rule stated plainly: *"an air-gapped mirror plus a moving tag cannot be reproduced."* This is the
+   ninth pass's provenance boundary expressed as an operational constraint — pinning by digest is
+   the same primitive, reached from the deployment side.
+3. **The agentic flows ship inside one image.** The AI Gateway image
+   `…/code-suggestions/ai-assist/model-gateway:self-hosted-v<minor>-ee` *"includes the Duo Workflow
+   service as a sub-process — mirroring this one image covers agentic flows; there is no separate
+   workflow image."* That is a non-obvious deployment fact that changes a mirror plan.
+4. **The default topology is not air-gapped.** The README says so: *"the default topology calls a
+   hosted model provider; the air-gapped runbook is `docs/runbook/tracks/air-gapped.md`."* Third
+   independent confirmation of this KB's standing rule that **"offline" is a separate track with its
+   own bootstrap**, never a default.
+
+**And the licence split that decides how to use it.** The IaC is MIT. What it deploys —
+the **AI Gateway** ([gitlab-org/modelops/applied-ml/code-suggestions/ai-assist](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist),
+64★, active 2026-11-24, **GitLab EE licence byte-read from `LICENSE`**) and **Orbit** — is not. So:
+
+> **Take the method, not the payload.** The mirror list, the digest-pinning discipline, the
+> internal-CA-on-every-hop posture and the placement of LiteLLM as the model boundary are all MIT
+> and all transfer to *any* self-hosted agent platform. Deploying GitLab's own agent stack is a
+> licence purchase, and a different conversation. Receta 21 builds the first and avoids the second.
+
+### LATAM — the first non-GitHub LATAM finding in this KB, and a measured zero beside it
+
+Probing the one reachable alternative forge in **Spanish** produced a split result, and the split
+is itself the lesson.
+
+| Probe (Spanish) | Result |
+|---|---|
+| `agente IA`, `empresa gestion`, `nomina` | **Measured zero.** Nothing above 5 stars; top hits are coursework, and `nomina` collides with `nominatim` because the search is accent-insensitive. |
+| `facturacion` | **Not a zero** — a live cluster of fiscal-localisation projects |
+
+| Repo | Licence | Stars | Last activity | What it is |
+|---|---|---|---|---|
+| [dansanti/facturacion_electronica](https://gitlab.com/dansanti/facturacion_electronica) | **GPL-3.0** | 11 | **2026-10-31** | *"Librería para la facturación Electrónica Chilena."* **Chilean** e-invoicing library — the first LATAM-origin, licence-resolved, non-GitHub repository in this KB. |
+| [odoocoop/facturacion_electronica](https://gitlab.com/odoocoop/facturacion_electronica) | **Unresolved** — `429` after backoff | 4 | 2026-11-01 | An Odoo-cooperative LATAM localisation. Licence **not claimed**: the lookup rate-limited twice and a rate limit is not a licence verdict. |
+| [torresoftware/apidian2020](https://gitlab.com/torresoftware/apidian2020) | **NONE** | 11 | 2026-06-23 | **Colombian DIAN** e-invoicing validation API. No licence file → **not proposable**, recorded so the next pass does not re-find it hopefully. |
+
+**Why this matters more than 11 stars suggests.** `verticals/solutions.md` already argues that
+regional fiscal localisation is what makes a suite deployable. The localisation work for Chile and
+Colombia is **on a forge this KB had never looked at**, at star counts a GitHub-calibrated filter
+would discard, and one of the three is permissively unusable for want of a licence file. The
+commercial read: LATAM localisation is a **relicensing and stewardship conversation with named
+authors**, not a greenfield build — the same conclusion the energy KB reached about its own LATAM
+layer, arrived at independently here.
+
+### The two migration remnants — why ranking a forge by stars misleads
+
+| Repo | Stars | Licence | Last activity | What it actually is |
+|---|---|---|---|---|
+| [meltano/meltano](https://gitlab.com/meltano/meltano) (GitLab) | **554** | MIT | **2024-09-11** | Its own description: *"[This project was migrated to GitHub]."* Second-most-starred result for `erp`/`rag`-adjacent searches on the whole forge, and **dead for over two years.** This KB already holds Meltano at its live GitHub address. |
+| [gitlab-org/duo-workflow/duo-workflow-service](https://gitlab.com/gitlab-org/duo-workflow/duo-workflow-service) | 10 | `other` | 2026-10-23 | Description: *"This project is migrated to …/code-suggestions/ai-assist."* A migration **within** the same forge. |
+
+**The rule:** a star-ranked forge listing surfaces **abandoned mirrors near the top**, because stars
+accumulate and never decay. Read `last_activity_at` and the description **before** the star count.
+Both remnants above announce their own death in their description field — which is the cheapest
+possible check and the one a star-sorted list invites you to skip.
+
+### A category trap specific to this forge, and it explains the zero
+
+Searching `gitlab.com` for **`agent`** returns, in star order: a browser user-agent switcher, a
+Kubernetes cluster agent, `fetchmail`, a network-telemetry agent, and a VPN client. On this forge
+the word "agent" is still dominated by its **pre-LLM meaning**. The same query on GitHub returns
+LLM agents almost exclusively.
+
+This is the forge-side twin of the vocabulary bias this KB has recorded before, and it has a
+practical consequence: **a keyword sweep tuned on GitHub under-reports a non-GitHub forge**, which
+is part of why the zero persisted for ten passes. What worked here was searching for the
+**domain** (`erp`, `crm`, `facturacion`, `mcp`) rather than the **technology** (`agent`, `agentic`,
+`langchain`). `mcp` was the one technology term that worked, because it is a new word with no
+prior meaning to collide with.
+
+### One repository where the rename happened in the description, not the path
+
+[gitlab-org/cluster-integration/gitlab-agent](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent)
+— **MIT**, 113★, `master`, active 2026-11-24 — is still at the path of the Kubernetes agent, but its
+description now reads: *"**GitLab Relay** — host for various GitLab Features such as: Workflow Engine
+(AutoFlow / autocore), GitLab CD, Job Router and Runner Controller."*
+
+The ninth pass recorded renames that moved a repository's **owner and path**. This is the variant
+that defeats the detector built for those: **the path is stable and the product changed underneath
+it.** A link that still resolves, a licence that is still MIT, and a component that is no longer the
+thing the KB described. Check the description against your own one-line summary, not just the HTTP
+status.

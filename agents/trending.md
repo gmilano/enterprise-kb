@@ -8,7 +8,76 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — tenth pass (latest) — a guardrail that runs inside the agent's own hook loop
+## 2026-11-24 — eleventh pass (latest) — the agent layer on a forge nobody had searched
+
+> Theme: **the instrument**. Passes 7 to 10 each measured a boundary of the agent — what it may
+> read, change, prove and reach. This pass measured the **KB itself** and found that all 314 of its
+> repository addresses sat on a single forge. The trending news is therefore not a new agent: it is
+> six permissive agent components that existed all along, on `gitlab.com`, and were never seen.
+> Full tables in `repos/foundations.md` and `agents/top.md`; the build is Receta 21.
+
+### The measurement that produced this section
+
+```
+314 distinct github.com addresses in this KB · 0 on gitlab.com, sourceforge.net,
+codeberg.org, bitbucket.org, git.sr.ht, gitee.com or huggingface.co
+```
+
+Nine alternative forges were then probed. **Eight refused at the network layer**
+(`curl (56) CONNECT tunnel failed, response 403`), including `gitee.com` — the dominant APAC forge —
+and `gitlab.opencode.de`, the German public-sector forge. One, `gitlab.com`, answered its API
+unauthenticated. So the zero has two different causes, and only one of them was a research failure.
+
+### `gitlab-org/orbit/knowledge-graph` — the week's most interesting agent product, and it is not open source
+
+| Property | Value (verified 2026-11-24) |
+|---|---|
+| Repo | [gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) |
+| Self-description | **"Software lifecycle context graph for AI agents"** |
+| Licence reported by API | `other` |
+| **Licence in the repository** | **GitLab Enterprise Edition licence** (byte-read from `LICENSE.md`) |
+| Stars / last activity | 58 / **2026-11-24** |
+| Maturity | `v1.9.1`, own Helm charts, release badge, `"private": true` in `package.json` |
+
+Production use *"may only be used in production, if you … have a valid GitLab Enterprise Edition
+subscription for the correct number of user seats."* Within the same `gitlab-org` namespace, GitLab
+CE is **MIT** and this is not — **the namespace is not the licence**, and its community fork inherits
+the EE terms rather than escaping them.
+
+**The positioning sentence:** the proprietary option has the best marketing line in the category;
+the four permissive options for the same job — OpenMetadata, DataHub, Unity Catalog, OpenLineage —
+are already in this KB and are all Apache-2.0.
+
+### New rows, and all six are MIT
+
+| Repo | Licence | Stars | Last activity | One line |
+|---|---|---|---|---|
+| [fforster/gitlab-mcp](https://gitlab.com/fforster/gitlab-mcp) | MIT | **85** | 2026-11-24 | MCP server for GitLab — most-starred permissive agent component found off GitHub |
+| [nagyv/gitlab-opencode](https://gitlab.com/nagyv/gitlab-opencode) | MIT | 59 | 2026-09-17 | Any LLM in GitLab CI with explicit **tool permissions** |
+| [lx-industries/rmcp-openapi](https://gitlab.com/lx-industries/rmcp-openapi) | MIT | 13 | 2026-11-24 | **OpenAPI endpoints → MCP tools** on the official Rust SDK |
+| [lx-industries/rmcp-actix-web](https://gitlab.com/lx-industries/rmcp-actix-web) | MIT | 6 | 2026-11-23 | `actix-web` transport for the same SDK |
+| [lx-industries/openblob](https://gitlab.com/lx-industries/openblob) | MIT | 4 | 2026-11-24 | *"Distributed agentic workloads, no one in charge, everything under control"* |
+| [gitlab-org/ai-engineering/agent-foundations/agentic-productivity](https://gitlab.com/gitlab-org/ai-engineering/agent-foundations/agentic-productivity) | MIT | 6 | 2026-10-01 | GitLab's own *"agentic configs, skills, agents and workflows"* |
+
+**And one refusal that matters:** [gitlab-org/ai/lazy-mcp](https://gitlab.com/gitlab-org/ai/lazy-mcp)
+(20★, 2026-11-08) has **no licence file in its root** — verified by listing the tree, not by trusting
+an empty API field. GitLab Inc.'s own MCP project is not proposable.
+
+### Why the gap lasted ten passes — a vocabulary collision measured on a second forge
+
+Searching `gitlab.com` for **`agent`** returns, in star order, a browser user-agent switcher, a
+Kubernetes cluster agent, `fetchmail`, a network telemetry agent and a VPN client. On this forge the
+word still carries its **pre-LLM meaning**. The sweep that worked searched the **domain** — `erp`,
+`crm`, `facturacion`, `mcp` — not the technology. `mcp` worked precisely because it is a new word
+with nothing to collide with.
+
+### The sixth consecutive pass in which no agent row changed — and that is now the finding
+
+For the sixth pass running the shortlist above did not move. What moved this pass is the KB's
+ability to say **why** it believes the shortlist is complete, and to name the edge of that belief:
+one forge measured, one reachable, seven refused and therefore **unmeasured rather than empty**.
+
+## 2026-11-24 — tenth pass — a guardrail that runs inside the agent's own hook loop
 
 > Theme: **containment** — what the agent may *reach*, and what stops it. For the **fifth
 > consecutive pass no agent row changed**, and for the fifth consecutive pass the news is one layer

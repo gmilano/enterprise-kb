@@ -1245,3 +1245,189 @@ counsel rather than a date from a vendor blog.
 | `api.github.com/repos/<o>/<n>` | **403** for every repository not attached to this session, with or without the token |
 | `github.com` HTML via `curl` | **403**; the identical URL via the fetch tool **works** — two channels to the same bytes, one blocked |
 | `kubernetes.io`, `agent-sandbox.sigs.k8s.io` | **Do not resolve** under this session's network policy — cost one high-value finding, recorded above as unverified rather than dropped |
+
+## Eleventh pass, 2026-11-24 — the forge boundary, and the first finding about the KB rather than the industry
+
+> Passes 7 to 10 each measured a boundary of the agent: what it may **read**, **change**, **prove**
+> and **reach**. This pass measured the **instrument**. The result changed what is in the tables, so
+> it is a research finding and not a retrospective.
+
+### 25. The inventory had one source, and nobody had ever checked
+
+| Measurement, 2026-11-24 | Value |
+|---|---|
+| Distinct repository addresses in this KB | **314** |
+| …on `github.com` | **314** |
+| …on `gitlab.com`, `sourceforge.net`, `codeberg.org`, `bitbucket.org`, `git.sr.ht`, `gitee.com`, `huggingface.co` | **0** |
+
+Ten passes, 8,355 lines, 314 addresses, one forge. **Not 314 of 320 — 314 of 314.**
+
+The reason this is a trend and not an errand is what the single source does to a claim. Every
+sentence of the form *"the leading open source options in this category are X, Y and Z"* is a claim
+about a search, and the search had one input. The fix is not more humility, it is **four extra
+words**: "the leading options **on GitHub**". The claim then becomes true and costs nothing.
+
+**What the correction actually bought, in one pass:** an enterprise DMS at 683 stars active the same
+day (Mayan EDMS), a permissive ERP+CRM forge the client already self-hosts (GitLab CE, MIT), a French
+ERPNext derivative, six MIT agent components, an MIT air-gap reference implementation from a vendor's
+public-sector group, the first LATAM-origin licence-resolved repository in the KB — **and** the most
+capable agent-context product found in weeks, which turned out to be proprietary. None of it was
+hidden. It was on the forge nobody searched.
+
+### 26. A forge zero has two causes, and conflating them manufactures false findings
+
+Nine alternative forges were probed. **Eight refused at the network layer** before any question
+about content could be asked:
+
+| Forge | Probe result, 2026-11-24 |
+|---|---|
+| `gitlab.com` | **Reachable** — API `200`, unauthenticated, licence + default branch + stars + last activity in one call |
+| `gitee.com`, `atomgit.com` | `curl (56) CONNECT tunnel failed, response 403` |
+| `gitlab.opencode.de`, `foss.heptapod.net` | `CONNECT tunnel failed, 403` |
+| `codeberg.org`, `pagure.io`, `git.openldap.org` | `CONNECT tunnel failed, 403` |
+| `invent.kde.org`, `salsa.debian.org` | `CONNECT tunnel failed, 403` |
+
+So the KB's zero decomposes into:
+
+- a **discovery gap** on `gitlab.com` — real, our fault, and **closed this pass**; and
+- an **instrument gap** on the other eight — **not closeable by research at all**, only by a network
+  policy change.
+
+**The rule, and it corrects a rule this fleet already wrote.** A sibling KB recently established that
+forge bias is measurable on URLs and that every KB should grep for alternative forges — correct, and
+it is what started this pass. But a grep alone **cannot distinguish the two causes**, and a KB that
+greps, sees zero and concludes "nothing there" publishes a false finding dressed as diligence.
+**Record the probe result next to the grep result.** The grep says what you cited; only the probe says
+whether you could have. Reachability also varies between sessions — the sibling KB successfully read
+SourceForge in a pass where this session cannot even open a tunnel to it — so the probe is **per-pass
+evidence, not a constant**.
+
+The regional consequence is the sharpest form of this: **`gitee.com` and `atomgit.com` are both
+refused, so this KB's APAC inventory is *unmeasured*, not sparse.** "Sparse" implies the region builds
+less. A `403 CONNECT` says nothing whatever about the region.
+
+### A tenth licence class: the vendor's own enterprise licence, inside an open-source namespace
+
+The taxonomy in this file ran to nine classes. The tenth was found twice in one pass, in the same
+namespace as an MIT project.
+
+| Repo | API licence field | Licence actually in the repo |
+|---|---|---|
+| [gitlab-org/gitlab](https://gitlab.com/gitlab-org/gitlab) | `mit` | **MIT** |
+| [gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) | `other` | **GitLab Enterprise Edition licence** |
+| [gitlab-org/modelops/applied-ml/code-suggestions/ai-assist](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist) | `other` | **GitLab Enterprise Edition licence** |
+
+The EE text: the software *"may only be used in production, if you (and any entity that you
+represent) have agreed to, and are in compliance with, the GitLab Subscription Terms of Service …
+and otherwise have a valid GitLab Enterprise Edition subscription for the correct number of user
+seats."*
+
+**What distinguishes this class from the eight before it.** Not that it is commercial — this KB
+already holds Camunda (not open source) and Mattermost (tri-modal). What is new is the **carrier**:
+the licence travels by *namespace adjacency*. `gitlab-org/gitlab` is MIT; two siblings require paid
+seats; the repositories sit under the same owner, use the same CI, and look identical in a search
+result. **The namespace is not the licence**, and a community fork of EE-licensed code carries the EE
+terms — the fork changes who may contribute, not what you may deploy.
+
+### `other` now has four documented outcomes, which settles the argument about it
+
+A sibling KB found two `other` verdicts resolving **permissive** (Apache-2.0) and **weak copyleft**
+(LGPL-3.0), and concluded that resolving an `other` by default is 50% accurate. This pass adds the
+remaining two corners from four byte-reads:
+
+| Resolved value | Example | Cause of the `other` |
+|---|---|---|
+| Permissive | *(sibling KB)* amiris-py → Apache-2.0 | REUSE layout `LICENSES/<SPDX>.txt`, which the API does not index |
+| Weak copyleft | *(sibling KB)* midas → LGPL-3.0-only | non-standard declaration |
+| **Strong copyleft** | mayan-edms → **GPL-2.0-only** | licence text wrapped in a bespoke preamble carrying copyright and trademark registrations |
+| **Proprietary** | orbit, ai-assist → **GitLab EE** | a vendor's own licence, which no SPDX identifier matches |
+
+**Four outcomes spanning permissive to proprietary from one API value.** `other` is not a weak signal
+to be nudged in a hopeful direction — it is **the absence of a verdict**, and it must be resolved by
+reading bytes. A fifth cause was also added this pass, and it is the dullest and most preventable:
+**a filename the API does not look for.** Orbit's licence is in `LICENSE.md`; the tree had to be
+listed to find it. Check `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `COPYING`, and the
+`LICENSES/` directory before concluding anything.
+
+### The constraint that is not the licence — registered trademarks
+
+Mayan EDMS's `LICENSE` declares a **US Copyright Office registration** (TX 8-577-731) and **two
+USPTO-registered trademarks** (7,889,160 / 7,889,166), stating that the copyright licence *"grants no
+rights in those trademarks"* and pointing at a separate `TRADEMARK_POLICY.md`.
+
+This is the first platform in this KB where the **brand**, not the code licence, is the binding
+constraint on the normal delivery shape. The two questions have different answers: *may we modify and
+deploy it?* — yes, under GPL-2.0; *may we call it that?* — separate policy, registered marks. A
+white-labelled "our DMS, built on Mayan" proposal needs the second answer, and no licence scanner in
+any toolchain will raise it. **Licence compliance and brand compliance are different reviews.**
+
+### Method — three more ways to be wrong, bringing the count to nineteen
+
+**17. A star-ranked forge listing surfaces dead mirrors near the top.** Stars accumulate and never
+decay. The second-highest-starred result in this pass's forge sweep was
+[meltano/meltano](https://gitlab.com/meltano/meltano) at **554★ and last activity 2024-09-11**, whose
+own description reads *"[This project was migrated to GitHub]"* — a corpse this KB already holds at
+its live address, which a star sort would have added as a duplicate. A second remnant,
+`gitlab-org/duo-workflow/duo-workflow-service`, announces its migration **within** the same forge.
+**Both announce their own death in the description field** — the cheapest possible check, and exactly
+the one a star-sorted list invites you to skip. Read `last_activity_at` and the description *before*
+the star count.
+
+**18. A rename can move the product and leave the path alone.** The ninth pass built a detector for
+renames that move **owner and path**; this is the variant that defeats it.
+[gitlab-org/cluster-integration/gitlab-agent](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent)
+— MIT, 113★, active 2026-11-24 — still sits at the path of a Kubernetes agent while describing itself
+as *"**GitLab Relay** — host for … Workflow Engine (AutoFlow / autocore), GitLab CD, Job Router and
+Runner Controller."* URL resolves, licence unchanged, **product replaced**. A link check cannot catch
+this. Diff the upstream description against your own one-line summary.
+
+**19. A keyword sweep tuned on one forge under-reports another, and the fix is to search the domain
+rather than the technology.** Searching `gitlab.com` for **`agent`** returns, in star order, a browser
+user-agent switcher, a Kubernetes cluster agent, `fetchmail`, a network telemetry agent and a VPN
+client: on that forge the word still carries its **pre-LLM meaning**. The sweeps that produced every
+platform finding this pass were `erp`, `crm`, `facturacion` and `mcp` — **domain** terms, plus the one
+technology term new enough to have no homonym. This is the forge-side twin of the language bias
+already recorded in this file, and it is worse, because it is invisible: the query returns plenty of
+results, all of them wrong.
+
+### Two instruments worth reusing across the fleet
+
+1. **`GET https://gitlab.com/api/v4/projects?search=<term>&order_by=star_count&sort=desc&simple=true`**
+   — unauthenticated public project search, star-ordered. This is the discovery instrument the fleet
+   did not have; it is what found Mayan EDMS.
+2. **`GET https://gitlab.com/api/v4/projects/<url-encoded-path>?license=true`** returns licence,
+   **default branch**, stars, forks and last activity **in one call**. Encode the whole path including
+   nested subgroups. The default branch matters: across projects verified this pass it was `master`
+   (×4), `main` (×7), `develop` and **`3.0`** — the blind `main`→`master` fallback this KB has used
+   would have failed outright on Flectra. Rate limits are real: `429` appeared twice under rapid
+   probing, and **a `429` is not a licence verdict** — back off and retry, or record the licence as
+   unresolved, which is what was done for `odoocoop/facturacion_electronica`.
+
+### Verification channel for this pass — what could and could not be checked
+
+| Channel | Result |
+|---|---|
+| `gitlab.com/api/v4/projects/…?license=true` | **Works** unauthenticated — licence, default branch, stars, last activity in one call; `429` under rapid probing |
+| `gitlab.com/api/v4/projects/…/repository/files/<f>/raw?ref=<branch>` | **Works** — the byte-read that resolved Mayan (GPL-2.0), Orbit (EE) and ai-assist (EE) |
+| `gitlab.com/api/v4/projects/…/repository/tree` | **Works** — the only way to prove `lazy-mcp` has *no* licence file and that Orbit's is `LICENSE.md` |
+| `gh api -X GET search/repositories -f q=repo:<o>/<n>` | **Works** — exact SPDX, stars, `archived`, last push for the GitHub rows |
+| `gh api repos/<o>/<n>` | **403** for every repository not attached to this session — unchanged from prior passes |
+| `codeberg.org`, `gitee.com`, `atomgit.com`, `gitlab.opencode.de`, `foss.heptapod.net`, `pagure.io`, `git.openldap.org`, `invent.kde.org`, `salsa.debian.org` | **`CONNECT tunnel failed, 403`** — eight forges unmeasured, declared above |
+| Regional adoption and regulatory figures (IDC, Gartner, Forrester, Veeam, Lenovo, RSM, Dentons, Baker McKenzie, BSA, NVIDIA) | **Search-listed at snippet level, not opened at source.** Attribute, never adopt. Several are vendor-sponsored |
+
+### Gaps measured this pass — stated, not left silent
+
+- **Eight forges unmeasured**, listed above. The highest-value is `gitee.com`: it makes the APAC
+  inventory *unmeasured* rather than sparse, and closing it needs **one allowlist entry, not research
+  effort**. This is the top open item from this pass.
+- **openDesk** — the EMEA sovereign-workplace programme — **not assessed**. Its forge is refused; no
+  claim is made about its licence, components, version or activity. Named as a lead so a future pass
+  knows where to look.
+- **Tryton** — a full ERP — **not usable from this session's evidence**. Canonical forge refused; its
+  GitHub presence is explicitly *"Mirror of tryton"* (247★) and reports **no licence**, so the mirror
+  cannot establish the licence either.
+- **`odoocoop/facturacion_electronica`** — licence **unresolved** after two `429` responses. Recorded
+  as unresolved rather than guessed.
+- **`huggingface.co`: zero addresses, and unprobed.** The KB holds no model-side address of any kind.
+  Whether that is a real gap or correct scoping for an infrastructure KB has **not been decided**; it
+  is recorded here so the next pass decides it deliberately instead of inheriting it.

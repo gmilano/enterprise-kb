@@ -366,6 +366,55 @@ certification-body summary surfaced by search; `nist.gov` was not fetched in thi
 controls exist today** and that first substantive deliverables are not expected before late 2026.
 Quote the direction, never a date, and never an obligation.
 
+#### Eleventh pass, 2026-11-24 — the forge boundary: the "open source map" this KB presents is a North American map
+
+**The structural fact first.** All 314 repository addresses this KB held before this pass were on
+`github.com`, a US-domiciled platform. That is not a complaint about GitHub — it is the observation
+that when Globant presents "the open source landscape" for a category, it has been presenting the
+**North American view of it**, and had never said so. For a North America engagement this is close to
+harmless and occasionally an advantage: the client's own engineers live on the same forge, the
+licence metadata is in the format their legal team already reads, and `gh api -X GET
+search/repositories` gives exact SPDX, stars and `archived` in one call.
+
+**Where it stops being harmless is procurement language.** A claim of the form *"the leading open
+source options are X, Y and Z"* is a claim about a search, and this pass established that the search
+had one source. Say "the leading options on GitHub" and the sentence becomes defensible at no cost.
+
+**A North American legal instrument showed up inside an open-source licence file, and it is a first
+for this KB.** Mayan EDMS — the most-starred enterprise platform found off GitHub this pass
+([mayan-edms/mayan-edms](https://gitlab.com/mayan-edms/mayan-edms), GPL-2.0-only, 683★, active
+2026-11-24) — states in `LICENSE` both a **US Copyright Office registration** (No. TX 8-577-731) and
+**two USPTO-registered trademarks** (Nos. 7,889,160 and 7,889,166), with the explicit note that the
+copyright licence *"grants no rights in those trademarks."*
+
+For a North American engagement that matters more than elsewhere, because these are the instruments a
+US client's counsel recognises and weighs:
+
+- the copyright registration strengthens the author's **enforcement position on the code**, which
+  raises the cost of a sloppy fork;
+- the registered marks mean a **white-labelled deployment** — the normal shape of a Globant delivery
+  — is governed by a separate trademark policy, not by the GPL;
+- and the two questions have **different answers**: you may modify and deploy, and you may not call
+  it Mayan.
+
+**The commercial posture for this region.** North America is where the KB's standing adoption numbers
+say the ceiling is organisational, not technical: a 2026 Gartner survey of **1,303 enterprises with
+at least $50M revenue** found only **22% had scaled AI across multiple business units**, and a much
+larger survey (**120,000+ respondents**) found **8.6% with agents in production** against **63.7%
+with no formal AI initiative at all**. NVIDIA's *State of AI 2026* puts agentic adoption highest in
+**telecom at 48%**. Dentons reports that, absent universal regulation, companies are **writing their
+own AI governance frameworks** — and one analysis argues it is regulatory **fragmentation, not
+strictness**, that slows scale-up.
+
+Read together with this pass's finding, the sellable North American work is unchanged in shape but
+better justified: **the client's blocker is an internal evidence and governance artefact, not a model
+choice** — and now one of the artefacts Globant can produce is the *provenance of the shortlist
+itself*: which forges were searched, which refused, and what that leaves unmeasured. A governance
+framework a client wrote themselves has no such section, which is precisely why it is easy to add.
+
+*(All adoption figures in this subsection are search-listed at snippet level and not verified against
+the primary reports; attribute them, do not adopt them.)*
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -748,6 +797,58 @@ GPU providers were all relayed through vendor and consultancy blogs surfaced by 
 legislative instrument and its four levels were reported consistently across several such sources
 but no primary EU text was fetched in this session. Verify before quoting a number to a client.*
 
+#### Eleventh pass, 2026-11-24 — the forge boundary: the sovereign estate is on a forge this session cannot reach
+
+**The finding that should change an EMEA conversation.** The German public-sector forge
+**openCoDE** (`gitlab.opencode.de`) **refuses connection from this session** — `CONNECT tunnel
+failed, response 403`. So does `foss.heptapod.net`, the canonical home of the Tryton ERP. This KB
+therefore cannot currently assess the code published by the one procurement programme EMEA clients
+raise by name when they say "sovereign". That is stated as a **declared gap**, not a finding: no
+claim is made here about openDesk's licence, components, version or activity, and an engagement lead
+who hears the name from a client should know the KB has not assessed it.
+
+**What *was* reachable turns out to make the EMEA case better than the sovereignty rhetoric does.**
+The workplace estate added this pass is almost entirely European in origin and all of it is
+inspectable:
+
+| Component | Origin | Licence | Stars | Last push |
+|---|---|---|---|---|
+| [nextcloud/server](https://github.com/nextcloud/server) | Germany | AGPL-3.0 | 37,621 | 2026-11-24 |
+| [opf/openproject](https://github.com/opf/openproject) | Germany | GPL-3.0 | 17,676 | 2026-11-24 |
+| [xwiki/xwiki-platform](https://github.com/xwiki/xwiki-platform) | France | **LGPL-2.1** | 1,336 | 2026-11-24 |
+| [dokos/dokos](https://gitlab.com/dokos/dokos) | France | GPL-3.0-or-later | 39 | 2026-11-24 |
+
+**The argument to make:** sovereignty in this region is usually sold as *where the data sits*. The
+table above lets Globant sell it as *what the client can read, fork and audit* — a files platform, a
+project platform, a wiki and an ERP, all European-authored, all with the licence read from the
+repository, all pushed the day they were verified. That is an **operational** sovereignty claim and
+it survives a procurement challenge in a way a hosting-region claim does not.
+
+**And the licence gradient inside one deployment is the billable detail.** AGPL-3.0 for files,
+GPL-3.0 for project, LGPL-2.1 for wiki. An agent spanning the suite crosses **three copyleft regimes
+in one engagement**, so the only safe architecture is one external service over three documented
+APIs. XWiki is the outlier worth noticing: **fewest stars, most permissive licence** — LGPL permits
+linking, so a genuine extension is possible there and nowhere else in the suite.
+
+**The demand numbers this region now carries, and they point at the same deliverable.** IDC reports
+**58% of EMEA organisations using sovereign AI for all or critical workflows**, while only **33% say
+they could govern hundreds of AI agents with today's tooling** — and, separately, that only **9% have
+delivered measurable business outcomes from most of their AI projects over the past two years**. Veeam
+finds **88% already operating AI agents** against **7% who believe they are fully prepared to manage
+them**. With most high-risk obligations of the EU AI Act applying from **August 2026**, the reported
+shift is from *how* AI is deployed to **where it runs**.
+
+**Put the two halves together and the EMEA offer writes itself.** Demand for sovereign deployment is
+already majority (58%); the capability to *govern* it is a third (33%); the capability to *show
+outcomes* is under a tenth (9%). The gap between the first number and the other two is the
+engagement. The components are the European stack above, the governance layer is the four boundaries
+this KB already documents, and the one thing this pass adds is the honest sentence that goes in the
+proposal: **the sovereign forge itself could not be inspected from here, so the assessment covers the
+components, not the programme.** Clients in this region reward that sentence.
+
+*(IDC, Veeam and EU AI Act timing figures are search-listed at snippet level and unverified against
+primary sources; attribute, do not adopt. Repository rows are verified.)*
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1109,6 +1210,54 @@ it is a **cost** conversation that happens to produce a **control**.
 *Sourcing note: all survey percentages and the Japanese timeline above are relayed through
 consultancy, vendor or press summaries surfaced by search; no primary IMDA, METI, MAS or Gartner
 document was fetched in this session.*
+
+#### Eleventh pass, 2026-11-24 — the forge boundary: this region's inventory is unmeasured, and that is now written down
+
+**This is the most consequential regional statement in this pass, and it is an admission.** The two
+forges on which a large share of Chinese enterprise and AI projects publish — **`gitee.com`** and
+**`atomgit.com`** — both **refuse connection from this session**: `curl (56) CONNECT tunnel failed,
+response 403`. They were never searched in any earlier pass either, and until now that was not
+visible anywhere in this KB.
+
+So every APAC inventory claim this KB has made rests on `github.com` alone. The correct
+characterisation of APAC coverage is **"unmeasured"**, not "sparse" and certainly not "empty**"**.
+The distinction is not pedantry: *sparse* invites the conclusion that the region builds less, which
+is both insulting and, on the available evidence, unsupported. **A `403 CONNECT` tells you about the
+network policy, not about the region.**
+
+**What this changes in practice:**
+
+1. **Never present a category shortlist to an APAC client as exhaustive.** Say which forges were
+   searched. A client in Shenzhen or Hangzhou may well name a Gitee project in the first meeting, and
+   the right response is "we have not assessed that forge", not surprise.
+2. **The gap is delegable and cheap to close.** It needs a network policy change, not research
+   skill — one allowlist entry turns an unmeasured region into a measured one. Recorded as the
+   highest-value open item from this pass.
+3. **The one APAC-origin platform the KB does hold is on GitHub and remains correct**: ERPNext
+   (Frappe, Mumbai). This pass added its **EMEA sibling**, Dokos (France) — which incidentally shows
+   the pattern to look for on the unreachable forges: not new frameworks, but **regional derivatives
+   of platforms already held**.
+
+**The demand side, which is the strongest of any region.** Lenovo's CIO Playbook reports **96% of
+APAC organisations planning to raise AI investment, by about 15% on average, in 2026**. Forrester puts
+**APAC ahead of both North America and Europe on genAI use, at 63%**, and predicts **sovereignty will
+shape infrastructure choices for half of firms**. AlphaSense notes the region is not moving in
+lockstep, with **Japan notably cautious**. On rules: **Singapore** is consulting on AI use in
+financial institutions, **China's "AI Plus" programme** pairs adoption targets with governance
+measures, and BSA warns that **new rules in India and Vietnam** could slow adoption and raise costs.
+
+**The commercial read, and it is uncomfortable in a useful way.** APAC leads on adoption and
+investment intent, leads on sovereignty as an infrastructure driver — and is the region where this
+KB's evidence base is weakest, *because of the toolchain rather than the market*. The honest offer is
+therefore the one that does not depend on an inventory: **the governance and industrialisation
+work** — the four boundaries, the air-gap method from this pass (MIT, and transferable to any
+self-hosted platform), the evidence dossier. Those travel without a component catalogue. Selling a
+"best open source options in APAC" deck from this KB's current contents would be selling a GitHub
+search result as a regional analysis.
+
+*(Lenovo, Forrester, AlphaSense and BSA figures are search-listed at snippet level and unverified
+against primary sources; attribute, do not adopt. The forge probe results are measured in this
+session.)*
 
 ### LATAM
 
@@ -1559,6 +1708,56 @@ becoming a procurement gate ahead of being a widely held certificate.
 reports surfaced by search. No primary legislative text, no ANPD publication and no Microsoft report
 was fetched in this session — `nist.gov`-class primary sources were out of reach for all four
 regions this pass. Verify before any of these numbers enters a client deliverable.*
+
+#### Eleventh pass, 2026-11-24 — the forge boundary: the first non-GitHub LATAM finding, and what its licence says
+
+**A measured zero turned into a measured something, and the reason is vocabulary.** Probing the one
+reachable alternative forge in Spanish produced a split result:
+
+| Spanish probe | Result |
+|---|---|
+| `agente IA`, `empresa gestion`, `nomina` | **Measured zero** — nothing above 5 stars, top hits are coursework; `nomina` collides with `nominatim` because the search is accent-insensitive |
+| `facturacion` | **Not a zero** — a live cluster of fiscal-localisation projects |
+
+| Repo | Licence | Stars | Last activity | What it is |
+|---|---|---|---|---|
+| [dansanti/facturacion_electronica](https://gitlab.com/dansanti/facturacion_electronica) | **GPL-3.0** | 11 | **2026-10-31** | *"Librería para la facturación Electrónica Chilena"* — **Chile**. The first LATAM-origin, licence-resolved, non-GitHub repository in this KB |
+| [odoocoop/facturacion_electronica](https://gitlab.com/odoocoop/facturacion_electronica) | **unresolved** — `429` after backoff, twice | 4 | 2026-11-01 | Odoo-cooperative LATAM localisation. **A rate limit is not a licence verdict**, so nothing is claimed |
+| [torresoftware/apidian2020](https://gitlab.com/torresoftware/apidian2020) | **NONE** | 11 | 2026-06-23 | **Colombian DIAN** e-invoicing validation API — no licence file, therefore **not proposable** |
+
+**Why eleven stars is worth a paragraph.** This file already argues that regional fiscal
+localisation is what makes a business suite actually deployable. This pass found that the Chile and
+Colombia localisation work sits **on a forge this KB had never looked at**, at star counts a
+GitHub-calibrated filter would discard, and that **one of the three is unusable for want of a licence
+file** rather than for want of quality.
+
+The commercial conclusion is therefore specific and actionable: LATAM localisation is **a
+relicensing and stewardship conversation with named authors**, not a greenfield build. There is a
+working Chilean library under GPL-3.0 (usable as a stock dependency, containment rule as ever) and a
+working Colombian DIAN implementation that **cannot be proposed until its author adds a licence** —
+which is an email, not an engineering programme. *The energy KB reached the identical conclusion about
+its own LATAM layer in an unrelated pass; two KBs converging independently on "the blocker is a
+licence file, not a capability gap" makes it a regional pattern worth naming in a proposal.*
+
+**The demand numbers, and the one that matches this finding exactly.** RSM's *AI Readiness in Latin
+America 2026* (**400+ business leaders**) reports **~40% of organisations already implementing AI**
+and **68% of those adopters planning to expand within 12 months** — against **fewer than one in five
+with a formal AI governance framework**. Investment remains thin: **$8.2B of the $190B** allocated
+globally to private AI opportunities in 2025. Baker McKenzie describes the regulatory map as
+fragmented, with **no country yet holding a fully mature, harmonised regime**, while the IBA notes the
+region broadly **follows the EU model** — consistent with the Uruguay Council of Europe signature and
+the Peru Law 31814 implementing regulation this KB already records (**confirmations, not new facts**).
+
+**So the LATAM offer has two halves that fit together.** Demand is real and scaling (40% / 68%),
+governance maturity is the lowest of any region (<20%), and the open-source base layer has a *legal*
+blocker rather than a technical one. **Globant's differentiated move here is to be the party that
+fixes the licence** — stewarding a localisation component into a clean permissive or copyleft state
+with its author, in the open — and then to sell the governance layer the 80% do not have. That is a
+credible regional contribution and it costs one conversation per repository.
+
+*(RSM, investment and regulatory figures are search-listed at snippet level and unverified against
+primary sources; attribute, do not adopt. Repository rows are verified, with the one unresolved
+licence marked as unresolved.)*
 
 ## Posicionamiento Globant
 

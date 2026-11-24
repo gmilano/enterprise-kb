@@ -8,7 +8,118 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — tenth pass (latest) — the containment boundary
+## 2026-11-24 — eleventh pass (latest) — the forge boundary
+
+> Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
+> components **are what they claim to be**, pass 10 what it may **reach**. This pass asks the
+> question all four assume an answer to: **how does this KB know what exists?** The answer was one
+> forge, and it had never been stated. Full tables in `repos/foundations.md`.
+
+### The headline is a number about this KB, not about the industry
+
+| Measurement, 2026-11-24 | Value |
+|---|---|
+| Distinct repository addresses in this KB | **314** |
+| …on `github.com` | **314** |
+| …on `gitlab.com`, `sourceforge.net`, `codeberg.org`, `bitbucket.org`, `git.sr.ht`, `gitee.com`, `huggingface.co` | **0** |
+
+Not 314 of 320. **314 of 314.** Ten passes of research, eight thousand lines, one forge.
+
+### The eight forges that refused, and why "unmeasured" is the only honest word
+
+| Forge | Why it would have mattered | Probe result |
+|---|---|---|
+| `gitlab.com` | GitLab CE, Mayan EDMS, Flectra, GitLab's own AI work | **Reachable**, API `200` unauthenticated |
+| `gitee.com` | the dominant **APAC** forge | `CONNECT tunnel failed, 403` |
+| `atomgit.com` | OpenAtom-hosted Chinese projects | `CONNECT tunnel failed, 403` |
+| `gitlab.opencode.de` | **openCoDE**, the German public-sector forge | `CONNECT tunnel failed, 403` |
+| `foss.heptapod.net` | **Tryton**, a full ERP, canonical home | `CONNECT tunnel failed, 403` |
+| `codeberg.org` | Forgejo and the Gitea-fork ecosystem | `CONNECT tunnel failed, 403` |
+| `git.openldap.org` | OpenLDAP, the directory under the estate | `CONNECT tunnel failed, 403` |
+| `pagure.io` | Fedora/RHEL-adjacent enterprise tooling | `CONNECT tunnel failed, 403` |
+| `invent.kde.org`, `salsa.debian.org` | upstream packaging of estate components | `CONNECT tunnel failed, 403` |
+
+**A `403 CONNECT` is the instrument failing, not the subject being empty.** The APAC consequence is
+the sharpest: this KB cannot currently see the forge most Chinese enterprise projects publish on, so
+every APAC inventory statement it makes carries that caveat whether or not it is written down. From
+this pass on, it is written down.
+
+### New repository rows — enterprise platforms
+
+| Repo | Licence | Stars | Branch | Last activity | What it is |
+|---|---|---|---|---|---|
+| [mayan-edms/mayan-edms](https://gitlab.com/mayan-edms/mayan-edms) | **GPL-2.0-only** (byte-read; API said `other`) | **683** | `master` | **2026-11-24** | *"Advanced enterprise … DMS"* — most-starred enterprise platform found off GitHub, active the day it was found |
+| [gitlab-org/gitlab](https://gitlab.com/gitlab-org/gitlab) | **MIT** | **6,209** | `master` | 2026-11-24 | GitLab CE — permissive, and already self-hosted at many clients |
+| [flectra-hq/flectra](https://gitlab.com/flectra-hq/flectra) | GPL-3.0 | 252 | **`3.0`** | 2026-07-15 | Odoo-lineage ERP+CRM; ~4 months idle |
+| [dokos/dokos](https://gitlab.com/dokos/dokos) | GPL-3.0-or-later | 39 | **`develop`** | 2026-11-24 | French ERPNext derivative on Dodock/Frappe |
+
+### New repository rows — the workplace estate, which was missing on *both* forges
+
+| Repo | Licence | Stars | Last push | What it is |
+|---|---|---|---|---|
+| [nextcloud/server](https://github.com/nextcloud/server) | **AGPL-3.0** | **37,621** | 2026-11-24 | The default self-hosted file/groupware platform in EMEA public sector |
+| [opf/openproject](https://github.com/opf/openproject) | GPL-3.0 | **17,676** | 2026-11-24 | Project/portfolio management, German-origin, regulated estates |
+| [xwiki/xwiki-platform](https://github.com/xwiki/xwiki-platform) | **LGPL-2.1** | 1,336 | 2026-11-24 | Enterprise wiki — **fewest stars, best licence** of the three |
+
+This trio was absent for ten passes while 314 GitHub addresses accumulated, which shows the bias was
+never *only* about forges: the KB had covered chat and document repositories and skipped the suite
+in between. **A forge audit finds gaps a keyword audit does not, because a URL has no vocabulary.**
+
+### The air-gap reference implementation — MIT IaC, proprietary payload
+
+[gitlab-com/public-sector/offline-lab](https://gitlab.com/gitlab-com/public-sector/offline-lab) —
+**MIT**, 4★, active **2026-11-24**, owned by GitLab's Public Sector group. Topology:
+**GitLab → AI Gateway → LiteLLM → AWS Bedrock**, Alloy → Loki → Grafana.
+
+Four facts from its runbook worth more than the repository:
+
+1. It owns *"the canonical list of external dependencies you must mirror internally"* — the artefact an
+   air-gapped engagement needs and almost nobody writes.
+2. Images pinned by tag **and digest**, with the rule stated: *"an air-gapped mirror plus a moving tag
+   cannot be reproduced."* The ninth pass's provenance boundary, reached from the deployment side.
+3. The AI Gateway image *"includes the Duo Workflow service as a sub-process — mirroring this one image
+   covers agentic flows; there is no separate workflow image."*
+4. *"The default topology calls a hosted model provider"* — **the air gap is a separate track**. Third
+   independent confirmation that "offline" always has an online bootstrap.
+
+**And the split:** the IaC is MIT; the AI Gateway
+([…/code-suggestions/ai-assist](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist),
+64★, **GitLab EE licence** byte-read from `LICENSE`) and Orbit are not. Take the method, not the payload.
+
+### Two migration remnants, and a rule about star-ranked forge listings
+
+| Repo | Stars | Last activity | Its own description |
+|---|---|---|---|
+| [meltano/meltano](https://gitlab.com/meltano/meltano) (GitLab) | **554** | **2024-09-11** | *"[This project was migrated to GitHub]"* |
+| [gitlab-org/duo-workflow/duo-workflow-service](https://gitlab.com/gitlab-org/duo-workflow/duo-workflow-service) | 10 | 2026-10-23 | *"This project is migrated to …/ai-assist"* |
+
+Stars accumulate and never decay, so **a star-sorted forge listing surfaces dead mirrors near the
+top.** Both of these announce their own death in the description field — the cheapest possible check,
+and exactly the one a star-sorted list invites you to skip. Meltano is already in this KB at its live
+GitHub address; ranking by stars would have added a duplicate pointing at a two-year-old corpse.
+
+### A rename that moved the product and left the path alone
+
+[gitlab-org/cluster-integration/gitlab-agent](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent)
+— MIT, 113★, `master`, active 2026-11-24 — now describes itself as **"GitLab Relay — host for various
+GitLab Features such as: Workflow Engine (AutoFlow / autocore), GitLab CD, Job Router and Runner
+Controller."** The ninth pass built a detector for renames that move **owner and path**. This is the
+variant that defeats it: **URL stable, licence stable, product replaced.** Diff the description against
+your own one-line summary, not just the HTTP status.
+
+### LATAM — a first, and a measured zero beside it
+
+| Repo | Licence | Stars | Last activity | What it is |
+|---|---|---|---|---|
+| [dansanti/facturacion_electronica](https://gitlab.com/dansanti/facturacion_electronica) | **GPL-3.0** | 11 | 2026-10-31 | **Chilean** e-invoicing library — first LATAM-origin, licence-resolved, non-GitHub repo in this KB |
+| [odoocoop/facturacion_electronica](https://gitlab.com/odoocoop/facturacion_electronica) | **unresolved — `429` twice** | 4 | 2026-11-01 | Odoo-cooperative LATAM localisation. **A rate limit is not a licence verdict** |
+| [torresoftware/apidian2020](https://gitlab.com/torresoftware/apidian2020) | **NONE** | 11 | 2026-06-23 | **Colombian DIAN** e-invoicing API — no licence file, **not proposable** |
+
+Spanish probes for `agente IA`, `empresa gestion` and `nomina` returned a **measured zero** (and
+`nomina` collided with `nominatim` — the search is accent-insensitive). `facturacion` did not. The
+zero was in the **technology** vocabulary; the content was in the **domain** vocabulary.
+
+## 2026-11-24 — tenth pass — the containment boundary
 
 > Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
 > components **are what they claim to be**. This pass asks the question all three leave open —

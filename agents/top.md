@@ -493,3 +493,54 @@ The agent choice above is settled enough that an outside team reaches the same s
 unsettled, billable, client-specific decision is which four containment controls wrap it** — and
 the one repo that implements all four has 46 stars and `v1alpha1` CRDs. Quote the architecture, not
 the repository.
+
+## The agent layer on the forge this KB had never searched (added eleventh pass, 2026-11-24)
+
+**Why these rows are here and were not here yesterday.** Every one of the 314 repository addresses
+this KB held before this pass was on `github.com`. That was never a decision — it was an unmeasured
+habit, and this pass measured it. The rows below are the **agent-layer** projects found on the one
+alternative forge reachable from this session. They are smaller than the GitHub rows above and they
+are listed separately for that reason: this is a **completeness** correction, not a change to the
+shortlist. Nothing here displaces OpenClaw, LangGraph, CrewAI or the Microsoft/Google/OpenAI
+frameworks.
+
+All verified 2026-11-24 via the GitLab projects API with `?license=true`, which returns licence,
+default branch, stars and last activity in one call.
+
+| Agent / component | Repo | Licence | Stars | Last activity | What it does |
+|---|---|---|---|---|---|
+| gitlab-mcp | [fforster/gitlab-mcp](https://gitlab.com/fforster/gitlab-mcp) | **MIT** | **85** | 2026-11-24 | An MCP server for GitLab. The most-starred permissive agent component found off GitHub, and pushed the day it was found. |
+| gitlab-opencode | [nagyv/gitlab-opencode](https://gitlab.com/nagyv/gitlab-opencode) | **MIT** | 59 | 2026-09-17 | Runs any LLM in GitLab CI *"with a controlled environment"* — a single call with explicit **tool permissions**. Containment applied to the pipeline instead of the pod. |
+| rmcp-openapi | [lx-industries/rmcp-openapi](https://gitlab.com/lx-industries/rmcp-openapi) | **MIT** | 13 | 2026-11-24 | Turns **OpenAPI endpoints into MCP tools** on the official Rust MCP SDK. The client's existing API surface becomes the agent's tool surface with no new service to write. |
+| rmcp-actix-web | [lx-industries/rmcp-actix-web](https://gitlab.com/lx-industries/rmcp-actix-web) | **MIT** | 6 | 2026-11-23 | An `actix-web` transport backend for the same official Rust SDK. Pairs with the row above. |
+| openblob | [lx-industries/openblob](https://gitlab.com/lx-industries/openblob) | **MIT** | 4 | 2026-11-24 | *"Distributed agentic workloads, no one in charge, everything under control."* Early-stage; recorded because it is genuinely agentic **and** permissive. |
+| agentic-productivity | [gitlab-org/ai-engineering/agent-foundations/agentic-productivity](https://gitlab.com/gitlab-org/ai-engineering/agent-foundations/agentic-productivity) | **MIT** | 6 | 2026-10-01 | GitLab's own AI engineering org publishing *"agentic configs, skills, agents and workflows"*. Value is the **configuration**, not the code. |
+
+**Six real rows. Six is what was found, and it is the whole of what was found** — there is no
+seventh row because a seventh permissive agent project was not there to list.
+
+### The two that look like rows and are not
+
+- **[gitlab-org/ai/lazy-mcp](https://gitlab.com/gitlab-org/ai/lazy-mcp)** — 20★, pushed
+  2026-11-08, **no licence file in the repository root**, confirmed by listing the tree rather than
+  trusting an empty API field. GitLab Inc.'s own MCP project cannot be proposed to a client.
+  **No licence is not permissive**, and this is the second time in the fleet that a well-starred,
+  institution-owned project failed on this exact point.
+- **[gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph)** —
+  *"Software lifecycle context graph for AI agents"*, 58★, active 2026-11-24, **GitLab Enterprise
+  Edition licence**, byte-read from `LICENSE.md`. Production use requires paid seats. It is the most
+  capable agent-context product found this pass and it is the one that cannot be built on. Full
+  detail in `repos/foundations.md`.
+
+### What to tell an engagement lead
+
+**The shortlist did not move; the map did.** For the sixth consecutive pass no agent row in the
+tables above changed, and that stability is now a finding in its own right rather than an absence of
+news. What changed is that the KB can now say *why* it believes its own shortlist is complete, and
+can name the boundary of that belief: **one forge measured, one forge reachable, seven forges
+refused at the network layer and therefore unmeasured.**
+
+The two rows worth a client conversation this week are **`rmcp-openapi`** — because every enterprise
+client already owns an OpenAPI catalogue and this converts it into agent tools without writing a
+service — and **`gitlab-opencode`**, because CI is the one place in the estate where an agent already
+has credentials, and almost nobody has scoped its tool permissions.

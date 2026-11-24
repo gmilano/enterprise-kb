@@ -519,3 +519,85 @@ work is fixed and worth stating to a client who wants to start with the visible 
 
 Steps 2, 3 and 4 are all demonstrable without step 1, and that is exactly why pilots stall at the
 security review. **Containment is the step with no demo and the shortest critical path.**
+
+## Platforms that were invisible to a GitHub-only inventory (added eleventh pass, 2026-11-24)
+
+Every platform row in this file before this pass lived on `github.com`. That was an unmeasured
+habit rather than a judgement, and this pass measured it: **314 of 314 addresses on one forge.** The
+rows below are real, running enterprise platforms that were missing for that reason alone.
+
+### On GitLab — verified, with the licence read rather than inferred
+
+| Platform | Repo | Real licence | Stars | Default branch | Last activity | Agentic opportunity |
+|---|---|---|---|---|---|---|
+| **Mayan EDMS** | [mayan-edms/mayan-edms](https://gitlab.com/mayan-edms/mayan-edms) | **GPL-2.0-only** (byte-read from `LICENSE`; API said `other`) | **683** | `master` | **2026-11-24** | *"Advanced enterprise … DMS."* Belongs beside Paperless-ngx in the document section above, and is the **more enterprise-shaped** of the two (workflows, metadata, cabinets). Same containment rule as every copyleft platform here: agent beside it, over the API. Pair with **docling** (MIT) for ingestion and the conversion pipeline stays Globant IP. |
+| **GitLab CE** | [gitlab-org/gitlab](https://gitlab.com/gitlab-org/gitlab) | **MIT** | **6,209** | `master` | 2026-11-24 | A platform the client very often already self-hosts, with a **permissive** community edition — rare in this file. The agent surface is the one place in the estate where an agent already holds credentials: CI. See `gitlab-opencode` in `agents/top.md`. |
+| **Flectra** | [flectra-hq/flectra](https://gitlab.com/flectra-hq/flectra) | GPL-3.0 | 252 | **`3.0`** | **2026-07-15** (~4 months idle) | Odoo-lineage ERP+CRM. Listed for completeness of the ERP map; **lead with Odoo or ERPNext** unless a client is already on Flectra. Quote the idleness honestly. |
+| **Dokos** | [dokos/dokos](https://gitlab.com/dokos/dokos) | GPL-3.0-or-later | 39 | **`develop`** | 2026-11-24 | ERPNext derivative on the Dodock/Frappe low-code framework, **French-origin and actively developed** — the EMEA-localised sibling of the APAC-origin ERPNext above. Where ERPNext's India-first localisation is the objection, this is the answer. |
+
+**Read the default-branch column before cloning.** Across the GitLab projects verified this pass the
+default branch was `master`, `main`, `develop` **and `3.0`**. The habit of assuming `main` and
+falling back to `master` fails on Flectra outright; GitLab returns the branch in the same API call
+as the licence.
+
+### Mayan EDMS carries a constraint this file has not recorded before, and it is not the licence
+
+Its `LICENSE` file states the copyleft grant and then adds two things no other platform in this KB
+declares:
+
+- a **US Copyright Office registration** — *"Registered … under Registration No. TX 8-577-731"*; and
+- **registered trademarks** — *"The name 'Mayan EDMS' and the Mayan EDMS logo are registered
+  trademarks of Roberto Rosario, U.S. Reg. Nos. 7,889,160 and 7,889,166. This is a copyright license
+  and grants no rights in those trademarks. Their use is governed by `TRADEMARK_POLICY.md`."*
+
+**Why this changes a proposal rather than a code review.** The GPL question ("may we modify and
+deploy it?") and the trademark question ("may we call it that?") have different answers here. A
+white-labelled or client-branded deployment is the normal shape of a Globant delivery, and for this
+platform the branding is governed by a separate policy document and registered marks — while the
+registered copyright strengthens the author's enforcement position on the code. Neither fact blocks
+anything; both belong in the legal annex **before** someone proposes "our DMS, built on Mayan".
+This is the first platform in this file where the **brand**, not the licence, is the binding
+constraint.
+
+## The sovereign workplace estate — the layer an agent is deployed *into* (added eleventh pass, 2026-11-24)
+
+The forge audit pointed at a gap this file had in plain sight. The collaboration section above
+covers **chat** (Rocket.Chat, Mattermost, Chatwoot) and the document section covers **document
+repositories**. Neither covers the **workplace suite** — files, project, wiki, groupware — which is
+where European sovereignty programmes actually land and where enterprise knowledge work actually
+sits. All three rows verified 2026-11-24 via `gh api search/repositories`.
+
+| Platform | Repo | Real licence | Stars | Last push | Agentic opportunity |
+|---|---|---|---|---|---|
+| **Nextcloud** | [nextcloud/server](https://github.com/nextcloud/server) | **AGPL-3.0** | **37,621** | 2026-11-24 | The default self-hosted file and groupware platform in European public sector and mid-market. AGPL, so the standing rule applies with force: **agent as a separate service over the API**, never a fork. The highest-volume source of real client documents available for a pilot. |
+| **OpenProject** | [opf/openproject](https://github.com/opf/openproject) | GPL-3.0 | **17,676** | 2026-11-24 | Project and portfolio management, German-origin, heavily used in regulated and public-sector estates. The natural place for an agent that reads status and drafts reporting — which is the single most requested internal agent in this KB's experience of the category. |
+| **XWiki** | [xwiki/xwiki-platform](https://github.com/xwiki/xwiki-platform) | **LGPL-2.1** | 1,336 | 2026-11-24 | The enterprise wiki, and **the most permissive licence of the three** — LGPL permits linking, so an extension can be built against it without the AGPL/GPL containment dance. Lowest stars, best licence position: the inverse ranking is the point. |
+
+**Why this trio and not an arbitrary three.** They are the components European sovereign-workplace
+procurement bundles together, and that bundling is why they belong in one section rather than three
+scattered rows. The commercially useful observation is the **licence gradient inside one deployment**:
+AGPL-3.0 for files, GPL-3.0 for project, LGPL-2.1 for wiki. An agent that spans the suite crosses
+three copyleft regimes in a single engagement, so the integration must be **one external service
+talking to three documented APIs** — the asymmetry rule this file already states, applied three times
+at once.
+
+### Named leads this session could not verify, recorded as leads and not as findings
+
+- **openDesk** — the German sovereign-workplace programme that bundles components of exactly the kind
+  above. Its source is hosted on **openCoDE** (`gitlab.opencode.de`), which **refuses connection from
+  this session** (`CONNECT tunnel failed, 403`). No licence, version, component list or activity claim
+  is made here. It is named so a future pass with a wider network policy knows where to look, and so
+  that an EMEA engagement lead who hears the name from a client knows the KB has not assessed it.
+- **Tryton** — a full ERP whose canonical home is `foss.heptapod.net`, also refused. Its GitHub
+  presence, [tryton/tryton](https://github.com/tryton/tryton), is explicitly *"Mirror of tryton"*,
+  247★, and reports **no licence** — so the mirror cannot be used to establish the licence either.
+  **Not usable as a proposal base from this session's evidence.** This is the cleanest illustration in
+  the KB of the difference between *"we looked and it is not there"* and *"we could not look"*.
+
+### Where these rows sit relative to the rest of this file
+
+The ERP/CRM map at the top of this file is now **complete across both reachable forges** for the
+suites a client is likely to name: Odoo, ERPNext, OFBiz, Dolibarr, Krayin, Huly on GitHub; Flectra,
+Dokos, Mayan EDMS, GitLab CE on GitLab. The workplace suite is new and sits **above** the catalog
+layer and **beside** the chat layer: chat is where the employee talks to the agent, the workplace
+suite is what the agent reads and writes while they do.

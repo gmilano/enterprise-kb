@@ -1691,3 +1691,140 @@ them.
   sandbox cannot route around it.
 - **Assuming a secure default.** The claim that sandboxes block node metadata and internal cluster
   IPs by default is **secondary-sourced and unverified in this session**. Probe it; keep the probe.
+
+## Receta 21 — The air-gapped agent platform: take the method, leave the payload
+
+**The ask, in the client's words.** *"We need agents, and nothing may call out to the internet."*
+Defence, public sector, banking cores, pharma manufacturing and any EMEA client reading the EU AI
+Act's high-risk obligations as a hosting constraint all arrive at this sentence. Until this pass the
+KB's answer was a described pattern. It is now a **runnable, pinned reference** plus a licence line
+that decides how to use it.
+
+### The source, and the licence split that defines the engagement
+
+| Component | Repo | Licence | Verified |
+|---|---|---|---|
+| The IaC and the runbooks | [gitlab-com/public-sector/offline-lab](https://gitlab.com/gitlab-com/public-sector/offline-lab) | **MIT** | 4★, active 2026-11-24 |
+| The AI Gateway it deploys | [gitlab-org/modelops/applied-ml/code-suggestions/ai-assist](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist) | **GitLab EE licence** (byte-read) | 64★, active 2026-11-24 |
+| The context graph it deploys | [gitlab-org/orbit/knowledge-graph](https://gitlab.com/gitlab-org/orbit/knowledge-graph) | **GitLab EE licence** (byte-read) | 58★, active 2026-11-24 |
+| The model boundary in its topology | [BerriAI/litellm](https://github.com/BerriAI/litellm) | MIT — already held in this KB | — |
+
+> **The rule that makes this recipe safe: take the method, not the payload.** The *method* — the
+> mirror list, digest pinning, internal-CA-on-every-hop, and the placement of LiteLLM as the model
+> boundary — is MIT and transfers to **any** self-hosted agent platform. The *payload* is two
+> EE-licensed services and deploying them is a licence purchase, not an integration. Build the first.
+> Quote the second only if the client already owns GitLab Ultimate seats.
+
+### Steps
+
+1. **Write the mirror list before writing any Terraform.** `offline-lab`'s air-gapped track states
+   its own purpose: it *"owns the canonical list of external dependencies you must mirror
+   internally."* Reproduce that artefact for the client's chosen stack. It is the deliverable the
+   client cannot get anywhere else, it is readable by their security team, and it is billable on day
+   one.
+2. **Pin every image by tag *and* digest**, in one file, the way `ansible/group_vars/all/versions.yml`
+   does. The runbook's own sentence is the one to put in the proposal: *"an air-gapped mirror plus a
+   moving tag cannot be reproduced."* This is the ninth pass's provenance boundary arriving from the
+   deployment side — same primitive, different motive, and it closes the gap where a mirror silently
+   drifts from what was approved.
+3. **Place the model boundary at LiteLLM, not at the agent.** In the reference topology the path is
+   `platform → AI gateway → LiteLLM → Bedrock`. Swap the last hop for the client's on-premise
+   inference and **nothing upstream changes**. That single property is why the model boundary belongs
+   at a proxy the client controls: the air-gap decision becomes a configuration change rather than an
+   architecture change.
+4. **Mirror the agentic flow as one image, not two.** Verified from the runbook: the AI Gateway image
+   *"includes the Duo Workflow service as a sub-process — mirroring this one image covers agentic
+   flows; there is no separate workflow image."* Teams routinely budget for a workflow service that
+   does not exist as a separate artefact. *(This fact is specific to GitLab's packaging; re-verify it
+   for whatever platform the client runs — the transferable lesson is **enumerate what is inside each
+   image**, because the unit of mirroring is the image, not the service.)*
+5. **Budget the scanners separately.** The runbook sends security scanners (SAST, Secret Detection,
+   IaC, Dependency, Container) to their own document because they need **extra images plus a Package
+   Metadata Database**. An air-gapped estate without the metadata DB has scanners that run and find
+   nothing — the worst possible failure mode, because it looks like success.
+6. **Wrap it in the four boundaries already in this KB.** Entitlement (Receta 16), write (17),
+   provenance (18), containment (20). The air gap is a *perimeter*; it does not answer who the agent
+   acts for or what it may change. A client who believes the air gap is the security model should be
+   corrected early and in writing.
+7. **State the bootstrap.** `offline-lab`'s README says *"the default topology calls a hosted model
+   provider; the air-gapped runbook is `docs/runbook/tracks/air-gapped.md`."* **The air gap is a
+   separate track with its own bootstrap** — third independent confirmation of this KB's standing
+   rule. Never let "offline" appear in a proposal as a default.
+
+### Deliverables, and the sentence that sells it
+
+Four artefacts: **the mirror bill of materials**, **the pinned version manifest**, **the internal-CA
+TLS topology**, and **the model-boundary swap procedure**. Then:
+
+> *"Your agents can run with no egress, and we can prove which bytes are inside the perimeter and
+> which version of each one. The proof is a file your auditor can read, not a diagram."*
+
+### Anti-patterns, each visible in this pass's evidence
+
+- **Deploying the vendor's agent stack because the IaC was MIT.** The IaC is MIT; the AI Gateway and
+  Orbit are EE-licensed and require paid seats. Reading one `LICENSE` and assuming the repository's
+  whole output is permissive is exactly the error this pass documents twice.
+- **Mirroring with moving tags.** Explicitly called out upstream as non-reproducible.
+- **Selling "air-gapped" as the default topology.** It is a distinct track, everywhere, always.
+- **Treating the perimeter as the security model.** It is one of five controls, and the only one a
+  client can see — which is why it gets over-bought.
+- **Assuming a separate workflow image exists.** Verified false for this platform; enumerate images
+  rather than inferring them from service names.
+
+---
+
+## Receta 22 — The client's OpenAPI catalogue as the agent's tool surface, and CI as the first place to contain it
+
+**The ask.** *"We want an agent that can actually do things in our systems, and we are not writing
+forty integrations."* Every enterprise client of any size already owns an **OpenAPI catalogue** —
+usually in an API gateway, usually complete, usually unloved. It is the cheapest agent tool surface in
+the estate and it is already governed, versioned and authenticated.
+
+### Components, all permissive, all verified 2026-11-24
+
+| Role | Repo | Licence | Notes |
+|---|---|---|---|
+| OpenAPI → MCP tools | [lx-industries/rmcp-openapi](https://gitlab.com/lx-industries/rmcp-openapi) | **MIT** | 13★, active 2026-11-24. Built on the **official Rust MCP SDK** |
+| HTTP transport | [lx-industries/rmcp-actix-web](https://gitlab.com/lx-industries/rmcp-actix-web) | **MIT** | 6★, active 2026-11-23 |
+| The same idea in Java, for a JVM estate | [apache/camel](https://github.com/apache/camel) — `camel-ai-tool` | Apache-2.0 | Already held (eighth pass): one route = one tool |
+| Containment for the CI path | [nagyv/gitlab-opencode](https://gitlab.com/nagyv/gitlab-opencode) | **MIT** | 59★. Any LLM in GitLab CI *"with a controlled environment"* and explicit tool permissions |
+| The forge itself, if self-hosted | [gitlab-org/gitlab](https://gitlab.com/gitlab-org/gitlab) | **MIT** | 6,209★ |
+
+### Wiring
+
+1. **Export the subset, never the catalogue.** Point `rmcp-openapi` at a **hand-picked** set of
+   operations. An agent handed 400 endpoints will choose badly; an agent handed nine will be
+   demonstrably useful. The selection is a workshop with the client's API owners and it is the first
+   billable artefact.
+2. **Let the spec carry the safety metadata, and do not trust it.** The MCP annotation rule this KB
+   established in the eighth pass still governs: tool annotations are **hints**, clients must treat
+   them as **untrusted**, and the defaults make an unannotated tool a *non-idempotent, destructive,
+   open-world* operation. So read/write classification is decided **at the gateway**, by which
+   operations you exported, not by metadata the agent can read.
+3. **Choose the transport by estate, not by preference.** Rust (`rmcp-actix-web`) where there is a
+   platform team and latency matters; `camel-ai-tool` where the client already runs Camel, because
+   then one route serves LangChain4j, Spring AI, OpenAI and MCP simultaneously and the integration
+   team already knows the idiom.
+4. **Contain the CI path first, because it already has credentials.** This is the step teams skip.
+   CI is the one place in the estate where an agent inherits a token that can reach production.
+   `gitlab-opencode` runs a single LLM call in CI with **explicit tool permissions** — scope it
+   before anyone asks for an agent, and the first security review has an answer ready.
+5. **Log every call as a write-boundary event** (Receta 17) and attach the entitlement check
+   (Receta 16). An OpenAPI operation invoked by an agent is a write to a system of record; the fact
+   that it arrived over HTTP from a tool call changes nothing about who is accountable.
+
+### Why this is cheaper than anything else in this file
+
+No new platform, no migration, no model work, and the client already paid for the API gateway, the
+specs and the auth. The work is **selection, containment and evidence** — which is also the work that
+survives a change of model, framework or vendor. Compare Receta 11 (catalogues) for the same shape on
+the data side: *point the agent at what the client already runs.*
+
+### Anti-patterns
+
+- **Exporting the whole catalogue.** The fastest way to a convincing demo and an unusable pilot.
+- **Trusting `readOnlyHint`.** It is a hint, it is untrusted by specification, and its default is
+  the dangerous value.
+- **Writing a bespoke MCP server per API.** That is forty integrations again, wearing a new name.
+- **Leaving CI uncontained while hardening the chat surface.** The chat surface holds a session;
+  CI holds a deploy token.
