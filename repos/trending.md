@@ -8,7 +8,76 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimoctavo pase (latest) — la capa del calendario: 34 direcciones, 29 nuevas, y la licencia de los datos no es la del código
+## 2026-11-24 — decimonoveno pase (latest) — la capa heredada: 30 direcciones verificadas, 29 nuevas, y una licencia que contradice a la prensa
+
+> Tema: **el sistema de registro que precede a todo repo de esta KB.** 30 direcciones verificadas el
+> **2026-11-24** con `gh api -X GET search/repositories` (SPDX + estrellas + `pushed_at` +
+> `archived` + `fork` en una sola llamada) y **cada NOASSERTION resuelto leyendo el archivo de
+> licencia byte a byte** por `raw.githubusercontent.com`. **29 de las 30 eran nuevas** para la KB.
+
+**Titular: "OpenRewrite es Apache-2.0" es verdad del motor y falso de las recetas.**
+
+| Módulo | Licencia leída | ★ | Push |
+|---|---|---|---|
+| `openrewrite/rewrite` | **Apache-2.0** | 4011 | 2026-11-24 |
+| `openrewrite/rewrite-spring` | **Moderne Source Available License** | 407 | 2026-11-24 |
+| `openrewrite/rewrite-migrate-java` | **Moderne Source Available License** | 168 | 2026-11-24 |
+
+La MSAL concede "use, copy, **distribute internally**" y **prohíbe** "offering a product or service,
+the value of which derives to any extent from the value of the Software", nombrando como ejemplos
+prohibidos a Sourcegraph Batch Changes, Amazon Q Code Transformer y Broadcom Application Advisor.
+Fuentes secundarias de 2026 afirman que "el motor y las recetas siempre serán open source"; **el
+archivo del repo dice otra cosa**. Lectura del texto, no dictamen legal → **a Legales antes de
+cotizar**.
+
+**Nuevas en motores de transformación:** `ast-grep/ast-grep` (MIT, **16687★**, hoy) ·
+`biomejs/gritql` (MIT, **4631★** — **movido desde `getgrit/gritql`**, que aún redirige) ·
+`joernio/joern` (Apache-2.0, 3664★, **sin frontend COBOL**: no prometer CPG sobre mainframe).
+
+**Nuevas en COBOL:** `uwol/proleap-cobol-parser` (MIT, 211★, **push 2026-03-01: usable, no vivo**) ·
+`yutaro-sakamoto/tree-sitter-cobol` (MIT, 39★) · `Spantree/tree-sitter-cobol-enterprise` (**MIT** por
+lectura byte a byte, 8★ — **la única gramática con `EXEC CICS`/`EXEC SQL` completos**) ·
+`eclipse-che4z/che-che4z-lsp-for-cobol` (**EPL-2.0** por lectura, 119★, vivo) ·
+`OCamlPro/superbol-studio-oss` (**AGPL-3.0 en `src/lsp`**, licencia **por directorio**, 49★) ·
+`spgennard/vscode_cobol` (MIT, 52★) · `OCamlPro/gnucobol` (LGPL-3.0, 72★, hoy).
+**Conclusión medida: no existe LSP COBOL semántico de producción con licencia permisiva.**
+
+**Nuevas en plomería z/OS:** `zopencommunity/meta` (Apache-2.0, 55★, hoy; **399 repos** de ports a
+z/OS: bashport, gitport, makeport, zoslibport, perlport) · `zowe/zowe-cli` (EPL-2.0, 139★) ·
+`openmainframeproject/software-discovery-tool` (Apache-2.0, 42★, hoy) ·
+`openmainframeproject/tersedecompress` (Apache-2.0, 30★ — **sin esto no se abre el transfer del
+cliente**) · `galasa-dev/galasa` (EPL-2.0, 16★).
+
+**Nuevas en SAP:** `abapGit/abapGit` (MIT, 1984★) · `SAP/abap-cleaner` (Apache-2.0, 697★) ·
+`SAP/code-pal-for-abap` (Apache-2.0, 444★) · `marcellourbani/vscode_abap_remote_fs` (MIT, 411★) ·
+`abap2UI5/abap2UI5` (MIT, 392★) · `abaplint/abaplint` (MIT, 323★ — **el parser ABAP fuera de SAP:
+valida la salida del modelo antes de escribirla**) · `SAP/abap-file-formats` (MIT, 114★) ·
+`open-abap/open-abap-core` (MIT, 67★) · `SAP/styleguides` (**CC BY 3.0** por lectura, 2055★ —
+**prosa, no software**).
+
+**Nuevas en IBM i:** `codefori/vscode-ibmi` (MIT, 430★) · `codefori/vscode-db2i` (MIT, 80★) ·
+`codefori/vscode-rpgle` (MIT, 59★) · `Mapepire-IBMi/mapepire-server` (**GPL-3.0**, 50★) frente a
+sus clientes `-js`/`-java`/`-python`/`-jdbc` (**Apache-2.0** los cuatro): **servidor copyleft en la
+caja del cliente, clientes permisivos en el producto.**
+
+**Archivado-pero-recomendado, caso 8:** `openmainframeproject/cobol-check` (Apache-2.0, **107★**,
+**ARCHIVADO 2026-05-28**) — el framework de unit testing de COBOL, justo lo que prueba que una
+migración preserva comportamiento. Sustituto: golden-master contra GnuCOBOL.
+
+**No-open-source con aspecto de open source:** `BroadcomMFD/cobol-control-flow` (16★, badge
+NOASSERTION) → `LICENSE.md` = "Copyright © 2020 Broadcom. All rights reserved." Convive en la misma
+familia de extensiones que el LSP EPL-2.0 de che4z.
+
+**Estrellas que no son una base:** `openmainframeproject/cobol-programming-course` **3673★** y
+**CC-BY-4.0** — es un **curso**. Ordenar esta vertical por estrellas pone material didáctico encima
+de todo el tooling junto.
+
+**Instrumentos (medidos hoy):** `api.github.com/repos` → **403**; `ungh.cc` e `img.shields.io` →
+**respuesta vacía** por este proxy (no reintentar); `raw.githubusercontent.com` → **funciona** con
+GET (`HEAD` bloqueado), probando `main` **y** `master` (che4z y superbol viven en `master`);
+`search/repositories` **excluye forks** → `ls-remote` OK + ausente de `repo:` = **fork**.
+
+## 2026-11-24 — decimoctavo pase — la capa del calendario: 34 direcciones, 29 nuevas, y la licencia de los datos no es la del código
 
 > Tema: **el calendario con el que se cuentan los plazos.** **34 direcciones** verificadas con
 > `gh api -X GET search/repositories` el **2026-11-24** (SPDX, estrellas, `default_branch`,

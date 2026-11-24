@@ -706,6 +706,49 @@ respuestas da **8,6 %** con agentes en producción. La lectura para esta capa: *
 clientes aún no tiene agentes en producción, así que la corrección temporal se puede diseñar antes
 del incidente en lugar de después.**
 
+#### El límite del sistema heredado — decimonoveno pase, 2026-11-24 (North America)
+
+**La demanda ya tiene comprador nombrado, y no es la conversión.** ISG publicó el **14 de
+abril de 2026** ("U.S. Public Sector Applies AI to Mainframe Modernization") y el **17 de abril de
+2026** ("U.S. Enterprises Accelerate Mainframe Modernization") investigación que cubre **56
+proveedores en 4 categorías de servicio**. Lo que reporta que se está comprando:
+
+- IA para **interpretar** sistemas heredados manteniendo continuidad operativa en entornos
+  complejos y regulados.
+- En el sector público, IA para **documentar aplicaciones heredadas y extraer reglas de negocio**,
+  lo que reduce la dependencia de talento escaso y simplifica el onboarding.
+- AIOps con IA generativa para monitoreo predictivo, detección de anomalías y auto-remediación.
+- Marcos de gobernanza **con checkpoints de humano en el bucle**, más programas de contratación y
+  formación para mitigar la escasez de talento.
+
+**El reloj que crea la ventana.** ISG señala el **deadline de diciembre de 2026 para liquidar
+fondos de la era pandemia**, que está empujando a las agencias federales a replantear su estrategia
+de mainframe. Es una fecha, no una tendencia: condiciona qué se puede firmar este trimestre.
+
+**Los jugadores, para saber contra quién se compite.** IBM y otros fabricantes de mainframe
+añadieron oferta de IA; **Unisys se asoció con AWS** para modernización aumentada con IA;
+**Toyota Motor North America** modernizó **más de 40 millones de líneas de COBOL a Java** con AWS
+Transform; **Morgan Stanley** construyó su plataforma in-house; y **Anthropic** posicionó Claude
+Code para modernización de COBOL (con un analista citado notando que le queda camino en confianza
+empresarial). *Todo esto llega por fuentes secundarias de abril de 2026; los releases de ISG son de
+pago y no se leyó el primario.*
+
+**La oportunidad concreta, y encaja con lo que el tooling abierto sí soporta.** Vender el
+**inventario determinístico** de la Receta 36 —descompresión TERSE, AST con cobertura declarada,
+extracción de reglas con `archivo:línea`, cruce con jobs vivos vía Zowe— como entregable de precio
+y fecha fijos, **antes** de cualquier conversión. Es exactamente el trabajo que ISG reporta que el
+sector público ya está comprando, es el único tramo que no depende de que el modelo acierte, y el
+**reporte de parse gaps** es el artefacto que un marco de gobernanza "con humano en el bucle" pide
+y que casi ningún competidor entrega.
+
+**El riesgo de licencia que es específico de esta región, porque es donde está el comprador.** Si
+la propuesta incluye modernización Java/Spring con recetas de OpenRewrite, el motor
+(`openrewrite/rewrite`) es Apache-2.0 pero **`rewrite-spring` y `rewrite-migrate-java` están bajo
+la Moderne Source Available License**, que prohíbe ofrecer un servicio cuyo valor derive del
+software y nombra como ejemplos prohibidos a **Amazon Q Code Transformer** y **Broadcom Application
+Advisor** — es decir, a competidores directos en este mismo mercado. **Revisión de Legales antes de
+incluir esas recetas en un statement of work.**
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1504,6 +1547,52 @@ que la adopción empresarial de **Dinamarca** supera ya la media estadounidense.
 es exactamente el espacio de esta capa:** agentes en marcha sin la infraestructura de corrección que
 los sostiene.
 
+#### El límite del sistema heredado — decimonoveno pase, 2026-11-24 (EMEA)
+
+**El bloqueador declarado, con dos encuestas que no coinciden y por qué eso ayuda.** Una
+investigación **Bandwidth–Cavell** sobre **500 decisores de IT/telecom de EMEA** encuentra que
+**49%** pone la implementación de IA/ML como prioridad top de comunicaciones para 2026, y describe
+el contexto de la región como requisitos regulatorios fragmentados, dinámica multi-carrier y
+**"sistemas heredados profundamente embebidos"**; su frase para el enfoque regional es "con
+intención, no por impulso". Una encuesta de **Code Ninety** sobre **142 líderes técnicos** pone en
+cambio **privacidad/gobernanza/compliance (61,3%)** por delante de **complejidad de integración con
+legado (48,6%)**. **Las dos lecturas juntas son el pitch de EMEA:** en esta región el legado no se
+vende como problema técnico, se vende como **problema de evidencia** — hay que modernizar *y*
+demostrar conformidad al mismo tiempo.
+
+**El reloj regulatorio.** Las obligaciones del **EU AI Act para sistemas de alto riesgo entraron en
+aplicación plena en agosto de 2026**. Un agente que **modifica código de producción** de un sistema
+que opera un proceso regulado cae dentro de la conversación de documentación técnica, y la KB ya
+registró (octavo pase) que el Anexo IV **no tiene formato legible por máquina** — el hueco sigue
+abierto y sigue siendo vendible.
+
+**Un competidor nombró el problema en público.** **Cognizant lanzó una unidad de IA para EMEA el 28
+de julio de 2026** para llevar la IA agéntica de piloto a producción, con el argumento de que los
+agentes **se estancan cuando se topan con sistemas heredados de APIs no documentadas** y que una
+empresa de EMEA no puede replicar un despliegue diseñado en EE. UU. sin adaptarlo a la arquitectura
+de cumplimiento del AI Act. *Cobertura secundaria; sirve como prueba de que el mensaje ya está en
+el mercado, no como validación técnica.*
+
+**Dónde está la ventaja real de EMEA: el estate SAP.** Es la geografía de SAP, y es —medido hoy—
+**la capa heredada mejor cubierta por open source permisivo del mundo**: `abapGit` (MIT, 1984★),
+`abaplint` (MIT, 323★), `SAP/abap-cleaner` (Apache-2.0, 697★), `code-pal-for-abap` (Apache-2.0,
+444★), `SAP/abap-file-formats` (MIT, 114★), `open-abap-core` (MIT, 67★) y **cuatro servidores MCP
+independientes** de 88★ a 215★, todos MIT o Apache-2.0.
+
+**El movimiento del fabricante, que define el encuadre comercial.** SAP liberó su **AI ABAP
+Assistant** basado en Gemini (incluye generación de ABAP Unit tests), embarcó un **primer agente
+para la estrategia de migración de código propio en Q2 2026**, anunció un **agente de
+transformación a clean core para Q3 2026**, y publicó la primera release de **ABAP Development
+Tools para VS Code en Q2 2026** con integración de GitHub Copilot y Amazon Q. *Fuentes: anuncios de
+SAP y comunidad; es roadmap de producto, con el riesgo de fechas que eso implica.*
+
+**La oportunidad concreta.** Vender la **Receta 37 (la puerta `abaplint`)** como el camino auditable
+a clean core: el agente lee por MCP en solo lectura y propone commits; `abaplint` **rechaza fuera
+del sistema SAP** lo que no parsea; `open-abap-core` corre los unit tests sin consumir un sistema de
+QA; y **la única escritura la hace una persona con `abapGit pull`**. El argumento frente al tooling
+del fabricante no es sustituirlo: es que **esta puerta es MIT, corre en el CI del cliente y produce
+el rastro de evidencia** que el AI Act pide para un sistema que toca código de producción.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2228,6 +2317,53 @@ producción y, por tanto, la que antes topará con los *offsets* fraccionarios.*
 > repitió para Japón. **Las consultas pendientes son en japonés, coreano y chino simplificado sobre
 > calendario laboral y días hábiles** (p. ej. `営業日`, `祝日`), no sobre zonas horarias, que es donde
 > el dato primario del tzdb ya es suficiente.
+
+#### El límite del sistema heredado — decimonoveno pase, 2026-11-24 (APAC)
+
+**APAC es la región con la cifra más dura sobre este límite, y conviene citarla tal cual.**
+Investigación basada en **OutSystems** (2026) reporta que **más del 40%** de los líderes
+encuestados cita fragmentación e integración del legado como el bloqueador principal del éxito en
+IA, y que **38% dice que los sistemas heredados son la razón primaria por la que sus proyectos de
+IA agéntica se estancaron por completo**. Es, de todo lo que esta KB ha medido en diecinueve pases,
+la atribución más directa de un fracaso agéntico a la capa heredada.
+
+**El mapa de madurez, que no es uniforme.** La misma investigación pone a **India adelante** en
+despliegues en producción y ROI, con **Japón y Australia en madurez intermedia**. **DWS** (vista
+CIO, septiembre de 2026) pone a **Singapur arriba** y observa que la mejora de los LLM en idiomas
+locales está bajando rápido la barrera en **Japón, Corea y Taiwán**; sobre India advierte que la
+disposición de las empresas líderes **no se traduce en difusión amplia** cuando la capacidad de
+inversión de la economía es limitada. El **Lenovo CIO Playbook 2026** (marzo de 2026) reporta que
+**cerca de la mitad** de las PoC de IA empresarial de Asia-Pacífico nunca llegan a producción.
+
+**Japón es el caso donde la oferta encaja exactamente con la barrera declarada.** En Japón, **44%
+cita insuficiencia de skills internos como barrera — el porcentaje más alto de todos los países
+medidos**, sobre estates heredados profundos. Un entregable que **documenta el estate sin requerir
+expertos COBOL del cliente** (Receta 36) responde literalmente a la barrera que los propios
+encuestados nombran. Complemento barato y concreto: `zopencommunity` (Apache-2.0, 399 repos) pone
+bash, git, make y perl **en la propia caja z/OS**, de modo que el equipo local trabaja con
+herramientas que ya conoce en lugar de aprender el entorno del mainframe.
+
+**El reloj regulatorio de la región, por jurisdicción.**
+
+- **Corea del Sur:** AI Basic Act **en vigor desde el 22 de enero de 2026**.
+- **Vietnam:** ley de IA **en vigor desde el 1 de marzo de 2026**.
+- **Japón:** adopción **voluntaria** de estándares alineados desde **abril de 2026** (FY2026), con
+  **reporte obligatorio por fases desde 2027**; el punto más caliente para software empresarial es
+  la **divulgación de datos de entrenamiento**.
+- **India:** sin ley de IA dedicada; el gobierno **señaló en julio de 2026** que podría impulsar
+  una, probablemente basada en riesgo; mientras tanto el **DPDP Act** ya gobierna el uso de datos
+  personales para entrenar modelos.
+
+*Casi toda esta subsección llega por fuentes secundarias y por encuestas patrocinadas por
+proveedores (OutSystems, Lenovo). Se registra como direccional.*
+
+**La oportunidad concreta.** En Japón y Australia, vender el inventario determinístico como
+**transferencia de conocimiento**: el entregable no es solo el grafo del estate, es el grafo **más**
+el reporte de parse gaps **más** las reglas de negocio con `archivo:línea`, en un formato que el
+equipo del cliente pueda mantener sin un experto COBOL. En India, donde la madurez de producción es
+la más alta de la región, el siguiente tramo vendible es la conversión verificada con golden master
+contra GnuCOBOL — pero **advirtiendo que el framework abierto de unit testing de COBOL está
+archivado** y que construir el arnés de pruebas es parte del alcance, no un supuesto.
 
 ### LATAM
 
@@ -3111,6 +3247,54 @@ la firma uruguaya del Convenio del Consejo de Europa **ya están en esta KB** de
 cliente va a poner agentes sobre procesos con plazos legales **antes** de tener la infraestructura
 que los calcula. **La auditoría de cadena temporal se vende aquí como anexo de la propuesta fiscal, y
 Cuba es la prueba de que el fallo es silencioso.**
+
+#### El límite del sistema heredado — decimonoveno pase, 2026-11-24 (LATAM)
+
+**El patrón de modernización de LATAM ya tiene nombre propio en el mercado, y es el que mejor
+encaja con lo medido en este pase.** Un panorama de tendencias IT de banca para 2026 describe el
+camino dominante como **modernización del core mediante modelos "Sidecar" o "Greenfield"**, junto
+con IA aplicada a fraude, originación y cobranzas. Y **America Digital LATAM 2026** cierra con una
+tesis que es casi una advertencia de arquitectura: la modernización de plataformas legadas exige
+**combinar automatización con conocimiento humano**, usando IA para **reducir** la complejidad y no
+para **trasladarla a otra capa tecnológica**.
+
+**Eso es, palabra por palabra, el orden que esta KB verificó en el código.** Sidecar significa
+dejar el core corriendo y construir al lado; y el único proyecto con tracción de esta capa
+(Project Starforge, MIT, 234★) construye el grafo del estate **determinísticamente, sin llamadas al
+modelo**, y usa el modelo solo para convertir. **La Receta 36 es un entregable Sidecar:** no toca
+el core, produce el mapa, y deja la decisión de conversión para después.
+
+**Adopción, con la calidad de fuente que tiene.** eBankingNews (julio de 2026) ubica la adopción en
+**Brasil 41%, Chile 34%, Argentina 29%, Colombia 24,5%, México 20,1%**. Otro informe afirma que
+**78%** de las empresas de LATAM ya usa IA en al menos una función de negocio pero solo **12% la
+gobierna formalmente**; esa cifra **no cita fuente verificable y no debe usarse en una propuesta**.
+Un análisis de mercado estima el mercado de IA empresarial de LATAM en **USD 12.700 millones para
+2026**, cifra **no verificable** con lo disponible. *Nota de método: una de las fuentes
+consultadas contenía marcadores `[VERIFY]` sin resolver en su propio texto — es exactamente la
+clase de material que no entra en una bibliografía.*
+
+**El cero medido de esta región, con el instrumento declarado.** Buscando repos de origen
+iberoamericano en esta capa con `gh api -X GET search/repositories` el 2026-11-24:
+`cobol modernizacion legado` → **0 resultados**; `cobol analisis banco espanol` → **0 resultados**;
+`mainframe modernizacao cobol` → **3 repos, todos de 0★ y sin licencia declarada**
+(`matheuscapraro-dev/mainframe-migration-ai`, `lucashsmoraes/mainframe-knowledge-graph`,
+`LailaMari-19/Projeto-final-COBOL`). **Es un cero medido, no un silencio**, y es el tercer cero de
+este tipo que la KB registra para LATAM con instrumentos distintos. La lectura comercial es la
+misma de siempre y sigue siendo favorable: **en la región con más core bancario heredado en
+producción no hay base abierta local que compita; hay demanda de servicios y ninguna herramienta
+descargable que la atienda.**
+
+**La oportunidad concreta, en ese orden.**
+
+1. **Mapa del core sin tocar el core** (Receta 36) como fase 1 cerrada: inventario, cobertura de
+   parseo declarada y reglas de negocio con `archivo:línea`. Vendible a un banco mediano sin
+   comprometer una migración.
+2. **El arnés de equivalencia antes de la conversión**: golden masters con GnuCOBOL (LGPL-3.0),
+   explicando que `openmainframeproject/cobol-check` está **archivado desde 2026-05-28** y que
+   construir las pruebas es alcance facturable, no un supuesto.
+3. **Y la pieza que casi nadie cotiza**: `openmainframeproject/tersedecompress` (Apache-2.0) para
+   abrir los transfers TERSE/AMATERSE del cliente. Es el paso que bloquea el día 1 de un proyecto y
+   el que demuestra, en la primera reunión técnica, que se conoce la plataforma de verdad.
 
 ## Posicionamiento Globant
 

@@ -2593,3 +2593,162 @@ caducidad de una tabla de segundos intercalares **está validando algo que ya no
 `dateutil`, `QuantLib`, `rrule`, `vobject`, `python/tzdata`, `svendiedrichsen/jollyday`,
 `HowardHinnant/date`, `pendulum`, `arrow`, `Kozea/Radicale`. Tercera vez que esta KB mide esto, y la
 proporción empeora: **6/46** en el pase diecisiete, **19/34** aquí.
+
+## Decimonoveno pase — 2026-11-24 — la capa del sistema de registro heredado: lo que el agente tiene que **leer** antes de poder escribir nada
+
+Todo lo de abajo se verificó el 2026-11-24: existencia con `git ls-remote --exit-code`,
+estrellas/licencia SPDX/último push/archivado con
+`gh api -X GET search/repositories -f q='repo:owner/name ...'`, y **cada NOASSERTION
+resuelto leyendo el archivo de licencia byte a byte** por `raw.githubusercontent.com`.
+
+### 1. El hallazgo de licencia que invalida una fila que esta KB habría escrito sin mirar
+
+**OpenRewrite no es "Apache-2.0" a secas, y la diferencia recae exactamente sobre el
+modelo de negocio de Globant.**
+
+| Módulo | Licencia (leída byte a byte) | ★ | Push |
+|---|---|---|---|
+| https://github.com/openrewrite/rewrite (motor) | **Apache-2.0** (`LICENSE` = Apache License 2.0) | 4011 | 2026-11-24 |
+| https://github.com/openrewrite/rewrite-spring | **Moderne Source Available License** (`LICENSE.md` → `LICENSE/moderne-source-available-license.md`) | 407 | 2026-11-24 |
+| https://github.com/openrewrite/rewrite-migrate-java | **Moderne Source Available License** (idem) | 168 | 2026-11-24 |
+
+La MSAL concede "use, copy, **distribute internally**, and prepare derivative works", y
+su cláusula *Limitations* dice textualmente que **no** se puede "make the functionality
+of the Software or a Modified version available to third parties as a service", lo que
+incluye "offering a product or service, **the value of which derives to any extent from
+the value of the Software**". Nombra como ejemplos prohibidos a Sourcegraph Batch
+Changes, Amazon Q Code Transformer y Broadcom Application Advisor. Además el Licensor
+"reserves the right to update this Agreement from time to time", y la licencia termina
+automáticamente ante una violación (con 30 días de cura la primera vez).
+
+**Consecuencia operativa, y hay que decirla sin adornos:** el *motor* de OpenRewrite es
+Apache-2.0 y Globant puede construir sobre él; el *catálogo de recetas que lo hace
+valioso* para una modernización Java/Spring está bajo una licencia propietaria
+source-available cuyo texto apunta a prohibir precisamente el uso en un servicio
+facturado a un tercero. **Esto no es un dictamen legal — es la lectura del texto, y
+exige revisión de Legales antes de incluir recetas `rewrite-spring` o
+`rewrite-migrate-java` en una propuesta.** Nota de método: fuentes secundarias de 2026
+afirman que "el motor y las recetas siempre serán open source"; **el archivo en el repo
+dice otra cosa**, y el archivo gana. Cada módulo `rewrite-*` se lee por separado: la
+licencia del motor **no** se hereda.
+
+### 2. Motores de transformación determinística (la capa que sí es componible)
+
+| Repo | Licencia | ★ | Push | Para qué, en esta capa |
+|---|---|---|---|---|
+| https://github.com/openrewrite/rewrite | Apache-2.0 | 4011 | 2026-11-24 | Refactor masivo sobre un árbol con tipos (LST), no sobre texto. Es la referencia de "transformación con prueba" — pero ver el carve-out de arriba antes de usar su catálogo |
+| https://github.com/ast-grep/ast-grep | MIT | 16687 | 2026-11-24 | Búsqueda y rewrite estructural por patrones sobre tree-sitter, CLI en Rust. **La pieza MIT más grande de esta capa**, y la que acepta cualquier gramática tree-sitter — incluidas las de COBOL de la tabla 3 |
+| https://github.com/biomejs/gritql | MIT | 4631 | 2026-11-20 | Lenguaje de consulta para buscar/modificar código. **Movido a la organización `biomejs`**: `getgrit/gritql` todavía resuelve (redirect), así que una propuesta que cite la URL vieja no falla, pero apunta a un hogar que ya no es el canónico |
+| https://github.com/joernio/joern | Apache-2.0 | 3664 | 2026-11-24 | Code Property Graph para C/C++/Java/JS/Python/Kotlin/binario. **Límite medido: no tiene frontend COBOL.** No prometer CPG sobre código de mainframe |
+
+### 3. Parseo y análisis de COBOL — y por qué aquí no hay una opción permisiva completa
+
+| Repo | Licencia | ★ | Push | Nota |
+|---|---|---|---|---|
+| https://github.com/uwol/proleap-cobol-parser | MIT | 211 | 2026-03-01 | Parser ANTLR4 de COBOL. El parser COBOL permisivo más usado — **y lleva ~9 meses sin push**: usable, no vivo |
+| https://github.com/yutaro-sakamoto/tree-sitter-cobol | MIT | 39 | 2026-10-29 | Gramática tree-sitter de COBOL mantenida. Es la que conecta COBOL con `ast-grep` |
+| https://github.com/Spantree/tree-sitter-cobol-enterprise | **MIT** (badge NOASSERTION, leído byte a byte: "MIT License, Copyright (c) 2026 Spantree Technology Group") | 8 | 2026-04-24 | **IBM Enterprise COBOL con parseo completo de `EXEC CICS` / `EXEC SQL` y nodos AST tipados.** Es la única gramática encontrada que cubre el COBOL que de verdad corre en un banco (CICS+DB2 embebidos), y tiene 8★ |
+| https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol | **EPL-2.0** (badge NOASSERTION, leído en `master/LICENSE.md`) | 119 | 2026-11-19 | El servidor de lenguaje COBOL de grado producción (autocompletado, diagnósticos, copybooks). Vivo. **No permisivo** |
+| https://github.com/OCamlPro/superbol-studio-oss | **AGPL-3.0 para `src/lsp`** (badge NOASSERTION; `LICENSE.md` licencia **por directorio**) | 49 | 2026-11-19 | La alternativa viva al LSP de che4z — y la parte que uno embebería es AGPL-3.0. Su repo hermano `OCamlPro/superbol-artefacts` es AGPL-3.0 entero |
+| https://github.com/spgennard/vscode_cobol | MIT | 52 | 2026-11-23 | Extensión VS Code para COBOL, **JCL** y directivas MF. Vivo y MIT — pero es tooling de editor, no análisis semántico |
+| https://github.com/OCamlPro/gnucobol | LGPL-3.0 | 72 | 2026-11-24 | El compilador GnuCOBOL. Imprescindible para **golden-master testing** del código migrado; copyleft débil, se enlaza, no se absorbe |
+
+**La conclusión medida, que conviene decir antes que el cliente la descubra:** no existe
+un servidor de lenguaje COBOL semántico de grado producción con licencia permisiva. Las
+dos opciones vivas son **EPL-2.0** (che4z) y **AGPL-3.0** (superbol/src/lsp). MIT
+aparece a nivel de gramática (`tree-sitter-cobol*`), de parser sin mantenimiento reciente
+(ProLeap) y de extensión de editor (`vscode_cobol`). Una arquitectura permisiva de
+análisis COBOL hay que **armarla** con `tree-sitter-cobol-enterprise` + `ast-grep`, no
+comprarla hecha.
+
+### 4. La plomería de z/OS — la capa sin la que no se puede ni leer el estate
+
+| Repo | Licencia | ★ | Push | Por qué está acá |
+|---|---|---|---|---|
+| https://github.com/zopencommunity/meta | Apache-2.0 | 55 | 2026-11-24 | Gestor de paquetes `zopen` + sitio de la comunidad. La organización tiene **399 repos** de ports Apache-2.0 a z/OS: `bashport` (12★), `gitport` (12★, push 2026-11-23), `makeport` (8★), `zoslibport` (6★), `perlport` (6★). **Es la respuesta a "¿puede mi toolchain correr en la caja?"** y es la capa más barata de todo este pase |
+| https://github.com/zowe/zowe-cli | EPL-2.0 | 139 | 2026-11-24 | CLI sobre las REST de z/OSMF: el canal por el que un agente toca datasets y jobs. Es la dependencia real de `zowe/zowe-mcp` |
+| https://github.com/openmainframeproject/software-discovery-tool | Apache-2.0 | 42 | 2026-11-24 | Descubrimiento de software instalado. Inventario antes de inventar |
+| https://github.com/openmainframeproject/tersedecompress | Apache-2.0 | 30 | 2026-11-15 | Descomprime archivos TERSE/AMATERSE de z/OS y z/VM. **Sin esto no se puede abrir el transfer que el cliente manda.** La pieza menos glamorosa y la primera que se necesita |
+| https://github.com/galasa-dev/galasa | EPL-2.0 | 16 | 2026-11-23 | Framework de test automatizado híbrido cloud+mainframe. 16★ para la única opción abierta de test de integración de mainframe |
+
+### 5. El estate SAP — la capa heredada con la mejor cobertura abierta del mundo
+
+| Repo | Licencia | ★ | Push | Nota |
+|---|---|---|---|---|
+| https://github.com/abapGit/abapGit | MIT | 1984 | 2026-11-24 | Git dentro del sistema SAP. Es lo que convierte un estate ABAP en algo que un agente puede ver como texto versionado |
+| https://github.com/SAP/abap-cleaner | Apache-2.0 | 697 | 2026-11-24 | Limpieza automática de estilo ABAP, de SAP. **Upstream real** — ver la trampa del fork abajo |
+| https://github.com/SAP/code-pal-for-abap | Apache-2.0 | 444 | 2026-09-21 | Los Clean Code Checks ejecutables dentro de SAP (ATC) |
+| https://github.com/marcellourbani/vscode_abap_remote_fs | MIT | 411 | 2026-11-24 | Monta el sistema ABAP como filesystem remoto en VS Code, vía ADT. Es el mismo canal que usan los MCP de `agents/top.md` |
+| https://github.com/abap2UI5/abap2UI5 | MIT | 392 | 2026-11-24 | UI5 generado desde ABAP puro: la forma de darle interfaz a un agente **sin** sacar nada del sistema SAP |
+| https://github.com/abaplint/abaplint | MIT | 323 | 2026-11-24 | Parser + linter de ABAP en TypeScript, **fuera** del sistema SAP. Es el componente clave de este pase: permite validar salida de modelo **antes** de escribirla en el sistema, y es el parser sobre el que se montan varios MCP de ABAP |
+| https://github.com/SAP/abap-file-formats | MIT | 114 | 2026-11-24 | Los formatos de archivo oficiales de los objetos ABAP. Lo que hace determinístico el serializado |
+| https://github.com/open-abap/open-abap-core | MIT | 67 | 2026-11-24 | Runtime ABAP fuera de SAP: permite correr lógica ABAP en CI sin un sistema SAP licenciado |
+| https://github.com/SAP/styleguides | **CC BY 3.0** (badge NOASSERTION, leído en `main/LICENSE`) | 2055 | 2026-10-21 | El Clean ABAP Styleguide. **No es software: es prosa bajo licencia Creative Commons.** Se puede usar como contexto de un prompt; no es una dependencia de código, y 2055★ no lo convierten en una base |
+
+### 6. IBM i / AS-400 — y una partición de licencia que hay que entender antes de desplegar
+
+| Repo | Licencia | ★ | Push | Nota |
+|---|---|---|---|---|
+| https://github.com/codefori/vscode-ibmi | MIT | 430 | 2026-11-24 | El tooling IBM i de facto. La organización `codefori` es MIT en lo que importa: `vscode-db2i` (80★), `vscode-rpgle` (59★), `vscode-ibmi-fs` (19★), `ibm-i-development-pack` (14★) |
+| https://github.com/Mapepire-IBMi/mapepire-server | **GPL-3.0** | 50 | 2026-11-17 | El servidor que da acceso SQL a Db2 for i |
+| https://github.com/Mapepire-IBMi/mapepire-js · `-java` · `-python` · `-jdbc` | **Apache-2.0** (los cuatro) | 22 / 11 / 8 / 6 | 2026-11-18…24 | Los clientes |
+
+**La partición:** el **servidor** es GPL-3.0 y los **clientes** son Apache-2.0. Se
+despliega el servidor GPL en la máquina del cliente (sin distribución, sin obligación de
+liberar nada) y se construye sobre clientes permisivos. Es una de las pocas
+configuraciones donde una pieza copyleft no contamina nada — **pero depende de que
+nadie empaquete el servidor en un producto que se entregue.**
+
+### 7. Trampas verificadas de este pase
+
+1. **`clean-core/abap-cleaner` es un fork, no un hogar nuevo.** Resuelve con
+   `git ls-remote`, tiene un HEAD distinto (`952c680…` vs `d5d9c96…` del upstream) y su
+   README es **idéntico byte a byte** al de `SAP/abap-cleaner`, **incluido el badge REUSE
+   que apunta a `github.com/SAP/abap-cleaner`**. No apareció en la consulta `repo:` de
+   GitHub search porque **ese endpoint excluye forks por defecto**: ese contraste
+   (`ls-remote` OK + ausente de `repo:`) es ahora el instrumento de detección de forks de
+   esta KB. Componer `SAP/abap-cleaner`.
+2. **`openmainframeproject/cobol-check` (107★, Apache-2.0) está ARCHIVADO** desde
+   2026-05-28. Es el framework de **unit testing de COBOL** — exactamente lo que se
+   necesita para probar que una migración preserva el comportamiento. **Octavo caso de
+   proyecto archivado-pero-recomendado** en esta KB, y el patrón sigue siendo el mismo:
+   la documentación adyacente al proyecto lo sigue describiendo como vivo. Sustituto real
+   para equivalencia: compilar con GnuCOBOL (LGPL-3.0) y comparar salidas (golden master),
+   que es lo que hace `fabioalvesalmeida/cobol-modernization-agents`.
+3. **El activo COBOL más estrellado del ecosistema no es software.**
+   `openmainframeproject/cobol-programming-course` tiene **3673★** y licencia
+   **CC-BY-4.0**: es un curso. Un ranking por estrellas en esta vertical pone material
+   didáctico arriba de todo el tooling junto. Nunca ordenar esta capa por estrellas sin
+   mirar la licencia: CC-BY = documento, no base.
+4. **`BroadcomMFD/cobol-control-flow` (16★) no es open source.** Badge NOASSERTION, y su
+   `LICENSE.md` es un "LICENSE AND DISCLAIMER — Copyright © 2020 Broadcom. All rights
+   reserved." Vive en la misma familia de extensiones de VS Code que el LSP EPL-2.0 de
+   che4z, lo que hace muy fácil asumir que comparte licencia. **No la comparte.**
+5. **La familia GnuCOBOL es copyleft y una parte está muerta.** `OpenCobolIDE` (252★,
+   GPL-3.0) **archivado desde 2017**; `Martinfx/Cobol` (108★, GPL-3.0) sin push desde
+   2019; lo vivo es `OCamlPro/gnucobol` (LGPL-3.0, push 2026-11-24).
+6. **Licencia por directorio: la causa de NOASSERTION que nadie espera.**
+   `superbol-studio-oss` no declara una licencia de repo porque tiene licencias
+   **distintas por carpeta**, y la de `src/lsp` es AGPL-3.0. El badge de GitHub no puede
+   expresar eso. Confirma invertida la regla del octavo pase: **NOASSERTION es la
+   ausencia de un veredicto; a veces esconde algo más permisivo (NIST, dominio público) y
+   a veces algo mucho menos permisivo (AGPL, propietario de Broadcom). Resolver siempre
+   por lectura, en los dos sentidos.**
+
+### 8. Instrumentos nuevos y reutilizables por toda la flota (medidos hoy en este proxy)
+
+- **`api.github.com/repos/...` devuelve 403** en esta sesión (confirmado otra vez).
+  **Pero `gh api -X GET search/repositories -f q='repo:o/n repo:o2/n2 …'` funciona** y
+  devuelve en **una sola llamada** `stargazers_count`, `license.spdx_id`, `pushed_at`,
+  `archived` y `fork` para decenas de repos. El decimoctavo pase ya lo usó para
+  `repos/trending.md`; este pase lo extiende a `agents/top.md` y a
+  `repos/foundations.md` y lo combina con la lectura byte a byte de licencias, de modo
+  que reemplaza por completo al probing de HTML de github.com (que sigue dando 403).
+- **`search/repositories` excluye forks por defecto** → `ls-remote` OK + ausencia en
+  `repo:` = **es un fork**.
+- **`ungh.cc` e `img.shields.io` devuelven respuesta VACÍA** por este proxy: no sirven
+  como fuente de estrellas. No volver a intentarlo.
+- **`raw.githubusercontent.com/<repo>/<branch>/<LICENSE|LICENSE.md|LICENSE.txt>` sí
+  funciona** y es la única vía de lectura byte a byte de licencias. `HEAD` está bloqueado
+  (000/403): usar GET. Probar siempre `main` y `master`: che4z y superbol viven en
+  `master`.

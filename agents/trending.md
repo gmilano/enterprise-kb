@@ -8,7 +8,62 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimoctavo pase (latest) — el límite del calendario: el instante lo calcula una cadena de cinco eslabones, y en 2026 uno mintió a propósito
+## 2026-11-24 — decimonoveno pase (latest) — el límite del sistema heredado: la reachability la decide una API vieja, no la edad del sistema
+
+> Tema: **el sistema de registro que el cliente ya tiene corriendo.** Los dieciocho pases
+> anteriores buscaron con vocabulario de cosas nuevas (frameworks, gateways, authz, OSCAL,
+> observabilidad, consumo, idioma, documento fiscal, calendario). Ninguno buscó con el vocabulario
+> de lo que el cliente **ya opera**. Verificado hoy sobre las 524 direcciones que ya tenía esta KB:
+> `cobol`, `jcl`, `abap`, `as400`, `odata`, `idoc`, `zowe`, `abaplint`, `abapgit`, `openrewrite`,
+> `tree-sitter` → **cero archivos**. Un agujero de 524 repos de ancho.
+
+**El hallazgo que ordena el pase, medido no opinado.** La capa de acceso agéntico a un estate
+heredado existe **solo donde el estate ya exponía una API remota antes de que existieran los
+agentes**:
+
+| Estate | API preexistente | Servidores MCP abiertos hallados | Tope de estrellas |
+|---|---|---|---|
+| SAP ABAP (ECC / S/4HANA) | ADT sobre HTTP | **4**, todos MIT/Apache-2.0 | 215★ |
+| IBM i / Db2 for i | Mapepire | **1**, MIT | 30★ |
+| IBM Z / z/OS | Zowe REST (z/OSMF) | **1**, EPL-2.0 | 25★ |
+
+Siete filas nuevas en `agents/top.md`, todas con licencia leída y actividad medida el 2026-11-24:
+
+- **`Azure-Samples/Legacy-Modernization-Agents`** — MIT, **234★**, push 2026-11-22. **Renombrado a
+  "Project Starforge"** (URL del repo sin cambios). COBOL+copybooks+BMS+JCL → Java Quarkus/Spring o
+  C#. Construye el grafo del estate en Neo4j **determinísticamente desde el fuente, sin llamadas al
+  modelo**; el modelo solo convierte. Su AST Explorer trata los *parse gaps* como **riesgo de
+  verificación**.
+- **`mario-andreschak/mcp-abap-abap-adt-api`** — MIT, **215★**, push 2026-09-16.
+- **`fr0ster/mcp-abap-adt`** — Apache-2.0, **111★**, push 2026-11-24 (hoy). BTP + on-premise,
+  **CRUD completo**, JWT/XSUAA.
+- **`marianfoo/abap-mcp-server`** — Apache-2.0, **99★**, push 2026-11-20.
+- **`abap-ai/mcp`** — MIT, **88★**, push 2026-07-19. SDK para escribir el servidor MCP **dentro**
+  de ABAP: la única fila que no exige un proceso fuera del sistema SAP.
+- **`Strom-Capital/mcp-server-db2i`** — MIT, **30★**, push 2026-11-23. **Solo lectura**, login con
+  el usuario IBM i de cada persona, allowlist de bibliotecas, enmascarado de columnas.
+- **`zowe/zowe-mcp`** — **EPL-2.0**, **25★**, push 2026-11-24. El único del lado z/OS.
+
+**Ceros medidos (no silencios).** `cobol modernization AI agent` = **un** proyecto con tracción y
+una cola de POCs de ≤8★; `jcl parser mainframe` = 1★ y 1★; `rpgle language server` = **0**;
+`natural adabas software ag parser` = **0**; `smojol` = **0** con este instrumento;
+`cobol modernizacion legado` = **0**, `cobol analisis banco espanol` = **0**,
+`mainframe modernizacao cobol` = 3 repos **todos de 0★ y sin licencia**.
+
+**Trampa nueva de clase propia: el cluster de forks que gana al upstream en el buscador.** La
+búsqueda web de "COBOL to Java AI agent" devuelve **seis** repos con el mismo README por encima del
+original (`gkaleta/`, `shinya-ambient/`, `aplusdepseudo/`, `vjrithwik/`, `josh202310/`,
+`renehonig/Legacy-Modernization-Agents`). Detector reutilizable: `search/repositories` **excluye
+forks por defecto**, así que resolver con `git ls-remote` y **no** aparecer en una consulta `repo:`
+prueba que es un fork.
+
+**Lo que esto cambia para una propuesta.** La capa determinística de mainframe está madura y es
+Apache-2.0/EPL-2.0; la capa agéntica encima está **vacía salvo un sample de Microsoft de 234★**. El
+primer entregable vendible no es la conversión: es el **inventario y la extracción de reglas de
+negocio** construidos sin modelo, que es exactamente lo que ISG reporta que ya compra el sector
+público de EE. UU. (ver `intel/market.md`).
+
+## 2026-11-24 — decimoctavo pase — el límite del calendario: el instante lo calcula una cadena de cinco eslabones, y en 2026 uno mintió a propósito
 
 > Tema: **cuándo vence algo, en la hora de quién y en los días laborables de quién.** Los diecisiete
 > pases anteriores cubrieron ocho límites —lectura, escritura, procedencia, contención, borrado,

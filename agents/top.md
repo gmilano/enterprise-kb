@@ -980,3 +980,99 @@ versión de tzdata, CLDR o ICU se está ejecutando, y ninguno lo declara.**
 4. **El festivo no es un dato técnico, es un acto legislativo.** `workalendar` (**MIT**, 946★) lleva
    **inactivo desde 2024-04-12** sin estar archivado: una biblioteca de festivos sin mantenimiento no
    es código viejo, es **código incorrecto**.
+
+## El límite del sistema heredado — seven real agent rows, and the asymmetry that decides which estate an agent can reach at all (added nineteenth pass, 2026-11-24)
+
+**Why this layer was invisible for eighteen passes.** This KB holds 524 distinct
+repositories. Before this pass, these probes over all eight files returned **zero
+files**: `cobol`, `jcl`, `abap`, `as400`, `iseries`, `odata`, `idoc`, `openrewrite`,
+`zowe`, `galasa`, `joern`, `ast-grep`, `tree-sitter`, `abaplint`, `abapgit`,
+`mainframe` (1 incidental mention). Every previous pass searched with a vocabulary of
+*new* things — frameworks, gateways, guardrails, authz, OSCAL, observability. None
+searched with the vocabulary of the thing the client actually runs. An enterprise
+engagement does not start at an agent framework; it starts at a system of record that
+predates every repository in this file.
+
+**The finding that organises the rest of this section.** Agent reachability of a legacy
+estate is decided by **whether that estate already exposes a remote API** — not by its
+age, not by its language, not by how much money it moves. Measured on 2026-11-24 with
+`gh api -X GET search/repositories`:
+
+| Legacy estate | Pre-existing remote API | Agent-access repos found | Top star count |
+|---|---|---|---|
+| SAP ABAP (ECC / S/4HANA) | ADT (ABAP Development Tools) over HTTP | 4 independent MCP servers, all MIT/Apache-2.0 | 215★ |
+| IBM i / Db2 for i | Mapepire (socket server) | 1 MCP server, MIT | 30★ |
+| IBM Z / z/OS | Zowe REST (z/OSMF) | 1 MCP server, EPL-2.0 | 25★ |
+
+SAP's estate is the *oldest* and the *most closed* commercially, and it has the richest
+open agent layer, because ADT gave it an HTTP surface years before anyone wanted an
+agent. z/OS has the deepest estate and the thinnest agent layer. **Do not price a
+mainframe engagement and a SAP engagement off the same assumption about open tooling.**
+
+### The rows — all verified 2026-11-24
+
+Existence by `git ls-remote`, stars/licence/activity by `gh api search/repositories`,
+every NOASSERTION resolved by byte-reading the licence file.
+
+| Agente | Repo | Licencia | ★ | Último push | Qué hace, y el detalle que decide si sirve |
+|---|---|---|---|---|---|
+| Project Starforge (ex Legacy-Modernization-Agents) | https://github.com/Azure-Samples/Legacy-Modernization-Agents | MIT | 234 | 2026-11-22 | COBOL + copybooks + BMS + JCL → Java Quarkus/Spring **o** C# .NET, sobre Microsoft Agent Framework. **El detalle arquitectónico que importa más que el agente:** construye el grafo del estate (programas, transacciones CICS, tablas DB2) **determinísticamente desde el fuente, sin llamadas al modelo**, en Neo4j; el modelo solo interviene en la conversión. Su AST Explorer expone los *parse gaps*, y su propio README los califica de **riesgo de verificación**, no de prueba de que el modelo no vio la línea |
+| mcp-abap-abap-adt-api | https://github.com/mario-andreschak/mcp-abap-abap-adt-api | MIT | 215 | 2026-09-16 | Servidor MCP que envuelve `abap-adt-api`: da al agente el estate ABAP del cliente por el mismo canal que usa Eclipse ADT. El repo más estrellado de toda esta capa — y lleva ~2 meses sin push |
+| mcp-abap-adt | https://github.com/fr0ster/mcp-abap-adt | Apache-2.0 | 111 | 2026-11-24 | ABAP Cloud (BTP) **y** on-premise ECC/S/4HANA, **CRUD completo**, auth JWT/XSUAA y service-key. Activo hoy. **CRUD completo significa que esta fila cruza el límite de escritura del octavo pase: no la despliegues sin la puerta que allí se describe** |
+| abap-mcp-server | https://github.com/marianfoo/abap-mcp-server | Apache-2.0 | 99 | 2026-11-20 | Servidor MCP para ABAP, mantenido activamente; sin descripción en el repo, leer el README antes de comprometerlo |
+| ABAP MCP Server SDK | https://github.com/abap-ai/mcp | MIT | 88 | 2026-07-19 | No es un servidor: es el **SDK para escribir el servidor MCP dentro de ABAP**. Es la única fila de esta tabla que no requiere un proceso fuera del sistema SAP — relevante donde el cliente no autoriza un sidecar |
+| mcp-server-db2i | https://github.com/Strom-Capital/mcp-server-db2i | MIT | 30 | 2026-11-23 | Db2 for i (IBM i, AS/400) **solo lectura**, cada persona entra **con su propio usuario IBM i**, con allowlist de bibliotecas y enmascarado de columnas. Es la realización más limpia que esta KB ha encontrado del límite de titularidad del séptimo pase: la autorización la resuelve el sistema heredado, no el agente |
+| Zowe MCP Server | https://github.com/zowe/zowe-mcp | EPL-2.0 | 25 | 2026-11-24 | El **único** servidor MCP del lado z/OS encontrado en esta búsqueda. Activo hoy, y **EPL-2.0, no MIT ni Apache** — reciprocidad a nivel de archivo, ver la nota de licencias abajo |
+
+Seven rows, all real, all with a verified licence and a measured activity date. Nothing
+was padded to reach a round number.
+
+### Lo que se midió y salió cero o casi cero
+
+An informed gap is information; silence looks like coverage.
+
+- **Agentes de migración COBOL:** la consulta `cobol modernization AI agent` ordenada por
+  estrellas devuelve **un** proyecto con tracción (Starforge, 234★) y luego una cola de
+  POCs de 8★ para abajo (`ltoscano/legacybridge-oss-cobol` 8★ y sin licencia declarada,
+  último push 2025-08-08; y una decena de repos de hackathon de 0–1★). **No existe una
+  segunda base agéntica de migración COBOL que se pueda componer.** La capa
+  determinística (parsers, OpenRewrite, Zowe) está madura; la capa agéntica sobre ella
+  está vacía salvo un sample de Microsoft.
+- **JCL:** `jcl parser mainframe` → `natan-sysview/tree-sitter-jcl` (1★, MIT) y
+  `msradam/fromjcl` (1★, Apache-2.0). Fuera del soporte de editor (che4z, vscode_cobol)
+  **no hay cadena de herramientas JCL utilizable**. El JCL es donde vive el orden de
+  ejecución del batch; es el agujero más caro de esta lista.
+- **RPGLE:** `rpgle language server` → **0 resultados**. La respuesta en IBM i no es un
+  LSP independiente sino `codefori/vscode-rpgle` (59★, MIT).
+- **Natural / Adabas (Software AG):** `natural adabas software ag parser` → **0
+  resultados**. Un estate Natural/Adabas no tiene capa abierta: es trabajo a medida.
+- **`smojol`** (herramienta de análisis COBOL citada en documentación de IBM): **0
+  resultados** en GitHub search con ese nombre. No se afirma que no exista; se afirma que
+  **no se encontró con este instrumento**, y por tanto no entra en la tabla.
+- **Repos de origen iberoamericano en esta capa:** `cobol modernizacion legado` → 0;
+  `cobol analisis banco espanol` → 0; `mainframe modernizacao cobol` → 3 repos, **todos
+  de 0★ y sin licencia declarada**. Es el mismo cero medido que el sexto pase registró en
+  la capa de agentes, confirmado con un instrumento distinto y en el dominio donde LATAM
+  tiene más estate heredado en producción (banca).
+
+### Trampas de esta capa (todas verificadas, no inferidas)
+
+1. **El cluster de forks que vence al upstream en el buscador.** Buscar en la web
+   "COBOL to Java AI agent" devuelve **seis** repos con el mismo README por encima del
+   original: `gkaleta/`, `shinya-ambient/`, `aplusdepseudo/`, `vjrithwik/`,
+   `josh202310/`, `renehonig/Legacy-Modernization-Agents`. El upstream es
+   `Azure-Samples/`. **Regla:** antes de componer cualquier repo encontrado por búsqueda
+   web, correrlo por `gh api search/repositories -f q='repo:owner/name'` — ese endpoint
+   **excluye forks por defecto**, así que un repo que resuelve con `git ls-remote` pero
+   no aparece en la consulta `repo:` **es un fork**. Así se detectó el caso
+   `clean-core/abap-cleaner` (ver `repos/foundations.md`).
+2. **EPL-2.0 es la licencia de la capa abierta del mainframe, y no es permisiva.**
+   `zowe/zowe-mcp`, `zowe/zowe-cli`, `galasa-dev/galasa` y el LSP COBOL de che4z son
+   todos EPL-2.0: reciprocidad a nivel de **archivo** y cláusula de licencia secundaria
+   compatible con GPL-2.0. Se puede construir alrededor; no se puede tratar como MIT en
+   una propuesta. **El criterio "MIT / Apache / BSD" de esta KB no se puede cumplir en
+   z/OS: hay que declarar EPL-2.0 explícitamente al cliente.**
+3. **Un servidor MCP con CRUD completo es un agente de escritura disfrazado de
+   integración.** `fr0ster/mcp-abap-adt` expone CRUD sobre objetos ABAP. El octavo pase
+   ya estableció por qué los `ToolAnnotations` de MCP no sirven como control (son hints,
+   y los defaults son destructive/non-idempotent). Aplica aquí sin descuento.

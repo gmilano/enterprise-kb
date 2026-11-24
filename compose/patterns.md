@@ -2938,3 +2938,131 @@ antes de que el agente intente emitir.
   archivado**: compila, pasa los tests y responde con los festivos de hace dos años.
 - **Asumir que el DST son ±60 minutos.** `Australia/Lord_Howe` salta **30 minutos**, verificado en el
   dato primario (`Rule LH 2008 max - Oct Sun>=1 2:00 0:30`).
+
+## Receta 36 — El inventario determinístico de un estate z/OS: documentar y extraer reglas de negocio **sin** una sola llamada al modelo (added nineteenth pass, 2026-11-24)
+
+**Para qué se vende.** Es el primer entregable que ISG reporta que el sector público de
+EE. UU. ya está comprando en 2026 (documentar aplicaciones heredadas y extraer reglas de
+negocio), y el único de toda la cadena de modernización que **no depende de que el modelo
+acierte**. Se puede fijar precio y fecha porque es determinístico.
+
+**Por qué este orden y no el inverso.** El sample con más tracción de la capa
+(`Azure-Samples/Legacy-Modernization-Agents`, "Project Starforge", MIT, 234★) construye
+el grafo del estate desde el fuente **sin llamadas al modelo** y solo después convierte;
+su README califica un *parse gap* de **riesgo de verificación**. Esta receta se queda en
+la mitad determinística y la entrega como producto.
+
+**Las piezas, todas verificadas el 2026-11-24:**
+
+| Paso | Componente | Licencia |
+|---|---|---|
+| 0. Abrir lo que manda el cliente | https://github.com/openmainframeproject/tersedecompress | Apache-2.0 |
+| 1. Poder trabajar en la caja (si hace falta) | https://github.com/zopencommunity/meta (bash/git/make/perl ports) | Apache-2.0 |
+| 2. Parsear el COBOL real (CICS+SQL embebidos) | https://github.com/Spantree/tree-sitter-cobol-enterprise | MIT (leída) |
+| 2b. Respaldo de parseo | https://github.com/yutaro-sakamoto/tree-sitter-cobol · https://github.com/uwol/proleap-cobol-parser | MIT · MIT |
+| 3. Consultar el AST por patrones | https://github.com/ast-grep/ast-grep | MIT |
+| 4. Diagnóstico/navegación para los humanos | https://github.com/eclipse-che4z/che-che4z-lsp-for-cobol | **EPL-2.0** |
+| 5. Hechos del sistema vivo (jobs, datasets) | https://github.com/zowe/zowe-cli | **EPL-2.0** |
+| 6. Inventario de software instalado | https://github.com/openmainframeproject/software-discovery-tool | Apache-2.0 |
+| 7. Equivalencia de comportamiento | https://github.com/OCamlPro/gnucobol (golden master) | LGPL-3.0 |
+
+**El cableado, en el orden en que se ejecuta:**
+
+1. **Descomprimir sin perder nada.** El transfer llega en TERSE/AMATERSE:
+   `java -jar tersedecompress.jar ESTATE.TRS estate/` antes que cualquier otra cosa. Si
+   este paso falla, todo lo demás es teatro.
+2. **Parsear todo y publicar la cobertura, no solo el resultado.** Generar el AST de cada
+   programa con la gramática Enterprise (la única con `EXEC CICS`/`EXEC SQL` tipados) y
+   emitir **dos** artefactos: el grafo y un **reporte de parse gaps** (programas, líneas y
+   construcciones que no entraron en el AST). **Regla que no se negocia: el reporte de
+   gaps se entrega al cliente en el mismo paquete que el inventario.** Un inventario sin
+   su cobertura declarada se lee como completo, y es la forma más barata de perder la
+   confianza en la fase 2.
+3. **Extraer las reglas por patrón, no por prompt.** `ast-grep` sobre el AST para sacar
+   los nodos que son reglas de negocio de verdad: `IF`/`EVALUATE` sobre campos de
+   importe, `COMPUTE` con literales, llamadas `EXEC SQL` con su tabla, `EXEC CICS` con su
+   transacción. Cada regla sale con **archivo:línea** — la trazabilidad es el entregable,
+   no un adorno.
+4. **Cerrar el grafo con el orden de ejecución.** El AST da la estructura intra-programa;
+   el **JCL** da el orden del batch, y ahí el tooling abierto es casi inexistente
+   (`tree-sitter-jcl` 1★, `fromjcl` 1★; soporte de editor en `spgennard/vscode_cobol`,
+   MIT). **Cotizar el parseo de JCL como desarrollo propio, no como uso de herramienta.**
+5. **Cruzar con el sistema vivo.** `zowe-cli` para listar jobs, datasets y su uso real:
+   separa lo que está en el fuente de lo que **se ejecuta**. El código muerto encontrado
+   acá es ahorro directo en la fase de conversión, y es el argumento de ROI más fácil de
+   defender.
+6. **Dejar la prueba de equivalencia instalada antes de convertir nada.** Compilar los
+   programas con GnuCOBOL y capturar golden masters por programa. **No usar
+   `openmainframeproject/cobol-check`: está ARCHIVADO desde 2026-05-28** aunque la
+   documentación adyacente lo siga presentando como vivo.
+
+**Dónde entra un agente, y es un rol chico a propósito.** Solo en el paso 3b: redactar la
+**descripción en prosa** de una regla ya extraída determinísticamente, con su
+`archivo:línea` adjunto. El agente no descubre la regla: la **narra**. Así la salida del
+modelo es verificable contra una referencia que no vino del modelo.
+
+**Lo que esta receta no hace, y hay que decirlo en la propuesta:** no convierte. Y
+`joernio/joern` (Apache-2.0, 3664★) **no tiene frontend COBOL**, así que no se puede
+prometer Code Property Graph sobre mainframe aunque la KB tenga Joern en foundations.
+
+---
+
+## Receta 37 — La puerta `abaplint`: que un agente escriba ABAP sin escribir nunca en el sistema SAP (added nineteenth pass, 2026-11-24)
+
+**El problema real.** De las cuatro filas MCP de ABAP de `agents/top.md`, una expone
+**CRUD completo** sobre objetos ABAP (`fr0ster/mcp-abap-adt`, Apache-2.0, 111★, activo
+hoy). El octavo pase ya estableció que los `ToolAnnotations` de MCP **no** sirven como
+control: son hints y los defaults son destructivos y no idempotentes. Entonces la
+pregunta no es si el agente *puede* escribir en el sistema SAP: es **cómo se construye un
+camino donde no necesite poder**.
+
+**Las piezas, verificadas el 2026-11-24:**
+
+| Paso | Componente | Licencia | ★ |
+|---|---|---|---|
+| Sacar el estate a texto versionado | https://github.com/abapGit/abapGit | MIT | 1984 |
+| Formato determinístico de los objetos | https://github.com/SAP/abap-file-formats | MIT | 114 |
+| Leer el estate (solo lectura) | https://github.com/mario-andreschak/mcp-abap-abap-adt-api · https://github.com/marianfoo/abap-mcp-server | MIT · Apache-2.0 | 215 · 99 |
+| **La puerta**: parsear y lintear fuera de SAP | https://github.com/abaplint/abaplint | MIT | 323 |
+| Normalizar estilo antes de revisar | https://github.com/SAP/abap-cleaner | Apache-2.0 | 697 |
+| Checks de clean code dentro de SAP (ATC) | https://github.com/SAP/code-pal-for-abap | Apache-2.0 | 444 |
+| Correr unit tests **sin** sistema SAP | https://github.com/open-abap/open-abap-core | MIT | 67 |
+| UI del agente sin sacar datos de SAP | https://github.com/abap2UI5/abap2UI5 | MIT | 392 |
+| Las reglas de estilo como contexto | https://github.com/SAP/styleguides | **CC BY 3.0** (prosa) | 2055 |
+
+**El cableado:**
+
+1. **`abapGit` exporta** el paquete objetivo a un repo Git. Desde este punto el estate es
+   texto, y todo lo que sigue ocurre **fuera** del sistema SAP.
+2. **El agente lee por MCP en solo lectura** (los servidores MIT/Apache de arriba,
+   configurados sin CRUD) y propone un cambio **como commit en una rama**. El agente no
+   tiene credenciales de escritura ADT. Nunca.
+3. **La puerta.** CI corre `abaplint` sobre la rama: si el parser rechaza la sintaxis, el
+   cambio muere ahí y **el sistema SAP nunca lo vio**. Esto es lo que la comunidad SAP
+   describe como "un filtro entre la salida de la IA y el código SAP real", y es MIT.
+4. **Normalizar y verificar.** `abap-cleaner` (Apache-2.0) para que el diff que revisa un
+   humano sea el cambio semántico y no un cambio de formato; `open-abap-core` para correr
+   los unit tests **sin** consumir una licencia SAP ni un sistema de QA.
+5. **El humano aprueba y hace el pull.** El único actor con permiso de escritura en SAP es
+   la persona que hace `abapGit pull` en el sistema. **El cruce de los dos límites de esta
+   KB —titularidad (pase 7) y escritura (pase 8)— se resuelve estructuralmente: el agente
+   no tiene el permiso, en vez de tenerlo y prometer no usarlo.**
+6. **Dentro de SAP, los checks del fabricante.** `code-pal-for-abap` corriendo en ATC
+   cierra el ciclo con las reglas que el cliente ya tiene configuradas.
+
+**Dos cosas que hay que saber antes de prometer esto:**
+
+- **`SAP/styleguides` (2055★) es prosa bajo CC BY 3.0**, no software. Sirve como contexto
+  de prompt y como criterio de revisión; **no es una dependencia** y no se "integra".
+- **Contexto de producto, no de open source:** SAP embarcó su primer agente de estrategia
+  de migración de código propio en **Q2 2026** y anunció un agente de transformación a
+  clean core para **Q3 2026**, además de ABAP Development Tools para VS Code (Q2 2026) y
+  de haber liberado su AI ABAP Assistant basado en Gemini. Para EMEA eso significa que
+  esta receta **compite y convive** con tooling del fabricante: el argumento no es "lo
+  hacemos en vez de SAP", es "la puerta `abaplint` es auditable, es MIT y corre en el CI
+  del cliente" — y esa es exactamente la forma de la evidencia que pide el AI Act para un
+  sistema que modifica código de producción.
+
+**Trampa de composición ya verificada:** no componer `clean-core/abap-cleaner`. Es un
+**fork** (README idéntico byte a byte, incluido el badge REUSE que apunta al upstream de
+SAP). El upstream es `SAP/abap-cleaner`.

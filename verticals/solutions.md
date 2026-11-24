@@ -1074,3 +1074,61 @@ donde el ERP no tenga lista cargada** — declarándolo como tal, no como respal
    de regla; un `America/Santiago` sí.
 4. **Si el cliente opera en Canadá o Cuba**, el riesgo es **presente, no teórico**: los cambios de
    2026 entraron en vigor entre marzo y el **1 de noviembre de 2026**, hace tres semanas.
+
+## La plataforma que el cliente ya tiene y que ningún pase anterior nombró: el sistema de registro heredado (added nineteenth pass, 2026-11-24)
+
+Este archivo lleva dieciocho pases listando plataformas que un cliente **podría**
+adoptar: ERP abiertos, CRMs, BPM, ITSM, portales, catálogos. Ninguno nombró la
+plataforma sobre la que de verdad corre el negocio de un cliente enterprise y que **no
+se va a reemplazar en el plazo de un engagement**: z/OS, IBM i y SAP ECC/S/4HANA. La
+pregunta vendible no es "¿qué plataforma abierta ponemos?", es **"¿qué puede alcanzar un
+agente de la plataforma que ya está ahí, y con qué licencia?"**
+
+### Las tres plataformas heredadas, y la capa abierta que cada una tiene encima
+
+| Plataforma del cliente | Canal de acceso que ya existe | Capa abierta utilizable (verificada 2026-11-24) | Licencia de esa capa |
+|---|---|---|---|
+| **SAP ECC / S/4HANA (ABAP)** | ADT sobre HTTP (el mismo que usa Eclipse) | `abapGit` (1984★) + `abaplint` (323★) + `SAP/abap-cleaner` (697★) + `code-pal-for-abap` (444★) + 4 servidores MCP (88–215★) | **MIT y Apache-2.0** — la capa heredada mejor cubierta del mundo |
+| **IBM i / AS-400 (RPG, Db2 for i)** | Mapepire (socket SQL) | `codefori/vscode-ibmi` (430★, MIT) + clientes Mapepire (Apache-2.0) + `mcp-server-db2i` (30★, MIT) | **MIT / Apache-2.0**, con el **servidor** Mapepire en GPL-3.0 |
+| **IBM Z / z/OS (COBOL, CICS, DB2, JCL)** | Zowe REST sobre z/OSMF | `zowe-cli` (139★) + `zowe-mcp` (25★) + `galasa` (16★) + che4z COBOL LSP (119★) + `zopen` (399 repos) | **EPL-2.0** en casi todo; **Apache-2.0** en `zopen` y en las utilidades de Open Mainframe Project |
+
+**La consecuencia de precio.** Un engagement SAP arranca con herramientas permisivas y
+maduras. Un engagement z/OS arranca con herramientas **EPL-2.0** y con una capa agéntica
+que prácticamente no existe (un sample de 234★ y un servidor MCP de 25★). **No se cotizan
+igual, y el criterio "MIT/Apache/BSD" de esta KB no se puede cumplir en z/OS: hay que
+declarar EPL-2.0 al cliente desde la primera reunión.**
+
+### El ERP abierto no es el reemplazo del ERP heredado — es el destino greenfield
+
+Para el patrón "Sidecar o Greenfield" que `intel/market.md` registra como el camino
+dominante de modernización de core bancario en LATAM, la plataforma destino abierta y
+permisiva verificada sigue siendo:
+
+- **Apache OFBiz** — https://github.com/apache/ofbiz (Apache-2.0, verificado por
+  `git ls-remote` el 2026-11-24): suite de ERP/CRM/e-commerce/SCM/MRP en Java. Es la
+  única suite ERP de peso con licencia **Apache-2.0** — la mayoría del resto del espacio
+  (ERPNext, Dolibarr) es GPL, y eso cambia qué se puede entregar como producto.
+
+**Advertencia de mercado, no de licencia:** en una modernización real, el ERP abierto
+casi nunca es el destino de un COBOL bancario. El destino es un servicio Java/Spring o
+.NET a medida, y OFBiz entra cuando lo que se reemplaza es un ERP departamental, no el
+core. No vender OFBiz como "el destino del mainframe".
+
+### Lo que hay que preguntar antes de prometer cualquier cosa de esta sección
+
+1. **¿El estate expone ya una API remota?** (ADT activo en SAP; z/OSMF habilitado en Z;
+   Mapepire instalado en IBM i). Si la respuesta es no, el primer entregable es
+   **habilitar ese canal**, no un agente — y eso lo aprueba el equipo de seguridad del
+   cliente, no el de desarrollo.
+2. **¿Puede correr el toolchain en la caja?** En z/OS esa pregunta tiene respuesta
+   abierta y barata: `zopencommunity` (Apache-2.0) tiene ports de bash, git, make, perl y
+   la zoslib. Es la primera cosa que vuelve ejecutable cualquier plan posterior.
+3. **¿Cómo llega el código fuente a nosotros?** Si viene de z/OS, probablemente venga
+   comprimido con TERSE/AMATERSE y hace falta
+   `openmainframeproject/tersedecompress` (Apache-2.0) para abrirlo. Suena trivial;
+   bloquea el día 1.
+4. **¿Hay un sistema de pruebas que pruebe equivalencia?** El framework abierto de unit
+   testing de COBOL (`openmainframeproject/cobol-check`) está **archivado desde
+   2026-05-28**. La alternativa real es golden-master contra GnuCOBOL (LGPL-3.0). Si el
+   cliente espera "los tests existentes", hay que saber que en COBOL muchas veces **no
+   existen**, y que construirlos es parte del alcance.

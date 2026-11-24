@@ -2430,3 +2430,111 @@ a la release **2026c** el fin del horario de verano en **Samoa** y un cambio de 
 contra el archivo primario, ambos son de **2021b (2021-09-24)**: **cinco años de error de
 atribución**. Paraguay (-03 permanente) es de **2025a**, Irán (sin DST desde 2022) de **2022b**. **Un
 resumen de búsqueda acierta el hecho y falla la versión, y en esta capa la versión *es* el hecho.**
+
+## Decimonoveno pase — 2026-11-24 — el límite del sistema heredado: 2026 es el año en que la modernización dejó de ser un programa y pasó a ser un producto
+
+Los dieciocho pases anteriores midieron límites alrededor del agente: lectura,
+escritura, procedencia, contención, borrado, accesibilidad, pesos, consumo, idioma,
+documento fiscal, calendario. Este pase mide el límite que está **debajo** de todos:
+el sistema que ya corre y que no se va a apagar.
+
+### Tendencia 21 — El bloqueador declarado de 2026 no es el modelo ni la regulación: es el estate heredado, y por primera vez hay números por región
+
+| Fuente (tipo) | Medida | Región |
+|---|---|---|
+| ISG, dos releases del 14 y 17 de abril de 2026 (investigación de analista, 56 proveedores en 4 categorías) | Las empresas usan IA para **interpretar** sistemas heredados manteniendo continuidad operativa; el sector público la usa para **documentar aplicaciones y extraer reglas de negocio** | North America |
+| ISG (mismo) | Deadline de **diciembre de 2026** para liquidar fondos de la era pandemia empuja a las agencias a replantear su estrategia de mainframe | North America |
+| Bandwidth–Cavell, 500 decisores de IT/telecom (encuesta de proveedor) | **49%** pone IA/ML como prioridad top de comunicaciones para 2026; describe estates con "sistemas heredados profundamente embebidos" | EMEA |
+| Code Ninety, 142 líderes técnicos (encuesta) | Privacidad/gobernanza **61,3%** > complejidad de integración con legado **48,6%** como bloqueador | EMEA |
+| Investigación basada en OutSystems (proveedor) | **>40%** cita fragmentación/integración de legado como bloqueador principal; **38%** dice que el legado es **la razón primaria por la que los proyectos agénticos se estancaron por completo** | APAC |
+| Idem | Japón: **44%** cita insuficiencia de skills internos — **el más alto de todos los países medidos** | APAC |
+| Lenovo CIO Playbook 2026, marzo de 2026 (proveedor) | **~la mitad** de las PoC de IA empresarial en APAC nunca llegan a producción | APAC |
+
+**Lo que cambia respecto de la tendencia 3 de esta KB ("del piloto a producción").** Hasta
+este pase, la causa del estancamiento estaba sin nombre. Ahora hay una cifra que la
+nombra: **38% de los proyectos agénticos estancados en APAC se estancaron en el legado**,
+no en el modelo, no en el costo, no en la regulación. Esa es la frase con la que se abre
+una conversación de modernización en 2026.
+
+*Calidad de la evidencia: cinco de las seis filas son encuestas de proveedor o
+investigación de analista de pago, y las cifras llegan por fuentes secundarias. Se
+registran como direccionales y así hay que citarlas.*
+
+### Tendencia 22 — La modernización asistida por IA ya tiene casos nombrados y con volumen, y el patrón es "documentar primero, convertir después"
+
+- **Toyota Motor North America** modernizó **más de 40 millones de líneas de COBOL a
+  Java** con AWS Transform (reportado abril de 2026, fuente secundaria).
+- **Unisys** se asoció con **AWS** para servicios de modernización de aplicaciones
+  aumentada con IA.
+- **Morgan Stanley** construyó su plataforma de modernización **in-house**.
+- **Anthropic** posicionó Claude Code para modernización de COBOL; un analista citado
+  notó que le queda camino en confianza empresarial.
+- **Duolingo** (caso técnico, no mainframe) usó **OpenRewrite para los pasos mecánicos** y
+  el modelo para el resto, con un bucle de "compilar → el modelo arregla el error", y
+  reportó semanas de ahorro. **Adyen** reportó cientos de horas ahorradas en una
+  migración de Jackson con recetas propias.
+
+**El patrón técnico común, y coincide con lo que el código muestra.** El sample MIT más
+tracción de esta capa (`Azure-Samples/Legacy-Modernization-Agents`, ahora **Project
+Starforge**) construye el grafo del estate **determinísticamente, sin llamadas al
+modelo**, y usa el modelo solo para convertir. Su propio README trata un **parse gap**
+como *riesgo de verificación*. Y el caso Duolingo pone lo determinístico primero y el
+modelo después. **La tendencia no es "el modelo migra el sistema": es "lo determinístico
+migra lo que puede probar, y el modelo cubre el resto bajo verificación".** Un pitch que
+invierta ese orden está contra la evidencia de 2026.
+
+*Contrapeso medido, de la misma investigación:* una migración Java 8→25 documentada
+encontró que OpenRewrite transforma el código pero **no puede determinar con seguridad la
+intención de negocio detrás de cada sentencia SQL**, y una tesis sobre migración de
+frameworks le encontró fiabilidad inconsistente sobre **código propietario**, requiriendo
+guía iterativa del desarrollador. Thoughtworks lo dice en una línea: **si la receta no
+existe, OpenRewrite no es gratis.**
+
+### Tendencia 23 — La licencia se movió a donde está el valor, y hay que leerla ahí
+
+El hallazgo de licencia de este pase no es sobre un proyecto marginal: es sobre el
+motor de refactorización más citado de 2026. **`openrewrite/rewrite` es Apache-2.0, y
+`rewrite-spring` (407★) y `rewrite-migrate-java` (168★) están bajo la Moderne Source
+Available License**, que prohíbe explícitamente ofrecer "a product or service, the value
+of which derives to any extent from the value of the Software", nombrando como prohibidos
+a Sourcegraph Batch Changes, Amazon Q Code Transformer y Broadcom Application Advisor.
+
+Esto es un patrón, no un caso: **el open core de 2026 deja abierto el motor y cierra el
+catálogo.** La KB ya tenía el mismo patrón medido en otra capa — en el séptimo pase,
+`onyx-dot-app/onyx` dejaba el **permission sync** solo dentro del directorio `ee/` con
+licencia enterprise. Motor abierto, pieza que lo hace vendible cerrada. **Regla para la
+flota: en un proyecto open core, leer la licencia del módulo que resuelve el problema del
+cliente, no la del repositorio raíz.** Y cuando la prensa y el archivo se contradicen,
+gana el archivo.
+
+### Tendencia 24 — La reachability agéntica de un estate la decide su historia de APIs, no su antigüedad
+
+Medición propia de este pase (2026-11-24, `gh api search/repositories`): SAP ABAP tiene
+**4** servidores MCP abiertos independientes (88★–215★, todos MIT/Apache-2.0); IBM i tiene
+**1** (30★, MIT); z/OS tiene **1** (25★, EPL-2.0). SAP es el estate comercialmente más
+cerrado de los tres y tiene la capa agéntica abierta más rica, porque **ADT le dio una
+superficie HTTP años antes de que alguien quisiera un agente**.
+
+**Predicción falsable, para revisar en el próximo pase de enterprise:** la capa agéntica
+de z/OS crecerá por `zowe/zowe-mcp` (EPL-2.0) y no por un proyecto nuevo, porque la
+superficie REST de z/OSMF es la única que existe y Zowe ya la envuelve. Si en el próximo
+pase aparece un servidor MCP de z/OS con más estrellas que `zowe-mcp` y **sin** depender
+de Zowe, esta predicción falla y hay que revisar la tendencia 24 completa.
+
+### Tendencia 25 — El techo de la vertical no es el modelo: es que el tooling abierto de COBOL es chico, viejo o copyleft
+
+Tres mediciones de hoy, juntas:
+
+1. **No hay LSP COBOL semántico de producción con licencia permisiva.** Las dos opciones
+   vivas son EPL-2.0 (che4z, 119★) y AGPL-3.0 (superbol `src/lsp`, 49★).
+2. **La única gramática que parsea el COBOL que realmente corre en un banco** (IBM
+   Enterprise COBOL con `EXEC CICS` y `EXEC SQL`) tiene **8 estrellas**
+   (`Spantree/tree-sitter-cobol-enterprise`, MIT por lectura byte a byte).
+3. **El framework abierto de unit testing de COBOL está archivado** desde 2026-05-28
+   (`openmainframeproject/cobol-check`, 107★, Apache-2.0).
+
+Y el activo COBOL más estrellado del ecosistema —**3673★**— es un **curso** bajo
+CC-BY-4.0. **Interpretación: la vertical tiene demanda de servicios enorme y una base de
+software abierta diminuta.** Para una empresa de servicios eso no es una barrera, es el
+margen: lo que no se puede descargar, se construye y se cobra. Pero obliga a cotizar
+**construcción de herramientas** dentro del engagement, no solo uso de herramientas.
