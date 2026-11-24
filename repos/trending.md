@@ -8,7 +8,70 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — twelfth pass (latest) — the weights boundary
+## 2026-11-24 — thirteenth pass (latest) — the erasure boundary
+
+> Theme: **where a delete actually has to land**. 24 new repository addresses, every licence, star
+> count, push date, archival state and default branch measured in this pass. The twelfth pass could
+> not measure stars at all; the instrument note at the bottom is why this one could.
+
+### The archived and the renamed — read this part first
+
+| Repo | Licence | Stars | Last push | State |
+|---|---|---|---|---|
+| [ethyca/fides](https://github.com/ethyca/fides) | Apache-2.0 | 483 | 2026-08-06 | **ARCHIVED** — the open-source DSAR engine every roundup still recommends |
+| [ethyca/fidesops](https://github.com/ethyca/fidesops) | Apache-2.0 | 49 | 2022-11-30 | **ARCHIVED** |
+| [amundsen-io/amundsen](https://github.com/amundsen-io/amundsen) | Apache-2.0 | 4,780 | 2026-09-10 | **ARCHIVED** — still listed in catalog comparisons |
+| [ethyca/janus-sdk-android](https://github.com/ethyca/janus-sdk-android) | **NOASSERTION** | 0 | 2026-11-20 | live — the vendor's active line, **no licence declared** |
+| [ethyca/fides-helm](https://github.com/ethyca/fides-helm) | Apache-2.0 | 4 | 2026-10-02 | live — **the chart outlived the product** |
+
+### New permissive rows — the cascade substrate
+
+| Repo | Licence | Stars | Push | The erasure property |
+|---|---|---|---|---|
+| [trinodb/trino](https://github.com/trinodb/trino) | Apache-2.0 | 13,542 | 2026-11-24 | Will happily read a snapshot you thought you deleted |
+| [delta-io/delta](https://github.com/delta-io/delta) | Apache-2.0 | 9,085 | 2026-11-24 | `DELETE` then `VACUUM` — **the retention window is the erasure SLA** |
+| [apache/hudi](https://github.com/apache/hudi) | Apache-2.0 | 6,395 | 2026-11-24 | First-class **record-level deletes**; lead with it when erasure is the driver |
+| [chroma-core/chroma](https://github.com/chroma-core/chroma) | Apache-2.0 | 29,739 | 2026-11-20 | The one major permissive vector store this KB lacked |
+| [MarquezProject/marquez](https://github.com/MarquezProject/marquez) | Apache-2.0 | 2,311 | 2026-11-23 | OpenLineage reference server — **lineage is the prerequisite for erasure** |
+| [apache/atlas](https://github.com/apache/atlas) | Apache-2.0 | 2,163 | 2026-11-20 | Classification propagation: the tag follows the data |
+| [apache/polaris](https://github.com/apache/polaris) | Apache-2.0 | 2,124 | 2026-11-24 | Iceberg catalog — central place for table retention policy |
+| [OpenMined/PySyft](https://github.com/OpenMined/PySyft) | Apache-2.0 | 10,064 | 2026-11-24 | Data that was never copied needs no cascade |
+| [google/differential-privacy](https://github.com/google/differential-privacy) | Apache-2.0 | 3,380 | 2026-11-20 | DP primitives to cite in a DPIA |
+| [opendp/opendp](https://github.com/opendp/opendp) | **MIT** | 450 | 2026-11-24 | Permissive privacy accountant that can ship in a deliverable |
+| [orestbida/cookieconsent](https://github.com/orestbida/cookieconsent) | **MIT** | 5,782 | 2026-11-22 | Dependency-free consent UI |
+| [EdyVision/pii-codex](https://github.com/EdyVision/pii-codex) | BSD-3-Clause | 102 | 2026-02-15 | Risk-scores detected PII |
+| [danyuchn/pii-guard](https://github.com/danyuchn/pii-guard) | **MIT** | 257 | 2026-11-15 | Reversible zh-TW de-identification — **first non-English row in this layer** |
+| [SuiteCRM/SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) | AGPL-3.0 | 5,877 | 2026-11-04 | Default branch **`hotfix`**; `mark_deleted()` is an `UPDATE` |
+| [axelor/axelor-open-suite](https://github.com/axelor/axelor-open-suite) | **AGPL-3.0** (byte-read) | 989 | 2026-11-24 | The one suite shipping a GDPR module with a processing register |
+
+### Licences resolved from bytes — one badge, three classes, one pass
+
+| Repo | Badge | Bytes say |
+|---|---|---|
+| [kiprotect/klaro](https://github.com/kiprotect/klaro) | `NOASSERTION` | **BSD-3-Clause** (permissive) |
+| [axelor/axelor-open-suite](https://github.com/axelor/axelor-open-suite) | `NOASSERTION` | **AGPL-3.0** (copyleft) |
+| [pgvector/pgvector](https://github.com/pgvector/pgvector) | `NOASSERTION` | **PostgreSQL License** (permissive) |
+| [vec2text/vec2text](https://github.com/vec2text/vec2text) | `NOASSERTION` | **SOM-1.0** — publishes your model weights |
+| [weaviate/weaviate](https://github.com/weaviate/weaviate) | `NOASSERTION` | *"variously licensed under BSD-3-Clause, or the Weaviate License"* — **split inside one repo** |
+
+### Unlearning, measured
+
+[`OPTML-Group/Unlearn-Sparse`](https://github.com/OPTML-Group/Unlearn-Sparse) MIT **90★**;
+[`locuslab/tofu`](https://github.com/locuslab/tofu) MIT **30★**, **idle since 2025-02-25**. There is
+no production unlearning tooling. The architecture must therefore keep personal data **out of the
+weights** — which is a design rule with a legal basis, not a preference.
+
+### Instrument — stars are measurable again
+
+`api.github.com/repos/{o}/{r}` is **403** out of scope, but
+`gh api -X GET search/repositories -f q='repo:a/b repo:c/d …'` **ORs** multiple `repo:` qualifiers
+and returns `license.spdx_id`, `stargazers_count`, `pushed_at`, `archived` **and `default_branch`**
+in one request. **How it lies:** an invalid `repo:` is **silently dropped** when valid ones remain
+(ask 8, get 6, no error), but if *all* are invalid the query returns **422** — which is positive
+evidence a path is gone, and how both the Presidio and Casbin moves were detected. Default branches
+met this pass: `master`, **`hotfix`**, `develop`, `20.0`, `main`.
+
+## 2026-11-24 — twelfth pass — the weights boundary
 
 > Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
 > components **are what they claim to be**, pass 10 what it may **reach**, pass 11 **where this KB had

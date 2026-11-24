@@ -8,7 +8,65 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — twelfth pass (latest) — the licence of the model the agent runs on
+## 2026-11-24 — thirteenth pass (latest) — the layer with no agents in it, and a licence that takes your weights
+
+> Theme: **the erasure boundary** — what the agent must *forget*. Measured before searching: across
+> 10,355 lines and 355 repository addresses, `erasure`, `retention`, `unlearn`, `DSAR` and
+> `Article 17` returned **zero files**, and so did the Spanish forms (`borrado`, `supresión`,
+> `retención`, `conservación`). `GDPR` appeared **twice**, both in passing. The gap survived its own
+> audit in both of this KB's languages, which is the only reason it is reported as a gap.
+
+### The news is a zero, and it is measured
+
+```
+gh api search/repositories  q='DSAR agent stars:>50'                      → 0
+gh api search/repositories  q='GDPR erasure agent stars:>50'              → 0
+gh api search/repositories  q='data subject request automation stars:>50' → 0
+gh api search/repositories  q='privacy request agent LLM stars:>50'       → 1
+```
+
+**There is no agent for this layer**, and the one hit is a proxy. Second layer in six passes with
+no agents in it — the first was the entitlement boundary. The pattern: *the layers a client's legal
+and security functions care about most have the least open-source product in them.*
+
+### The one new row
+
+| Agent/component | Licence (byte-read) | Stars | Push | Note |
+|---|---|---|---|---|
+| [crp4222/PrivAiTe](https://github.com/crp4222/PrivAiTe) | **BSD-3-Clause** | 70 | 2026-11-22 | PII redaction proxy for LLM APIs **and agent CLIs** — scrubs **tool-call arguments**, then restores on reply. Sits exactly where Tier 0 of `agents/top.md` has no control. Created 2026-05-07, single-maintainer: a **pattern to adopt**, not a vendor |
+
+### The archival that matters more than any new row
+
+`ethyca/fides` (Apache-2.0, 483★) — the project every 2026 roundup names as the open-source DSAR
+engine — is **archived**, last push 2026-08-06, along with `fidesops`, `fidesdemo`, `fideslib`,
+`fides-CICD-Quickstart` and `fides-stats`. The only actively developed repositories in that
+organisation are three mobile consent SDKs that **declare no licence**. First archival + **licence
+regression** in one namespace that this KB has recorded. `fides-helm` is still maintained — **the
+chart outlived the product**, which is a new way to misread a layer's health.
+
+### A false finding this pass caught on itself
+
+`repo:microsoft/presidio` is unsearchable (**422**) and `grep -ril presidio` matches **seven
+files** — which looks exactly like a KB citing a dead owner. It is not: the **fourth pass already
+caught the move** and rewrote every citation; the grep matched the **new** path. **Grep the old
+owner path, never the bare project name.** Also: `raw.githubusercontent.com/microsoft/presidio/...`
+still returns **200** via redirect, so **no liveness check can detect a rename** — only the search
+API can, by refusing the path.
+
+### Licence class nº 12 — and it reaches the weights
+
+[`vec2text/vec2text`](https://github.com/vec2text/vec2text) (1,150★) reports `NOASSERTION`. Its
+`LICENSE` is **SOM-1.0**, whose §3(A) requires anyone who uses the tool *"to create inferences with
+a Model, whether or not you make the Model available to others"* to publish that model's **weights**.
+The twelfth pass found the operative clause **outside** the licence (in an AUP); this one found it
+**inside a tool's licence, reaching an asset the tool does not contain**. Use
+[`jina-ai/embedding-inversion-demo`](https://github.com/jina-ai/embedding-inversion-demo)
+(Apache-2.0) instead.
+
+Full tables in `repos/foundations.md`; trends 29–30 in `intel/trends.md`; the builds are Recetas 25
+and 26.
+
+## 2026-11-24 — twelfth pass — the licence of the model the agent runs on
 
 > Theme: **the weights boundary**. This KB holds 338 repository addresses and an eleven-class licence
 > taxonomy, all of it built by reading `LICENSE` files in code repositories. This pass pointed that

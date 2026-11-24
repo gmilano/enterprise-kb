@@ -2023,3 +2023,235 @@ the models. The standards added the fields and made them optional — so we make
   exactly that, in capitals.
 - **Shipping `fickling` inside a product.** LGPL. Use `picklescan` (MIT).
 - **Accepting "we emit an AI-BOM" as governance.** Every field is optional. Require them by contract.
+
+---
+
+## Receta 25 — The erasure boundary: delete a person from an agentic estate, and prove it
+
+**When to use this.** The client has an agent in production over customer data and has just been
+asked — by a regulator, a large customer's DPA, or a privacy function that read the AI Act — *show
+us what happens when someone asks to be deleted.* In California since 1 August 2026 the request
+arrives as a **45-day polling obligation**; in Chile the law lands **1 December 2026**; in Brazil
+the ANPD has named data-subject rights and AI as 2026–2027 priorities **and can suspend the tool
+preemptively**. This is the recipe for all three.
+
+### The failure mode, stated plainly so it can be sold
+
+> A customer exercises erasure. A support agent deletes the record in the CRM and confirms it. Six
+> weeks later the AI assistant answers a question using that customer's data, because the CRM's
+> delete was an `UPDATE … set deleted=1`, the CDC tombstone was dropped by the sink, the lakehouse
+> snapshot still holds the row, and the embedding was never in scope at all. **Nobody made a
+> mistake.** Every component behaved as documented. The commitment was wrong.
+
+### The architectural finding that determines the whole design
+
+Two of the seven resting places have **no delete operation**:
+
+- **Fine-tuned weights.** Unlearning is research code — `OPTML-Group/Unlearn-Sparse` (MIT, 90★),
+  `locuslab/tofu` (MIT, 30★, **idle 21 months**). Approximate unlearning is not erasure; retraining
+  is the only remedy that satisfies the right, and it costs the training run.
+- **Logs.** EU AI Act Art. 19 requires providers to retain automatic logs **≥ 6 months**; India's
+  DPDP Rule 8 pairs erasure with **≥ 1 year** of logs. Deleting them may be the violation.
+
+So the design is fixed before the first component is chosen:
+
+> **Personal data lives in retrieval over deletable stores, never in a fine-tune. Logs carry a
+> pseudonymous reference, never the identifier. Everything else is a cascade with a proof step.**
+
+### Components — all permissive unless marked, all verified 2026-11-24
+
+| Role | Component | Licence |
+|---|---|---|
+| Data map / lineage (the prerequisite) | [MarquezProject/marquez](https://github.com/MarquezProject/marquez) + OpenLineage *(held)* | Apache-2.0 |
+| Classification that follows the data | [apache/atlas](https://github.com/apache/atlas), or DataHub / OpenMetadata *(held)* | Apache-2.0 |
+| PII detection + a **measured** recall number | [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) + [presidio-research](https://github.com/data-privacy-stack/presidio-research) | MIT |
+| Risk-scoring the detections | [EdyVision/pii-codex](https://github.com/EdyVision/pii-codex) | BSD-3-Clause |
+| Non-English recognisers (APAC) | [danyuchn/pii-guard](https://github.com/danyuchn/pii-guard) | MIT |
+| CDC with tombstone handling | Debezium *(held)* | Apache-2.0 |
+| Lakehouse delete + snapshot expiry | [apache/hudi](https://github.com/apache/hudi) (record-level deletes), [delta-io/delta](https://github.com/delta-io/delta), Iceberg *(held)* | Apache-2.0 |
+| Query engine that must *also* stop seeing it | [trinodb/trino](https://github.com/trinodb/trino) | Apache-2.0 |
+| Central table/retention policy | [apache/polaris](https://github.com/apache/polaris) | Apache-2.0 |
+| Vector delete + compaction | Qdrant / Milvus / pgvector / Weaviate *(held)*, [chroma-core/chroma](https://github.com/chroma-core/chroma) | Apache-2.0 (see split-licence note for Weaviate) |
+| Retention & erasure policy **as code, per jurisdiction** | OPA / Cerbos *(held)* | Apache-2.0 |
+| Durable orchestration of a 7-system cascade | Temporal / Conductor / dapr workflows *(held)* | Apache-2.0 |
+| Machine-readable evidence | OSCAL assessment results *(held, eighth pass)* | Public domain |
+| Egress filter on agent CLI traffic | [crp4222/PrivAiTe](https://github.com/crp4222/PrivAiTe) | BSD-3-Clause |
+| **Reference design only — do not depend on** | [ethyca/fides](https://github.com/ethyca/fides) — **ARCHIVED** | Apache-2.0 |
+
+**There is no maintained permissive DSAR engine to install.** This pass searched and did not find
+one. Fides is the model to read; the orchestration is application code on durable execution.
+
+### Wiring
+
+```
+      Erasure request
+   (DROP poll / portal / DPA)
+             │
+             ▼
+   ┌──────────────────────┐   identity resolution  ← the step that actually fails
+   │ Request intake       │───────────────────────► entity resolution (held, 6th pass)
+   └──────────┬───────────┘
+              │ subject → every system holding them, FROM THE LINEAGE GRAPH
+              ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │ Durable cascade workflow (one activity per resting place)   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ 1 system of record   → hard delete / anonymise in place     │
+   │ 2 CDC stream         → tombstone, sink asserted by test     │
+   │ 3 lakehouse          → DELETE  then  expire_snapshots/VACUUM│
+   │ 4 vector index       → delete by filter  then  compaction   │
+   │ 5 eval fixtures      → owned store, same treatment          │
+   │ 6 fine-tuned weights → MUST BE EMPTY BY DESIGN              │
+   │ 7 logs/traces        → pseudonym map entry deleted, LOG KEPT│
+   └──────────┬──────────────────────────────────────────────────┘
+              │ every activity emits (subject, system, action, timestamp, operator)
+              ▼
+   ┌──────────────────────┐
+   │ Re-query proof step  │  ask each store for the subject again — absence is
+   │ (the deliverable)    │  the evidence; a successful delete call is not
+   └──────────┬───────────┘
+              ▼
+      OSCAL assessment results + dated erasure certificate
+```
+
+### Build order — and the order is the deliverable
+
+1. **Lineage first, and refuse to start without it.** You cannot cascade through a graph you have
+   not recorded. If the client has no lineage, that is the first work package and it is billable on
+   its own merits.
+2. **Classify, then measure the classifier.** Run `presidio-research` and report recall as a
+   number. "We detect PII" is not a finding; "we detect 94% of the entity types in your data, these
+   are the misses" is.
+3. **Prove row 6 is empty.** Audit every fine-tune and every training set for personal data
+   *before* promising anything. If it is in there, say so immediately — the remedy is a retrain and
+   it must be budgeted, not discovered in month four.
+4. **Fix row 1 honestly.** Establish whether the platform's delete is a soft delete. For SuiteCRM
+   this is verified in `verticals/solutions.md`; for Odoo, ERPNext, Dolibarr and Axelor **run the
+   check**, do not assume either way.
+5. **Build the cascade on durable execution**, one activity per resting place, idempotent, retried.
+   A cascade that fails halfway with no record is worse than no cascade.
+6. **Make the proof step non-optional.** Re-query every store. A 200 from a delete API is a claim;
+   an empty result set is evidence.
+7. **Quote the latency.** Snapshot expiry and index compaction mean erasure completes on a
+   schedule, not instantly. The retention window **is** the erasure SLA — write it into the
+   contract rather than discovering it in an audit.
+
+### Sizing and the milestone to fix
+
+Lineage + classification + measured recall: **4–6 weeks.** Cascade over three to five systems with
+the proof step: **8–12 weeks.** The milestone that de-risks the engagement is **week 6: a single
+subject deleted end-to-end across every system, with the re-query proof and a dated certificate.**
+One subject proven beats a design document for twelve systems.
+
+### Licence posture
+
+Every component above is Apache-2.0, MIT or BSD-3-Clause except the AGPL-3.0 suites, which are
+reached **over their published APIs** per this file's standing containment rule. The archived Fides
+is read, never imported. **`vec2text` is excluded from this recipe by licence** — see the
+anti-patterns.
+
+### What to tell the client the limits are
+
+- **Erasure has a latency and we will quote it.** Snapshot and index mechanics, not slowness.
+- **Detection has an error rate and we will measure it.** Presidio is good, not perfect.
+- **If personal data is already in a fine-tune, there is no supported way to remove it.** The
+  remedy is a retrain. Anyone offering "unlearning" is selling research code.
+- **We cannot delete the logs, and that is the law working as intended.** See Receta 26.
+- **No regulator has published a reconciliation of the retention floor with the erasure duty.** The
+  schema below is our engineering reading and is presented as such.
+
+---
+
+## Receta 26 — The log that can be kept: satisfying a retention floor without storing what you erased
+
+**When to use this.** Whenever Receta 25 reaches row 7, and always *before* an agent goes to
+production in the EU or India. This is a half-day design decision that costs an estate-wide
+migration if it is made late.
+
+### The conflict, in one table
+
+| Instrument | Demands | Floor |
+|---|---|---|
+| EU AI Act Art. 19 (providers) / Art. 26 (deployers) | Retain automatically generated logs | **≥ 6 months**, from 2 Dec 2027 (Annex III) |
+| India DPDP Rules, Rule 8 | Erase on purpose completion **and** retain logs | **≥ 1 year** |
+| GDPR Art. 17 / LGPD / Ley 21.719 | Erase on request | On request |
+
+### The degree of freedom
+
+**The AI Act prescribes no log format.** That is the whole solution. The obligation is to retain
+*logs*; it is not an obligation to retain *identifiers*.
+
+### Wiring
+
+```
+  agent step / tool call
+         │
+         ▼
+  ┌───────────────────┐
+  │ OTel instrument.  │  (held — evaluation & observability section)
+  │ emits span        │
+  └────────┬──────────┘
+           │  subject_ref = pseudonym(subject_id)      ← mapping stored SEPARATELY
+           │  no names, no emails, no free-text PII in attributes
+           ▼
+  ┌───────────────────┐        ┌──────────────────────────────┐
+  │ Presidio filter   │───────►│ Log store (Loki, held)       │
+  │ at log ingest     │ reject │ retention = MAX(floor in     │
+  │ (defence in depth)│ on hit │ scope), per jurisdiction      │
+  └───────────────────┘        └──────────────────────────────┘
+           ▲
+           │ tool-call ARGUMENTS are the usual leak — PrivAiTe-shaped
+           │ proxy on agent CLI egress catches what instrumentation misses
+  ┌────────┴──────────┐
+  │ pseudonym mapping │  ← THIS is in the Receta 25 cascade.
+  │ store             │     Delete the mapping, the log survives,
+  └───────────────────┘     the person is no longer identifiable from it.
+```
+
+### Steps
+
+1. **Define `subject_ref` and forbid raw identifiers in log attributes.** A lint rule in CI, not a
+   convention in a wiki.
+2. **Put the pseudonym mapping in its own store with its own owner**, and register it as resting
+   place #8 in the cascade — it is the only place the link survives.
+3. **Run Presidio at log ingest as defence in depth.** Instrumentation will leak eventually;
+   free-text prompts and error messages are where it happens.
+4. **Filter tool-call arguments specifically.** Every guardrail in this KB inspects prompts and
+   responses. Tool arguments go to a third party whose logs you can never cascade into — a
+   redaction proxy at that boundary is the only control, and `PrivAiTe` is the permissive pattern.
+5. **Set retention as policy-as-code per jurisdiction**, to the longest floor in scope. One schema,
+   per-jurisdiction retention.
+6. **Record the design decision as OSCAL evidence**, so the reconciliation is documented at design
+   time rather than defended at audit time.
+
+### Deliverables, and the sentence that sells it
+
+A log schema, a CI rule, a mapping store inside the erasure cascade, a per-jurisdiction retention
+policy, and a one-page note explaining how the client meets a retention floor and an erasure duty
+simultaneously.
+
+> *"We can keep your AI Act logs for six months and your DPDP logs for a year, delete the person on
+> request, and show an auditor both are true — because the log never contained their identity."*
+
+### Anti-patterns — each observed in this pass's evidence
+
+- **Quoting `ethyca/fides` as the open-source DSAR platform.** Apache-2.0, 483★, and **archived**
+  since before this pass. 2026 roundups still recommend it. The ninth archived-but-recommended
+  project this KB has caught, and the **first where the replacement repositories declare no licence
+  at all**.
+- **Running `vec2text` against a client's model.** Its `NOASSERTION` badge hides **SOM-1.0**, whose
+  §3(A) obliges you to publish the weights of any model you run inference with. Use
+  `jina-ai/embedding-inversion-demo` (Apache-2.0) for the same demonstration.
+- **Treating a vector store as outside the erasure scope.** Embeddings are invertible to source
+  text. The vector index is resting place #4, not an index of something else.
+- **Promising "unlearning".** Two-digit-star research code; the leading benchmark idle 21 months.
+- **Accepting a platform's delete as erasure.** SuiteCRM's `mark_deleted()` is an `UPDATE`, and
+  `mark_undeleted()` ships beside it.
+- **Taking a proprietary retention module into an open-source ERP deployment.** At least one
+  prominent Odoo GDPR retention/purge module is **OPL-1**. The compliance centrepiece becomes the
+  one proprietary dependency.
+- **Deleting logs to honour an erasure request.** In the EU and India that may be the violation.
+  Delete the mapping, keep the log.
+- **Adopting `amundsen-io/amundsen` for the data map.** Apache-2.0, 4,780★, **archived**
+  2026-09-10 and still appearing in catalog comparisons. DataHub and OpenMetadata are held and
+  maintained.

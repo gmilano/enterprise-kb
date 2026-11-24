@@ -450,6 +450,46 @@ models do not keep their terms there. Two concrete offers:
 *(Adoption and market figures in this subsection are search-listed at snippet level and not verified
 against the primary reports; attribute them, do not adopt them. Licence facts are byte-verified.)*
 
+#### Thirteenth pass, 2026-11-24 — the erasure boundary in North America: deletion became an inbound API poll
+
+**The regulatory shape changed, and it changed into something engineers build rather than lawyers
+answer.** California's DELETE Act (SB 362) created a central **Delete Request and Opt-Out Platform
+(DROP)**, and since **1 August 2026** registered data brokers must **access it at least once every
+45 days and process the deletion requests they find there**. That is not a web form and not a
+mailbox: it is a **queue the obligated party must poll on a fixed cycle**, with the penalty
+structure of a machine obligation — reported at **$200 per deletion request per day** of
+non-compliance, **with no cure period**. More than **300,000** Californians had filed through DROP
+by spring 2026, so the first poll was never going to be empty.
+
+Enforcement arrived in the same month as the deadline: on **11 August 2026** the agency announced
+its **first enforcement action against a data broker**, a **$116,490** penalty against
+**LocateSmarter LLC**, with a further order against **Cybba, Inc.** reported on 13 August 2026. The
+first **independent compliance audit** is due **1 January 2028** and recurs every three years.
+
+**Why this is the region's opportunity rather than its risk.** Every other erasure regime in this
+KB is request-driven and human-paced. This one has a **polling interval, a per-item penalty, an
+enforcement record and a scheduled audit** — which makes it the first jurisdiction where the
+erasure cascade is unambiguously a **system with an SLA** instead of a policy document. The
+engagement is concrete: a DROP poller, an identity-resolution step against the client's estate
+(this KB already holds entity resolution from the sixth pass, and matching is where these
+programmes actually fail), the seven-place cascade from `repos/foundations.md`, and an evidence
+artefact sized for the 2028 audit.
+
+**And it lands precisely on the region's measured gap.** Dentons' North American survey found
+companies building their own AI governance frameworks in the absence of a single federal rule, but
+**few with an integrated, auditable management system** — auditable being the operative word. The
+adoption numbers say the same thing from the other side: a 2026 Gartner survey puts only **22%** of
+enterprises at AI scaled across multiple business units, and a separate survey of 120,000+
+respondents found just **8.6%** with AI agents in production. The constraint is not capability, it
+is evidence — which is this KB's most-repeated finding, now reproduced in the erasure layer.
+
+> **Sourcing, stated honestly.** `oag.ca.gov` and the other primary legal hosts do not resolve from
+> this session. **Every regulatory figure in this subsection is search-snippet-level, not
+> primary** — including the $200/day amount, the 45-day interval, the LocateSmarter penalty and the
+> audit date. Verify against the CPPA/CalPrivacy DROP pages before putting any of it in a client
+> document. The repository and licence facts elsewhere in this pass are byte-verified; these are
+> not, and the distinction is deliberate.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -933,6 +973,59 @@ discussion keeps asking for and the standards keep making optional.
 *(Adoption, penalty and survey figures are search-listed at snippet level and unverified against
 primary sources; attribute, do not adopt. All licence facts and byte counts are verified.)*
 
+#### Thirteenth pass, 2026-11-24 — the erasure boundary in EMEA: the model itself may be the personal data, and the logs may not be deleted
+
+**This is the sequel to the twelfth pass, and it inverts its conclusion.** That pass established
+that the weights carry a **licence** independent of the code. This one records the harder claim:
+in this region the weights may carry **personal data**, which makes the model a data store subject
+to a right of erasure.
+
+**EDPB Opinion 28/2024** holds that AI models trained with personal data **cannot in all cases be
+considered anonymous**; anonymity is assessed case by case, and a model is anonymous only where the
+training data cannot be obtained from it **"through means reasonably likely to be used."** The
+Board is explicit that **a mere assertion of anonymity is not enough** to take the model outside the
+GDPR, and it points to post-training measures to remove or suppress personal data — with, in the
+worst case, erasure of the unlawfully processed dataset **"and/or the AI model itself."**
+
+**That clause is the commercial fact.** The remedy of last resort is deletion of the model, and
+this pass measured — in repositories, not opinions — that **there is no production-grade unlearning
+tooling to avoid it**: two-digit-star research code, with the best-known benchmark idle 21 months.
+So the EMEA architectural commitment writes itself, and it is defensible to a supervisory authority
+precisely because it does not depend on an unproven technique: **personal data goes in retrieval
+over deletable stores, never into a fine-tune.**
+
+**The second half of the finding is the opposite obligation.** Under the **EU AI Act Article 19**,
+providers of high-risk systems must retain automatically generated logs within their control for
+**at least six months** (longer where other Union or national law requires), with a parallel duty on
+**deployers under Article 26**; Article 18's documentation retention is a separate and much longer
+period, reported at ten years, and **must not be conflated with the six-month log floor**. Per
+**Regulation (EU) 2026/1744**, the instrument this KB already holds in `intel/trends.md` §4, these
+obligations apply from **2 December 2027** (Annex III) and **2 August 2028** (Annex I).
+
+So one regime compels erasure and another forbids it, and **the reconciliation is a schema
+decision, not a legal one**: the Act prescribes **no log format at all**, which is the freedom that
+makes this solvable. Keep identifiers out of the log body, log a pseudonymous reference, hold the
+mapping in a store that *is* in the erasure cascade — and the log can then be retained at full
+fidelity for six months or ten years without being a surviving copy of what was erased. Done after
+the fact it is a migration; done now it is a field name.
+
+**The market reads the same way.** IDC reports only **9%** of EMEA organisations delivering
+measurable business outcomes from most of their AI projects over two years, and **12%** with
+dedicated governance structures. Veeam reports **88%** of organisations already operating AI agents
+against **7%** who believe they are fully prepared to manage them. That 88/7 split is the
+addressable market for an evidence-shaped deliverable.
+
+> **Sourcing.** `eur-lex.europa.eu`, `ai-act-service-desk.ec.europa.eu`, `gdpr-info.eu` and
+> `artificialintelligenceact.eu` all fail to resolve from this session (probed once each). Article
+> 19's wording, the Article 18 ten-year figure and the EDPB quotations are **search-snippet-level**.
+> **One disagreement resolved rather than recorded:** several live 2026 articles still state that
+> high-risk obligations apply from **August 2026**. They are stale — this KB holds the naming
+> instrument for the deferral. **Two left open:** the status and adoption dates of **Guidelines
+> 02/2026** (anonymisation — reportedly requiring *periodic reassessment* of anonymity, since
+> re-identification risk grows over time) and **Guidelines 03/2026** (web scraping for generative
+> AI) conflict across sources between "adopted 7 July 2026" and "draft for consultation"; and a
+> reported Council position of 21 October 2026 on the Digital Omnibus could not be verified.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1384,6 +1477,54 @@ base-model edge of any fine-tune is recorded before it becomes an inherited obli
 
 *(Investment and adoption figures are search-listed at snippet level and unverified; attribute, do
 not adopt. Licence facts are verified from the repositories named.)*
+
+#### Thirteenth pass, 2026-11-24 — the erasure boundary in APAC: a registered intermediary, and a second retention floor
+
+**The region acquired a role that cannot be filled with software, and it commenced eleven days
+before this pass.** Under India's **DPDP Rules 2025** (notified 13 November 2025, G.S.R. 846(E)),
+the **Consent Manager** regime began on **13 November 2026**: a consent manager must be an **Indian
+company registered with the Data Protection Board**. The substantive fiduciary duties — notice,
+consent, safeguards, breach reporting and **rights handling** — follow on **13 May 2027**, eighteen
+months after notification. **Rule 8** covers erasure once the purpose is served, and pairs it with
+**log retention of at least one year**.
+
+**Two consequences, and the second is the one that generalises.** First, on an India engagement the
+consent-capture UI is buildable from the permissive libraries in `repos/foundations.md`, but the
+consent-manager *role* is **procurable from a registered Indian entity** — no open-source component
+makes an organisation a consent manager, and a delivery plan that assumes otherwise fails a legal
+review rather than a technical one.
+
+Second, India's **one-year** log floor sits beside the EU's **six-month** floor. **The retention
+floor is jurisdiction-specific, so the log schema must satisfy the longest floor in scope while the
+retention *policy* varies per jurisdiction** — which is this KB's trend 4 ("build the obligation set
+as configuration — policy-as-code per jurisdiction over one agent implementation") reproduced
+exactly in the erasure layer. One log schema, one cascade implementation, per-jurisdiction
+retention and erasure policy as data. That is the only shape that survives a multi-country rollout.
+
+**The engineering gap this region has and the others do not.** `data-privacy-stack/presidio`, the
+de-identification engine this KB has recommended since the fourth pass, is **English-first in its
+recognisers**. For a Taiwan, Japan or Korea engagement that is a measurable quality problem at the
+first step of the cascade, and this pass found the first non-English row to put beside it:
+**`danyuchn/pii-guard`** (MIT, 257★, 2026-11-15), reversible Traditional-Chinese de-identification
+built so documents can be sent to a model safely. Small and single-origin — but on an APAC
+engagement, recogniser coverage in the client's own language is the thing to **measure and quote**,
+using `presidio-research`, rather than assume.
+
+**Adoption context.** Forrester puts APAC enterprise adoption at **53%** for predictive AI in IT
+operations and **63%** for generative AI; Lenovo's CIO Playbook reports **96%** of APAC
+organisations planning to increase AI investment, by an average of **15%** in 2026; sovereignty is
+reported as shaping AI infrastructure choices for about half of firms. Singapore's regulators are
+consulting on AI use in financial institutions around transparency, accountability and risk
+oversight. The BSA — an industry group, so read it as advocacy — argues Vietnam's rules could deter
+AI investment and that India's approach risks slowing adoption.
+
+> **Sourcing.** `meity.gov.in` and `pdpc.gov.sg` do not resolve from this session. All DPDP dates
+> and Rule 8 contents are **search-snippet-level**, and the official gazette text was not read.
+> **One disagreement recorded, not resolved:** sources split on whether an individual's right to
+> *route* consent decisions through a registered consent manager begins in **November 2026** or
+> **May 2027**; the plausible reconciliation — registration opens first, individual routing rights
+> follow — could not be confirmed. A second single-source claim, that large platforms must erase
+> the data of users inactive for three years after 48 hours' notice, is recorded as **unverified**.
 
 ### LATAM
 
@@ -1934,6 +2075,60 @@ LATAM-origin agent repositories.
 
 *(RSM, WEF/McKinsey and regulatory figures are search-listed at snippet level and unverified against
 primary sources; attribute, do not adopt.)*
+
+#### Thirteenth pass, 2026-11-24 — the erasure boundary in LATAM: the obligation arrives before the enforcer does
+
+**Chile's data protection law enters into force on 1 December 2026 — seven days after this pass.**
+**Ley 21.719**, published in the Diario Oficial on 13 December 2024, takes effect on that date per
+its *artículo primero transitorio*, and creates an **Agencia de Protección de Datos Personales**
+with inspection and sanction powers. Two qualifications, and this KB's most-repeated error is to
+omit exactly this kind of one:
+
+1. **A postponement bill exists and is not law.** *Boletín 18.623-07* would move entry into force to
+   1 December 2027. Until a superseding law is published, **the legal date remains 1 December
+   2026** — record the proposal's existence, never its effect.
+2. **The regulator may not be staffed when the obligation lands.** On a single source, the Senate
+   rejected the proposed slate (*terna*) in May 2026 for failing to reach two thirds, leaving the
+   Agency's first council unseated. Treated as a lead, not a finding.
+
+**That gap is the commercial opening, and it inverts the usual pitch.** When an obligation takes
+effect before its enforcer is operational, the client's exposure is not an imminent fine — it is
+that **the obligation is live, retroactive in its subject matter, and there is no authority to give
+guidance.** What sells into that is not a defence strategy, it is the **evidence artefact**: a data
+map, a working cascade and a dated record of what was erased and when, produced before the Agency
+has an opinion about it. The window is now and it is short.
+
+**Brazil moved from "the law exists" to "the regulator has named AI as a target."** *Resolução
+CD/ANPD nº 30/2025* sets four supervisory priorities for the **2026–2027** biennium, and **two of
+them are this layer**: **data-subject rights** and **artificial intelligence and emerging
+technologies** (the others are children and adolescents online, and public-sector processing).
+Critically, the ANPD already supervises AI under **LGPD Article 20** (automated decisions) — it does
+not need the *Marco Legal da IA*, still before the Câmara, to act. The sanction ceiling is **2% of
+revenue, capped at R$50 million per infraction**, and the authority can order the **immediate
+suspension** of an AI tool or a database as a preventive measure, before a sanctioning process
+concludes.
+
+**That suspension power is an architecture requirement, not a legal footnote.** In Brazil the
+cascade has to be **demonstrable before deployment**, because the downside is the tool being
+switched off rather than a penalty negotiated afterwards. It is the strongest argument in the
+region for building the evidence artefact first.
+
+**Adoption context.** RSM's survey of 400+ regional business leaders puts about **40%** of
+organisations already implementing AI, with **68% of those adopters** preparing to scale within
+twelve months and **67%** citing efficiency as the driver — while governance and employee-use
+policies lag adoption. That ordering is the regional sales motion: capability is being bought, the
+controls are not yet, and the erasure cascade is a control with a date attached to it in two
+countries.
+
+> **Sourcing and one unresolved contradiction.** `planalto.gov.br` and `www.gov.br` do not resolve
+> from this session; everything above is **search-snippet-level**. On ANPD enforcement volume the
+> sources **directly contradict each other**: one states that up to 2026 the ANPD had issued a
+> single pecuniary fine of **R$14,400** (July 2023), while another claims **120+ concluded
+> sanctioning processes in the first half of 2026, up 280%** year on year. These cannot both be
+> true and neither carries a primary citation here — **do not quote either number to a client.**
+> The claim of 75 inspections for the biennium with 20 targeting AI systems is also single-source.
+> The *Resolución* number, the four priorities and the Article 20 basis are consistent across
+> sources and are the parts worth repeating.
 
 ## Posicionamiento Globant
 

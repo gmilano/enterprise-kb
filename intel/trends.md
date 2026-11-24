@@ -1704,3 +1704,195 @@ to locate** — they are an open inventory item for pass 13, not a measured zero
 - **The KB still holds zero machine-readable AI-BOM artefacts for its own shortlist.** The standards
   were verified this pass; no model in this KB has an ML-BOM attached. That is the obvious pass-13
   deliverable and it is now unblocked.
+
+---
+
+## Thirteenth pass, 2026-11-24 — the erasure boundary, and the first obligation this KB has found that *forbids* a control
+
+### 29. The fifth boundary is deletion, and it is the first one with no product to sell
+
+The four boundaries this KB established — read, write, provenance, containment — all govern what an
+agent **may do**. 2026's regulatory movement added a fifth that governs what has to **come back
+out**, and it behaves differently from the other four in three measurable ways.
+
+**It has no vendor.** The best-known open-source platform for privacy-request orchestration,
+`ethyca/fides` (Apache-2.0, 483★), is **archived**, last pushed 2026-08-06 — and so are its
+predecessor `fidesops`, `fidesdemo`, `fideslib`, `fides-CICD-Quickstart` and `fides-stats`. Of 22
+repositories in that organisation, the only actively developed ones are three mobile consent SDKs
+that **declare no licence at all**. 2026 roundups still name Fides as the open-source answer here.
+
+**It has no agents.** Three of four agent-shaped queries return a hard zero (`DSAR agent`, `GDPR
+erasure agent`, `data subject request automation`, all at `stars:>50`). The same instrument returns
+hundreds of rows for agent frameworks. **This is the second layer in six passes with no agents in
+it** — the first was the entitlement boundary at the seventh pass — and the pattern now has a
+shape worth naming: *the layers a client's legal and security functions care about most are the
+layers with the least open-source product in them.* That is where a services firm has an
+advantage over a vendor, and it is the argument for doing this work.
+
+**It cannot be solved at one place in the stack.** A delete is a cascade with seven resting places
+— system of record, CDC stream, lakehouse snapshot, vector index, evaluation fixtures, fine-tuned
+weights, logs — and the controls differ at each. Two of them have no delete at all. Full table in
+`repos/foundations.md`; the build is Receta 25.
+
+**So what:** price this as an engineering programme with an evidence deliverable, not a compliance
+review. The thing the client cannot buy is the cascade, and the thing the auditor wants is the
+proof it ran.
+
+### 30. Two obligations now point in opposite directions, and the resolution is a schema, not a legal opinion
+
+This KB has recorded regulation demanding inventories (trend 16), fields (trend 22) and management
+systems (trend 14). The erasure boundary is the first place where **two binding obligations
+conflict**:
+
+| Obligation | Direction | Floor |
+|---|---|---|
+| GDPR Art. 17 / LGPD / DPDP / Ley 21.719 — right of erasure | **Remove it** | On request |
+| EU AI Act Art. 19 (providers) + Art. 26 (deployers) — automatically generated logs | **Keep it** | **≥ 6 months** |
+| India DPDP Rules, Rule 8 — erase on purpose completion, retain logs | **Both** | **≥ 1 year** |
+
+Two jurisdictions, **two different retention floors**, and an erasure duty running against both. The
+naive reading is that compliance is impossible; the correct reading is that **the Act prescribes no
+log format**, and that freedom is where the answer lives: keep identifiers out of the log body, log
+a pseudonymous reference, and hold the mapping in a store that *is* in the cascade. The log is then
+retainable at full fidelity and is not a surviving copy of what was erased.
+
+**The generalisation, which is the part worth carrying to other industries:** *when two obligations
+conflict, look for the one that does not specify a format — that is the degree of freedom.*
+
+**And note what it costs when deferred.** Designed in, this is a field name. Retrofitted, it is a
+migration of every log, trace and evaluation fixture in the estate — which is the same
+"governance is cheap before deployment and expensive after" result this KB has now measured in five
+consecutive layers.
+
+### Licence class nº 12 — a tool licence that reaches your model weights
+
+Eleven classes so far. The twelfth was found by resolving a `NOASSERTION` badge on
+`vec2text/vec2text` (1,150★), the best-known embedding-inversion implementation. The 3,864-byte
+`LICENSE` at `master` is the **Software for Open Models License (SOM) Version 1.0** (30 August
+2023) — **no OSI approval, no SPDX identifier**. Section 3(A), verbatim:
+
+> *"If you use the Software to create, modify, process, or otherwise use any Model, **including
+> usage to create inferences with a Model, whether or not you make the Model available to
+> others**, you must make that Model Source Materials publicly available under Open Licensing
+> Terms."*
+
+The same file defines *Model Source Materials* as **"the Model and model weights."** Read
+literally, **using this tool to run inference with a client's private model obliges the client to
+publish its weights.**
+
+**Why this is the sharpest licence finding in thirteen passes, and not merely the strangest.** The
+twelfth pass found that the clause deciding an EMEA engagement sat **outside** the licence, in an
+acceptable-use policy. This one sits **inside** the licence of a *tool* and reaches an asset the
+tool does not contain. Together they close a rule:
+
+> **A licence constrains artefacts the licensed files do not include, in both directions. Scanning
+> the licence of what you import tells you neither what you may do with your model nor what your
+> model becomes.**
+
+A scanner reports `NOASSERTION` and a careless reviewer reads that as "unlicensed, probably fine."
+Mitigation is cheap: [`jina-ai/embedding-inversion-demo`](https://github.com/jina-ai/embedding-inversion-demo)
+(Apache-2.0, 61★) demonstrates the same property for a client workshop, and vec2text can be cited
+as a paper. **Never run it against client weights.**
+
+### Method — three more ways to be wrong, bringing the count to twenty-five
+
+**23. A grep for a project's NAME cannot tell you which OWNER the KB cites — and this pass nearly
+published the false finding.** The opening probe established that `repo:microsoft/presidio` is
+**unsearchable (422)** and that `grep -ril presidio` matches **seven files**, and concluded the KB
+was citing a dead owner in seven places. It was not: the **fourth pass already caught the move** to
+`data-privacy-stack/presidio` and already rewrote every citation — the grep was matching the
+**new** path, and the only `microsoft/presidio` strings left are the three correct ones (the rename
+ledger's "Was" column and the anti-pattern telling you not to cite it). **Grep the old owner path,
+never the bare name.** This is the energy KB's T88 reproduced in a second industry, and the second
+time in *this pass* that the KB proved more precise than the search auditing it — the first being
+the AI Act deferral, where live articles still say "August 2026" and this KB holds the naming
+instrument, **Regulation (EU) 2026/1744**. A false gap is published as news and degrades correct
+data; a missed finding merely costs a pass.
+
+**24. A liveness check cannot detect a rename, because the old path still answers 200.**
+`raw.githubusercontent.com/microsoft/presidio/main/LICENSE` returns **200** and serves the current
+MIT text, via redirect. Every URL-verification routine in this task would mark it healthy. **Only
+the search API detects a rename**, by refusing the old path. Corollary for the fleet: *URL
+liveness and canonical path are two different measurements, and the cheap one does not imply the
+other.*
+
+**25. `NOASSERTION` resolved in both directions inside a single pass, which settles the rule
+empirically.** `kiprotect/klaro` → **BSD-3-Clause** (permissive). `axelor/axelor-open-suite` →
+**AGPL-3.0** (copyleft). `pgvector/pgvector` → **PostgreSQL License** (permissive).
+`vec2text/vec2text` → **SOM-1.0** (more restrictive than any copyleft this KB holds). One badge,
+four repositories, **three different licence classes in one sweep**. Resolving a `NOASSERTION` by
+assumption is not a judgement call — it is a coin flip with a known failure mode in both
+directions. Read the bytes. The energy KB reached the identical conclusion from a different forge
+(its T84), which makes this a fleet-level rule rather than an industry one.
+
+### Instrument — the metadata oracle this environment actually has, and the one way it lies
+
+The twelfth pass recorded that it **could not measure stars or push dates**, because
+`api.github.com/repos/{owner}/{repo}` is **403 outside this session's scope**. That limit is real
+but it is not binding, and the workaround is worth carrying to every KB in this fleet:
+
+```
+gh api -X GET search/repositories -f q='repo:a/b repo:c/d repo:e/f …'
+  → license.spdx_id, stargazers_count, pushed_at, archived, default_branch   (one request)
+```
+
+Multiple `repo:` qualifiers **OR** together, so up to several repositories resolve in a single
+request — which matters under a search rate limit of a few requests per minute. It returns
+`default_branch` **in the same call as the licence**, so the blind `main`/`master` iteration that
+this KB has repeatedly paid for is unnecessary: this pass alone met `master` (klaro, pgvector,
+axelor, vec2text, milvus, qdrant), **`hotfix`** (SuiteCRM — a default branch no iteration order
+would have guessed), `develop` (ERPNext, Dolibarr) and `20.0` (Odoo).
+
+**The one way it lies, found this pass:** an invalid or unviewable `repo:` qualifier is **silently
+dropped** when other valid ones remain — ask for eight, get six, with **no error** — but if **every**
+listed repository is invalid the whole query fails with **HTTP 422**. So a short result is not an
+error and must be reconciled by name against what was requested, and **a 422 is positive evidence
+that a path is gone** (which is how the Presidio and Casbin moves were both detected).
+
+### Sources that disagree — this pass
+
+| Question | Positions | Status |
+|---|---|---|
+| When do EU high-risk obligations apply? | Live 2026 articles: "from August 2026". Art. 19 trackers: deferred to **2 Dec 2027** / 2 Aug 2028 | **Resolved** — the KB holds the naming instrument (Reg. (EU) 2026/1744). The August date is stale |
+| ANPD enforcement volume (Brazil) | "A single R$14,400 fine up to 2026" vs "120+ concluded sanctioning processes in H1 2026, +280%" | **Unresolved and irreconcilable.** Quote neither |
+| India consent-manager routing right | Begins Nov 2026 vs May 2027 | **Unresolved.** Registration-first is plausible, unconfirmed |
+| EDPB Guidelines 02/2026 status | "Adopted 7 July 2026" vs "draft for consultation" | **Unresolved** |
+| Presidio's departure from Microsoft | Governance transfer to a community org (multiple) vs "multi-year deal with Microsoft" (one low-authority blog) | **Resolved** toward the transfer; the outlier is noted, not adopted |
+
+### Verification channel for this pass — what could and could not be checked
+
+**Byte-verified from reachable primaries:** every repository path, licence, star count, push date,
+archival state and default branch (via `gh api search/repositories`); five licences read from file
+bytes (`klaro` → BSD-3-Clause, `axelor` → AGPL-3.0, `pgvector` → PostgreSQL, `vec2text` → SOM-1.0,
+`PrivAiTe` → BSD-3-Clause); `weaviate`'s split-licence header; and the **`mark_deleted()` source
+listing from `SuiteCRM/SuiteCRM` at `data/SugarBean.php`**, which is this pass's only
+platform-behaviour claim and the only one that needed to be read from code rather than from a
+vendor page.
+
+**Not verified, and therefore marked everywhere it appears:** all regulatory content.
+`eur-lex.europa.eu`, `ai-act-service-desk.ec.europa.eu`, `gdpr-info.eu`,
+`artificialintelligenceact.eu`, `oag.ca.gov`, `meity.gov.in`, `pdpc.gov.sg`, `planalto.gov.br`,
+`www.gov.br`, `apps.odoo.com`, `store.suitecrm.com` and `docs.axelor.com` **all fail to resolve
+from this session** (each probed once, then abandoned per policy). Article 19's wording, the DROP
+mechanics and penalties, the DPDP dates, Ley 21.719's transitional article, the ANPD resolution and
+the EDPB quotations are **search-snippet-level**. The asymmetry is the point: **this pass's code
+facts are stronger than its law facts, and the files say so at each location** rather than letting a
+reader assume one standard of evidence throughout.
+
+### Gaps measured this pass — stated, not left silent
+
+1. **No maintained permissive replacement for Fides was found.** Searched; not found; recorded as an
+   absence rather than filled with a plausible row. The engagement is a build over maintained
+   catalog/lineage components.
+2. **Soft delete verified for SuiteCRM only.** Odoo, ERPNext, Dolibarr and Axelor each need the same
+   ORM check before any erasure claim is made about them. **No claim is made here.** Cheapest work
+   available to the next pass.
+3. **The archival dates of `ethyca/fides` and `amundsen-io/amundsen` could not be measured** — the
+   search API returns `archived: true` but not `archived_at`, and `repos/{owner}/{repo}` is out of
+   scope. Last push dates (2026-08-06 and 2026-09-10) are given instead and are **not** archival
+   dates.
+4. **Whether the EU retention floor and the erasure duty have been reconciled by any regulator** is
+   unestablished. The schema answer above is this KB's engineering reading, **not** a published
+   position, and must be presented to a client as such.
+5. **LATAM-origin tooling in this layer: not measured.** The short Spanish instrument was run
+   against the KB, not against the forges, so no zero is claimed either way.

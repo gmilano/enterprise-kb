@@ -598,3 +598,64 @@ before any pilot, resolve the weights licence as its own artefact — base model
 the acceptable-use policy — and record it next to the agent's licence. That gate is **Receta 23** in
 `compose/patterns.md`, it is four permissive components, and it closes the gap that an MIT badge on
 the orchestrator has been hiding for eleven passes.
+
+---
+
+## The erasure boundary — the fifth layer, and the one with almost nothing agent-shaped in it (added thirteenth pass, 2026-11-24)
+
+**Why this section exists in the agents file.** Four of the five boundaries this KB now tracks
+produced at least one agent. This one produced, measured rather than asserted, **almost nothing** —
+and an engagement lead needs to know that *before* promising a client "an agent that handles
+deletion requests."
+
+### The measurement, reproducible in four lines
+
+```
+gh api search/repositories  q='DSAR agent stars:>50'                      → total_count 0
+gh api search/repositories  q='GDPR erasure agent stars:>50'              → total_count 0
+gh api search/repositories  q='data subject request automation stars:>50' → total_count 0
+gh api search/repositories  q='privacy request agent LLM stars:>50'       → total_count 1
+```
+
+Three hard zeros and one hit. For comparison, the same instrument returns hundreds of rows for the
+agent-framework queries at the top of this file. **The erasure boundary is a layer of components,
+policy and application code — not a layer you can buy an agent for.**
+
+### The one row, and it is a proxy rather than an agent
+
+| Repo | Licence (byte-read 2026-11-24) | Stars | Last push | Why it belongs here |
+|---|---|---|---|---|
+| [crp4222/PrivAiTe](https://github.com/crp4222/PrivAiTe) | **BSD-3-Clause** (`LICENSE` at `main`, *"Copyright (c) 2025, CRP4222"*) | 70 | 2026-11-22 | Self-hosted **PII redaction proxy for LLM APIs and agent CLIs**. Scrubs names, emails and secrets from OpenAI-compatible traffic **including tool-call arguments**, then restores them in the reply. Local detection, no telemetry |
+
+**Why this small repository is worth a row when this KB's rule is to prefer fewer real rows.** It
+sits exactly where Tier 0 of this file has no control. The harness layer — the agent CLIs this KB
+records as the unit of enterprise adoption — sends **tool-call arguments** to a model provider, and
+every guardrail this KB holds inspects prompts and responses rather than tool arguments. A
+redaction proxy at that boundary is the cheapest thing that keeps personal data out of a third
+party's logs, which is the one copy you can never cascade a delete into.
+
+**Quote it honestly:** created 2026-05-07, 70 stars, single-maintainer. This is a **pattern to
+adopt or reimplement**, not a vendor to depend on. The permissive licence is what makes
+reimplementation cheap.
+
+### What is *not* an agent in this layer, stated so nobody looks for one here
+
+- **Privacy-request orchestration** (`ethyca/fides`) is a workflow engine — **and it is archived**.
+- **De-identification** (`data-privacy-stack/presidio`, already held since the fourth pass) is a
+  library of recognisers.
+- **Differential privacy** (`opendp/opendp`, `google/differential-privacy`) is a set of
+  mathematical primitives.
+- **Unlearning** (`OPTML-Group/Unlearn-Sparse`, `locuslab/tofu`) is research code, two-digit stars,
+  and the TOFU benchmark has been **idle 21 months**.
+
+Full tables, licences and the deletion-cascade model in `repos/foundations.md` → *The erasure
+boundary*. The build is Receta 25; the log-retention conflict that constrains it is Receta 26.
+
+### What to tell an engagement lead
+
+> There is no agent to install for this, and the best-known open-source platform for it was
+> archived in August 2026. What we sell here is **the cascade and the evidence**: a measured map of
+> the seven places a fact comes to rest, the code that removes it from each, and a report that
+> proves it is gone. The three regions that just acquired dated obligations — California's 45-day
+> deletion poll, India's registered consent managers, Chile's law in force on 1 December 2026 —
+> make this a compliance deadline rather than a hygiene project.

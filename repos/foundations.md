@@ -1510,3 +1510,198 @@ status.
 **Fifteen repositories, every licence byte-verified from a reachable primary on 2026-11-24, with two
 licences deliberately recorded as unresolved rather than guessed.** No row carries a star count,
 because stars could not be measured this pass.
+
+---
+
+## The erasure boundary — what the agent must *forget*, what proves it forgot, and the obligation that forbids forgetting (added thirteenth pass, 2026-11-24)
+
+**Why this is a new layer and not a restatement of the de-identification section above.** Twelve
+passes built four boundaries — read (seventh), write (eighth), provenance (ninth), containment
+(tenth) — plus the weights licence (twelfth). Every one of them governs what the agent **may do**.
+None of them governs what has to happen when a person exercises a right and the answer is *remove
+it*. The gap was measured, in both of this KB's languages, before a single search was run:
+
+```
+grep -ril 'erasure|retention|unlearn|DSAR|Article 17'     *.md  → 0 files
+grep -ril 'borrado|supresión|retención|conservación'      *.md  → 0 files
+grep -c   'GDPR'                        (whole KB, 10,355 lines) → 2   (both in passing)
+```
+
+Two mentions of the GDPR across 10,355 lines and 355 repository addresses. The de-identification
+section above is the **prevention** half — keep personal data out of the agent's reach. This
+section is the **remediation** half — it is already in there, and someone has asked for it back out.
+
+### Why this layer is harder than the other four
+
+A delete is not an operation, it is a **cascade**, and the agent stack has seven places the same
+fact comes to rest. This is the shape of the engagement, and each row is a separate deliverable:
+
+| # | Where the fact lands | What a naive delete does | What actually erases it |
+|---|---|---|---|
+| 1 | System of record (ERP/CRM row) | Sets a deleted flag — **the bytes stay** (see `verticals/solutions.md`, measured on SuiteCRM) | A hard delete, or anonymisation in place |
+| 2 | CDC stream (Debezium, already held) | Emits a **tombstone** that many sinks drop | Sink-side tombstone handling, asserted by test |
+| 3 | Lakehouse table (Iceberg/Delta/Hudi) | Row-level delete, **old snapshot still readable** | `expire_snapshots` / `VACUUM` — retention-bounded, so erasure has a *latency*, and you must quote it |
+| 4 | Embeddings + vector index | Delete by filter — but the **index copy and any cached vector** may persist | Delete by filter *plus* index compaction, then re-query to prove absence |
+| 5 | Evaluation sets & prompt fixtures | Nothing — nobody thinks of them | Treat eval fixtures as a data store with an owner |
+| 6 | Fine-tuned weights | Nothing. **Unlearning is not production technology** (measured below) | Retrain without the record — or never put it there |
+| 7 | Logs & traces | Nothing — and **deleting them may be unlawful** (EU AI Act Art. 19, India DPDP Rule 8) | Design the log so it can be *kept*: see the rule below |
+
+**Rows 6 and 7 are the two that decide the architecture**, and they point in opposite directions.
+Row 6 says personal data must never enter the weights, because there is no supported way to get it
+out. Row 7 says the logs must *not* be erasable, because two jurisdictions impose a retention
+floor. Taken together they produce one design rule, and it has a legal basis rather than a
+preference behind it:
+
+> **Put erasable personal data in retrieval, never in training; and keep identifiers out of the
+> log body so the log can be retained at full fidelity without being a copy of what was erased.**
+
+### A. Privacy-request orchestration — and the headline finding is that the product is archived
+
+The one open-source project every 2026 roundup names as *the* open-source DSAR engine has been
+archived. Measured through `search/repositories`, which is the only GitHub metadata oracle this
+session can reach:
+
+| Repo | Licence | Stars | Last push | State | Read before using |
+|---|---|---|---|---|---|
+| [ethyca/fides](https://github.com/ethyca/fides) | Apache-2.0 | 483 | 2026-08-06 | **ARCHIVED** | "Privacy as code" — data mapping, consent, and DSAR orchestration with an erasure cascade across connected systems. **The reference design for this layer, and no longer maintained.** Read it, copy the model, do not take a dependency |
+| [ethyca/fidesops](https://github.com/ethyca/fidesops) | Apache-2.0 | 49 | 2022-11-30 | **ARCHIVED** | The DSAR-orchestration predecessor, folded into `fides` in 2022. Still cited by current listicles as if live |
+| [ethyca/fides-helm](https://github.com/ethyca/fides-helm) | Apache-2.0 | 4 | 2026-10-02 | live | **The chart outlived the product it deploys.** A maintained deployment artefact is not evidence of a maintained application — a new way to misread this layer |
+| [ethyca/fideslog](https://github.com/ethyca/fideslog) | Apache-2.0 | 6 | 2025-12-11 | live | Analytics client for the Fides tooling. Peripheral |
+| [ethyca/janus-sdk-android](https://github.com/ethyca/janus-sdk-android) | **NOASSERTION** | 0 | 2026-11-20 | live | The vendor's **currently active** line, and it is a mobile consent SDK, not a DSAR engine |
+| [ethyca/janus-sdk-flutter](https://github.com/ethyca/janus-sdk-flutter) | **NOASSERTION** | 1 | 2026-11-04 | live | Same line. Licence **not declared** |
+| [ethyca/janus-sdk-react-native](https://github.com/ethyca/janus-sdk-react-native) | **NOASSERTION** | 0 | 2026-11-04 | live | Same line |
+
+**The pattern, stated plainly, because it is the commercially important part.** Of 22 repositories
+in the `ethyca` organisation, the Apache-2.0 privacy-engineering platform is archived while the only
+actively-developed repositories are three mobile SDKs that **declare no licence at all**. This is
+the first time this KB has recorded an archival and a **licence regression in the same
+organisation**: the open-source asset went away and what replaced it is not open source. A client
+who adopted Fides in 2025 has no supported upgrade path inside that namespace.
+
+**What to do instead, and it is not a like-for-like swap.** There is no maintained permissive
+replacement for Fides. This pass searched for one and did not find it, and that absence is recorded
+as a finding rather than filled with a plausible-looking row. The honest engagement shape is:
+**Fides' data map and erasure-cascade model, reimplemented over components that are maintained** —
+the catalog and lineage rows below supply the map, and the cascade is application code. That is a
+build, it is quotable, and pretending a drop-in exists is how a pilot stalls in month three.
+
+### B. De-identification — the prevention half, already held, and re-measured
+
+| Repo | Licence | Stars | Last push | Note |
+|---|---|---|---|---|
+| [data-privacy-stack/presidio](https://github.com/data-privacy-stack/presidio) | **MIT** | 12,026 | 2026-11-23 | **Already held since the fourth pass**, including the move out of `microsoft/`. Re-measured here: **11,989 → 12,026 ★**, push 2026-11-19 → **2026-11-23**. Still MIT, still the de facto PII engine |
+| [data-privacy-stack/presidio-research](https://github.com/data-privacy-stack/presidio-research) | **MIT** | 321 | 2026-11-19 | Already held. Evaluation and dataset tooling for recogniser quality — **the piece that lets you state a recall number** instead of asserting the redaction works. Unchanged since the fourth pass |
+| [EdyVision/pii-codex](https://github.com/EdyVision/pii-codex) | **BSD-3-Clause** | 102 | 2026-02-15 | Categorises and **risk-scores** detected PII against published taxonomies. Permissive, small, and idle ~9 months — use as a library, not a dependency to track |
+| [danyuchn/pii-guard](https://github.com/danyuchn/pii-guard) | **MIT** | 257 | 2026-11-15 | Reversible Traditional-Chinese (zh-TW) de-identification so documents can be sent to a model safely. **APAC-origin, and the first non-English de-identification row in this KB** — Presidio's recognisers are English-first, which is a real gap on a Taiwan or Japan engagement |
+
+> **A false finding this pass caught on itself, recorded because the near-miss is the lesson.**
+> This pass's opening probe found that `repo:microsoft/presidio` is **unsearchable (422)** and that
+> `grep -ril presidio` matches **seven files**, and drew the obvious conclusion: the KB cites a dead
+> owner in seven places. **It does not.** The fourth pass (2026-11-20) already caught the move and
+> already rewrote every citation — the grep was matching the **new** path. The only genuine
+> `microsoft/presidio` strings left in this KB are the three *correct* ones: the "Was" column of the
+> rename ledger above, and the anti-pattern in `compose/patterns.md` that tells you not to cite it.
+>
+> **The rule: a grep for a project's NAME cannot tell you which OWNER the KB cites.** Grep the old
+> owner path (`microsoft/presidio`), never the bare name. This is the second time in this pass that
+> the KB turned out to be more precise than the search that was auditing it — the first was the EU
+> AI Act deferral, where live articles still say "August 2026" and this KB already held the naming
+> instrument. Both are the energy KB's rule T88 reproduced in a different industry: **a false gap is
+> published as news and degrades correct data, which is worse than a missed finding.**
+
+### C. When erasure is impossible — the statistical route
+
+Row 6 of the cascade has no delete. When a fact is already in a model or an aggregate, the
+defensible answer is a **mathematical bound on what can be recovered**, not a claim that it is gone.
+
+| Repo | Licence | Stars | Last push | Use |
+|---|---|---|---|---|
+| [OpenMined/PySyft](https://github.com/OpenMined/PySyft) | Apache-2.0 | 10,064 | 2026-11-24 | Remote execution over data you are never given a copy of. The architecture for "the model trains where the data lives" — **relevant because data that was never copied needs no cascade** |
+| [google/differential-privacy](https://github.com/google/differential-privacy) | Apache-2.0 | 3,380 | 2026-11-20 | DP building blocks in C++/Go/Java plus accounting. The reference implementation to cite in a DPIA |
+| [opendp/opendp](https://github.com/opendp/opendp) | **MIT** | 450 | 2026-11-24 | Harvard/OpenDP's DP library, **MIT and committed today**. The permissive choice when the privacy accountant has to ship inside a deliverable |
+
+### D. Unlearning and embedding inversion — measured, and the measurement is the finding
+
+This KB's rule is to state a zero rather than imply coverage. **There is no production-grade LLM
+unlearning tooling.** What exists is research code with two-digit star counts, and in one case it
+has not been touched in 21 months:
+
+| Repo | Licence | Stars | Last push | What it actually is |
+|---|---|---|---|---|
+| [OPTML-Group/Unlearn-Sparse](https://github.com/OPTML-Group/Unlearn-Sparse) | **MIT** | 90 | 2026-06-28 | Research code for sparsity-aware unlearning. A paper artefact |
+| [locuslab/tofu](https://github.com/locuslab/tofu) | **MIT** | 30 | **2025-02-25** | The TOFU *benchmark* for fictitious-author unlearning. **Idle 21 months.** A benchmark is a way to score a method, not a method |
+| [jina-ai/embedding-inversion-demo](https://github.com/jina-ai/embedding-inversion-demo) | **Apache-2.0** | 61 | 2026-03-07 | Demonstrates recovering source text **from an embedding**. Small, permissive, and the right artefact to run in a client workshop |
+| [vec2text/vec2text](https://github.com/vec2text/vec2text) | **SOM-1.0 — see the warning below** | 1,150 | 2025-12-27 | The best-known embedding-inversion implementation. **Do not run this against client weights.** Note the path: it is no longer `jxmorris12/vec2text` |
+
+> **Licence class nº 12, and it is the most aggressive clause this KB has recorded.**
+> `vec2text/vec2text` reports **`NOASSERTION`** to every scanner. The 3,864-byte `LICENSE` read at
+> `master` is the **Software for Open Models License (SOM) Version 1.0, dated 30 August 2023** — not
+> OSI-approved, no SPDX identifier. Section 3(A), quoted from the file:
+>
+> > *"If you use the Software to create, modify, process, or otherwise use any Model, **including
+> > usage to create inferences with a Model, whether or not you make the Model available to
+> > others**, you must make that Model Source Materials publicly available under Open Licensing
+> > Terms."*
+>
+> "Model Source Materials" is defined in the same file as **"the Model and model weights."** Read
+> literally, running this tool to make inferences with a client's private model obliges the client
+> to **publish its weights**. This is the inverse of the twelfth pass's finding: that pass found the
+> operative clause sat outside the licence, in an acceptable-use policy. This one sits **inside** the
+> licence of a *tool* and reaches **your weights**. Use the Apache-2.0 Jina demo for the same
+> argument, and cite vec2text as a paper rather than shipping it.
+
+**What the measurement means for the architecture.** Approximate unlearning is not erasure;
+retraining is the only remedy that satisfies the right, and its cost is the training cost. So the
+rule in the box at the top of this section is not conservatism — **it is the only option that can be
+delivered.** The corollary is also commercially useful: an embedding is recoverable to source text,
+so a vector store is **not** a safe home for data you have promised to delete. It is a store that
+must be included in the cascade, which is row 4.
+
+### E. Where the delete has to land — the cascade substrate
+
+Four of these are already held in this KB for other reasons. They are repeated here with the
+**erasure property** that nobody records when they are adopted as data infrastructure:
+
+| Repo | Licence | Stars | Last push | The erasure property |
+|---|---|---|---|---|
+| [apache/iceberg](https://github.com/apache/iceberg) | Apache-2.0 | 9,453 | 2026-11-24 | Row-level deletes, **and time travel means the deleted row is still readable from older snapshots** until `expire_snapshots` runs. Already held — the property is new |
+| [delta-io/delta](https://github.com/delta-io/delta) | Apache-2.0 | 9,085 | 2026-11-24 | Same shape: `DELETE` then `VACUUM`, bounded by a retention window. **The window is the erasure SLA** — quote it |
+| [apache/hudi](https://github.com/apache/hudi) | Apache-2.0 | 6,395 | 2026-11-24 | The lakehouse format with first-class **record-level deletes** and a native GDPR-deletion idiom. Worth leading with when erasure is the driver |
+| [trinodb/trino](https://github.com/trinodb/trino) | Apache-2.0 | 13,542 | 2026-11-24 | The federated query engine that reaches all of the above. **Also the thing that will happily read a snapshot you thought you deleted** |
+| [apache/polaris](https://github.com/apache/polaris) | Apache-2.0 | 2,124 | 2026-11-24 | Open Iceberg catalog with credential vending. Where table-level retention policy can be enforced centrally rather than per job |
+| [apache/atlas](https://github.com/apache/atlas) | Apache-2.0 | 2,163 | 2026-11-20 | Metadata and governance with classification propagation — the mature way to tag what is personal data and **have the tag follow the data** |
+| [MarquezProject/marquez](https://github.com/MarquezProject/marquez) | Apache-2.0 | 2,311 | 2026-11-23 | The OpenLineage reference server. **Lineage is the prerequisite for erasure**: you cannot cascade a delete through a graph you have not recorded |
+| [amundsen-io/amundsen](https://github.com/amundsen-io/amundsen) | Apache-2.0 | 4,780 | 2026-09-10 | **ARCHIVED.** The Lyft data catalog, 4.8k stars, no longer maintained. Listed as a **warning**: it is still recommended in catalog comparisons. Use DataHub or OpenMetadata, both already held |
+| [chroma-core/chroma](https://github.com/chroma-core/chroma) | Apache-2.0 | 29,739 | 2026-11-20 | Vector store. Added here because it was the one major permissive vector store this KB did not hold |
+
+> **Measured licence facts in this table, resolved from bytes rather than badges.**
+> `pgvector/pgvector` (23,795★, already held) reports `NOASSERTION`; its `LICENSE` at `master` is the
+> **PostgreSQL License** — permissive. `weaviate/weaviate` (16,958★, already held) also reports
+> `NOASSERTION`, and its `LICENSE` opens: *"Source code in this repository is variously licensed
+> under the BSD-3-Clause License, or the Weaviate License."* That is a **second instance of the
+> ninth licence class** (split by component inside one repository) — the per-directory check is
+> mandatory before embedding Weaviate in a deliverable.
+
+### F. Consent — the lawful basis, and one region now requires a registered intermediary
+
+| Repo | Licence | Stars | Last push | Note |
+|---|---|---|---|---|
+| [orestbida/cookieconsent](https://github.com/orestbida/cookieconsent) | **MIT** | 5,782 | 2026-11-22 | Dependency-free consent UI, actively maintained. The permissive default |
+| [kiprotect/klaro](https://github.com/kiprotect/klaro) | **BSD-3-Clause** | 1,526 | 2025-03-27 | Consent manager from a German privacy-engineering outfit. Reports `NOASSERTION`; `LICENSE` at **`master`** reads *"BSD 3-Clause License… KIProtect GmbH"*. **Idle ~20 months** — quote that honestly |
+
+**The regional catch, and it is an architecture constraint rather than a licence one.** Under
+India's DPDP Rules the **Consent Manager must be an Indian company registered with the Data
+Protection Board**, and that regime commenced **13 November 2026 — eleven days before this pass**.
+Neither library above *is* a registered consent manager, and no amount of open source makes one.
+On an India engagement the consent-capture UI is buildable and the consent-manager role is
+**procurable from a registered Indian entity**. Detail and the conflicting dates in
+`intel/market.md` → APAC.
+
+### Instrument note — star counts and push dates are measurable again
+
+The twelfth pass recorded that it could not measure stars or push dates, because
+`api.github.com/repos/{owner}/{repo}` returns 403 outside this session's scope. **Every star count
+and push date in this section is measured**, via `gh api -X GET search/repositories -f q='repo:a/b
+repo:c/d …'`, which is in scope and returns `license.spdx_id`, `stargazers_count`, `pushed_at`,
+`archived` **and `default_branch`** for up to several repositories in a single request. The
+reusable details, including the one way this instrument fails silently, are in `intel/trends.md`.

@@ -646,3 +646,111 @@ it is Salamandra or OLMo, because both can simply be downloaded; for a LATAM eng
 Spanish and Portuguese quality is decisive, Latam-GPT is the strongest linguistic option **and the
 Llama terms must be in the statement of work**. The gate that produces this determination in a
 repeatable way is **Receta 23** in `compose/patterns.md`.
+
+---
+
+## Thirteenth pass, 2026-11-24 — the platform's own delete does not delete, and the GDPR module for the open-source ERP is not open source
+
+This file has mapped the suites a client already runs for twelve passes: which are permissive,
+which are copyleft, which localise for LATAM, which the agent can sit beside. It has never asked the
+one question a privacy review asks first: **when the client clicks delete in this platform, what
+happens to the bytes?** The answer, measured in source code rather than taken from a vendor page,
+changes how every erasure commitment in a proposal must be worded.
+
+### The finding, read from the code at `SuiteCRM/SuiteCRM`
+
+SuiteCRM is the open-source CRM most often proposed as the permissive-adjacent alternative to
+Salesforce, and this KB did not hold it. It is held now, with the property that matters:
+
+| Platform | Repo | Licence | Stars | Default branch | Last push |
+|---|---|---|---|---|---|
+| **SuiteCRM** | [SuiteCRM/SuiteCRM](https://github.com/SuiteCRM/SuiteCRM) | **AGPL-3.0** | 5,877 | **`hotfix`** | 2026-11-04 |
+| SuiteCRM Core (v8 line) | [SuiteCRM/SuiteCRM-Core](https://github.com/SuiteCRM/SuiteCRM-Core) | **AGPL-3.0** | 290 | **`hotfix`** | 2026-11-04 |
+
+**Read from `data/SugarBean.php` at `hotfix`, line 5313 — this is the delete path for every bean in
+the system:**
+
+```php
+public function mark_deleted($id)
+{
+    ...
+    $this->deleted = 1;
+    $this->mark_relationships_deleted($id);
+    ...
+    $query = "UPDATE $this->table_name set deleted=1 , date_modified = '$date_modified' where id='$id'";
+    $this->db->query($query, true, "Error marking record deleted: ");
+```
+
+**A delete in SuiteCRM is an `UPDATE`.** The row stays, every column stays, and the method
+immediately above it in the same file is `mark_undeleted()` — the platform ships the inverse
+operation, which is proof the bytes were never gone. This is the SugarCRM lineage's `deleted` flag,
+inherited by every module.
+
+**Why this is the most consequential row in this file for an agent engagement.** The agent does not
+read the CRM through the CRM's UI. It reads through SQL, a CDC stream, a lakehouse table or a vector
+index built from an extract — **and none of those honour a `deleted=1` convention unless somebody
+wrote the filter.** So the standard failure is not exotic: a customer exercises erasure, a
+support rep confirms it in the CRM, and the agent keeps answering questions from the record for as
+long as the embedding lives. The platform is behaving exactly as documented. The erasure
+commitment is what was wrong.
+
+**What to do, in the order that survives an audit:** (1) treat `deleted=1` as *withdrawn from the
+application*, never as erased; (2) make hard deletion or in-place anonymisation an explicit,
+scheduled job with its own log; (3) assert in a test that every downstream consumer — CDC sink,
+lakehouse table, vector index — drops the record, and **re-query to prove absence** rather than
+trusting the cascade. The full seven-place cascade is in `repos/foundations.md`; the build is
+Receta 25.
+
+> **Generalise it before quoting any platform in this file.** Soft delete is the default in the
+> whole ERP/CRM tradition, not a SuiteCRM defect — the pattern is a `deleted`, `active` or
+> `archived` column. **Odoo, ERPNext, Dolibarr and Axelor each need the same check run against
+> their own ORM before an erasure claim is made about them.** This pass verified it for SuiteCRM
+> from source and did **not** verify it for the others, so no claim is made about them here. That
+> is a measured gap and the next pass's cheapest work.
+
+### Axelor — the one suite in this file that ships data-subject machinery
+
+| Platform | Repo | Licence | Stars | Default branch | Last push |
+|---|---|---|---|---|---|
+| **Axelor Open Suite** | [axelor/axelor-open-suite](https://github.com/axelor/axelor-open-suite) | **AGPL-3.0** | 989 | **`master`** | 2026-11-24 |
+
+Axelor is a French-origin ERP+CRM (**EMEA-origin**, which matters for the sovereignty argument in
+`intel/market.md`) and it is the only suite encountered in this pass whose own documentation
+describes a GDPR module with a **processing register**, **access requests**, **deletion requests**
+and **pseudonymisation or anonymisation on request** — the Fides feature set, inside the ERP,
+maintained by the vendor.
+
+> **Licence resolved from bytes, and it went the copyleft way.** The search API reports
+> **`NOASSERTION`** for `axelor/axelor-open-suite`. `LICENSE` at `master` opens: *"Axelor is
+> published under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3 (AGPLv3)."* **AGPL-3.0** — the
+> same containment rule this file already applies to ERPNext and Dolibarr: an external agent
+> service over the published API, never a fork. In the same pass, `kiprotect/klaro`'s identical
+> `NOASSERTION` resolved to **BSD-3-Clause**. One badge, two opposite answers, one pass — see
+> `intel/trends.md`.
+
+**The caveat that stops this becoming a recommendation.** 989 stars against Odoo's 56,064 and
+ERPNext's 41,596. Axelor is a **credible answer to a specific objection** — "our ERP has to handle
+data-subject requests natively, and we are in the EU" — not a general-purpose replacement. Lead
+with Odoo or ERPNext; bring Axelor when the privacy requirement is the deciding one.
+
+### The licence trap in this layer, and it is in the module ecosystem
+
+The retention and purge functionality for the open-source ERP is sold as community modules, and
+**at least one prominent "GDPR storage-limitation / retention + purge" module for Odoo is published
+under OPL-1 — the Odoo Proprietary License.** A module that implements Article 5(1)(e) storage
+limitation, with legal holds and an immutable audit log of deletions, is exactly the component a
+client wants, and taking it means **a proprietary dependency sitting at the centre of the
+compliance story** in an otherwise LGPL-3.0 deployment.
+
+**So the erasure engagement on Odoo is a build, not an install** — and that is a defensible,
+quotable position rather than a disappointment: the retention policy is client-specific anyway, the
+audit log is the deliverable, and an AGPL/LGPL-clean implementation is a smaller work package than
+the proprietary licence review it replaces.
+
+> **Verification limit, declared.** `apps.odoo.com`, `store.suitecrm.com` and `docs.axelor.com` all
+> fail to resolve from this session (outside its allowed network domains, probed once each). The
+> **module licence (OPL-1), the Axelor GDPR feature list and the SuiteCRM vendor commentary are
+> therefore search-snippet-level, not primary.** Everything in the tables above — repository path,
+> licence, stars, default branch, push date — and **the `mark_deleted` source listing** are
+> byte-verified from reachable primaries. Check the module licence on the store page before
+> quoting it to a client.
