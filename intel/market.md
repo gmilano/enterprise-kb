@@ -942,6 +942,9 @@ baseline while having almost no domestic mandate.**
   most useful fact in this subsection, because it removes the "that's an American rule" objection from
   an APAC procurement conversation. The guidance is reported to cover open-source, **AI software** and
   SaaS, and to cite **Japan's SBOM Introduction Guide v2.0** as a national example.
+  **Sourcing caveat: this is secondary-sourced.** METI's press release was not read at source in
+  this session, and `www.cisa.gov` and `media.defense.gov` do not resolve here, so treat the
+  co-signing as well-corroborated reporting rather than a primary-verified fact.
 - **Singapore's CSA co-signed the earlier "Shared Vision of SBOM for Cybersecurity" (September 2025)**,
   and is reported to have issued an advisory with OWASP on SBOMs and real-time vulnerability monitoring
   for open-source and third-party dependencies. **This pass found no primary CSA 2026 SBOM document** —
