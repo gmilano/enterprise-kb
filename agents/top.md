@@ -659,3 +659,64 @@ boundary*. The build is Receta 25; the log-retention conflict that constrains it
 > proves it is gone. The three regions that just acquired dated obligations — California's 45-day
 > deletion poll, India's registered consent managers, Chile's law in force on 1 December 2026 —
 > make this a compliance deadline rather than a hygiene project.
+
+## The accessibility boundary — three real agent rows, and a licence that is not the one on the badge (added fourteenth pass, 2026-11-24)
+
+> Theme: **can the people the client is legally required to serve actually use the agent, and can
+> an agent test that.** Measured before searching, across all nine files of this KB:
+> `wcag` = 0, `accessib` = 0, `a11y` = 0, `EN 301 549` = 0, `VPAT` = 0, `axe-core` = 0.
+> A clean zero in every file — the fourth layer this rotation has found with no coverage at all.
+>
+> This pass could **not** use the GitHub API (`api.github.com` → 403, as in every pass since the
+> ninth). Licences below are **byte-reads** of each repository's `LICENSE` file over
+> `raw.githubusercontent.com`, which is stronger evidence than a badge; star counts are from
+> github.com HTML read through WebFetch (curl gets 403 there, WebFetch does not); versions and
+> publish dates are from `registry.npmjs.org`. All three channels were new or re-proved this pass.
+
+### The rows that are agents (3 verified — not 5, and the reason is stated)
+
+An accessibility *scanner* is not an agent. What belongs in this file is the MCP server that hands
+an agent the ability to audit, read the findings, edit the code and re-audit. There are exactly
+three credible community ones, and the ranking by stars is the **inverse** of the ranking by
+maintenance:
+
+| Agent / MCP server | Repo | Licence (byte-read) | ★ | npm latest | Engine pinned | Verdict |
+|---|---|---|---|---|---|---|
+| mcp-accessibility-scanner | https://github.com/JustasMonkev/mcp-accessibility-scanner | MIT | 59 | `mcp-accessibility-scanner` 5.0.1, **2026-11-16** | `axe-core` 4.14.0 (2026-10-05), `playwright` 1.65.1 | **Use this one.** WCAG 2.0/2.1/2.2 at A/AA/AAA, Playwright crawl, keyboard-nav checks, JSON reports |
+| a11y-mcp (priyankark) | https://github.com/priyankark/a11y-mcp | **MPL-2.0** | 53 | `a11y-mcp` 1.1.1, 2026-10-26 | `axe-core` ^4.14.0, `puppeteer` ^25.16.0 | Audit → fix → re-audit loop. **Only one of the three that publishes to npm with provenance** and runs weekly Dependabot |
+| a11y-mcp-server (a11ymcp) | https://github.com/ronantakizawa/a11ymcp | MIT | 97 | `a11y-mcp-server` 1.1.0, **2026-03-01** | `axe-core` ^4.6.0, **`puppeteer` 13.5.0 — published 2022-03-07** | **Do not put in client CI.** Most-starred, stalest, and pins a browser four and a half years old (current puppeteer is 25.18.1, 2026-11-17) |
+
+None of the three is archived. All three state, or are, unofficial: `a11ymcp`'s own README says it
+"is not an official Deque Labs server".
+
+### The licence finding, and it is the headline of this pass
+
+**The permissive badge on this layer belongs to the wrapper, not to the engine.** Proved by reading
+`package.json` in each repository, not by reading marketing:
+
+| Tool | Its own licence | `axe-core` in its dependencies? |
+|---|---|---|
+| `microsoft/accessibility-insights-web` | MIT | **yes** — `axe-core` 4.11.3 |
+| `GoogleChrome/lighthouse` | Apache-2.0 | **yes** — `axe-core` 4.14.1 |
+| `JustasMonkev/mcp-accessibility-scanner` | MIT | **yes** — `axe-core` 4.14.0 |
+| `ronantakizawa/a11ymcp` | MIT | **yes** — `axe-core` ^4.6.0 |
+| `priyankark/a11y-mcp` | MPL-2.0 | **yes** — `axe-core` ^4.14.0 |
+| `IBMa/equal-access` | **Apache-2.0** | **no — zero axe dependencies, own engine** |
+
+`dequelabs/axe-core` is **MPL-2.0** (byte-read of `LICENSE`, and `MPL-2.0` as the SPDX field of
+4.14.1 on npm, published 2026-11-16). MPL-2.0 is **file-level** copyleft: it ships beside
+proprietary code without infecting it, so this is not a blocker — but it is **not** in the
+MIT/Apache/BSD bucket this file is built on, modifications to axe's own files must be published,
+and it must appear in the client's open-source review. **"MIT" on the tool does not mean MIT in the
+artifact.** The only way to stay inside the permissive bucket end-to-end is IBM's engine.
+
+### What to tell an engagement lead
+
+- Ask which bucket the client's OSS review allows **before** choosing the scanner. If weak copyleft
+  in the shipped artifact is barred, the answer is `IBMa/equal-access` (Apache-2.0, 788★, own
+  engine) and nothing else in this layer.
+- An automated scan is **not** a conformance claim. Automated rules cover part of WCAG; keyboard
+  and screen-reader flows have to be tested by a person or by a driven screen reader
+  (`repos/foundations.md`, this pass).
+- Do not sell the US deadline that was in every 2026 roundup: **it moved** (see `intel/market.md`,
+  North America, this pass).

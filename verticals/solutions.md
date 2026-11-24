@@ -754,3 +754,36 @@ the proprietary licence review it replaces.
 > licence, stars, default branch, push date — and **the `mark_deleted` source listing** are
 > byte-verified from reachable primaries. Check the module licence on the store page before
 > quoting it to a client.
+
+## Accessible component systems — the cheapest way to make an agent UI conformant (added fourteenth pass, 2026-11-24)
+
+> The pattern this file is built on — *start from something that already works* — has an exact
+> analogue in accessibility, and it is the highest-leverage finding of this pass for a build team.
+> **Do not hand-roll the agent's chat surface.** Two government design systems already carry the
+> accessibility testing an enterprise would otherwise pay for, and one of them is MIT.
+
+| Platform | Repo | Licence (byte-read) | Origin | Why it is the starting point |
+|---|---|---|---|---|
+| **GOV.UK Frontend** | https://github.com/alphagov/govuk-frontend | **MIT** (Crown Copyright, Government Digital Service) | **EMEA (UK)** | npm `govuk-frontend` 6.6.0, 2026-10-15. Components tested against real assistive technology by a government that is legally obliged to get it right. MIT means it ships in a client artifact with no conditions beyond attribution |
+| **U.S. Web Design System** | https://github.com/uswds/uswds | **Mixed — resolve before use** | North America | npm `@uswds/uswds` 3.14.0, 2026-08-18, SPDX field `SEE LICENSE IN LICENSE.md`. Byte-read of that file: US-Government works are public domain, but it states explicitly that **"a few parts of this project are not in the public domain"**. Section 508-aligned, and the reference set for US public-sector work |
+| **ARIA Authoring Practices Guide** | https://github.com/w3c/aria-practices | **W3C Software *and* Document License** | Global (W3C) | The patterns themselves. Note the difference from `w3c/wcag`, which is under the W3C **Document** Licence with no modification right — the APG licence *does* cover software use |
+
+### The `NOASSERTION` rule, applied again and landing in the middle
+
+The eighth pass established that `NOASSERTION` is the **absence of a verdict**, to be resolved by
+byte-read in both directions — and that four such badges turned out permissive. USWDS is the first
+case this KB has measured where the honest answer is **neither**: a public-domain core with
+declared non-public-domain parts. The resolution is not "permissive" or "restricted" but
+*"enumerate the parts before shipping"*. Record it that way in the client's OSS review.
+
+### What the client already has, and what this changes
+
+- If the client's front end is already on GOV.UK Frontend or USWDS (any UK or US public-sector
+  engagement, and a surprising number of regulated private ones), **the agent's UI inherits a
+  tested component layer** and the work shrinks to the streaming behaviour, which no component
+  library can give you (`compose/patterns.md`, Receta 27).
+- If it is on a generic component library, the accessibility of the chat surface is **unowned**,
+  and that is the finding to put in front of the engagement lead on day one.
+- The assistive technology itself is part of the client's estate and is **not** something you
+  deliver: `nvaccess/nvda` is GPL-2.0-or-later, VoiceOver and JAWS are proprietary. You drive them
+  in a test job (`repos/foundations.md`, this pass); you never bundle them.

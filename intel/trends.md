@@ -1896,3 +1896,114 @@ reader assume one standard of evidence throughout.
    position, and must be presented to a client as such.
 5. **LATAM-origin tooling in this layer: not measured.** The short Spanish instrument was run
    against the KB, not against the forges, so no zero is claimed either way.
+
+## Fourteenth pass, 2026-11-24 — the accessibility boundary, and the first licence finding that is hidden one level down
+
+> Theme: **whether the people a client is legally obliged to serve can use the agent at all.**
+> Measured before searching, across all nine files: `wcag` 0, `accessib` 0, `a11y` 0,
+> `EN 301 549` 0, `VPAT` 0, `axe-core` 0. A clean zero in every file — and the layer turns out to
+> carry a legal obligation that this KB has been selling *around* for thirteen passes.
+
+### 18. Accessibility became an AI obligation, not a web obligation
+
+The EU AI Act's **Article 16(l)** requires providers of high-risk AI systems to comply with the
+accessibility requirements of Directives (EU) **2016/2102** and **2019/882**, and **Recital 80**
+insists on *full* compliance. The practical consequence is structural: accessibility belongs
+**inside** the AI Act conformity file, next to the Annex IV documentation this KB already sells
+(Receta 3), not in a separate web-quality workstream. Legal commentary (Hogan Lovells) reads it as
+a design-and-development obligation, not a disclosure one.
+
+Two caveats carried forward honestly: the **application date is in conflict** across sources
+(2027-12-02 / 2028-08-02 under Article 113(c) versus a claim that the high-risk regime applied
+2026-08-02), and one widely-linked source misdescribes Article 16 as a GPAI obligation. Recorded in
+`intel/market.md` (EMEA), not reconciled.
+
+### 19. The permissive badge in a tooling layer can belong to the wrapper, not the engine
+
+This KB already holds a **licence-concentration** rule (sixth pass, generalised): one layer, one
+licence, measured. The accessibility layer adds a **sharper and more dangerous form** — the
+concentration is **one level below the thing you read the licence of**:
+
+| Tool | Badge the client reads | What `package.json` actually pulls in |
+|---|---|---|
+| `microsoft/accessibility-insights-web` | **MIT** | `axe-core` 4.11.3 — **MPL-2.0** |
+| `GoogleChrome/lighthouse` | **Apache-2.0** | `axe-core` 4.14.1 — **MPL-2.0** |
+| `JustasMonkev/mcp-accessibility-scanner` | **MIT** | `axe-core` 4.14.0 — **MPL-2.0** |
+| `ronantakizawa/a11ymcp` | **MIT** | `axe-core` ^4.6.0 — **MPL-2.0** |
+| `priyankark/a11y-mcp` | MPL-2.0 | `axe-core` ^4.14.0 — MPL-2.0 (consistent) |
+| `IBMa/equal-access` | **Apache-2.0** | **nothing — own engine** |
+
+**The rule, stated generally for the rest of the rotation:** a licence badge describes a repository,
+not an artifact. In any layer with a de-facto single engine, **read the dependency manifest, not the
+sidebar**. MPL-2.0 is file-level copyleft and therefore *deliverable* — this is a disclosure and
+AI-BOM finding, not a blocker — but a team that promised the client "MIT only" has already broken
+the promise by installing Microsoft's MIT tool.
+
+### 20. Star count and maintenance inverted perfectly inside one category
+
+Trend 11 said star count has decoupled from enterprise suitability. The three community
+accessibility MCP servers are the first category where the two rankings are **exactly reversed**:
+
+| Stars | Repo | npm last published | Pinned browser | Supply-chain hygiene |
+|---|---|---|---|---|
+| **97** | `ronantakizawa/a11ymcp` | **2026-03-01** | **`puppeteer` 13.5.0 — 2022-03-07** | — |
+| 59 | `JustasMonkev/mcp-accessibility-scanner` | **2026-11-16** | `playwright` 1.65.1 | — |
+| 53 | `priyankark/a11y-mcp` | 2026-10-26 | `puppeteer` ^25.16.0 | **npm provenance**, weekly Dependabot, real-Chrome smoke tests |
+
+The most-starred option pins a browser **four and a half years old**; the least-starred is the only
+one publishing with provenance. The practical instrument: **`registry.npmjs.org` dates every
+version**, so "how stale is this pin" is a one-call measurement, not a judgement.
+
+### 21. There is no standard for the thing an agent UI actually does
+
+The agent-to-user layer (trend 15) has a concrete accessibility failure mode and **no normative
+rule covering it**. Token streaming updates the DOM roughly **5–20 times per second**; a live region
+mirroring that either floods the screen reader with every token or, with the wrong configuration,
+announces nothing. Practitioner consensus (Smashing Magazine, November 2026; GOV.UK's accessible
+web-chat patterns; vendor component docs) converges on: keep streamed text **out** of the live
+region, announce **once** on completion, use a **single dedicated `aria-live="polite"`** region with
+`aria-atomic="false"`, create it **empty and before** content arrives, **do not** rely on
+`aria-busy`, and **never move focus** on a status update; `role="log"` with `aria-live="polite"` for
+completed messages.
+
+Two things make this a trend rather than a tip. First, **W3C live-region guidance is advisory, not
+normative** — no standard defines what "accessible streaming" means, so this is a design decision
+the delivery team owns and no conformance scan will catch. Second, it is **not** a hypothetical:
+Atlassian's own agent carries a public ticket (**ROVO-978**) for dynamically updating content not
+being announced to screen-reader users. A shipped product from a major vendor has this exact bug on
+the record.
+
+### A licence-tightening instance with the evidence inside the repository
+
+Trend 7 (licences are quietly tightening) usually rests on announcements. `ryersondmp/sa11y` states
+it in its own `LICENSE.md`: now **GPL-2.0**, and "previous versions of Sa11y (v2.0 and below) were
+released under the MIT license." **Byte-read, not reported.** Worth adding to the method: the
+cheapest place to detect a relicensing is the licence file's own prose, which often narrates the
+change.
+
+### Verification channel for this pass — what could and could not be checked
+
+**Worked, and two of these are new instruments for the whole rotation:**
+- `raw.githubusercontent.com/<repo>/HEAD/LICENSE` → licence **text**. Stronger than any badge, and
+  the only channel available now that the API is closed.
+- `raw.githubusercontent.com/<repo>/HEAD/package.json` → **the dependency chain**, which is how
+  trend 19 above was proved rather than asserted.
+- **WebFetch on github.com HTML** → stars, description, archived banner. **curl gets 403 on the
+  same URL**; WebFetch does not. This restores the archived-repo check that passes nine through
+  thirteen had to do by other means.
+- `registry.npmjs.org/<pkg>` → SPDX licence of the latest version, the version itself, and a
+  **per-version publish date** (how `puppeteer` 13.5.0 was dated to 2022-03-07).
+
+**Refused or unreachable — so the corresponding claims are marked, not quietly weakened:**
+- `api.github.com` **403** (unchanged since the ninth pass), `img.shields.io` **403**,
+  `repos.ecosyste.ms` **403** — there is **no star channel except WebFetch**, one call per repo.
+- `etsi.org` does not resolve → **EN 301 549 V4.1.1 is secondary-sourced** (two independent
+  sources agree on 2026-09-02; others still call it "expected").
+- `federalregister.gov` does not resolve → the **DOJ interim final rule of 2026-04-20** is
+  secondary-sourced from four independent legal publishers.
+- `dwt.com` does not resolve, though its content surfaced through search snippets.
+
+**One method rule added.** When a region's whole evidence base traces to a **single vendor read in
+several language localisations** — which is what happened to APAC this pass, where nearly everything
+came from Deque's own country pages — that is **one source, not corroboration**. Say so in the
+subsection rather than letting the page count imply breadth.

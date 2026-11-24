@@ -8,7 +8,58 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — thirteenth pass (latest) — the layer with no agents in it, and a licence that takes your weights
+## 2026-11-24 — fourteenth pass (latest) — three agents in a layer with a measured zero, and the engine under all of them
+
+> Theme: **the accessibility boundary** — whether the agent's own interface can be used by the
+> people the client is legally obliged to serve, and whether an agent can test that. Measured
+> before searching, across all nine files: `wcag` 0, `accessib` 0, `a11y` 0, `EN 301 549` 0,
+> `VPAT` 0, `axe-core` 0. A clean zero in every file.
+
+**New this week in the agent layer (3 repos, all verified today):**
+
+- **`JustasMonkev/mcp-accessibility-scanner`** — MIT (byte-read), 59★, npm `5.0.1` published
+  **2026-11-16** (eight days before this pass), `axe-core` 4.14.0 + `playwright` 1.65.1. WCAG
+  2.0/2.1/2.2 at A/AA/AAA, multi-page crawl, keyboard-navigation checks, JSON reports, plus browser
+  automation (click/hover/drag off accessibility snapshots, console and network capture).
+  **The one to put in a client pipeline.**
+- **`priyankark/a11y-mcp`** — **MPL-2.0** (byte-read *and* npm SPDX), 53★, npm `1.1.1` 2026-10-26.
+  Audit → fix → re-audit loop. The **only** one of the three that publishes to npm **with
+  provenance**, runs release-policy and real-Chrome smoke tests in CI, and has weekly Dependabot.
+- **`ronantakizawa/a11ymcp`** (npm `a11y-mcp-server`) — MIT, **97★ — the most-starred**, and the
+  one to avoid: npm `1.1.0` last published **2026-03-01**, and it pins **`puppeteer` 13.5.0, which
+  npm dates to 2022-03-07**, against a current 25.18.1 of 2026-11-17.
+
+**The measurement that matters more than the three rows.** Star rank is the exact inverse of
+maintenance rank here: 97★ stalest, 59★ freshest, 53★ the only one with supply-chain hygiene. This
+is the **third** measured instance in this KB of trend 11 ("star count has decoupled from
+enterprise suitability"), and the first where the inversion is perfect across a whole category.
+
+**The licence finding.** Every tool in this layer except IBM's is a wrapper around
+`dequelabs/axe-core`, which is **MPL-2.0** — proved by reading `package.json` in each repository:
+Microsoft's MIT tool, Google's Apache-2.0 tool and all three MCP servers carry it.
+`IBMa/equal-access` (Apache-2.0, 788★) declares **zero** axe dependencies and ships its own engine.
+So the permissive badge in this layer is the *wrapper's* badge; MPL-2.0 is file-level copyleft,
+which is deliverable but belongs in the client's OSS review and in the AI-BOM.
+
+**A dated licence-tightening instance, from the project's own LICENSE file.** `ryersondmp/sa11y`
+states in `LICENSE.md`: released under **GPL-2.0**, and "previous versions of Sa11y (v2.0 and
+below) were released under the MIT license." That is trend 7 ("licences are quietly tightening")
+with the evidence inside the repository rather than in a blog post.
+
+**Two repositories that look like rows and are not.** `w3c/wcag` is under the **W3C Document
+Licence** and `act-rules/act-rules.github.io` under a **W3C Community Contributor License
+Agreement** — neither is a software licence, so neither is something to "build on". They are
+reference corpora; cite them, do not vendor them.
+
+**Instruments proved or re-proved this pass** (useful to the whole rotation, not just enterprise):
+`api.github.com` 403, `img.shields.io` 403, `repos.ecosyste.ms` 403, curl on github.com HTML 403 —
+but **WebFetch reads github.com HTML fine** (stars, description, archived banner), and
+`registry.npmjs.org/<pkg>` returns the SPDX licence of the latest version plus a **per-version
+publish date**, which is how a pinned dependency gets dated and staleness gets measured without the
+GitHub API. `raw.githubusercontent.com/<repo>/HEAD/LICENSE` returns licence **text** — stronger
+than any badge — and `/HEAD/package.json` exposes the dependency chain.
+
+## 2026-11-24 — thirteenth pass — the layer with no agents in it, and a licence that takes your weights
 
 > Theme: **the erasure boundary** — what the agent must *forget*. Measured before searching: across
 > 10,355 lines and 355 repository addresses, `erasure`, `retention`, `unlearn`, `DSAR` and

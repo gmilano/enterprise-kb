@@ -8,7 +8,49 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — thirteenth pass (latest) — the erasure boundary
+## 2026-11-24 — fourteenth pass (latest) — the accessibility boundary
+
+> Theme: **whether the agent's interface can be used by the people the client must serve.**
+> 15 new repository addresses this pass. Every licence is a **byte-read** of the repository's own
+> `LICENSE` file, every dependency a byte-read of its `package.json`, every star count a WebFetch
+> of github.com HTML, every version and publish date from `registry.npmjs.org` — because
+> `api.github.com`, `img.shields.io` and `repos.ecosyste.ms` are all **403** for this session.
+
+**Engines (2).** `dequelabs/axe-core` **MPL-2.0**, 7.9k★, npm 4.14.1 published 2026-11-16 —
+the engine the whole layer runs on. `IBMa/equal-access` **Apache-2.0**, 788★, default branch
+`main-4.x`, **zero axe dependencies** — the only fully permissive engine in the layer.
+
+**Tools (4).** `microsoft/accessibility-insights-web` MIT 966★ (pins `axe-core` 4.11.3, dated
+2026-04-13 — seven months behind); `microsoft/accessibility-insights-service` MIT 79★ (needs Azure
+resources); `GoogleChrome/lighthouse` Apache-2.0 31.2k★ (pins `axe-core` 4.14.1);
+`pa11y/pa11y` **LGPL-3.0-only** 4.6k★ (Pa11y 10 current, **Pa11y 9 support ended 2026-02-27**).
+
+**Screen-reader automation (3) — the category this KB had never held.**
+`guidepup/guidepup` MIT 604★, npm 0.40.0 (2026-11-01), **drives real VoiceOver and NVDA** from
+Playwright/Jest. `guidepup/virtual-screen-reader` MIT 158★, npm 0.33.0 (2026-09-20), simulates a
+screen reader over a DOM in unit tests with **no real screen reader**. `nvaccess/nvda`
+**GPL-2.0-or-later with two exceptions** — the AT itself; driven, never linked.
+
+**MCP servers (3).** See `agents/trending.md` for the full reading. Short version:
+`JustasMonkev/mcp-accessibility-scanner` MIT 59★ npm 2026-11-16 (**use**);
+`priyankark/a11y-mcp` MPL-2.0 53★ (npm **provenance**, Dependabot);
+`ronantakizawa/a11ymcp` MIT 97★ npm last published 2026-03-01 pinning `puppeteer` **13.5.0 of
+2022-03-07** (**avoid**).
+
+**Not software, despite being on GitHub (3).** `w3c/wcag` — W3C **Document** Licence.
+`act-rules/act-rules.github.io` — W3C **Community Contributor License Agreement**.
+`ryersondmp/sa11y` — **GPL-2.0**, and its own `LICENSE.md` records that **versions ≤ 2.0 were
+MIT**: a licence tightening documented inside the repository.
+
+**Three measurements worth carrying forward.**
+1. **The permissive badge is the wrapper's.** 5 of 6 tools tested bundle MPL-2.0 `axe-core`,
+   including Microsoft's MIT one and Google's Apache-2.0 one.
+2. **Star rank inverted maintenance rank perfectly** across the three MCP servers (97★ stalest,
+   59★ freshest, 53★ most hygienic).
+3. **Zero non-US origin** in the whole layer — measured with the Spanish and Portuguese short
+   instruments as well as English.
+
+## 2026-11-24 — thirteenth pass — the erasure boundary
 
 > Theme: **where a delete actually has to land**. 24 new repository addresses, every licence, star
 > count, push date, archival state and default branch measured in this pass. The twelfth pass could

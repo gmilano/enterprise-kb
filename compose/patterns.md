@@ -2255,3 +2255,113 @@ simultaneously.
 - **Adopting `amundsen-io/amundsen` for the data map.** Apache-2.0, 4,780★, **archived**
   2026-09-10 and still appearing in catalog comparisons. DataHub and OpenMetadata are held and
   maintained.
+
+## Receta 27 — The accessibility gate for an agent UI: make the conformance claim testable, and the licence survivable
+
+**When to sell this.** Any agent with a human interface delivered to (a) a US state or local
+government or one of its vendors, (b) anyone placing a product or service on the EU market, (c) an
+Argentine financial entity, or (d) a Brazilian consumer-facing brand. In the EU it is not optional
+for high-risk systems: **AI Act Article 16(l)** pulls Directives 2016/2102 and 2019/882 into the
+provider's obligations, so this attaches to the **conformity file of Receta 3** rather than
+competing with it for budget.
+
+**The decision that comes first, before any tool is installed.** Ask the client's open-source review
+which licence bucket may appear **in the shipped artifact**:
+
+- **Permissive end-to-end required** → `IBMa/equal-access` (**Apache-2.0**, 788★, default branch
+  `main-4.x`). It is the **only** engine in this layer with no `axe-core` dependency. Everything
+  else inherits **MPL-2.0**.
+- **Weak copyleft acceptable in the artifact, with disclosure** → anything built on
+  `dequelabs/axe-core` (**MPL-2.0**, 7.9k★, npm 4.14.1 of 2026-11-16), which means Microsoft's MIT
+  tooling, Google's Apache-2.0 Lighthouse, and all three MCP servers. File-level copyleft: ships
+  beside proprietary code, but modifications to axe's own rule files must be published.
+- **Never assume the badge.** `microsoft/accessibility-insights-web` is MIT and installs
+  `axe-core` 4.11.3 anyway. Read `package.json`, not the sidebar.
+
+### Wiring
+
+1. **Static gate in CI (the cheap 80%).** `IBMa/equal-access` `accessibility-checker` as a CLI step,
+   or — if the client's pipeline already runs it — `GoogleChrome/lighthouse` (Apache-2.0, 31.2k★)
+   with the a11y category. Fail the build on new violations only, never on the backlog; a gate that
+   fails on day one gets disabled by week two. This lands **inside the existing CI gate of
+   Receta 10**, not beside it.
+2. **Give the coding agent the audit tool.** `JustasMonkev/mcp-accessibility-scanner` (**MIT**, 59★,
+   npm 5.0.1 published **2026-11-16**, `axe-core` 4.14.0 + `playwright` 1.65.1) as an MCP server, so
+   the agent scans, reads findings, edits and re-scans. If MPL-2.0 is acceptable,
+   `priyankark/a11y-mcp` (53★) is the only one publishing to npm **with provenance** and running
+   weekly Dependabot — better supply-chain posture, worse licence posture. **Do not use the
+   most-starred one** (`ronantakizawa/a11ymcp`, 97★): npm last published 2026-03-01 and it pins
+   `puppeteer` **13.5.0, dated 2022-03-07**.
+3. **Test the thing no scanner can see — the streaming transcript.**
+   `guidepup/virtual-screen-reader` (**MIT**, 158★) in **unit** tests over the chat DOM: assert that
+   a completed assistant message is announced **once**, that partial tokens are **not** announced,
+   and that focus never moves on a status change. Then `guidepup/guidepup` (**MIT**, 604★, npm
+   0.40.0 of 2026-11-01) in a **nightly** job driving **real NVDA and VoiceOver**. `nvaccess/nvda`
+   is GPL-2.0-or-later — you **drive** it, you never bundle it, and that distinction goes in the OSS
+   review in writing.
+4. **Build the UI from a component set that already passed.** `alphagov/govuk-frontend` (**MIT**,
+   Crown Copyright/GDS, npm 6.6.0 of 2026-10-15) for anything not already on a design system; USWDS
+   for US public sector, **after** enumerating its non-public-domain parts. Hand-rolling the chat
+   surface is how teams buy themselves the entire component-level backlog.
+5. **Produce the artifact the buyer actually wants.** Not a scan report — an **Accessibility
+   Conformance Report** (a completed VPAT): the automated JSON from step 1, plus the screen-reader
+   results from step 3, plus the manual keyboard pass. Keep it **under two years old and versioned
+   to the release** (a real university procurement rule), and state plainly that automated coverage
+   is partial.
+6. **Register it where the governance already lives.** The MPL-2.0 `axe-core` entry goes in the
+   **AI-BOM of Receta 24**. The control statements can be expressed in **OSCAL** (eighth pass) — but
+   **no WCAG 2.1 AA / EN 301 549 OSCAL catalog was found**, so budget that as a build, not an
+   adoption, and say so before quoting it.
+
+### The streaming rules, stated concretely because no standard states them
+
+Token streaming updates the DOM ~5–20×/second. There is **no normative definition of accessible
+streaming** — W3C live-region guidance is advisory — so these are engineering decisions the team
+owns:
+
+- Keep streamed text **out** of any `aria-live` region; announce the message **once**, on
+  completion.
+- **One** dedicated `aria-live="polite"` region for announcements, with `aria-atomic="false"` — not
+  `aria-live` on each message bubble.
+- Create the region **empty and before** content, or it may be ignored entirely.
+- `role="log"` + `aria-live="polite"` for completed messages.
+- Do **not** depend on `aria-busy` (inconsistent across browser/screen-reader pairs), and do **not**
+  move focus on status updates — announce "thinking" / "response complete" instead.
+
+Evidence that this is real and not theoretical: Atlassian's own agent carries public ticket
+**ROVO-978** for exactly this failure.
+
+### Sizing and what to fix as the milestone
+
+Four to six weeks for a single agent surface: week 1 the licence decision and the CI gate, week 2
+the component audit, weeks 3–4 the streaming behaviour and the screen-reader suite, weeks 5–6 the
+manual pass and the ACR. **The milestone is the signed ACR, not a green pipeline** — a green
+pipeline on partial automated coverage is the deliverable clients later discover was worthless.
+
+### What to tell the client the limits are
+
+- **An automated scan is not conformance.** Automated rules cover a fraction of WCAG; keyboard and
+  screen-reader flows need a person or a driven screen reader.
+- **A VPAT is self-reported.** State guidance in the US already warns buyers of this and recommends
+  independent validation — offer the validation, do not resent the scepticism.
+- **The US Title II date moved**: 2027-04-26 (≥50,000 population) and 2028-04-26 (<50,000 and
+  special districts), per the DOJ interim final rule of 2026-04-20. **Do not pitch urgency against
+  the old April 2026 date** — the client's counsel knows.
+- **The EU baseline is moving to WCAG 2.2 AA** via EN 301 549 V4.1.1 (reported 2026-09-02,
+  secondary-sourced). Build to 2.2, not 2.1, where the EU is in scope.
+
+### Anti-patterns for this receta
+
+- **Promising "MIT only" and then installing Microsoft's MIT scanner** — which brings MPL-2.0
+  `axe-core` with it. Five of six tools in this layer do.
+- **Taking the most-starred MCP server** into a client pipeline. It is the stalest and ships a
+  2022 browser.
+- **Putting streamed tokens into an `aria-live` region.** The two outcomes are a firehose or
+  silence.
+- **Adopting `pa11y/pa11y` (LGPL-3.0-only) or `ryersondmp/sa11y` (GPL-2.0)** into a distributed
+  artifact without checking — Sa11y was MIT at v2.0 and is not any more.
+- **Quoting `w3c/wcag` or `act-rules/act-rules.github.io` as open source to build on.** W3C
+  Document Licence and a W3C Contributor Licence Agreement are **not software licences**. (The APG
+  repo, `w3c/aria-practices`, is under the W3C **Software and** Document License — different thing.)
+- **Citing `NBR 17060`** for Brazil. This pass searched for it and could not confirm it exists in
+  the form it is commonly cited.

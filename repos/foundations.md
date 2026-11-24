@@ -1705,3 +1705,76 @@ and push date in this section is measured**, via `gh api -X GET search/repositor
 repo:c/d …'`, which is in scope and returns `license.spdx_id`, `stargazers_count`, `pushed_at`,
 `archived` **and `default_branch`** for up to several repositories in a single request. The
 reusable details, including the one way this instrument fails silently, are in `intel/trends.md`.
+
+## Accessibility conformance — the layer that decides whether the agent UI can be sold (added fourteenth pass, 2026-11-24)
+
+> Why this is a *foundations* layer and not a nice-to-have: in the EU, **AI Act Article 16(l)**
+> obliges providers of high-risk AI systems to comply with the accessibility requirements of
+> Directives (EU) 2016/2102 and (EU) 2019/882 — accessibility is an **AI** obligation, not only a
+> web one (`intel/market.md`, EMEA, this pass). In US public-sector procurement it is a gate before
+> a contract, not a finding after one.
+>
+> **Verification channels used, because the usual one is gone.** `api.github.com` → 403 for this
+> session (as since the ninth pass), and `img.shields.io` and `repos.ecosyste.ms` are also refused
+> by the proxy. So: **licence = byte-read** of `raw.githubusercontent.com/<repo>/HEAD/LICENSE`
+> (licence *text*, stronger than a badge); **dependencies = byte-read** of `/HEAD/package.json`;
+> **stars + archived state** = github.com HTML through WebFetch; **versions and publish dates** =
+> `registry.npmjs.org`. Measured 2026-11-24.
+
+### The engines (pick by licence, not by popularity)
+
+| Repo | Licence (byte-read) | ★ | Engine | Note |
+|---|---|---|---|---|
+| https://github.com/dequelabs/axe-core | **MPL-2.0** | 7.9k | **own** | "Accessibility engine for automated Web UI testing". npm 4.14.1, 2026-11-16. The de-facto engine of the whole layer |
+| https://github.com/IBMa/equal-access | **Apache-2.0** | 788 | **own** | `accessibility-checker-engine` declares **zero** axe dependencies. Default branch is `main-4.x`, not `main`. **The only fully permissive engine here** |
+
+### The tools built on them
+
+| Repo | Licence (byte-read) | ★ | Bundles `axe-core`? | Use for |
+|---|---|---|---|---|
+| https://github.com/microsoft/accessibility-insights-web | MIT | 966 | **yes, 4.11.3** (2026-04-13 — seven months behind 4.14.1) | Browser-extension assessment, FastPass, guided manual checks |
+| https://github.com/microsoft/accessibility-insights-service | MIT | 79 | — | Scheduled scans of a site at estate scale. **Requires deploying Azure resources**; no throughput figure published |
+| https://github.com/GoogleChrome/lighthouse | Apache-2.0 | 31.2k | **yes, 4.14.1** | The a11y category inside an existing CI that already runs Lighthouse |
+| https://github.com/pa11y/pa11y | **LGPL-3.0-only** | 4.6k | — | CLI/CI runner. Pa11y 10 current; **Pa11y 9 support ended 2026-02-27**. Licence is *not* permissive |
+
+### The part automation cannot do — driving an actual screen reader
+
+This is the layer that makes a streaming agent UI testable, and it did not exist in this KB:
+
+| Repo | Licence (byte-read) | ★ | npm | What it does |
+|---|---|---|---|---|
+| https://github.com/guidepup/guidepup | MIT | 604 | `@guidepup/guidepup` 0.40.0, 2026-11-01 | **Drives real VoiceOver and NVDA** from Playwright/Jest. "Screen reader automation library for testing" |
+| https://github.com/guidepup/virtual-screen-reader | MIT | 158 | `@guidepup/virtual-screen-reader` 0.33.0, 2026-09-20 | Simulates a screen reader over a DOM in **unit** tests — **no real screen reader needed**. Its own README says it should supplement, not replace, testing with real screen readers and users |
+| https://github.com/nvaccess/nvda | **GPL-2.0-or-later**, two exceptions (`copying.txt`; there is no root `LICENSE`) | — | — | The assistive technology itself. You **drive** it, you do not link it, so it stays out of your artifact — but say that out loud in the OSS review |
+
+### Reference corpora that are not software (do not "build on" these)
+
+| Repo | Licence (byte-read) | What it actually is |
+|---|---|---|
+| https://github.com/w3c/wcag | **W3C Document Licence** | The WCAG specification sources. Not a software licence |
+| https://github.com/act-rules/act-rules.github.io | **W3C Community Contributor License Agreement** | The ACT rules corpus — the machine-readable test definitions behind conformance tooling. Not a software licence |
+| https://github.com/ryersondmp/sa11y | **GPL-2.0** | In-page QA checker. Its own `LICENSE.md` records that **versions ≤ 2.0 were MIT** — a dated licence-tightening instance |
+
+### The licence-concentration rule, applied to an engine instead of a category
+
+`intel/trends.md` already generalises licence concentration across a layer. This layer adds a
+sharper form: **concentration at the engine, hidden under permissive wrappers.** Five of six tools
+tested ship MPL-2.0 `axe-core`; the badge the client reads is the wrapper's. MPL-2.0 is file-level
+copyleft — deliverable beside proprietary code, but (a) it belongs in the client's OSS review,
+(b) modifications to axe's own rule files must be published, and (c) it belongs in the AI-BOM built
+in `compose/patterns.md` Receta 24. The only end-to-end permissive path is IBM's engine.
+
+### The gap this layer still has, stated rather than filled
+
+- **No OSCAL catalog for accessibility.** The eighth pass added OSCAL as the machine-readable
+  control format; there is no ready WCAG 2.1 AA / EN 301 549 catalog in `usnistgov/oscal-content`
+  found by this pass. Expressing an accessibility control set in OSCAL is a **build**, not an
+  adoption. Open item.
+- **No non-US origin in the *engine and testing* layer.** All eleven verified repositories above
+  originate with US vendors (Deque, Microsoft, Google, IBM) or individual maintainers
+  (guidepup — Craig Morten; Sa11y — Toronto Metropolitan University, Canada). **Zero** EMEA-, APAC-
+  or LATAM-origin test tooling was found, with the English, Spanish and Portuguese instruments.
+  **The scope of that zero matters:** one layer up, in *components*, the position reverses —
+  `alphagov/govuk-frontend` (MIT, Crown Copyright/GDS, npm 6.6.0 of 2026-10-15) is EMEA-origin and
+  is the single best-tested accessible component set in the open
+  (`verticals/solutions.md`, this pass). A zero is only as good as the layer it is measured in.

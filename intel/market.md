@@ -490,6 +490,44 @@ is evidence — which is this KB's most-repeated finding, now reproduced in the 
 > document. The repository and licence facts elsewhere in this pass are byte-verified; these are
 > not, and the distinction is deliberate.
 
+#### The accessibility gate, and the date that moved (fourteenth pass, 2026-11-24)
+
+- **The deadline every 2026 roundup quotes is no longer the deadline.** A DOJ **interim final rule
+  published 2026-04-20** extends each ADA Title II web and mobile accessibility compliance date by
+  one year: public entities of **≥ 50,000 population move from 2026-04-24 to 2027-04-26**, and
+  entities **< 50,000 plus all special districts move from 2027-04-26 to 2028-04-26**. The comment
+  period closed 2026-06-22. **The standard did not change: WCAG 2.1 Level A and AA**, and
+  enforcement of Title II was not altered.
+  > **Secondary-sourced.** Four independent legal sources agree (Duane Morris, Reed Smith, Davis
+  > Wright Tremaine, National Law Review). `federalregister.gov` **does not resolve** from this
+  > session, so this is **not** primary-verified. Quote it as "DOJ interim final rule, April 2026",
+  > never as a citation to the Federal Register this KB has read.
+- **Sources in direct conflict — recorded, not reconciled.** Other 2026 vendor material still
+  describes the April 2026 date as binding or already passed. Both readings are live on the open
+  web right now. **Do not build a pitch on urgency against the old date**; a client's own counsel
+  will have the extension.
+- **Litigation volume, two incompatible numbers.** Level Access, citing Seyfarth Shaw's March 2026
+  analysis: **3,117** federal website accessibility suits in 2025, **+27%** year on year, the
+  highest since 2022, and **36%** of all ADA Title III federal filings. A NASCIO-linked source puts
+  **digital accessibility lawsuits above 5,000** in 2025. These measure different scopes — use one,
+  name it, and never average them.
+- **The procurement mechanics are the actual buying trigger.** A VPAT becomes an **Accessibility
+  Conformance Report** once completed. One university's rule: the ACR must be **under two years
+  old and match the product version being purchased**. State guidance warns that a VPAT is
+  **self-reported** and recommends independent validation, and states are tightening vendor
+  accessibility requirements ahead of the DOJ dates (Davis Wright Tremaine, September 2026).
+
+**Opportunity.** The one-year extension turns a missed deadline into a **fundable 2027 programme**,
+and the sellable unit is not a scan report — it is an **independently validated ACR for the agent
+UI**, versioned to the release, with the manual screen-reader evidence an automated scan cannot
+produce (`compose/patterns.md`, Receta 27). Every agent a client buys for a covered entity inherits
+that entity's obligation, so this attaches to **existing** agent engagements rather than competing
+with them.
+
+**Explicit gap.** **Section 508** (federal agencies, as distinct from Title II state and local) did
+not appear in any source this pass returned. Not covered — do not assume the Title II dates apply
+to federal procurement.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1026,6 +1064,46 @@ addressable market for an evidence-shaped deliverable.
 > AI) conflict across sources between "adopted 7 July 2026" and "draft for consultation"; and a
 > reported Council position of 21 October 2026 on the Digital Omnibus could not be verified.
 
+#### Accessibility is an AI Act obligation, not only a web one (fourteenth pass, 2026-11-24)
+
+- **The finding that reframes the whole layer: AI Act Article 16(l).** Providers of **high-risk** AI
+  systems must comply with the accessibility requirements of **Directive (EU) 2016/2102** (Web
+  Accessibility Directive) and **Directive (EU) 2019/882** (European Accessibility Act). **Recital
+  80** carries the reasoning: providers must ensure *full* compliance with those requirements.
+  Hogan Lovells reads this as an obligation that existing EU accessibility legislation be
+  **reflected in the design and development** of high-risk AI systems, where those systems fall
+  within the accessibility directives' scope. **Accessibility therefore sits inside the AI Act
+  conformity file, not beside it.**
+  > **Timing is in conflict and is left unreconciled.** One source dates Article 16's application
+  > to **2027-12-02** for Annex III high-risk and **2028-08-02** for Annex I, per Article 113(c);
+  > another states the high-risk regime applied from **2026-08-02**. Check Article 113 before
+  > quoting either. **One source flagged unreliable:** a DisabilityWorld article describes Article
+  > 16 as covering *general-purpose* AI providers, which contradicts the high-risk-provider text in
+  > every other source — do not cite it.
+- **The EAA itself has applied since 2025-06-28**, and it reaches **non-EU providers** that supply
+  covered products or services to consumers in the EU — the same extraterritorial shape as the AI
+  Act, and the reason a LATAM or APAC delivery centre building for an EU client is in scope.
+- **The conformance baseline is moving to WCAG 2.2.** **EN 301 549 V4.1.1** is reported published
+  **2026-09-02**, incorporating **WCAG 2.2 Level AA** and its six additional success criteria, and
+  described as the first version built to support EAA implementation. Conformance to EN 301 549
+  gives a **presumption of conformity** with the EAA (Article 15).
+  > **Secondary-sourced, two independent sources** (a Davis Wright Tremaine ICT-standards update of
+  > September 2026 and a Deque Australia post citing the same date). **`etsi.org` does not resolve
+  > from this session**, and some sources still describe V4.1.1 as merely *expected*. Treat the
+  > date as well-attested but unverified at the standard body.
+
+**Opportunity.** The AI Act conformity work EMEA clients are **already funding** (Annex IV
+documentation — `compose/patterns.md` Receta 3) has an **unpriced accessibility line item** inside
+it by virtue of Article 16(l). That is a cross-sell onto a budget that exists, not a new budget.
+And the same structural gap this KB recorded for Annex IV applies here: **there is no EU-mandated
+machine-readable format for an accessibility conformance claim either**, so the OSCAL work from the
+eighth pass has a second application — and no ready accessibility catalog to adopt
+(`repos/foundations.md`, open item).
+
+**Regional asset worth naming.** The best-tested accessible component set in the open is
+**EMEA-origin and MIT**: `alphagov/govuk-frontend`, Crown Copyright/GDS
+(`verticals/solutions.md`, this pass).
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1525,6 +1603,39 @@ AI investment and that India's approach risks slowing adoption.
 > **May 2027**; the plausible reconciliation — registration opens first, individual routing rights
 > follow — could not be confirmed. A second single-source claim, that large platforms must erase
 > the data of users inactive for three years after 48 hours' notice, is recorded as **unverified**.
+
+#### Accessibility: three regimes, three different baselines (fourteenth pass, 2026-11-24)
+
+- **Japan — JIS X 8341-3**, and the sources disagree on its force. One states it is **voluntary for
+  the private sector but mandatory in public-sector procurement**; another that compliance is **not
+  generally required by law**, though many businesses and public bodies treat it as binding. Its
+  technical baseline maps to **WCAG 2.0 Level AA** — an older target than the EU's. The change that
+  matters commercially is the **2024 amendment**: a web-accessibility shortfall that prevents a
+  disabled person from using a business's services can now be the subject of a
+  **constructive-dialogue (reasonable accommodation) request**, which moves accessibility from a
+  procurement checkbox to a **customer-facing** obligation for private firms.
+- **Australia — Disability Discrimination Act 1992**, enforced by the **Australian Human Rights
+  Commission**; the **Digital Transformation Agency's Digital Experience Policy** requires new
+  government websites and services to meet digital inclusion, access and performance standards.
+  Practice aligns to **WCAG 2.2 AA**, with **EN 301 549** recommended as the test standard.
+- **India — RPwD Act 2016**, which mandates accessibility conformance for the **public *and*
+  private** sectors, operationalised through **BIS IS 17802** (parts 1 and 2, 2021) and
+  **GIGW 3.0**.
+- **Several APAC jurisdictions are reported to be developing EAA-inspired legislation** (Australia,
+  Japan, Singapore named).
+
+> **Source-concentration warning, and it is severe.** Almost all of the above traces to **one
+> vendor** (Deque), read across several language localisations of the same pages — which looks like
+> corroboration and is not. **No primary government text was reachable** this pass: JISC, the DTA,
+> MeitY/DEPwD and the AHRC were not fetched. Treat this subsection as a **lead list**, verify
+> against the official text before any of it reaches a client deck.
+
+**Opportunity.** The spread of baselines — Japan on WCAG 2.0, Australia on 2.2, India on its own BIS
+standard — makes **per-country conformance the expensive way to do this**. For any client selling
+into more than one of these markets, the engagement is *"one target, mapped"*: build to **WCAG 2.2
+AA plus EN 301 549**, the strictest and the forward-compatible one, and produce per-market mappings
+from a single evidence set. That is also the answer for an APAC client selling **into** the EU,
+where the EAA reaches them extraterritorially.
 
 ### LATAM
 
@@ -2129,6 +2240,44 @@ countries.
 > The claim of 75 inspections for the biennium with 20 targeting AI systems is also single-source.
 > The *Resolución* number, the four priorities and the Article 20 basis are consistent across
 > sources and are the parts worth repeating.
+
+#### Accessibility: one regulator-grade mandate, and one litigation channel (fourteenth pass, 2026-11-24)
+
+- **Argentina — the sharpest commercial hook in the region.** Beyond **Ley 26.653** (web
+  accessibility, referencing WCAG 2.0), the **BCRA's Comunicación "A" 7517/2022** establishes that
+  **all financial entities must comply with digital accessibility requirements**. That is a
+  **sector regulator** imposing accessibility on exactly the client type Globant serves most in the
+  region — not a general non-discrimination statute, and not a deadline that can be deferred.
+- **Brazil — the trigger is a lawsuit, not a deadline.** The framework is the **LBI (Lei
+  13.146/2015)**, with **Decreto 5.296/2004**, the **e-MAG** federal web standard and the Libras
+  Law; the LBI mandates universal design in digital as well as physical environments, and WCAG is
+  referenced. Enforcement runs primarily through the **Ministério Público's civil class actions on
+  behalf of persons with disabilities** — the most active enforcement actor. There is no
+  administrative date to plan against, which is precisely why the deliverable is **evidence held in
+  advance**.
+- **Chile — Ley 20.422** plus the Digital Transformation Law, with WCAG-aligned standards that are
+  **not formally adopted**; legal backing exists, implementation is inconsistent.
+- **Colombia — Ley Estatutaria 1618 (2013)**, focused in practice on digital government services,
+  with limited enforcement mechanisms.
+
+> **Two measured gaps, written down rather than left silent.**
+> 1. **`NBR 17060` could not be confirmed at all.** It was searched for by name as a Brazilian
+>    technical accessibility standard and **no source returned its content or status**. **Do not
+>    cite it** until it is verified.
+> 2. **Zero LATAM-origin accessibility tooling** was found, using the short Spanish and Portuguese
+>    instruments as well as English — consistent with the engine/testing layer being entirely
+>    US-origin (`repos/foundations.md`).
+>
+> All sources for this subsection are **law-firm and vendor pages**; `planalto.gov.br` does not
+> resolve from this session, as the thirteenth pass also recorded. Nothing here is primary.
+
+**Opportunity.** Two different products for two different triggers, and conflating them is the
+mistake: in **Argentina** the buyer is a **regulated financial entity** with a supervisory
+requirement, so the engagement is conformance work with a named regulator attached; in **Brazil**
+the buyer is any consumer-facing firm whose risk is a **class action**, so the product is an
+**Accessibility Conformance Report plus a re-runnable test suite** — evidence that exists before the
+claim arrives, not a remediation sprint after it. Both attach to agent UIs the client is already
+building, which is what makes this sellable without a new budget line.
 
 ## Posicionamiento Globant
 
