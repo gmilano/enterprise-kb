@@ -901,3 +901,82 @@ Ninguna fila de los *tiers* anteriores se movió. El patrón que el cuarto pase 
 verificadas en este pase (**42 nuevas** para la KB), **4** entran en este archivo y las demás en `repos/foundations.md` y
 `verticals/solutions.md`. En un plano donde la validez la decide un tercero, **lo escaso no es la
 inteligencia: es la prueba.**
+
+## El límite del calendario — una fila real, un cero medido y la cadena de cinco eslabones (added eighteenth pass, 2026-11-24)
+
+> Tema: **cuándo vence algo, en la hora de quién y en los días laborables de quién.** El pase
+> diecisiete encontró **plazos** —India, **30 días** al IRP; las fechas de KSeF; los catálogos CFDI
+> 2026— y este pase preguntó si la KB podía **contarlos**. Medido antes de buscar, sobre los nueve
+> archivos: `tzdata` **0** · `IANA` **0** · `ISO 8601` **0** · `calendario` **0** · `día hábil` **0** ·
+> `business day` **0** · `business hours` **0** · `festivo` **0** · `cron` **0** · `RFC 5545` **0** ·
+> `rrule` **0** · `CalDAV` **0** · `day count` **0** · `30/360` **0** · `holiday` **1** · `DST` **1**.
+> **La KB tenía los vencimientos y no tenía el calendario.**
+
+### La única fila con forma de agente en toda la capa
+
+| Nombre | Repo | Licencia | Versión | Qué hace |
+|---|---|---|---|---|
+| mcp-server-time | [modelcontextprotocol/servers → `src/time`](https://github.com/modelcontextprotocol/servers/tree/main/src/time) | **MIT** — `pyproject.toml`: `license = { text = "MIT" }`, leído por bytes | **`2026.11.18`** (seis días), `mcp>=2.3,<3` | Servidor **MCP** de referencia: `get_current_time`, `convert_time` y `get_time_ago`, con nombres de zona **IANA** y detección de la zona del sistema. |
+
+**Una sola fila, y se publica así a propósito.** Es la séptima vez que esta KB registra el mismo
+patrón —buscar por **consecuencia** devuelve **capas**, no agentes—: de las **34 direcciones**
+verificadas este pase (**29 nuevas**), **1** entra en este archivo y las otras **33** en
+`repos/foundations.md` y `verticals/solutions.md`.
+
+### Las dos frases de su README que deciden una integración, citadas
+
+1. «*The offset is elapsed time, counted back from the current instant, so across a daylight-saving
+   change "a day ago" is exactly 24 hours ago and its wall-clock reading can differ from now by an
+   hour.*» → **«hace un día» son 24 horas, no «ayer a esta hora».** El servidor de referencia
+   **documenta la elección** porque son dos respuestas distintas, y un agente que resume «lo que pasó
+   en las últimas 24 horas» cruzando un cambio de horario devuelve una ventana desplazada una hora.
+2. «*A timezone name … must be an exact IANA key, case included: `Europe/Warsaw` is accepted and
+   `europe/warsaw` is rejected on every platform, including macOS, whose case-insensitive filesystem
+   would otherwise resolve it.*» → **un LLM que normaliza a minúsculas recibe un error**, y el
+   rechazo es deliberadamente **igual en los tres sistemas operativos** para que no haya un bug que
+   solo aparece en producción. `get_time_ago` además **rechaza** fracciones, cadenas numéricas y
+   booleanos, que es exactamente lo que un modelo emite cuando le piden «dos horas y media».
+
+### Lo que NO es un agente en esta capa, dicho para que nadie lo busque aquí
+
+Las **33 direcciones** restantes son **datos y bibliotecas**: la base horaria (`eggert/tz`,
+`python/tzdata`), los datos de locale (`unicode-org/cldr`, `unicode-org/icu`), los datos de festivos
+(`vacanza/holidays`, `commenthol/date-holidays`, `nager/Nager.Date`, los dos `jollyday`,
+`workalendar`), la aritmética (`date-fns`, `luxon`, `moment-timezone`, `pendulum`, `arrow`,
+`dateutil`, `nodatime`, `joda-time`, `HowardHinnant/date`), la norma y la recurrencia
+(`tc39/proposal-temporal`, `temporal-polyfill`, `jkbrzt/rrule`, `ical4j`, `sabre-io/vobject`), la
+convención de día hábil (`QuantLib`) y las aplicaciones de calendario (`rallly`, `Radicale`,
+`easyappointments`, `nextcloud/calendar`). **No hay ningún agente de agenda open source con licencia
+permisiva en esta capa**, y conviene decirlo antes de que un *engagement* lo presuponga.
+
+### El dato que convierte esto en un problema de agentes y no de infraestructura
+
+**Un agente no calcula el tiempo: lo hereda de una cadena de cinco eslabones**, y cada uno tiene su
+propia versión y su propio calendario de releases:
+
+```
+ley o decreto  →  tzdb (eggert/tz)  →  CLDR / ICU  →  runtime del lenguaje  →  el agente
+```
+
+En 2026 el segundo eslabón **envió a propósito datos que contradicen el primero** para acomodar al
+tercero. Está escrito en el `NEWS` de `eggert/tz`: cuatro jurisdicciones canadienses —Columbia
+Británica (legal **2026-03-09**), Alberta (**2026-06-18**), Territorios del Noroeste
+(**2026-08-21**) y Manitoba (**2026-10-31**)— se modelaron **todas el 2026-11-01 a las 02:00**,
+porque «*This temporary hack works around limitations in Unicode CLDR and ICU*». El detalle completo,
+con releases y números de versión, está en `repos/foundations.md` y en `intel/trends.md` (tendencia
+37). **Lo que importa para este archivo: ninguno de los agentes de los *tiers* anteriores sabe en qué
+versión de tzdata, CLDR o ICU se está ejecutando, y ninguno lo declara.**
+
+### Qué decirle a un lead de engagement
+
+1. **La capa de agenda no se compra, se compone.** Hay **una** fila agéntica (MIT, de referencia) y
+   treinta y tres bibliotecas. Quien prometa «un agente que gestiona el calendario» está prometiendo
+   integración, no adopción.
+2. **Pregunte por versiones, no por features.** `tzdata`, CLDR e ICU de la imagen de contenedor, y el
+   `zic` con que se compiló. Si la respuesta es «la del sistema», no hay respuesta.
+3. **Un agente que solo compara instantes está a salvo.** Los mantenedores de tzdb lo delimitan:
+   «*It does not affect UT offsets, and affects abbreviations and tm_isdst flags only*». Los que
+   muestran la abreviatura de zona o ramifican sobre `isdst` **no** lo están.
+4. **El festivo no es un dato técnico, es un acto legislativo.** `workalendar` (**MIT**, 946★) lleva
+   **inactivo desde 2024-04-12** sin estar archivado: una biblioteca de festivos sin mantenimiento no
+   es código viejo, es **código incorrecto**.

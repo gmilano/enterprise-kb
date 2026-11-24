@@ -662,6 +662,50 @@ access point ready for the day a customer or a state asks for structured exchang
 cycle time now, it is also the cheapest possible hedge against a future mandate — and it is the same
 artefact the EMEA engagement produces.
 
+
+#### The calendar boundary — eighteenth pass, 2026-11-24 (North America)
+
+**Esta es LA región del pase, y el riesgo es presente, no teórico.** De los seis cambios de calendario
+civil registrados en las seis releases de tzdb de 2026, **cuatro son de Norteamérica** y todos
+entraron en vigor **entre marzo y el 1 de noviembre de 2026** — hace tres semanas. Fuente **primaria**
+(`eggert/tz/NEWS`, 266 065 B, leído byte a byte; `data.iana.org` responde 403 por el proxy):
+
+| Jurisdicción | Nuevo régimen | Fecha **legal** | Release tzdb | Zona afectada |
+|---|---|---|---|---|
+| Columbia Británica | **-07** permanente | 2026-03-09 | 2026b | `America/Vancouver` (+ link `Canada/Pacific`) |
+| Alberta | **-06** permanente | 2026-06-18 | 2026c | `America/Edmonton` (+ link `Canada/Mountain`) |
+| Territorios del Noroeste | **-06** permanente | 2026-08-21 | 2026d | `America/Inuvik` (el resto lo cubre Edmonton) |
+| Manitoba | **-05** permanente | 2026-10-31 | 2026e | `America/Winnipeg` (+ link `Canada/Central`) |
+| Saskatchewan | *Time Act, 2026* en vigor **2026-10-30** | 2026-10-30 | 2026f (comentario) | sin cambio esperado |
+
+**Y las cuatro primeras se modelaron en una fecha que no es la legal: 2026-11-01 a las 02:00**, para
+sortear limitaciones de **CLDR 48-48.2.2** e **ICU 78-78.3**. Consecuencia medible para un cliente
+norteamericano: entre la fecha legal y el 2026-11-01, **la abreviatura de zona y el flag `tm_isdst`
+que devuelve su stack son incorrectos** (los *offsets* UT, no). Y si compiló datos con `zic`
+**2023d-2026a** en modo `slim`, **la transición del 2026-11-01 02:00 de `America/Vancouver` se ignora
+por completo** hasta recompilar con `zic -b fat`. Añádase el fallo de `libstdc++ std::chrono` en
+**GCC 14.1-14.4, 15.1-15.2, 16.1** (**bug 124851**, corregido en **16.2**).
+
+**Ontario noroccidental es el riesgo abierto, y el `NEWS` lo dice:** se emitió regulación provincial
+para permitir que esas zonas sigan a Manitoba en el **-05** anual, pero «*It is not yet known whether
+or to what extent these areas may adapt their own timekeeping practices*», y tzdb asumió que lo harán
+«*to avoid creating new zones that may not be needed*». **Un cliente con operación en Thunder Bay o
+Kenora puede necesitar una zona que todavía no existe.**
+
+**La oportunidad concreta, y es vendible esta semana.** Una **auditoría de cadena temporal** de dos
+semanas sobre los sistemas de un cliente con operación canadiense: inventario de versiones de
+`tzdata`, CLDR, ICU y `zic` por imagen de contenedor; detección de *offsets* almacenados en lugar de
+zonas; y una prueba de regresión con las cuatro zonas afectadas. **Es un entregable pequeño, con
+fecha de caducidad —el apaño se retira en la próxima release de tzdb— y con cuatro provincias como
+evidencia de que no es hipotético.**
+
+**Contexto de mercado (nivel *snippet* de búsqueda, no verificado en primario):** sin marco federal
+único en EE. UU. y con requisitos que varían por agencia y sector; **Gartner (1 303 encuestados)
+reporta 22 %** que han escalado IA a varias unidades de negocio y una encuesta de más de 120 000
+respuestas da **8,6 %** con agentes en producción. La lectura para esta capa: **la mayoría de los
+clientes aún no tiene agentes en producción, así que la corrección temporal se puede diseñar antes
+del incidente en lugar de después.**
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1413,6 +1457,53 @@ pushed within the last 24 hours). **That concentration belongs in the risk secti
    which rule set accepted it. This is what the byte-proven `BR-CO-17` / `BR-S-08` divergence makes
    necessary, and no commercial platform sells the *evidence*, only the transmission. Receta 33.
 
+
+#### The calendar boundary — eighteenth pass, 2026-11-24 (EMEA)
+
+**Dos cambios de 2026 y uno de 2027, todos de fuente primaria** (`eggert/tz/NEWS`):
+
+- **Marruecos a +00 permanente el 2026-09-20** (release **2026c**). Es el cambio EMEA de calendario
+  civil más relevante del año y afecta a toda operación con nóminas, SLA o turnos en Marruecos
+  —incluidos los centros de servicio que atienden a Europa—. Nota de contexto del mismo archivo: tzdb
+  venía **adivinando** («*Guess Morocco will continue to adjust clocks around Ramadan*»), así que el
+  histórico marroquí es de los más revisados de la base.
+- **Moldavia** usa horarios de transición de la UE **desde 2022** (release **2026a**, 2026-03-01):
+  adelanta a las **03:00** y atrasa a las **04:00**, no a las 02:00/03:00. Un dato **retroactivo
+  cuatro años**: todo histórico moldavo calculado antes de 2026a tiene una hora mal en las
+  transiciones.
+- **Groenlandia atrasa DOS horas el 2027-10-31** (bloque `Unreleased`), para pasar de -02/-01 a
+  -03/-02 manteniendo las reglas de DST de la UE. Afecta a `America/Nuuk` y `America/Scoresbysund`.
+
+> **Un problema de vocabulario de región, declarado en lugar de resuelto en silencio.** Groenlandia
+> es **`America/…`** en tzdb y sigue **reglas de DST de la UE**. Esta KB usa el vocabulario cerrado de
+> cinco valores, así que el cambio se registra **en EMEA por su régimen regulatorio** y se deja
+> escrito que **un filtro por prefijo de zona IANA lo colocaría en North America**. Cualquier
+> consulta automática sobre esta capa debe elegir uno de los dos criterios y decir cuál.
+
+**El hueco declarado de EMEA, y es una ausencia con significado.** La UE **no** aparece en ninguna de
+las seis releases de 2026: su propuesta de abandonar los cambios de hora estacionales **sigue sin
+resolverse** y los 27 Estados miembros continúan con el régimen de marzo/octubre. **Para un cliente
+europeo, el riesgo no es un cambio reciente —no lo hubo— sino la deuda acumulada**: un sistema que
+guarda `+01:00` en lugar de `Europe/Madrid` ya está mal **dos veces al año**, sin necesidad de
+ninguna reforma.
+
+**Donde esto se cruza con lo que la KB ya tiene.** El pase diecisiete dejó **conflictos sin
+resolver** sobre fechas de cumplimiento fiscal en EMEA (las sanciones de KSeF en Polonia, el estado
+de la orden **HAC/1028/2026** en España). **Ese es precisamente el tipo de plazo que esta capa
+calcula**, y el argumento comercial se une: no se puede prometer «cumplimos la fecha» sin un
+calendario mantenido y una zona almacenada correctamente. **La propuesta EMEA que funciona es la
+fiscal con el módulo de calendario dentro**, no una auditoría temporal suelta.
+
+**Contexto de mercado (nivel *snippet*, no verificado en primario):** **IDC** reporta que solo el
+**9 %** de las organizaciones EMEA ha obtenido resultados medibles de la mayoría de sus proyectos de
+IA en dos años, y enmarca la ejecución —no la ambición— como el cuello de botella; **WWT** cita
+**12 %** con estructuras de gobierno dedicadas; una encuesta de **Veeam** da **88 %** operando ya
+agentes frente a **7 %** que se consideran preparados para gestionarlos; la **OCDE**, vía TNW, sitúa
+la escasez de competencias como barrera principal en la mitad de las pymes encuestadas; y se señala
+que la adopción empresarial de **Dinamarca** supera ya la media estadounidense. **La brecha 88 %/7 %
+es exactamente el espacio de esta capa:** agentes en marcha sin la infraestructura de corrección que
+los sostiene.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2096,6 +2187,47 @@ the ledger; in Malaysia it is a **submission pipeline with a human or accredited
 the SVDP window (to 2027-12-31) as the reason to move now; in India it is an **ageing control on the
 30-day window**. All three are short, dated and auditable — and all three reuse the same permissive
 AS4/UBL core.
+
+
+#### The calendar boundary — eighteenth pass, 2026-11-24 (APAC)
+
+**CERO MEDIDO, NO SILENCIO: ninguna de las seis releases de tzdb de 2026 contiene un cambio de
+calendario civil en APAC.** Revisadas 2026a, 2026b, 2026c, 2026d, 2026e, 2026f y el bloque
+`Unreleased` del `NEWS` primario. Los cambios APAC que los resúmenes de búsqueda devuelven son
+**viejos y mal fechados**: **Samoa** dejó el horario de verano en **2021b (2021-09-24)**, **Jordania**
+cambió el inicio de su DST en la misma release, **Irán** no observa DST **desde 2022 (2022b)**.
+**Cinco años de error de atribución en el primer resultado de búsqueda de la capa.**
+
+**Y el cero es informativo, porque el riesgo APAC no es el DST: es la estructura de los *offsets*.**
+Verificado leyendo los archivos de datos del tzdb (`asia`, 193 525 B; `australasia`, 98 595 B):
+
+| Caso | Dato primario | Por qué rompe código |
+|---|---|---|
+| **Isla Lord Howe (AU)** | `Zone Australia/Lord_Howe … 10:30 LH %z` y `Rule LH 2008 max - Oct Sun>=1 2:00 **0:30** -` | **El salto de horario de verano es de TREINTA MINUTOS**, de +10:30 a +11:00, el primer domingo de octubre, vigente desde 2008 «hasta max». Todo código que asuma que el DST es ±1 h falla aquí. |
+| **India** | `Zone Asia/Kolkata … 5:30 - IST` | **+05:30 permanente, una sola zona** para todo el país. Combinado con el plazo del IRP registrado en el pase diecisiete (**30 días** para AATO ≥ ₹10 crore), el cálculo del vencimiento es trivial en zona y crítico en días. |
+| **Nepal** | `Zone Asia/Kathmandu … 5:45 - %z` (desde 1986) | **+05:45**: un *offset* de cuarto de hora. Un campo que almacene horas enteras o medias horas no lo representa. |
+| **Myanmar** | `Zone Asia/Yangon` | Media hora (+06:30); histórico desde `6:24:47` LMT. |
+
+**La oportunidad APAC, y es distinta de la norteamericana.** En Norteamérica se vende una auditoría
+de **actualización**; en APAC se vende una de **representación**: tipos de dato y esquemas que
+admitan *offsets* de 30 y 45 minutos y saltos de DST que no son de una hora. **Es un problema de
+modelo de datos, no de parcheo**, y aparece en cuanto un cliente con operación regional consolida
+reporting sobre India, Nepal y Australia en el mismo almacén.
+
+**Contexto de mercado (nivel *snippet*, no verificado en primario):** **Forrester** sitúa a
+**Singapur, Australia, Nueva Zelanda y Corea del Sur** por delante de la mayoría de países
+norteamericanos y europeos en adopción empresarial; el *CIO Playbook* de **Lenovo** da **96 %** de
+organizaciones APAC que aumentarán inversión en IA ~**15 %** en 2026; **IDC** describe el gobierno
+unificado de IA pasando de opcional a obligatorio; y **BSA** señala riesgos regulatorios en **India**
+y **Vietnam** y la divulgación de datos de entrenamiento en **Japón** como el asunto vivo más agudo
+para el software empresarial. **Lectura para esta capa: APAC es la región con más agentes en
+producción y, por tanto, la que antes topará con los *offsets* fraccionarios.**
+
+> **Hueco declarado para el próximo pase.** No se buscó en idiomas locales. El pase dieciséis dejó
+> escrita exactamente esta lección —un hueco medido en inglés no es un hueco— y el pase diecisiete la
+> repitió para Japón. **Las consultas pendientes son en japonés, coreano y chino simplificado sobre
+> calendario laboral y días hábiles** (p. ej. `営業日`, `祝日`), no sobre zonas horarias, que es donde
+> el dato primario del tzdb ya es suficiente.
 
 ### LATAM
 
@@ -2921,6 +3053,64 @@ document, reconciliation against the authority's own records (`sat-ws-descarga-m
 and the **reform dual-run** in Brazil (old regime vs IBS/CBS, side by side, during a year when the
 rates are 0,1 % and 0,9 % and mistakes are therefore cheap). The engagement has a date on it and the
 date is already running.
+
+
+#### The calendar boundary — eighteenth pass, 2026-11-24 (LATAM)
+
+**Un cambio de 2026 en vigor desde hace tres semanas, y es el de mayor riesgo silencioso del pase.**
+Fuente **primaria** (`eggert/tz/NEWS`, release **2026f**, 2026-10-27): **«*Cuba will not fall back to
+-05 on 2026-11-01 and instead plans to maintain -04 through 2027-11-07*»**.
+
+**Por qué es el peor caso de los seis.** Los cuatro cambios canadienses **adelantan** una decisión
+que el sistema desactualizado acabará aplicando igual; el cubano es una **no-transición**: un sistema
+con tzdata anterior a **2026f (2026-10-27)** **atrasó el reloj el 1 de noviembre** porque esa era la
+regla que tenía, y **lleva 23 días una hora por detrás** de la hora legal cubana — sin error, sin
+excepción y sin ninguna señal. **Y la ventana no se cierra hasta el 2027-11-07.** Para cualquier
+cliente con nómina, turnos, SLA o facturación en Cuba, esto no es una auditoría preventiva: es un
+incidente en curso.
+
+**El resto de LATAM en el `NEWS`, con su release correcta —y tres de las cuatro son correcciones
+históricas, que es un tipo de riesgo distinto:**
+
+- **Paraguay**: **-03 permanente desde la primavera de 2024** (release **2025a**, 2025-01-15). No es
+  nuevo, pero no estaba en esta KB.
+- **Colombia**: el adelanto de 1992-05-02 fue a las **00:00, no a las 24:00** (release **2026d**).
+- **Brasil**: en **1965** el DST terminó el 03-31 a las **24:00**, no a las 00:00, y en **1966** el
+  03-01 a la **01:00** (release **2026f**).
+- **Brasil, Amazonas** (bloque `Unreleased`): se añadió comentario para aclarar **el límite de zona
+  dentro del estado**, porque «*some municipalities which lie east of the federally-defined dividing
+  line observe west Amazonas time*». **La ley dice una cosa y la práctica municipal otra**, y tzdb lo
+  documenta como comentario, no como dato.
+
+**La corrección histórica es el riesgo que LATAM tiene y Norteamérica no.** Un cambio futuro se
+parchea; **una corrección de 1965 o 1992 cambia el resultado de un recálculo que ya se entregó**.
+Cualquier cliente que recalcule series históricas —intereses, antigüedad laboral, series de consumo—
+obtiene **un número distinto antes y después de actualizar tzdata**, y sin un registro de versión no
+hay forma de explicar la diferencia a un auditor. **Ese registro de versión es el entregable
+vendible.**
+
+**Donde se enlaza con lo que la KB ya tiene, y es un enlace fuerte.** El pase diecisiete estableció
+que LATAM opera bajo **autorización previa**: el documento fiscal no vale hasta que la autoridad lo
+autoriza, con **plazos** y catálogos cuyas fechas quedaron registradas como **conflictos sin
+resolver** (los catálogos CFDI 2026 de México). El pase diecisiete también dejó una regla: **el
+reintento no es idempotente**, así que la clave es **serie + número**. **Esta capa añade la mitad que
+faltaba: si la ventana de autorización se cuenta en días hábiles o con hora local, entonces el
+calendario y la zona deciden si el documento llegó a tiempo**, y la KB no tenía con qué contarlo.
+Receta 34 lo cablea.
+
+**Contexto de mercado (nivel *snippet*, no verificado en primario):** **RSM** (más de 400 líderes)
+da ~**40 %** de organizaciones ya implementando IA y **68 %** de esos adoptantes planeando escalar en
+12 meses, con el gobierno y las políticas de uso **por detrás** de la adopción; **Thomson Reuters**
+sitúa a **México y Brasil** al frente por volumen y financiación, seguidos de **Chile, Colombia y
+Argentina**; **WEF/McKinsey** estiman **1,9-2,3 %** de productividad anual adicional y **1,1-1,7
+billones de USD** de valor; y **Latam-GPT**, liderado por **CENIA** (Chile) con más de 30
+instituciones de ocho países, es la pieza de infraestructura regional. El marco peruano (Ley 31814) y
+la firma uruguaya del Convenio del Consejo de Europa **ya están en esta KB** desde pases anteriores.
+
+**La venta LATAM, en una frase:** **68 % escalando con el gobierno por detrás** significa que el
+cliente va a poner agentes sobre procesos con plazos legales **antes** de tener la infraestructura
+que los calcula. **La auditoría de cadena temporal se vende aquí como anexo de la propuesta fiscal, y
+Cuba es la prueba de que el fallo es silencioso.**
 
 ## Posicionamiento Globant
 

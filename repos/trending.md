@@ -8,7 +8,117 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimoséptimo pase (latest) — el documento de registro fiscal: 46 direcciones y una norma que no se valida igual a sí misma
+## 2026-11-24 — decimoctavo pase (latest) — la capa del calendario: 34 direcciones, 29 nuevas, y la licencia de los datos no es la del código
+
+> Tema: **el calendario con el que se cuentan los plazos.** **34 direcciones** verificadas con
+> `gh api -X GET search/repositories` el **2026-11-24** (SPDX, estrellas, `default_branch`,
+> `pushed_at`, `archived` en una sola llamada, varios `repo:` por consulta), **29 nuevas** para la KB.
+> `api.github.com` responde **403** para repos fuera del alcance de la sesión y `gh api repos/<x>`
+> también, así que **la API de búsqueda es el único canal**. Toda insignia `NOASSERTION`/`NONE` se
+> resolvió **leyendo los bytes** del `LICENSE` por `raw.githubusercontent.com`.
+
+**La fuente de verdad (2):**
+[`eggert/tz`](https://github.com/eggert/tz) **dominio público** 1 938★ push 2026-11-23 ·
+[`python/tzdata`](https://github.com/python/tzdata) **Apache-2.0** 126★
+
+**El formato y la localización (2, ya en la KB desde el pase dieciséis, aquí con la licencia leída):**
+[`unicode-org/cldr`](https://github.com/unicode-org/cldr) 1 172★ ·
+[`unicode-org/icu`](https://github.com/unicode-org/icu) 3 652★ — ambos con push **el día de hoy**.
+
+**Los datos de festivos (6):**
+[`vacanza/holidays`](https://github.com/vacanza/holidays) **MIT** 1 997★ rama **`dev`** ·
+[`commenthol/date-holidays`](https://github.com/commenthol/date-holidays) **`(ISC AND CC-BY-SA-4.0)`** 1 122★ ·
+[`nager/Nager.Date`](https://github.com/nager/Nager.Date) **MIT** 1 441★ ·
+[`focus-shift/jollyday`](https://github.com/focus-shift/jollyday) **Apache-2.0** 144★ ·
+[`svendiedrichsen/jollyday`](https://github.com/svendiedrichsen/jollyday) 197★ **inactivo desde 2024-05-01** ·
+[`workalendar/workalendar`](https://github.com/workalendar/workalendar) **MIT** 946★ **inactivo desde 2024-04-12**
+
+**La aritmética de fechas (9):**
+[`date-fns/date-fns`](https://github.com/date-fns/date-fns) **36 663★ y la insignia dice `NONE`** ·
+[`moment/luxon`](https://github.com/moment/luxon) **MIT** 16 457★ ·
+[`moment/moment-timezone`](https://github.com/moment/moment-timezone) **MIT** 3 880★ rama **`develop`** ·
+[`python-pendulum/pendulum`](https://github.com/python-pendulum/pendulum) **MIT** 6 685★ ·
+[`arrow-py/arrow`](https://github.com/arrow-py/arrow) **Apache-2.0** 9 053★ ·
+[`dateutil/dateutil`](https://github.com/dateutil/dateutil) **Apache-2.0 *y* BSD-3** 2 647★ ·
+[`nodatime/nodatime`](https://github.com/nodatime/nodatime) **Apache-2.0** 3 007★ ·
+[`JodaOrg/joda-time`](https://github.com/JodaOrg/joda-time) **Apache-2.0** 4 977★ ·
+[`HowardHinnant/date`](https://github.com/HowardHinnant/date) **MIT por archivo** 3 441★
+
+**La norma y la recurrencia (5):**
+[`tc39/proposal-temporal`](https://github.com/tc39/proposal-temporal) **BSD de Ecma, sin concesión de patentes de terceros** 3 703★ ·
+[`js-temporal/temporal-polyfill`](https://github.com/js-temporal/temporal-polyfill) **ISC** 798★ ·
+[`jkbrzt/rrule`](https://github.com/jkbrzt/rrule) **BSD-3 ×2** 3 753★ ·
+[`ical4j/ical4j`](https://github.com/ical4j/ical4j) **BSD-3-Clause** 844★ rama **`develop`** ·
+[`sabre-io/vobject`](https://github.com/sabre-io/vobject) **BSD-3-Clause** 603★
+
+**El día hábil como convención financiera (1), y el planificador (2):**
+[`lballabio/QuantLib`](https://github.com/lballabio/QuantLib) **BSD-style** 7 799★ push hoy ·
+[`apache/airflow`](https://github.com/apache/airflow) **Apache-2.0** 47 650★ ·
+[`fullcalendar/fullcalendar`](https://github.com/fullcalendar/fullcalendar) **MIT** 20 790★
+
+**La esquina de las aplicaciones de calendario (4 verificadas + 1 ya en la KB) es ESTRUCTURALMENTE
+COPYLEFT, segunda aparición del patrón en dos pases:**
+[`lukevella/rallly`](https://github.com/lukevella/rallly) **AGPL-3.0** 5 368★ ·
+[`Kozea/Radicale`](https://github.com/Kozea/Radicale) **GPL-3.0** 5 249★ ·
+[`alextselegidis/easyappointments`](https://github.com/alextselegidis/easyappointments) **GPL-3.0** 4 502★ ·
+[`nextcloud/calendar`](https://github.com/nextcloud/calendar) **AGPL-3.0** 1 200★ · más `cal.com`
+(**AGPL-3.0**), que la KB ya tenía. **Cinco de cinco.** El pase diecisiete midió exactamente esto en
+el transporte AS4/Peppol (Oxalis-NG EUPL, Holodeck y OpenAS2 GPL-3.0, Domibus EUPL, con una sola pila
+permisiva viva). **Dos capas distintas, el mismo reparto: la biblioteca es permisiva, la aplicación
+de cara al usuario es recíproca.** Eso va en la sección de riesgos de la propuesta, no en el anexo.
+
+**TRES CONFIRMACIONES INDEPENDIENTES, EN UN SOLO PASE, DE LA REGLA QUE LA KB YA TENÍA: EL SPDX DE UN
+REPOSITORIO DESCRIBE SU CÓDIGO, NO LO QUE EMPAQUETA.** Séptima, octava y novena aparición, y las tres
+leídas byte a byte:
+
+1. **`commenthol/date-holidays` lo declara él mismo, y es el contraejemplo del pase diecisiete.** Su
+   `package.json` dice `"license": "(ISC AND CC-BY-SA-4.0)"` y su `LICENSE` (13 715 B) explica por
+   qué: «*The data contained in `holidays.yaml` is available under CC BY-SA 4.0 … as the data obtained
+   relies on wikipedia articles. All other code is Copyright (c) 2015 commenthol and available under
+   ISC*». **El código es permisivo y los datos de festivos son share-alike.** El pase diecisiete
+   escribió que ningún repo de 200★+ de su capa publicaba una expresión compuesta; **aquí uno de
+   1 122★ sí la publica**, y por eso GitHub dice `NOASSERTION`: no es desidia, es honestidad.
+2. **`unicode-org/cldr`: un repositorio, dos regímenes.** Su `LICENSE` (3 193 B) dice que UTS #35
+   (el documento de la norma LDML) «*may not make copies of or modifications to this publication for
+   public distribution, or incorporate it in whole or in part into any product or publication without
+   the express written permission of Unicode*», y después: «*All other content in this repo is
+   released under UNICODE LICENSE V3*». **Los datos de locale se pueden distribuir; el texto de la
+   norma no se puede incorporar a un entregable.**
+3. **`eggert/tz`: dominio público condicionado a la presencia de archivos.** Su `LICENSE` son **252
+   bytes**: «*Unless specified below, all files in the tz code and data (including this LICENSE file)
+   are in the public domain. If the files date.c, newstrftime.3, and strftime.c are present, they
+   contain material derived from BSD and use the BSD 3-clause license*». **La licencia depende de qué
+   archivos hayas copiado.**
+
+**`date-fns` invierte el canal de resolución: la insignia no dice de menos, dice NADA.** 36 663★ y
+cinco rutas probadas (`LICENSE`, `LICENSE.txt`, `LICENSE.md`, `license.md`, `LICENCE`) devuelven
+**404**; el `package.json` de la raíz es `@date-fns/root`, `"private": true`, **sin campo
+`license`**. La insignia `NONE` es **literalmente correcta sobre la raíz del repositorio**. El
+artefacto publicado sí la declara: `https://registry.npmjs.org/date-fns/latest` → **`4.4.0`,
+`license: MIT`**. **Se resuelve en el registro, no en la forja** — la misma regla que esta KB ya
+aplicaba con los clasificadores de PyPI, ahora probada en npm y en la dirección contraria.
+
+**Dos renombrados que los *roundups* siguen citando mal, y el canal para detectarlos.**
+`dr-prodigy/python-holidays` y `sdispater/pendulum` **no aparecen** en la API de búsqueda, mientras
+`vacanza/holidays` y `python-pendulum/pendulum` sí. No se pudo confirmar un 301 porque
+**`github.com` en HTML responde 403 a través del proxy de esta sesión**: la evidencia es la ausencia
+en el índice canónico, no la redirección. El primer resultado de búsqueda web de la capa apuntaba al
+path viejo.
+
+**`jollyday` es el patrón «las estrellas apuntan al muerto», y aquí con una inversión limpia:** el
+original `svendiedrichsen/jollyday` tiene **197★** y lleva **inactivo desde 2024-05-01**; el fork
+mantenido `focus-shift/jollyday` tiene **144★**, **Apache-2.0** y push **2026-11-19**. **El
+mantenido tiene menos estrellas que el abandonado.** Y `workalendar` (**MIT**, 946★) lleva
+**inactivo desde 2024-04-12** sin estar archivado, así que la forja lo muestra vivo: **un
+calendario de festivos sin mantenimiento no es código viejo, es código incorrecto**, porque los
+festivos los cambia un parlamento.
+
+**Ramas por defecto: el `main` ciego habría fallado 19 de 34 veces.** No-`main`: `dev` (vacanza),
+`develop` (moment-timezone, ical4j, erpnext), `trunk` (ofbiz), **`20.0`** (odoo) y `master` en trece
+más. Tercera vez que esta KB registra la misma medida, y sube del 6/46 del pase diecisiete al
+**19/34** de este.
+
+## 2026-11-24 — decimoséptimo pase — el documento de registro fiscal: 46 direcciones y una norma que no se valida igual a sí misma
 
 > Tema: **el documento que no valida el cliente, sino el Estado.** **46 direcciones** verificadas con
 > `gh api -X GET search/repositories` el **2026-11-24** (estrellas, SPDX, `pushed_at`,

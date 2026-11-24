@@ -8,7 +8,78 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimoséptimo pase (latest) — el límite del documento fiscal: el agente no puede ser el emisor
+## 2026-11-24 — decimoctavo pase (latest) — el límite del calendario: el instante lo calcula una cadena de cinco eslabones, y en 2026 uno mintió a propósito
+
+> Tema: **cuándo vence algo, en la hora de quién y en los días laborables de quién.** Los diecisiete
+> pases anteriores cubrieron ocho límites —lectura, escritura, procedencia, contención, borrado,
+> accesibilidad, pesos, idioma—, el consumo y el documento fiscal. El pase diecisiete encontró
+> **plazos** (India: **30 días** al IRP; las fechas de KSeF; los catálogos CFDI 2026). Este pase midió
+> si la KB podía **calcularlos** y la respuesta fue no. Medido antes de buscar, sobre los nueve
+> archivos: `tzdata` **0** · `IANA` **0** · `ISO 8601` **0** · `calendario` **0** · `día hábil` **0** ·
+> `business day` **0** · `business hours` **0** · `festivo` **0** · `cron` **0** · `RFC 5545` **0** ·
+> `rrule` **0** · `CalDAV` **0** · `day count` **0** · `30/360` **0** · `holiday` **1** · `DST` **1**.
+> **La KB tenía los vencimientos y no tenía el calendario con el que se cuentan.**
+
+**Nuevo en la capa de agentes (1 fila real, y el cero se publica igual):**
+
+- **`modelcontextprotocol/servers` → `src/time`** (`mcp-server-time`) — **MIT**, declarada en
+  `pyproject.toml` como `license = { text = "MIT" }` (leído por bytes), versión **`2026.11.18`**
+  —seis días— y `mcp>=2.3,<3`. Tres herramientas: `get_current_time`, `convert_time` y
+  **`get_time_ago`**. Es el **único** elemento con forma de agente en toda la capa, y es un servidor
+  de referencia, no un producto.
+
+**Las dos frases de su README que deciden una integración, citadas:** «*The offset is elapsed time,
+counted back from the current instant, so across a daylight-saving change "a day ago" is exactly 24
+hours ago and its wall-clock reading can differ from now by an hour*» —**«hace un día» son 24 horas,
+no «ayer a esta hora»**, y el servidor lo documenta porque son cosas distintas— y «*A timezone name
+… must be an exact IANA key, case included: `Europe/Warsaw` is accepted and `europe/warsaw` is
+rejected on every platform, including macOS, whose case-insensitive filesystem would otherwise
+resolve it*». **Un LLM que normaliza a minúsculas el nombre de la zona recibe un error**, y una
+implementación ingenua en macOS lo habría aceptado en silencio.
+
+**EL HALLAZGO DEL PASE, LEÍDO EN EL `NEWS` DE `eggert/tz` (266 065 B, el repositorio aguas arriba del
+propio tzdb): LA BASE DE DATOS HORARIA ENVIÓ A PROPÓSITO DATOS QUE CONTRADICEN LA LEY.** Cuatro
+jurisdicciones canadienses fijaron su reloj de forma permanente en 2026 y en los cuatro casos tzdb
+**modeló la transición el 2026-11-01 a las 02:00 en lugar de la fecha legal**: Columbia Británica
+(legal **2026-03-09**, release **2026b**), Alberta (legal **2026-06-18**, **2026c**), Territorios del
+Noroeste (legal **2026-08-21**, **2026d**, solo `America/Inuvik`) y Manitoba (legal **2026-10-31**,
+**2026e**). El motivo está escrito: «*This temporary hack works around limitations in Unicode CLDR
+and ICU*» —CLDR **48** (2025-10-29), **48.1** (2026-01-08), **48.2.1** (2026-07-08), **48.2.2**
+(2026-09-21) e ICU **78** (2025-10-30), **78.2**, **78.3** (2026-03-17)—. **El dato autoritativo se
+dobló para acomodar a un consumidor aguas abajo.**
+
+**Y el parche se rompió a sí mismo.** La nota `NOTE FOR 2026 TEMPORARY HACK FOR CLDR AND CANADA` dice
+que el apaño «*causes zic in tzcode **2023d through 2026a**, in the default **slim** mode, to generate
+a TZif file that does not conform to Internet RFC 9636 §3.3*», y que ese archivo «*causes some TZif
+readers, **including tzcode itself**, to ignore America/Vancouver's 2026-11-01 02:00 transition from
+PDT (tm_isdst=1) to MST (tm_isdst=0)*». El remedio documentado es **`zic -b fat`**. Los mismos apaños
+esquivan además un fallo de `libstdc++ std::chrono` en **GCC 14.1-14.4, 15.1-15.2 y 16.1** (**GCC bug
+124851**), corregido en **GCC 16.2**.
+
+**Límite del daño, declarado por los propios mantenedores y por eso citable ante un cliente:** «*It
+does not affect UT offsets, and affects abbreviations and tm_isdst flags only*». **Un agente que solo
+hace aritmética de instantes está a salvo; uno que muestra la abreviatura o ramifica sobre `isdst` no.**
+
+**El apaño ya se está retirando** y la condición es una versión: el bloque `Unreleased` restituye las
+fechas legales porque **CLDR 49 (2026-10-22)** lo corrigió, y añade que «*users need CLDR 49+ anyway
+for timestamps starting on 11-01*». **El suelo de dependencia tiene un mes.**
+
+**Cuatro aciertos de calendario civil de 2026, todos de fuente primaria y fechados:** **2026f**
+(2026-10-27) — **Cuba no retrasa el reloj el 2026-11-01 y se queda en -04 hasta el 2027-11-07**— y,
+en la misma release, **se acabaron los segundos intercalares**: «*No more leap seconds, and leap
+second tables no longer expire*», `zic` ignora las líneas `Expires` y `localtime.c` baja de 49 a 27.
+**2026c** — **Marruecos a +00 permanente el 2026-09-20**. **2026a** (2026-03-01) — Moldavia usa
+horarios de transición de la UE desde 2022. **Unreleased** — **Groenlandia retrasa dos horas el
+2027-10-31** para pasar de -02/-01 a -03/-02.
+
+**Corrección de método, y es una enseñanza reutilizable por toda la flota.** El resumen de búsqueda
+atribuyó a la release **2026c** el fin del horario de verano en **Samoa** y el cambio de Jordania.
+Comprobado contra el archivo primario con `awk`, ambos son de la release **2021b (2021-09-24)**:
+**cinco años de error de atribución**. Paraguay (-03 permanente) es de **2025a** e Irán (sin DST
+desde 2022) de **2022b**. **Un resumen de búsqueda sabe los hechos y no sabe las versiones, y en esta
+capa la versión *es* el hecho.**
+
+## 2026-11-24 — decimoséptimo pase — el límite del documento fiscal: el agente no puede ser el emisor
 
 > Tema: **lo que el agente puede emitir en nombre del Estado.** Ocho límites anteriores los decidía
 > quien construye el sistema; este lo decide una autoridad tributaria. Medido antes de buscar, sobre

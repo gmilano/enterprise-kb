@@ -2392,3 +2392,204 @@ De las **46 direcciones** verificadas en este pase (**42 nuevas** para la KB), *
 **`legacy`**, además de los muchos `master` de la pila `phax/*`. `gh api search/repositories`
 devuelve `default_branch` **en la misma llamada** que la licencia, así que construir un `raw` URL
 sobre `main` por defecto es un error evitable, no una fatalidad.
+
+## Decimoctavo pase — 2026-11-24 — la capa del calendario: la base horaria, los festivos y el día hábil
+
+> **34 direcciones verificadas el 2026-11-24, 29 nuevas para la KB.** Canal: `gh api -X GET
+> search/repositories` con varios `repo:` por consulta (SPDX, estrellas, `default_branch`,
+> `pushed_at`, `archived` en una sola llamada), porque **`api.github.com` y `gh api repos/<x>`
+> responden 403** para repos fuera del alcance de esta sesión. Toda insignia `NOASSERTION`/`NONE` se
+> resolvió **leyendo los bytes** del `LICENSE` por `raw.githubusercontent.com`.
+>
+> **Por qué esta capa es nueva y no una reformulación de la durabilidad que la KB ya tenía.** La KB
+> tiene desde hace pases los **motores de ejecución durable** —`temporalio/temporal` (MIT, 24 518★),
+> `restatedev/restate`, `dbos`— que responden «qué pasa si el agente se muere a mitad de un proceso
+> de 40 pasos». **Eso es resiliencia del orquestador, no corrección del calendario.** Temporal
+> reintenta un paso con total fiabilidad **en el instante equivocado** si la zona, el festivo o la
+> versión de tzdata están mal. Medido: `tzdata` 0, `IANA` 0, `ISO 8601` 0, `día hábil` 0, `cron` 0,
+> `RFC 5545` 0, `day count` 0 en los nueve archivos antes de este pase.
+
+### La fuente de verdad (2) — y su licencia depende de qué archivos copies
+
+| Repo | Licencia (leída por bytes) | ★ | Último push | Nota |
+|---|---|---|---|---|
+| [eggert/tz](https://github.com/eggert/tz) | **Dominio público**, con excepción BSD-3-Clause | 1 938 | 2026-11-23 | `LICENSE` son **252 B**: «*Unless specified below, all files in the tz code and data (including this LICENSE file) are in the public domain. If the files `date.c`, `newstrftime.3`, and `strftime.c` are present, they contain material derived from BSD and use the BSD 3-clause license*». Es el repositorio **aguas arriba** del tzdb; `data.iana.org` está **bloqueado por el proxy (403)** desde esta sesión, y este repo es el mismo artefacto con igual autoridad. |
+| [python/tzdata](https://github.com/python/tzdata) | **Apache-2.0** (insignia `NOASSERTION`) | 126 | 2026-11-01 | El tzdb empaquetado para PyPI. `LICENSE` (625 B) con copyright **2020 Paul Ganssle (Google)** y **2026 Stan Ulbrych**: el relevo de mantenimiento es visible en el archivo. Es la dependencia que decide la respuesta cuando el contenedor **no trae** `/usr/share/zoneinfo`. |
+
+> **Dominio público no es estrictamente mejor que Apache-2.0** —sin concesión de patentes, sin
+> renuncia de garantía—, regla que esta KB ya registró en el pase ocho con los artefactos de NIST.
+> Aquí reaparece con una vuelta de tuerca: **la licencia de `eggert/tz` es condicional a la presencia
+> de tres archivos**, así que un vendor-in parcial puede cambiar el régimen sin que nadie lo note.
+
+### El formato y la localización (2, ya en la KB — aquí con la licencia leída y el papel corregido)
+
+| Repo | Licencia | ★ | Push | Lo que hay que saber |
+|---|---|---|---|---|
+| [unicode-org/cldr](https://github.com/unicode-org/cldr) | **Unicode V3** para los datos; **UTS #35 restringido** | 1 172 | 2026-11-24 | Un repositorio, **dos regímenes**: ver abajo. |
+| [unicode-org/icu](https://github.com/unicode-org/icu) | insignia `NOASSERTION` | 3 652 | 2026-11-24 | El consumidor de CLDR que llevan dentro Java, .NET, Node y los navegadores. **Es el eslabón que forzó el apaño de tzdb de 2026.** |
+
+**La licencia de CLDR, por bytes (`LICENSE`, 3 193 B), y es el hallazgo de licencia nº 2 del pase.**
+Sobre UTS #35 —el documento de la norma LDML— dice: «*permission must be obtained from Unicode, Inc.
+prior to any reproduction, modification, or other use not permitted by the Unicode Terms of Use*» y
+«*You may not make copies of or modifications to this publication for public distribution, or
+incorporate it in whole or in part into any product or publication without the express written
+permission of Unicode*», con una única salvedad para comentar y forkear **dentro del repositorio**.
+Y después: «*All other content in this repo is released under UNICODE LICENSE V3*», que sí es una
+concesión permisiva estilo MIT sobre «Data Files» y «Software».
+**Traducción operativa: los datos de locale se pueden empaquetar y vender; el texto de la norma no se
+puede pegar en un entregable de cliente.** Séptima aparición de la regla de esta KB —*el SPDX de un
+repo describe su código, no lo que empaqueta*— y la segunda, tras el pase diecisiete, en que **lo
+empaquetado es el producto**.
+
+### Los datos de festivos (6) — donde la licencia del dato se separa de la del código
+
+| Repo | Licencia (verificada) | ★ | Rama | Push | Nota |
+|---|---|---|---|---|---|
+| [vacanza/holidays](https://github.com/vacanza/holidays) | **MIT** | 1 997 | **`dev`** | 2026-11-24 | El sucesor de `dr-prodigy/python-holidays`. Push **el día de hoy**; es el más vivo de la capa. **Su rama por defecto es `dev`**: un clon ciego de `main` falla. |
+| [commenthol/date-holidays](https://github.com/commenthol/date-holidays) | **`(ISC AND CC-BY-SA-4.0)`** — declarado en `package.json` | 1 122 | `master` | 2026-11-19 | **Los datos son share-alike.** Ver abajo. |
+| [nager/Nager.Date](https://github.com/nager/Nager.Date) | **MIT** | 1 441 | `main` | 2026-11-18 | .NET. La biblioteca es MIT; **el servicio HTTP alojado tiene sus propias condiciones** y no se verificó en este pase — no lo cotice como si fuera lo mismo. |
+| [focus-shift/jollyday](https://github.com/focus-shift/jollyday) | **Apache-2.0** | 144 | `main` | 2026-11-19 | El fork **mantenido** para Java. |
+| [svendiedrichsen/jollyday](https://github.com/svendiedrichsen/jollyday) | insignia `NOASSERTION` | **197** | `master` | **2024-05-01** | El original. **Más estrellas que el fork vivo y 2,5 años sin push.** |
+| [workalendar/workalendar](https://github.com/workalendar/workalendar) | **MIT** | 946 | `master` | **2024-04-12** | Cálculo de días laborables en Python. **No está archivado**, así que la forja lo muestra vivo. |
+
+**El hallazgo de licencia nº 1 del pase, y es el contraejemplo limpio del pase diecisiete.**
+`commenthol/date-holidays` **declara él mismo una expresión compuesta**: su `package.json` dice
+`"license": "(ISC AND CC-BY-SA-4.0)"`, y su `LICENSE` (13 715 B) explica el porqué en la primera
+línea: «*The data contained in `holidays.yaml` is available under CC BY-SA 4.0 … as the data obtained
+relies on wikipedia articles. The required attribution can be found inside the file. All other code
+is Copyright (c) 2015 commenthol and available under ISC*».
+**El código es permisivo y los festivos son copyleft de datos.** El pase diecisiete escribió que
+«ninguno de los de 200★+ de la capa publica una expresión compuesta»; **aquí uno de 1 122★ sí la
+publica**, y por eso GitHub lo marca `NOASSERTION`. **Tercera dirección de resolución para
+`NOASSERTION`: no es desidia ni es permisivo-oculto, es una expresión compuesta honesta.**
+Consecuencia para Globant: **empaquetar `holidays.yaml` en un producto de cliente arrastra
+CC BY-SA 4.0 sobre los datos.** Las alternativas verificadas sin esa carga son `vacanza/holidays`
+(MIT) y `focus-shift/jollyday` (Apache-2.0).
+
+> **Un calendario de festivos sin mantenimiento no es código viejo: es código incorrecto.** Los
+> festivos los cambia un parlamento, no un commit. `workalendar` y `svendiedrichsen/jollyday` llevan
+> más de dos años sin push y **ninguno está archivado**, así que ninguna señal automática lo avisa.
+> Decimotercera y decimocuarta entrada en la lista de «recomendado pero no usable» de esta KB.
+
+### La aritmética de fechas (9) — y la insignia que no dice de menos, dice nada
+
+| Repo | Licencia (verificada) | ★ | Rama | Nota |
+|---|---|---|---|---|
+| [date-fns/date-fns](https://github.com/date-fns/date-fns) | insignia **`NONE`**; **MIT** en npm | **36 663** | `main` | El más grande de la capa. Ver abajo. |
+| [moment/luxon](https://github.com/moment/luxon) | **MIT** | 16 457 | `master` | El sucesor recomendado de Moment. |
+| [moment/moment-timezone](https://github.com/moment/moment-timezone) | **MIT** | 3 880 | **`develop`** | Empaqueta su **propia copia** de tzdata: **un eslabón más que versionar**. |
+| [python-pendulum/pendulum](https://github.com/python-pendulum/pendulum) | **MIT** | 6 685 | `master` | Renombrado desde `sdispater/pendulum`. |
+| [arrow-py/arrow](https://github.com/arrow-py/arrow) | **Apache-2.0** | 9 053 | `master` | Push 2026-06-22. |
+| [dateutil/dateutil](https://github.com/dateutil/dateutil) | **Apache-2.0 *y* BSD-3-Clause** | 2 647 | `master` | Ver abajo. |
+| [nodatime/nodatime](https://github.com/nodatime/nodatime) | **Apache-2.0** | 3 007 | `main` | .NET; el modelo de tipos más estricto de la capa. |
+| [JodaOrg/joda-time](https://github.com/JodaOrg/joda-time) | **Apache-2.0** | 4 977 | `main` | Java pre-`java.time`; sigue con push (2026-10-28). |
+| [HowardHinnant/date](https://github.com/HowardHinnant/date) | **MIT, por archivo** | 3 441 | `master` | Ver abajo. |
+
+**`date-fns`: la insignia `NONE` es literalmente correcta sobre la raíz del repositorio.** Cinco
+rutas probadas —`LICENSE`, `LICENSE.txt`, `LICENSE.md`, `license.md`, `LICENCE`— devuelven **404**, y
+el `package.json` de la raíz es `@date-fns/root`, `"version": "0.0.0"`, `"private": true`, **sin campo
+`license`**: es el manifiesto de un monorepo, no del paquete. El artefacto publicado sí declara:
+`https://registry.npmjs.org/date-fns/latest` → **`4.4.0`, `license: MIT`**. **Se resuelve en el
+registro, no en la forja.** Esta KB ya usaba los clasificadores de PyPI como canal independiente de
+la forja; **ahora queda probado en npm y en la dirección contraria: la forja no dice de menos, no
+dice nada, y el registro es la autoridad.**
+
+**`dateutil` es un *AND*, no un *OR*, y eso es lo inusual.** `LICENSE` (2 889 B) abre con Apache-2.0
+y en la línea 54 remata: «*The above BSD License Applies to all code, even that also covered by
+Apache 2.0*». La mayoría de los duales son disyuntivos («elija una»); **este es conjuntivo: ambas
+aplican a la vez**. Permisivo por las dos vías, pero una auditoría que anote solo «Apache-2.0»
+describe mal el archivo.
+
+**`HowardHinnant/date`: licenciado archivo por archivo, sexta vía de resolución de esta KB.**
+`LICENSE.txt` (1 637 B): «*The source code in this project is released using the MIT License. There
+is no global license for the project because each file is licensed individually*». **No existe una
+licencia del proyecto**; el vendor-in parcial debe leer la cabecera de cada archivo que copie. Es la
+biblioteca de la que salió `std::chrono`, así que su semántica está dentro de todo C++20 moderno.
+
+### La norma y la recurrencia (5)
+
+| Repo | Licencia (verificada) | ★ | Rama | Nota |
+|---|---|---|---|---|
+| [tc39/proposal-temporal](https://github.com/tc39/proposal-temporal) | **BSD de Ecma International**, con **no-concesión** explícita de patentes de terceros | 3 703 | `main` | Ver abajo. |
+| [js-temporal/temporal-polyfill](https://github.com/js-temporal/temporal-polyfill) | **ISC** | 798 | `main` | El polyfill con el que se usa hoy. |
+| [jkbrzt/rrule](https://github.com/jkbrzt/rrule) | **BSD-3-Clause ×2** | 3 753 | `master` | Recurrencia **RFC 5545** en JS. Insignia `NOASSERTION` por el nombre `LICENCE` (ortografía británica) y por **dos avisos apilados**: el propio y el de `python-dateutil`, que cubre `./rrule.js` y `./test/tests.js`. Permisivo por ambas vías. |
+| [ical4j/ical4j](https://github.com/ical4j/ical4j) | **BSD-3-Clause** | 844 | **`develop`** | iCalendar en Java. |
+| [sabre-io/vobject](https://github.com/sabre-io/vobject) | **BSD-3-Clause** | 603 | `master` | iCalendar/vCard en PHP; la base de muchos servidores CalDAV. |
+
+**Ojo con `temporal`: en esta KB la palabra nombra dos cosas que no tienen nada que ver.**
+`temporalio/temporal` (MIT, 24 518★) es un **motor de ejecución durable**, y ya estaba en la KB.
+`tc39/proposal-temporal` es la **API de fecha y hora de JavaScript**. Son capas distintas, problemas
+distintos y dueños distintos. **Nunca las cite por el nombre corto en una propuesta.**
+
+**Y la licencia de la norma JS retiene patentes a propósito.** El `LICENSE` de `tc39/proposal-temporal`
+(Ecma International) concede «*the "BSD License"*» y acto seguido avisa: «*This Software may be
+subject to third party rights (rights from parties other than Ecma International), including patent
+rights, and no licenses under such third party rights are granted under this license even if the
+third party concerned is a member of Ecma International*». **Es permisiva en copyright y
+expresamente silenciosa —o peor— en patentes**, lo que la sitúa por debajo de Apache-2.0 en el mismo
+eje que la KB midió en el pase ocho para el dominio público.
+
+### El día hábil como convención financiera (1), y el planificador (2)
+
+| Repo | Licencia | ★ | Rama | Por qué está aquí |
+|---|---|---|---|---|
+| [lballabio/QuantLib](https://github.com/lballabio/QuantLib) | **BSD-style** (insignia `NOASSERTION`) | 7 799 | `master` | `LICENSE.TXT` son **8 961 B**: ~200 líneas de titulares de copyright —hasta **2026**— antes del grant de redistribución estilo BSD de 3 cláusulas, y avisos de **código de terceros embebido** (el libro de Peter Jäckel, software de la University of Chicago como operador de Argonne, y un conjunto de números de Joe y Kuo «*under a BSD-style license*»). **Es la implementación de referencia de los calendarios de mercado y de las convenciones de día hábil y conteo de días**: ahí vive la diferencia entre *Following* y *Modified Following* y entre ACT/360 y 30/360. Si un agente calcula un vencimiento de pago, **esta es la semántica correcta**, no un `+30 días`. |
+| [apache/airflow](https://github.com/apache/airflow) | **Apache-2.0** | 47 650 | `main` | El planificador con el que el cliente ya corre sus procesos por lotes. Push **hoy**. |
+| [fullcalendar/fullcalendar](https://github.com/fullcalendar/fullcalendar) | **MIT** | 20 790 | `main` | La capa de presentación; **MIT y 20 790★ es la excepción permisiva en una esquina copyleft** (ver `verticals/solutions.md`). |
+
+### El `NEWS` de tzdb leído byte a byte — por qué «la hora correcta» no es una propiedad de su código
+
+`eggert/tz/NEWS` son **266 065 B** y documentan **seis releases en 2026**. Lo que importa:
+
+| Release | Fecha | Cambio de calendario civil | Fecha **legal** | Fecha **modelada** |
+|---|---|---|---|---|
+| 2026a | 2026-03-01 | Moldavia usa horarios de transición de la UE desde 2022; los TZif «right» dejan de instalarse por defecto | — | — |
+| 2026b | 2026-04-22 | **Columbia Británica** a **-07** permanente | **2026-03-09** | **2026-11-01 02:00** |
+| 2026c | 2026-07-08 | **Alberta** a **-06** permanente · **Marruecos** a **+00** permanente el **2026-09-20** | **2026-06-18** | **2026-11-01 02:00** |
+| 2026d | 2026-09-11 | **Territorios del Noroeste** a **-06** (solo `America/Inuvik`) | **2026-08-21** | **2026-11-01 02:00** |
+| 2026e | 2026-09-29 | **Manitoba** a **-05** permanente | **2026-10-31** | **2026-11-01 02:00** |
+| 2026f | 2026-10-27 | **Cuba no retrasa el reloj** y se queda en **-04 hasta el 2027-11-07** · **fin de los segundos intercalares** | 2026-11-01 | 2026-11-01 |
+| *Unreleased* | — | Se **retiran** los apaños (fechas legales restituidas) · **Groenlandia** retrasa **dos horas** el **2027-10-31** | — | — |
+
+**Las cuatro fechas modeladas son incorrectas a propósito**, y el `NEWS` dice por qué: «*This
+temporary hack works around limitations in Unicode CLDR and ICU, and is planned to be removed after
+CLDR and ICU are fixed*», contra **CLDR 48 (2025-10-29), 48.1 (2026-01-08), 48.2.1 (2026-07-08) y
+48.2.2 (2026-09-21)** e **ICU 78 (2025-10-30), 78.2 y 78.3 (2026-03-17)**.
+
+**El apaño se rompió a sí mismo, y el remedio es un flag de compilación.** `NOTE FOR 2026 TEMPORARY
+HACK FOR CLDR AND CANADA`: el apaño «*causes zic in tzcode **2023d through 2026a**, in the default
+**slim** mode, to generate a TZif file that does not conform to Internet RFC 9636 §3.3*», y ese
+archivo «*causes some TZif readers, **including tzcode itself**, to ignore America/Vancouver's
+2026-11-01 02:00 transition from PDT (tm_isdst=1) to MST (tm_isdst=0)*». Remedio documentado:
+**`zic -b fat`**. Los mismos apaños esquivan además un fallo de `libstdc++ std::chrono` en **GCC
+14.1-14.4, 15.1-15.2 y 16.1** (**GCC bug 124851**), corregido en **GCC 16.2**.
+
+**El límite del daño, declarado por los mantenedores y por eso citable ante un cliente:** «*It does
+not affect UT offsets, and affects abbreviations and tm_isdst flags only during the period starting
+at the legal transition and ending on 2026-11-01 at 02:00*». **Aritmética de instantes: a salvo.
+Abreviatura de zona o rama sobre `isdst`: no.**
+
+**La salida tiene un suelo de versión de un mes.** El bloque `Unreleased` restituye las fechas legales
+—`America/Vancouver` 03-09, `America/Edmonton` 06-18, `America/Inuvik` 08-21, `America/Winnipeg`
+10-31— porque **CLDR 49 (2026-10-22)** corrigió la limitación, y añade: «*users need CLDR 49+ anyway
+for timestamps starting on 11-01*».
+
+**Fin de los segundos intercalares (2026f), que es un cambio de época y no un detalle.** «*No more
+leap seconds, and leap second tables no longer expire*»: `zic` **ignora las líneas `Expires`** y
+`localtime.c` «*no longer supports 49 leap seconds, as 27 now suffice*». Todo código que valide la
+caducidad de una tabla de segundos intercalares **está validando algo que ya no caduca**.
+
+> **Límite declarado de este pase.** `data.iana.org` está **bloqueado por el proxy (403)** y
+> `www.rfc-editor.org` **no resuelve** en esta sesión, así que **RFC 9636 (TZif) y RFC 9557 (el
+> formato de fecha con la zona entre corchetes) NO se leyeron en primario**: las referencias a
+> §3.2 y §3.3 son **citas textuales del `NEWS` de tzdb**, que es primario para la cita y secundario
+> para el contenido de la norma. **Pendiente para el próximo pase:** leer RFC 9557 y dejar escrito
+> por qué un *offset* (`-03:00`) no es una zona (`[America/Santiago]`) con la fuente en la mano.
+
+### Ramas por defecto de este pase — el `main` ciego habría fallado 19 de 34 veces
+
+`dev`: `vacanza/holidays`. `develop`: `moment-timezone`, `ical4j`, `frappe/erpnext`. `trunk`:
+`apache/ofbiz-framework`. **`20.0`**: `odoo/odoo`. `master`: `workalendar`, `date-holidays`, `luxon`,
+`dateutil`, `QuantLib`, `rrule`, `vobject`, `python/tzdata`, `svendiedrichsen/jollyday`,
+`HowardHinnant/date`, `pendulum`, `arrow`, `Kozea/Radicale`. Tercera vez que esta KB mide esto, y la
+proporción empeora: **6/46** en el pase diecisiete, **19/34** aquí.

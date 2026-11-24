@@ -2340,3 +2340,93 @@ facturación electrónica. **Lo abierto de este plano son las primitivas de cump
 agente** — que es exactamente la división de trabajo que hace vendible el encargo: el cliente no
 compra un modelo, compra **un expediente que la autoridad acepta**. ⚠️ *Listado de proveedores a
 nivel de snippet.*
+
+## Decimoctavo pase — 2026-11-24 — el límite del calendario
+
+### 37. «La hora correcta» no es una propiedad del código: es una cadena de cinco eslabones, y en 2026 el segundo mintió a propósito — probado byte a byte
+
+Leído en `eggert/tz/NEWS` (**266 065 B**, el repositorio aguas arriba del tzdb; `data.iana.org`
+responde **403** a través del proxy de esta sesión). La cadena es:
+
+```
+ley o decreto  →  tzdb (eggert/tz)  →  CLDR / ICU  →  runtime del lenguaje  →  el agente
+```
+
+**Cuatro jurisdicciones canadienses fijaron su reloj de forma permanente en 2026, y en los cuatro
+casos tzdb modeló la transición el 2026-11-01 a las 02:00 en lugar de la fecha legal:** Columbia
+Británica (legal **2026-03-09**, release **2026b**), Alberta (**2026-06-18**, **2026c**),
+Territorios del Noroeste (**2026-08-21**, **2026d**, solo `America/Inuvik`) y Manitoba
+(**2026-10-31**, **2026e**). El motivo está escrito en el propio `NEWS`: «*This temporary hack works
+around limitations in Unicode CLDR and ICU, and is planned to be removed after CLDR and ICU are
+fixed*», contra **CLDR 48 / 48.1 / 48.2.1 / 48.2.2** e **ICU 78 / 78.2 / 78.3**.
+
+**El dato autoritativo se dobló para acomodar a un consumidor aguas abajo.** Y el apaño se rompió a
+sí mismo: provoca que `zic` en tzcode **2023d-2026a**, en el modo `slim` **por defecto**, genere un
+TZif que **no conforma con RFC 9636 §3.3**, y ese archivo hace que algunos lectores —«*including
+tzcode itself*»— **ignoren la transición real de `America/Vancouver`** del 2026-11-01 02:00 de PDT
+(`tm_isdst=1`) a MST (`tm_isdst=0`). Remedio documentado: **`zic -b fat`**. Los mismos apaños esquivan
+un fallo de `libstdc++ std::chrono` en **GCC 14.1-14.4, 15.1-15.2 y 16.1** (**GCC bug 124851**),
+corregido en **GCC 16.2**.
+
+**Lo que esta tendencia obliga a cambiar en una propuesta:** la pregunta de diligencia no es «¿su
+sistema maneja zonas horarias?» sino **«¿en qué versión de tzdata, CLDR, ICU y `zic` se ejecuta, y
+quién las actualiza?»**. Cuatro números y un responsable. **Si la respuesta es "la del sistema
+operativo", no hay respuesta**, porque la imagen base de un contenedor congela los cuatro.
+
+**El límite del daño, declarado por los propios mantenedores —y por eso citable ante un cliente sin
+exagerar:** «*It does not affect UT offsets, and affects abbreviations and tm_isdst flags only*». Un
+agente que **solo compara instantes** está a salvo; uno que **muestra la abreviatura de zona o
+ramifica sobre `isdst`** no lo está. La salida existe y tiene un suelo de versión de un mes: el
+bloque `Unreleased` restituye las fechas legales porque **CLDR 49 (2026-10-22)** corrigió la
+limitación, y advierte que «*users need CLDR 49+ anyway for timestamps starting on 11-01*».
+
+**Y en la misma release 2026f (2026-10-27), un cambio de época que casi nadie ha propagado:** «*No
+more leap seconds, and leap second tables no longer expire*». `zic` **ignora las líneas `Expires`** y
+`localtime.c` «*no longer supports 49 leap seconds, as 27 now suffice*». **Todo código que valide la
+caducidad de una tabla de segundos intercalares está validando algo que ya no caduca.**
+
+### 38. La licencia de los datos de calendario no es la licencia del código, y en esta capa los datos *son* el producto — séptima, octava y novena confirmación de la misma regla
+
+Tres confirmaciones independientes en un solo pase, las tres leídas byte a byte:
+
+1. **`commenthol/date-holidays` (1 122★)** declara `"license": "(ISC AND CC-BY-SA-4.0)"` en su
+   `package.json`, y su `LICENSE` (13 715 B) dice por qué: «*The data contained in `holidays.yaml` is
+   available under CC BY-SA 4.0 … as the data obtained relies on wikipedia articles. All other code
+   … available under ISC*». **Código permisivo, datos share-alike.**
+2. **`unicode-org/cldr`**: un repositorio con **dos regímenes**. UTS #35 «*may not … incorporate it
+   in whole or in part into any product or publication without the express written permission of
+   Unicode*», mientras «*All other content in this repo is released under UNICODE LICENSE V3*».
+   **Los datos de locale se empaquetan; el texto de la norma no.**
+3. **`eggert/tz`**: `LICENSE` de **252 B** — dominio público «*Unless specified below*», **salvo**
+   `date.c`, `newstrftime.3` y `strftime.c`, BSD-3-Clause **si están presentes**. **La licencia
+   depende de qué archivos copiaste.**
+
+**La corrección que este pase le hace al anterior.** El pase diecisiete observó que ninguno de los
+repos de 200★+ de su capa publicaba una expresión SPDX compuesta. **`date-holidays`, con 1 122★, sí
+la publica** — y por eso GitHub lo marca `NOASSERTION`. **Tercera dirección de resolución para
+`NOASSERTION`: ni desidia, ni permisivo oculto, sino una expresión compuesta honesta.** Y el caso
+opuesto en la misma capa: **`date-fns`, 36 663★, insignia `NONE`**, cinco rutas de `LICENSE` en 404 y
+una raíz de monorepo (`@date-fns/root`, `private: true`) **sin campo `license`** — la insignia es
+literalmente correcta y **la autoridad es el registro**: `registry.npmjs.org/date-fns/latest` →
+`4.4.0`, **MIT**.
+
+**Regla de redacción para esta KB, a partir de ahora:** en la capa de calendario, **«licencia MIT» no
+dice nada si no se dice también bajo qué licencia están los festivos, el tzdata y los datos de
+locale que el paquete empaqueta.**
+
+### 39. El festivo es un acto legislativo, así que una biblioteca de festivos sin mantenimiento no es código viejo: es código incorrecto
+
+Dos de los seis proveedores de datos de festivos verificados este pase llevan **más de dos años sin
+push y ninguno está archivado**, así que ninguna señal automática avisa: `workalendar/workalendar`
+(**MIT**, 946★, último push **2024-04-12**) y `svendiedrichsen/jollyday` (**197★**, **2024-05-01**).
+El fork mantenido de este último, `focus-shift/jollyday` (**Apache-2.0**, push 2026-11-19), tiene
+**144★**: **menos estrellas que el abandonado**. Decimotercera y decimocuarta entrada en la lista de
+«recomendado pero no usable» de esta KB, y **la primera vez que el criterio de obsolescencia no es
+técnico sino parlamentario**: una API estable con datos de 2024 compila, pasa los tests y **responde
+mal**.
+
+**Corolario de método, aplicable a toda la flota.** El resumen de búsqueda web de esta capa atribuyó
+a la release **2026c** el fin del horario de verano en **Samoa** y un cambio de Jordania. Comprobado
+contra el archivo primario, ambos son de **2021b (2021-09-24)**: **cinco años de error de
+atribución**. Paraguay (-03 permanente) es de **2025a**, Irán (sin DST desde 2022) de **2022b**. **Un
+resumen de búsqueda acierta el hecho y falla la versión, y en esta capa la versión *es* el hecho.**

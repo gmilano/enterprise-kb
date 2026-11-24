@@ -1012,3 +1012,65 @@ Ninguna de las plataformas de arriba *es* el cumplimiento fiscal. En todas, la c
 > exige la firma del emisor o de su proveedor de servicios, y en los regímenes de autorización
 > previa de LATAM **un reintento automático puede crear un segundo documento fiscal**.
 > ⚠️ *Obligaciones de fuente secundaria; detalle y matices en `intel/market.md`.*
+
+## Decimoctavo pase — 2026-11-24 — la capa de plataforma del calendario
+
+> Tema: **dónde vive el día laborable dentro de un sistema que el cliente ya tiene.** La pregunta de
+> este pase no es «¿qué calendario instalamos?» sino **«¿qué objeto del ERP decide si el martes es
+> laborable, y quién lo mantiene?»**.
+
+### Las aplicaciones de calendario: estrellas altas y licencias que excluyen el alojamiento
+
+| Plataforma | Repo | Licencia (verificada 2026-11-24) | ★ | Qué es |
+|---|---|---|---|---|
+| Rallly | [lukevella/rallly](https://github.com/lukevella/rallly) | **AGPL-3.0** | 5 368 | Programación de reuniones por votación (alternativa a Doodle). Push **hoy**. |
+| Radicale | [Kozea/Radicale](https://github.com/Kozea/Radicale) | **GPL-3.0** | 5 249 | Servidor **CalDAV/CardDAV** ligero. La pieza que da al agente un calendario propio sin Google ni Microsoft. |
+| Easy!Appointments | [alextselegidis/easyappointments](https://github.com/alextselegidis/easyappointments) | **GPL-3.0** | 4 502 | Reserva de citas con disponibilidad por proveedor. |
+| Nextcloud Calendar | [nextcloud/calendar](https://github.com/nextcloud/calendar) | **AGPL-3.0** | 1 200 | Calendario sobre Nextcloud; CalDAV completo. Push **hoy**. |
+| Cal.com | ya en la KB | **AGPL-3.0** | — | Alternativa a Calendly. |
+
+**CINCO DE CINCO SON GPL O AGPL, Y ESO ES UN PATRÓN ESTRUCTURAL, NO UNA CASUALIDAD.** El pase
+diecisiete midió exactamente el mismo reparto en el transporte AS4/Peppol —Oxalis-NG (EUPL-1.1+),
+Holodeck B2B y OpenAS2 (GPL-3.0), Domibus (EUPL-1.2), con una sola pila permisiva viva—. **Dos capas
+sin relación entre sí, el mismo resultado: la biblioteca es permisiva y la aplicación de cara al
+usuario es recíproca.**
+
+**Qué significa AGPL-3.0 para un engagement, dicho sin rodeos:** la cláusula de red alcanza al
+**uso en red**, así que alojar una versión modificada para un cliente **puede obligar a ofrecer el
+código correspondiente a los usuarios de ese servicio**. No es un impedimento —hay clientes para
+quienes es irrelevante, y el autoalojamiento sin modificar no genera obligación de publicar— pero
+**va en la sección de riesgos de la propuesta, no en el anexo técnico**, y la alternativa permisiva
+de esta capa es **presentación, no servidor**: [`fullcalendar/fullcalendar`](https://github.com/fullcalendar/fullcalendar)
+(**MIT**, 20 790★) pinta el calendario y no lo almacena.
+
+### El patrón real: el calendario laborable es un objeto del ERP, y ahí es donde se customiza
+
+Las tres plataformas que esta KB ya tenía son el sitio correcto para esta capa, y por eso se vuelven
+a listar con la rama verificada y no con la licencia como única nota:
+
+| Plataforma | Repo | Licencia | ★ | Rama por defecto | El objeto que decide el día laborable |
+|---|---|---|---|---|---|
+| Odoo | [odoo/odoo](https://github.com/odoo/odoo) | insignia `NOASSERTION` (Community LGPL / Enterprise propietaria — ya registrado) | 56 070 | **`20.0`** | El calendario de recursos y la lista de festivos por compañía: define horas laborables, turnos y ausencias, y de ahí cuelgan plazos, nóminas y planificación. |
+| ERPNext | [frappe/erpnext](https://github.com/frappe/erpnext) | **GPL-3.0** | 41 603 | **`develop`** | La **Holiday List** por empresa y la asignación de calendarios a empleados y proyectos. |
+| Apache OFBiz | [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | **Apache-2.0** | 1 151 | **`trunk`** | El único **permisivo** de los tres, y el que permite redefinir el calendario de la empresa sin restricción de licencia. |
+
+**La recomendación concreta, y es la que cambia el presupuesto:** **no construya un servicio de
+calendario nuevo.** En un cliente con ERP, la lista de festivos y el horario laboral **ya existen,
+ya están aprobados por RR. HH. o por finanzas y ya son los que usan nómina y facturación**.
+Duplicarlos en el agente crea **dos verdades que divergen en el primer festivo autonómico**. El
+patrón correcto es: **el agente lee el calendario del ERP como fuente, y usa
+[`vacanza/holidays`](https://github.com/vacanza/holidays) (MIT) o
+[`focus-shift/jollyday`](https://github.com/focus-shift/jollyday) (Apache-2.0) solo para los países
+donde el ERP no tenga lista cargada** — declarándolo como tal, no como respaldo silencioso.
+
+### Qué comprobar antes de cotizar cualquier cosa de esta sección
+
+1. **La versión de `tzdata`, CLDR e ICU de la imagen** donde corre la plataforma, y el `zic` con que
+   se compiló (ver el hallazgo del `NEWS` de tzdb en `repos/foundations.md`: `zic` **2023d-2026a** en
+   modo `slim` produce un TZif que hace ignorar una transición real).
+2. **Quién mantiene la lista de festivos** y con qué cadencia. Si la respuesta es «se cargó al
+   implantar», está desactualizada.
+3. **Si la plataforma guarda *offset* o guarda zona.** Un `-03:00` almacenado no sobrevive a un cambio
+   de regla; un `America/Santiago` sí.
+4. **Si el cliente opera en Canadá o Cuba**, el riesgo es **presente, no teórico**: los cambios de
+   2026 entraron en vigor entre marzo y el **1 de noviembre de 2026**, hace tres semanas.

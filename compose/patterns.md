@@ -2811,3 +2811,130 @@ byte a byte sobre los artefactos oficiales.*
 **Coste honesto.** 2–3 semanas con un equipo que ya tenga Java o Rust en casa. El riesgo real **no**
 es técnico: es que el cliente ya haya firmado con una plataforma que le prohíbe por contrato validar
 fuera de ella. **Esa pregunta va en la primera reunión**, no en la segunda.
+
+## Receta 34 — La cadena temporal fijada: que el agente sepa en qué versión del tiempo se está ejecutando (added eighteenth pass, 2026-11-24)
+
+**El problema que resuelve.** Un agente que calcula un vencimiento no calcula el tiempo: lo hereda de
+cinco eslabones versionados independientemente, y en 2026 uno de ellos **envió datos que contradicen
+la ley a propósito** (ver `intel/trends.md` 37). Ninguno de los agentes de `agents/top.md` declara en
+qué versión de `tzdata`, CLDR, ICU o `zic` corre. Esta receta lo convierte en un artefacto.
+
+```
+                 ┌──────────────────────── la cadena, y cada eslabón se fija ────────────────────────┐
+  ley/decreto →  eggert/tz (tzdata)  →  unicode-org/cldr + icu  →  runtime  →  el agente
+                 dominio público         Unicode V3 (datos)        tz/zoneinfo    MCP time server
+                 ★1 938 push 26-11-23    ★1 172 / ★3 652           del contenedor ★MIT 2026.11.18
+                 └── python/tzdata (Apache-2.0) si la imagen no trae /usr/share/zoneinfo ──┘
+```
+
+**Montaje, paso a paso con los repos verificados:**
+
+1. **Fije y publique las cuatro versiones.** Al arrancar, el servicio emite un `time_chain` con
+   `tzdata`, CLDR, ICU y la versión de `zic` con que se compiló el TZif. En Python, la versión viene
+   de [`python/tzdata`](https://github.com/python/tzdata) (**Apache-2.0**, 126★) en lugar de
+   `/usr/share/zoneinfo`, **precisamente para que sea una dependencia declarada y no una propiedad
+   de la imagen base**. Suelo mínimo tras los cambios de 2026: **tzdata ≥ 2026f** y **CLDR ≥ 49
+   (2026-10-22)**, que es lo que el `NEWS` exige para instantes a partir del 11-01.
+2. **Compile gordo, no fino.** Si usted compila TZif, **`zic -b fat`**. El `NEWS` documenta que `zic`
+   **2023d-2026a** en modo `slim` (el de por defecto) genera un archivo que no conforma con RFC 9636
+   §3.3 y **hace ignorar la transición real de `America/Vancouver`** del 2026-11-01 02:00.
+3. **Almacene zona, nunca *offset*.** `America/Santiago`, no `-03:00`. Un *offset* no sobrevive a un
+   cambio de regla, y los cinco cambios de 2026 fueron exactamente eso.
+4. **Dé al agente una herramienta, no una habilidad.** El servidor MCP de referencia
+   [`modelcontextprotocol/servers → src/time`](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
+   (**MIT**, `2026.11.18`) con `get_current_time`, `convert_time` y `get_time_ago`. **El modelo no
+   debe calcular fechas de cabeza**; y la herramienta **rechaza** `europe/warsaw` (clave IANA exacta,
+   mayúsculas incluidas) y rechaza fracciones en `get_time_ago`, que es lo que el modelo emite
+   cuando le piden «dos horas y media».
+5. **Decida y escriba qué significa «hace un día».** El README del servidor fija que es **24 horas
+   exactas de tiempo transcurrido**, no «ayer a esta hora», y que cruzando un cambio de horario «*its
+   wall-clock reading can differ from now by an hour*». **Las dos respuestas son defendibles; la que
+   no es defendible es no haber elegido.** Póngalo en el prompt del sistema y en la documentación de
+   la API.
+6. **Pruebe las zonas que cambiaron, no un caso genérico.** Suite mínima de regresión:
+   `America/Vancouver`, `America/Edmonton`, `America/Inuvik`, `America/Winnipeg` (los cuatro apaños),
+   `America/Havana` (la no-transición del 2026-11-01), `Africa/Casablanca` (+00 desde 2026-09-20),
+   `Australia/Lord_Howe` (**DST de 30 minutos**), `Asia/Kathmandu` (**+05:45**) y `Asia/Kolkata`
+   (+05:30 sin DST).
+7. **Registre la versión con el resultado.** Todo cálculo de vencimiento que se persista guarda el
+   `time_chain` que lo produjo. **Es la única forma de explicar a un auditor por qué el mismo
+   recálculo da otro número después de actualizar tzdata** — y en LATAM hay correcciones históricas
+   de 1965 y 1992 que hacen justamente eso.
+
+**Antipatrones de esta receta**
+
+- **Confiar en la hora del sistema del contenedor.** Congela los cuatro eslabones y no lo declara.
+- **Ramificar sobre `isdst` o mostrar la abreviatura de zona.** Es exactamente lo que los apaños de
+  2026 rompieron: «*It does not affect UT offsets, and affects abbreviations and tm_isdst flags
+  only*». Si solo compara instantes, está a salvo.
+- **Empaquetar `moment-timezone` y creer que hay un solo tzdata.** Trae **su propia copia**: un
+  eslabón más, con su propio ciclo de releases.
+- **Validar la caducidad de la tabla de segundos intercalares.** Desde **2026f** ya no caduca: «*No
+  more leap seconds, and leap second tables no longer expire*».
+
+---
+
+## Receta 35 — La puerta de día hábil: contar un plazo legal sin inventarse el calendario (added eighteenth pass, 2026-11-24)
+
+**El problema que resuelve.** El pase diecisiete dejó plazos reales —**30 días** al IRP en India, las
+fechas de KSeF, los catálogos CFDI— y una regla: **el reintento no es idempotente**. Pero un plazo
+«en días» no se cuenta con `+30`: se cuenta en **días hábiles**, en **hora local** y contra **el
+calendario de festivos de esa jurisdicción**. Esta receta es la puerta que decide *a tiempo* o *tarde*
+antes de que el agente intente emitir.
+
+```
+  evento (factura creada)
+        │
+        ▼
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ 1. zona  ← la del DOMICILIO FISCAL, no la del servidor ni la del    │
+  │           usuario  (Receta 34, paso 3)                              │
+  │ 2. festivos ← PRIMERO el calendario del ERP (Odoo resource calendar │
+  │           / ERPNext Holiday List / OFBiz), que RR.HH. ya aprobó     │
+  │ 3. relleno ← vacanza/holidays (MIT) o focus-shift/jollyday          │
+  │           (Apache-2.0) SOLO para países sin lista cargada, y        │
+  │           DECLARADO como relleno                                    │
+  │ 4. convención ← QuantLib: Following / Modified Following, ACT/360   │
+  │           o 30/360, según lo que diga el CONTRATO                   │
+  └─────────────────────────────────────────────────────────────────────┘
+        │
+        ├── queda holgura ──► el agente prepara y un humano firma (Receta 32)
+        └── no queda ───────► ESCALA. No encola: encolar puede CADUCAR el documento.
+```
+
+**Las piezas, con licencia verificada el 2026-11-24:**
+
+| Papel | Repo | Licencia | Por qué esta y no otra |
+|---|---|---|---|
+| Festivos (Python) | [vacanza/holidays](https://github.com/vacanza/holidays) | **MIT** | Push diario; rama por defecto **`dev`**. Sucesor de `dr-prodigy/python-holidays`. |
+| Festivos (Java) | [focus-shift/jollyday](https://github.com/focus-shift/jollyday) | **Apache-2.0** | El fork **mantenido**; el original tiene más estrellas y está parado desde 2024-05-01. |
+| Día hábil y conteo de días | [lballabio/QuantLib](https://github.com/lballabio/QuantLib) | **BSD-style** | La semántica correcta de *Modified Following* y de ACT/360 vs 30/360. No la reimplemente. |
+| Recurrencia | [jkbrzt/rrule](https://github.com/jkbrzt/rrule) | **BSD-3 ×2** | RFC 5545 real, para obligaciones periódicas. |
+| Reloj del agente | [MCP `src/time`](https://github.com/modelcontextprotocol/servers/tree/main/src/time) | **MIT** | Receta 34, paso 4. |
+| Durabilidad | [temporalio/temporal](https://github.com/temporalio/temporal) | MIT | Ya en la KB. **Reintenta con fiabilidad; no corrige el calendario.** |
+
+**Las cuatro reglas que contradicen el reflejo habitual:**
+
+1. **No empaquete `commenthol/date-holidays` en el producto del cliente.** Es excelente y **lo
+   declara honestamente**: `"license": "(ISC AND CC-BY-SA-4.0)"` — el código es ISC y **los datos de
+   `holidays.yaml` son CC BY-SA 4.0**, share-alike, porque derivan de Wikipedia. Úselo para
+   comparar, no para distribuir; las alternativas sin esa carga están en la tabla.
+2. **El ERP es la fuente, la biblioteca es el relleno.** La lista de festivos del cliente **ya existe
+   y ya está aprobada** por RR. HH. o finanzas, y es la que usan nómina y facturación. Duplicarla en
+   el agente crea **dos verdades que divergen en el primer festivo autonómico o municipal**.
+3. **Si no queda holgura, escale; no encole.** Regla del pase diecisiete, aquí con el motivo
+   temporal: en India el documento **caduca a los 30 días** si no llega al IRP. Una cola con
+   reintento exponencial **convierte un retraso en una pérdida de validez**.
+4. **Fije la versión del calendario junto al resultado.** Igual que la Receta 34 guarda el
+   `time_chain`, esta guarda **la versión del paquete de festivos** usada. Un festivo nuevo aprobado
+   por un parlamento cambia retroactivamente si una fecha era hábil, y sin el registro no se puede
+   reconstruir la decisión.
+
+**Antipatrones de esta receta**
+
+- **`+30 días` sobre un `datetime` naíf.** Falla por la zona, por los festivos y por la convención.
+- **Una lista de festivos codificada en el prompt.** Caduca sin avisar y el modelo no sabe que caducó.
+- **Usar `workalendar` por su API (MIT, 946★) sin mirar la fecha.** **Último push 2024-04-12 y no está
+  archivado**: compila, pasa los tests y responde con los festivos de hace dos años.
+- **Asumir que el DST son ±60 minutos.** `Australia/Lord_Howe` salta **30 minutos**, verificado en el
+  dato primario (`Rule LH 2008 max - Oct Sun>=1 2:00 0:30`).
