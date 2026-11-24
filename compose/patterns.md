@@ -3566,3 +3566,132 @@ recomendada del ecosistema (`p2-inc/keycloak-orgs`) sin leer su `COPYING` — es
 **AGPL-3.0** y duplica algo que el core **Apache-2.0** de Keycloak ya trae
 (`OrganizationModel.java`). **Octavo caso de esta rotación en el que la trampa venía recomendada
 por documentación adyacente al propio proyecto.**
+
+## Receta 46 — Darle al agente una identidad de remitente **revocable**: subdominio, selector propio y alineación DMARC (added twenty-third pass, 2026-11-24)
+
+**El problema que resuelve, y es el modo de fallo más común de esta capa.** El agente manda correo a
+través de una plataforma y la plataforma **firma DKIM con su propio dominio**. DKIM «pasa», el
+cliente ve `dkim=pass` en las cabeceras y da el visto bueno — pero **DMARC falla igualmente**,
+porque DMARC no exige que DKIM pase: exige que **el dominio que firma esté alineado con el dominio
+del `From:`**. El síntoma es un correo que se entrega a veces y en otras bandejas va a spam sin
+error visible. *(Patrón descrito en fuentes de proveedor, secundarias; el mecanismo de alineación es
+el del estándar.)*
+
+**Piezas, todas verificadas el 2026-11-24 y todas permisivas:**
+
+| Papel | Pieza | Licencia |
+|---|---|---|
+| Emisión + autenticación integrada | [mjl-/mox](https://github.com/mjl-/mox) | **MIT** |
+| Alternativa customizable en la ruta del mensaje | [apache/james-project](https://github.com/apache/james-project) (*mailets*) | **Apache-2.0** |
+| Verificación de lo que se firmó | [postalsys/mailauth](https://github.com/postalsys/mailauth) (SPF/DKIM/DMARC/ARC/BIMI) | **MIT** (por registro) |
+| Sellado ARC si hay reenvío | [emersion/go-msgauth](https://github.com/emersion/go-msgauth) | **MIT** |
+| Puerta de preproducción | [axllent/mailpit](https://github.com/axllent/mailpit) | **MIT** |
+| Bucle de evidencia | [domainaware/parsedmarc](https://github.com/domainaware/parsedmarc) | **Apache-2.0** |
+
+### Paso 1 — Un subdominio para el agente, nunca el dominio raíz del cliente
+
+El agente manda desde **`agentes.cliente.com`**, no desde `cliente.com`. Motivo operativo, no
+estético: **la reputación de envío y la política DMARC se aíslan**, de modo que un agente que se
+equivoca en volumen no arrastra el correo de nómina, facturación y dirección. Es el equivalente, en
+este canal, del aislamiento que la Receta 44 construye por inquilino.
+
+### Paso 2 — Un selector DKIM **por agente**, que es lo que hace la identidad revocable
+
+El registro vive en `<selector>._domainkey.agentes.cliente.com`. **Un selector por agente** (no uno
+por empresa) convierte tres operaciones imposibles en operaciones de DNS:
+
+- **rotar** la clave de un agente sin tocar a los demás;
+- **revocar** un agente comprometido **retirando un único registro TXT**, en minutos y sin desplegar;
+- **atribuir** un mensaje a un agente concreto a partir de la cabecera `DKIM-Signature`, que es
+  justamente lo que pide una auditoría posterior.
+
+**Esto cierra, para el canal de correo, lo que el pase veinte dejó abierto en el ciclo de vida:** la
+baja del agente deja de depender de que alguien se acuerde de desactivar una credencial compartida.
+
+### Paso 3 — Delegación, si la plataforma es de un tercero
+
+Si firma un proveedor, hay que exigir **delegación DKIM**: el proveedor firma **bajo el dominio del
+cliente** con **su propio selector** (el cliente publica el TXT o un `CNAME` al del proveedor).
+**Pregunta de *due diligence* para el proveedor, textual:** *¿con qué `d=` sale la firma?* Si la
+respuesta es el dominio del proveedor, **DMARC no alineará** y la propuesta tiene un defecto antes
+de empezar.
+
+### Paso 4 — Afirmar la alineación en un test, no comprobarla a ojo
+
+En CI, el agente manda contra **Mailpit** (tiene API, por eso está aquí y no MailHog) y el test
+**afirma sobre el mensaje capturado**: que existe `DKIM-Signature` con el `d=` esperado, que el
+`From:` está alineado con ese `d=`, y —si es correo de marketing— que están las cabeceras
+`List-Unsubscribe` y `List-Unsubscribe-Post` de **RFC 8058**. `mailauth` da el veredicto de las tres
+capas en una sola invocación. **Es un test de unidad, no una revisión manual**, y es lo que impide
+que una migración de proveedor rompa la alineación en silencio.
+
+### Paso 5 — El bucle, que es lo que convierte la política en progresión
+
+`parsedmarc` ingiere los informes **agregados (RFC 9990)** y los de **fallo (RFC 9991)** y responde
+la única pregunta que permite endurecer la política sin cortar correo legítimo: *¿qué fuentes mandan
+en mi nombre y cuáles no alinean?* **Y aquí el cambio de 2026 que casi nadie ha cableado todavía:
+`pct` ya no existe en RFC 9989** — la progresión se expresa con el indicador binario **`t=y` →
+`t=n`**, no con un porcentaje. *(Secundario: las RFC no se pudieron leer en primario desde esta
+sesión.)* Una propuesta que documente la rampa con `pct` está describiendo el estándar anterior.
+
+---
+
+## Receta 47 — Sustituir OpenARC por `go-msgauth` cuando el cliente reenvía correo o tiene listas (added twenty-third pass, 2026-11-24)
+
+**Cuándo aplica, y es más frecuente de lo que parece.** En cuanto el correo del agente pasa por un
+reenvío (`alias`, `@grupo`, una lista de distribución, un buzón compartido que redirige), **SPF se
+rompe por diseño** —el salto siguiente ve la IP del reenviador, no la del emisor— y DMARC puede
+fallar aunque todo estuviera bien configurado en origen. **ARC** (`Authentication-Results` sellado en
+cadena) es el mecanismo que preserva el veredicto original a través de los saltos.
+
+**El problema:** la implementación de referencia, **OpenARC**, está **sin un commit desde el
+2024-04-19** (150 ★, **no archivada**, medido en la API el 2026-11-24), y la otra biblioteca del
+nicho, `ValiMail/authentication-headers`, lleva **desde 2024-06-24**. Proponer ARC sobre OpenARC es
+proponer una dependencia parada de dos años y medio en la ruta de entrega del cliente.
+
+**La sustitución, verificada:**
+
+1. **Sellar y verificar con [emersion/go-msgauth](https://github.com/emersion/go-msgauth)** (**MIT**,
+   231 ★, último push **2026-11-06**): implementa **DKIM, DMARC, `Authentication-Results` y ARC** en
+   Go, y es la única pieza de la capa con mantenimiento del mes en curso.
+2. **Verificar de forma independiente con [postalsys/mailauth](https://github.com/postalsys/mailauth)**
+   (**MIT**), que evalúa la cadena ARC completa además de SPF/DKIM/DMARC. **Dos implementaciones
+   distintas sobre el mismo mensaje**: si discrepan, el fallo está en el sellado, no en el criterio.
+3. **Si el cliente ya corre rspamd** ([rspamd/rspamd](https://github.com/rspamd/rspamd),
+   **Apache-2.0** leída byte a byte), **ya tiene firma y verificación ARC en producción** y no hace
+   falta añadir un *milter* nuevo — **un componente, dos trabajos**, el mismo patrón que el pase
+   dieciséis registró con OPA.
+
+**El orden de los *milter* importa y es una fuente de error documentada:** con reenvío y sellado, la
+discusión del propio *tracker* de OpenARC sostiene que **OpenDMARC debe ir antes que OpenARC**; una
+guía de 2026 afirma lo contrario. *Conflicto declarado, no promediado* — y es un argumento más para
+resolverlo en una sola biblioteca mantenida en vez de en una cadena de *milters*.
+
+---
+
+## Receta 48 — El dossier del remitente: la evidencia que se factura cuando el agente manda correo (added twenty-third pass, 2026-11-24)
+
+**La tesis de esta flota, aplicada al canal:** lo que el cliente compra no es el modelo, es la
+**evidencia** de que el canal está bajo control. En energía fue el expediente tarifario; en
+cumplimiento, OSCAL; aquí es el **dossier del remitente**, y se construye con piezas permisivas.
+
+| Sección del dossier | Cómo se produce | Pieza |
+|---|---|---|
+| **Inventario de remitentes** | Toda fuente que manda en nombre del dominio, con su veredicto de alineación | `parsedmarc` (**Apache-2.0**) sobre informes **RFC 9990** |
+| **Estado de las capas** | SPF, DKIM, DMARC, ARC y BIMI de cada dominio y subdominio, con fecha | `mailauth` (**MIT**) |
+| **Política y rampa** | Estado `t=y`/`t=n` **de RFC 9989** y fecha de endurecimiento — **no `pct`, que se eliminó** | DNS + `parsedmarc` |
+| **Transporte** | MTA-STS en `enforce` y TLS-RPT publicado | [Snawoot/postfix-mta-sts-resolver](https://github.com/Snawoot/postfix-mta-sts-resolver) (**MIT**) |
+| **Conformidad de baja** | `List-Unsubscribe` + `List-Unsubscribe-Post` (**RFC 8058**) presentes y **funcionando**, afirmado en test | `mailpit` (**MIT**) en CI |
+| **Matriz de consentimiento por región** | Qué base legal ampara cada envío **por país de destino**, no por país del cliente | `intel/market.md`, subsecciones de este pase |
+| **Atribución por agente** | Qué agente firmó qué mensaje, vía selector DKIM | Receta 46, paso 2 |
+
+**Las dos métricas que el cliente no pide y siempre nota** —el mismo par que el pase veintiuno
+identificó para voz—: **la tasa de queja por spam (umbral citado: < 0,3 %)** y **el tiempo real
+hasta que una baja surte efecto** (las fuentes dan **2 días** y **48 horas** para Google/Yahoo, y
+en Brasil **1 día**, **15 días** o «sin plazo fijo» según la fuente: *conflicto declarado*). Ambas
+se miden desde el primer día o se descubren cuando el dominio ya está quemado.
+
+> **Y la frase para la semana 1 de una venta, que sale medida de este pase:** *el estándar de este
+> canal se reescribió en mayo de 2026 y la implementación de referencia que casi todos despliegan es
+> anterior a la reescritura.* **El trabajo no es «configurar DMARC»: es poner al día un canal cuya
+> norma cambió y cuya base de código no.**

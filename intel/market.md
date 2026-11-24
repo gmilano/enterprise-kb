@@ -921,6 +921,41 @@ artefacto de CI, porque convierte una afirmación de aislamiento en **evidencia 
 exactamente lo que el equipo legal necesita cuando el contrato tiene que repartir
 responsabilidad y el incidente de Cloudflare ya está en la conversación.
 
+
+#### El canal escrito — el pase vigesimotercero (2026-11-24)
+
+**Norteamérica tiene el mandato de autenticación de correo más claro del mundo y es anterior a la
+era de los agentes.** La **Binding Operational Directive 18-01 de CISA** obliga a las agencias
+federales de EE. UU. a usar **STARTTLS, SPF, DKIM y DMARC con política `p=reject`**. Para un
+engagement federal o para un proveedor de gobierno, **`p=reject` no se negocia: es línea de base
+heredada**, y cualquier agente que mande correo en ese perímetro nace con el requisito puesto.
+
+**Pero el regulador efectivo del canal no es un gobierno: son tres proveedores de buzón.** Reglas
+vigentes citadas de forma consistente por múltiples fuentes de proveedores de DMARC
+(*todas secundarias; la documentación oficial de Google, Yahoo, Microsoft y Apple no se leyó*):
+
+- **Google y Yahoo, desde febrero de 2024.** Umbral de volumen de ~**5.000 mensajes/día** a cuentas
+  personales de Gmail; Yahoo **no publica umbral numérico**. Exigen **SPF y DKIM**, **DMARC** en
+  `p=none` o más estricto y **dominio `From:` alineado**.
+- **Microsoft igualó las reglas para direcciones de Outlook.com en mayo de 2025.**
+- **Baja en un clic (RFC 8058)** obligatoria para correo de marketing y suscripciones — **no para el
+  transaccional**. Los plazos de efecto difieren entre fuentes: **«2 días»** frente a **«48 horas»**.
+- **Tasa de queja por spam por debajo del 0,3 %.**
+- **Conflictos declarados, no promediados:** si Microsoft *exige* RFC 8058 o sólo *recomienda* una
+  baja funcional (dos fuentes opuestas), y si Apple lo tiene como **requisito con aplicación prevista
+  en 2026-2027** o como recomendación (dos fuentes opuestas).
+
+**La oportunidad, y encaja con lo que esta KB ya sabe del comprador norteamericano.** El mercado
+está lleno de SaaS de *monitorización* DMARC; lo que no se compra hecho es **la identidad de envío
+del agente**: subdominio dedicado, **selector DKIM por agente** y revocación por DNS (Receta 46).
+Y el contexto de compra sigue siendo el de la brecha entre adopción y resultado: Deloitte (2026,
+**3.235 directivos en 24 países**) encuentra que ~**dos tercios** ven ganancias de eficiencia y
+**sólo uno de cada cinco** ve más ingresos; Gartner (2026) da **22 %** que han escalado IA a varias
+unidades de negocio; y una encuesta de **más de 120.000 respuestas** sitúa en **8,6 %** las empresas
+con agentes **en producción**. *El canal de correo es un sitio donde «en producción» se puede
+demostrar con cabeceras, que es precisamente lo que falta en el 91,4 % restante.*
+
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1908,6 +1943,44 @@ rechaza **en la semana 8**, cuando ya se construyó encima. Entregar la alternat
 verificada desde el día 1 — **Keycloak core + AutoMQ o Pulsar** — es un diferenciador que se
 puede demostrar con un `LICENSE` en la mano.
 
+
+#### El canal escrito — el pase vigesimotercero (2026-11-24)
+
+**El hallazgo regional más importante es una ausencia: no hay mandato DMARC vinculante en toda la
+UE.** **NIS2 es basada en riesgo y neutral tecnológicamente** — su Art. 21 exige «medidas técnicas
+apropiadas» y **no nombra DMARC, SPF, DKIM ni MTA-STS como controles obligatorios**. La lectura
+honesta para un cliente: **la autenticación de correo es una forma de *evidenciar* el cumplimiento
+del Art. 21, no un control exigido por él.** *Las fuentes de proveedores se contradicen en este punto
+—unas dicen que NIS2 no lo obliga, otras que empuja a los organismos públicos— y el conflicto se
+declara. Dos despachos (Skadden y Bird & Bird) describen NIS2 como basada en riesgo. Se afirma
+además que **Chequia, Dinamarca y Países Bajos** ya exigen DMARC a organismos públicos e
+infraestructura crítica: **no verificado contra texto legal primario**.*
+
+**Reino Unido: una fecha que ya pasó y deja un hueco de servicio abierto ahora mismo.** La
+**retirada de Mail Check del NCSC** tenía fecha límite el **2026-03-31** — **hace casi ocho meses** —
+y a partir de ella las organizaciones británicas **gestionan su propia monitorización DMARC**. El
+gobierno central del Reino Unido lo exige desde 2016. *(Secundario.)* **Eso es demanda ya
+materializada, no previsión:** quien dependía del servicio gratuito del NCSC para leer informes
+agregados necesita hoy el bucle de la **Receta 48** (`parsedmarc`, Apache-2.0) autohospedado.
+
+**La licencia europea de esta capa, y conviene anticiparla al comité legal.** El MTA de salida más
+modular del catálogo, [zone-eu/zone-mta](https://github.com/zone-eu/zone-mta), y su buzón
+[zone-eu/wildduck](https://github.com/zone-eu/wildduck) son **EUPL-1.2**: **recíproca europea**, con
+cláusula de compatibilidad y valor legal en las 23 lenguas oficiales. No es MIT, y un comité que lea
+«open source europeo» esperando permisiva se lleva una sorpresa a mitad del proyecto. La alternativa
+permisiva verificada para el mismo papel es **`mjl-/mox` (MIT)** o **`apache/james-project`
+(Apache-2.0)**.
+
+**El contexto de compra sigue siendo el de la brecha de ejecución.** IDC: **sólo el 9 %** de las
+organizaciones EMEA han obtenido resultados de negocio medibles de la mayoría de sus proyectos de IA
+en dos años (*Future Enterprise and Resiliency Survey, Wave 1, marzo de 2026*), y el bloqueo es de
+**ejecución, no de ambición** (*EMEA Digital Leaders Hub, junio de 2026*). Veeam: **88 %** ya
+ejecutan agentes y **sólo 7 %** se sienten preparadas para gobernarlos. Gartner, vía WWT: **12 %**
+tienen estructuras de gobierno de IA dedicadas. **Un canal de correo con dossier de evidencia es
+gobierno demostrable sobre un sistema que ya está en producción**, que es exactamente la forma del
+hueco que miden las tres cifras.
+
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2807,6 +2880,46 @@ proyecto es **dónde está el bus y cómo se cruza su límite**: la **`Account`*
 `exports`/`imports` **declarados** es el modelo más defendible ante un regulador, porque la
 declaración de qué se comparte **es** la evidencia de auditoría. Y el *stack* entero puede ser
 permisivo con una pieza de origen regional.
+
+
+#### El canal escrito — el pase vigesimotercero (2026-11-24)
+
+**APAC es la región donde el consentimiento es previo y granular, y donde el canal escrito hereda el
+régimen que el pase veintiuno encontró para el hablado.**
+
+- **Japón — opt-in previo.** El correo comercial requiere consentimiento previo, con excepciones
+  limitadas por relación comercial existente. Una fuente añade que **los registros de consentimiento
+  deben conservarse tres años** tras el último envío a ese contacto. *(Secundario.)*
+- **Corea del Sur — el régimen más estricto descrito en las fuentes.** **Consentimiento separado y
+  granular** para marketing; el correo en frío sin consentimiento se describe como **prohibido
+  explícitamente**. Una única fuente afirma además **renovación del consentimiento cada dos años**:
+  **sin corroborar, se marca como tal.**
+- **Singapur — tres fuentes y tres respuestas distintas, y así se registra.** Una matriz de
+  cumplimiento dice que el correo en frío a direcciones **corporativas** con fin profesional **no
+  requiere consentimiento PDPA**; otra describe Singapur como régimen **opt-out**; una tercera lo
+  lista entre los **opt-in**. Coinciden en que la **Spam Control Act** exige **opción de baja en cada
+  mensaje**. **Conflicto declarado: no se promedia, se pregunta al cliente por su asesoría local.**
+- **India — y aquí el canal escrito y el hablado se juntan.** La **DPDP Act 2023** y las **DPDP Rules
+  2025** cubren el consentimiento del dato (con la mayoría de deberes desde **~2027-05-13**), pero el
+  pase veintiuno ya registró que el reglamento **A2P de TRAI** —cuya **Tercera Enmienda**, fechada el
+  **2026-09-18**, mete en el marco las llamadas automatizadas— puso en vigor las disposiciones de
+  **robocalls y uso indebido de credenciales de remitente el 2026-11-17**. **La «credencial de
+  remitente» es el mismo concepto en los dos canales**: lo no declarado se trata como spam. Para un
+  despliegue indio, el agente necesita **identidad de emisor declarada**, no sólo consentimiento.
+- **Adopción: la región va delante.** Forrester sitúa a **Singapur, Australia, Nueva Zelanda y Corea
+  del Sur** por delante de la mayoría de países de Norteamérica y Europa. Lenovo (*CIO Playbook*):
+  **96 %** de las organizaciones APAC aumentan inversión en IA, **+15 %** de media en 2026. El
+  **49 %** cita infraestructura insuficiente para datos en tiempo real como barrera, y la
+  **soberanía del dato** condicionará la infraestructura de IA de la mitad de las empresas.
+
+**La consecuencia de arquitectura, y es la misma forma que el hueco audible del pase veintiuno.**
+Un **opt-in previo, separado y con caducidad** no lo satisface ninguna de las 32 piezas verificadas
+en este pase: ni Mautic ni listmonk ni Keila ni ningún MTA del catálogo registran **qué
+consentimiento ampara cada envío, con su fecha y su alcance, de forma consultable por el agente antes
+de enviar**. Lo que hay son listas y bajas. **Hay que construir el registro de consentimiento**, y es
+un componente que sirve a Japón, Corea e India a la vez — **un componente, tres mercados**, y entra
+en el dossier de la **Receta 48** como «matriz de consentimiento por región».
+
 
 ### LATAM
 
@@ -3906,6 +4019,49 @@ la Receta 45 — **«si el aislamiento real es por instancia, el presupuesto es 
 rentable; descubierta en la semana 10 es una renegociación. Y como no hay componente regional que
 poner en la tabla, **la batería de dos inquilinos es el activo diferencial**: se construye una vez
 y se reutiliza en cada engagement de la región.
+
+
+#### El canal escrito — el pase vigesimotercero (2026-11-24)
+
+**Brasil no tiene ley antispam dedicada, y eso cambia la propuesta en lugar de simplificarla.** Quien
+gobierna el envío es la **LGPD**, y —a diferencia de CASL, PECR o la Spam Act— **no impone opt-in por
+mensaje**. La consecuencia práctica es que el envío B2B se apoya en **interés legítimo con
+evaluación documentada**: el entregable no es una casilla de consentimiento, es **el documento que
+justifica la base legal**, que es exactamente el tipo de artefacto que esta KB viene identificando
+como lo facturable. Sanciones citadas de forma consistente: **hasta el 2 % de la facturación en
+Brasil, con tope de R$ 50 millones por infracción**.
+
+- **Conflictos declarados, no promediados.** El plazo para atender una baja aparece como **1 día**,
+  **15 días** y «sin plazo fijo, con prontitud» en tres fuentes distintas. Y una fuente afirma que el
+  **regulador cambió de nombre** por la **MP 1.317/2025** y la **Lei 15.352/2026**: **no se pudo
+  corroborar en ninguna otra fuente ni en texto primario** — se registra como **sin verificar**, y no
+  debe citarse a un cliente sin comprobarlo.
+- **México — LFPDPPP**, basada en consentimiento para el tratamiento de datos personales, lo que
+  implica consentimiento expreso para correo comercial. **Una tabla de Wikipedia que lista a México
+  como «sin ley antispam» está desactualizada**: ignora el marco de protección de datos. *(Fuentes
+  secundarias.)*
+
+**El hueco medido de la región, y esta vez se midió en el idioma correcto.** Se buscó deliberadamente
+en español —`correo electrónico`, `remitente`, `buzón`, `suplantación`, `lista de correo`— y
+**no apareció ningún repositorio de origen latinoamericano en esta capa**. Las **32 direcciones
+verificadas son de origen norteamericano o europeo** sin excepción: Trusted Domain Project (EE. UU.),
+`zone-eu` (Estonia), `emersion` y `foxcpp` (Europa), ASF, `mjl-` (Países Bajos). **Es un cero
+medido, no un silencio** — y es coherente con el precedente del pase diecinueve de energía: la
+ausencia latinoamericana en capas de **infraestructura de protocolo** es consistente, mientras que la
+presencia regional está en **aplicación y adopción**. *No se repitió aquí la auditoría por forja (T83)
+porque la capa de correo tiene su propio sesgo documentado: `chasquid` y `spamassassin` se declaran
+**espejos** de repositorios primarios fuera de GitHub, y Postfix y Exim —los dos MTA más desplegados
+del mundo— **no tienen repositorio canónico en GitHub en absoluto**. Queda como item abierto.*
+
+**La oportunidad concreta.** Con ~**40 %** de las organizaciones ya implementando IA, **68 %** de
+esos adoptantes preparando escalado y **menos de una de cada cinco** con marco formal de gobierno
+(RSM, +400 directivos), el canal de correo es el sitio donde el gobierno se puede demostrar con
+cabeceras y con informes agregados en lugar de con una política en PDF. Y la restricción de inversión
+sigue siendo real: la región captó **8.200 M USD** de los **190.000 M USD** de inversión privada
+global en IA en 2025. **La venta no es una plataforma de correo: es el dossier del remitente
+(Receta 48) construido sobre piezas permisivas que el cliente ya puede autohospedar**, con la
+evaluación de interés legítimo de la LGPD dentro.
+
 
 ## Posicionamiento Globant
 

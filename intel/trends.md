@@ -2831,3 +2831,81 @@ búsqueda vectorial que ofrece aislamiento de inquilino y búsqueda global en la
 de la **AI Act en agosto de 2026** — que **esta misma KB ya registró como diferida** por el
 Digital Omnibus, Reglamento (UE) 2026/1744. **Las fuentes de prensa de este pase siguen repitiendo
 la fecha vieja**; se deja anotado como discrepancia, no reconciliado.
+
+## Vigesimotercer pase — 2026-11-24 — el límite del remitente: en 2026 el estándar del canal se reescribió y su implementación de referencia se quedó quieta
+
+> **Nota de numeración, para que nadie herede un error:** este fichero arrastra **dos series**
+> —`### N.` a secas, que llega a **39**, y `### Tendencia N`, que llega a **35**— por una colisión
+> de pases anteriores. Este pase numera **a partir de 40**, por encima del máximo de *ambas* series,
+> para no añadir una tercera ambigüedad.
+
+### Tendencia 40 — El estándar se movió en 2026 y el código de referencia no: DMARC se reescribió en mayo y su *milter* sigue en 2021
+
+**El dato, y esta KB lo tenía en cero.** `RFC 9989` **0 apariciones** en 22 pases. DMARCbis se
+publicó el **2026-05-19** como **RFC 9989**, que **deja obsoletos el RFC 7489 y el RFC 9091**, con
+dos documentos acompañantes: **RFC 9990** (informes agregados) y **RFC 9991** (informes de fallo).
+Lo que cambia y afecta directamente a una propuesta:
+
+- **`pct` se ELIMINÓ, no se marcó obsoleto.** El muestreo porcentual —la forma en que todo el
+  mundo hacía la progresión `p=none → quarantine → reject`— **ya no existe**. Lo sustituye un
+  **indicador binario `t=`** (`t=y` monitorización, `t=n` aplicación). Las etiquetas `rf` y `ri`
+  también desaparecen.
+- **El dominio organizativo se resuelve con un «DNS Tree Walk»**, en lugar de la heurística de la
+  lista de sufijos públicos.
+- **Los registros existentes siguen siendo válidos**: un registro RFC 7489 correcto no se rompe, y
+  los receptores RFC 9989 ignoran las etiquetas retiradas.
+
+**Y enfrente, el código.** `OpenDMARC` (139 ★) tiene en su propio *tracker* una propuesta de adoptar
+DMARCbis **retirando el muestreo `pct`** —*secundario*— y releases **detenidas en 1.4.2 desde 2021**;
+`OpenDKIM` sigue en **`2.11.0~beta2`**; y **`OpenARC` no recibe un commit desde el 2024-04-19**,
+medido en la API, **sin estar archivado**. *La norma del canal se rehízo en mayo de 2026 y la
+implementación que ejecuta esa norma en la mayoría de los Postfix del mundo es anterior a la
+reescritura.* **Para un cliente esto no es trivia: significa que la progresión de política que su
+proveedor le documentó con `pct` ya no es la que describe el estándar vigente.**
+
+*Límite declarado y medido: **las cuatro** fuentes primarias de esta tendencia son inalcanzables
+desde esta sesión —`www.rfc-editor.org`, `datatracker.ietf.org`, `www.ietf.org` y `data.iana.org`
+devuelven **000** (no resuelven) con GET por rango. **RFC 9989/9990/9991 NO se leyeron en primario**:
+todo lo de esta tendencia es **nivel de resumen de búsqueda**, y se marca como tal en lugar de
+presentarse como lectura de la norma. Lo de licencias, estrellas, ramas y fechas de push **sí** es
+byte a byte.*
+
+### Tendencia 41 — La licencia del canal de correo es ilegible desde la forja en 9 de 32 repos, y el ganador es siempre el registro o el byte
+
+De **32 direcciones verificadas** este pase, **8 devolvieron `NOASSERTION` y 1 devolvió `null`**, y
+al resolverlas aparecieron **seis veredictos distintos**: doble *Trusted Domain Project + Sendmail*
+(×2, y **por fichero**), Apache-2.0 (×2), MIT (×1), **MIT-0** (×1), **PSF-2.0** (×1) y GPL-3.0 (×1)
+—más una ausencia real de fichero con **16.280 ★**. **Casi un tercio de la capa no se puede licenciar
+desde la insignia.** Tres clases de licencia **nuevas** para esta KB salen de aquí (`MIT-0`,
+`PSF-2.0`, `Sendmail Open Source License`), y suben el catálogo de **18 a 21**.
+
+La consecuencia de método es la que esta KB viene acumulando y que este pase cierra en los dos
+sentidos: **`NOASSERTION` no informa en ninguna dirección** (resolvió a permisivo en 6 de 8 casos,
+pero a GPL-3.0 en uno) **y `null` tampoco es «sin licencia»** (Stalwart es AGPL-3.0 afirmada en el
+README). El orden de desempate que funcionó: **(1)** campo del manifiesto / registro de paquetes,
+**(2)** lectura byte a byte del fichero, **(3)** número de línea dentro de un fichero compuesto,
+**(4)** prosa e insignia del README, **y sólo entonces** se registra.
+
+### Tendencia 42 — El canal por el que el agente alcanza a un cliente lo regulan tres proveedores de buzón, no un parlamento
+
+**El contraste más limpio de este pase.** El agente de **voz** del pase veintiuno se topa con
+**leyes**: TRAI, la Ley Básica coreana, las medidas chinas de etiquetado, el Art. 50 europeo. El
+agente de **correo** se topa, antes que con cualquier ley, con **las reglas privadas de Google,
+Yahoo y Microsoft**: autenticación SPF + DKIM obligatoria, DMARC alineado, **baja en un clic
+(RFC 8058)** para correo de marketing y una **tasa de queja por debajo del 0,3 %**, con rechazo
+permanente como sanción. Vigentes desde **febrero de 2024** (Google y Yahoo, umbral de ~**5.000
+mensajes/día** a cuentas personales de Gmail) y **mayo de 2025** (Microsoft, para Outlook.com).
+*Todo ello en fuentes secundarias de proveedores de DMARC; la documentación oficial de Google,
+Yahoo, Microsoft y Apple **no se leyó** y los puntos de Microsoft y Apple **se contradicen entre
+fuentes**, así que se declara el conflicto en lugar de promediarlo.*
+
+**La lectura comercial:** en esta capa **la regla privada llega antes y se aplica más rápido que la
+norma pública** —no hay mandato DMARC vinculante en toda la UE, y sin embargo ningún correo
+masivo entra en Gmail sin autenticar—, así que **el criterio de aceptación de un agente que manda
+correo no se escribe contra una ley: se escribe contra la política de un proveedor de buzón, que es
+verificable hoy y cambia sin período de transposición.** Y la adopción de las capas superiores sigue
+siendo marginal: **MTA-STS 1,1 %, BIMI 2,4 %, DANE 4,3 %** frente a **DMARC 64 %** de los dominios
+aptos para correo del top-1M (jun-2026), con **56 % de los que publican MTA-STS en modo
+`enforce`** y **19,6 %** de los dominios emisores validando MTA-STS. *Una segunda medición sobre el
+Tranco top-10.000 da **MTA-STS 2,6 %, TLS-RPT 3 %, BIMI 9,5 %** y **sólo ~0,7 %** con todas las capas
+a la vez: la discrepancia es de **muestra**, no de contradicción, y se registran las dos.*

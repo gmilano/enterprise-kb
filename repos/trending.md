@@ -8,7 +8,62 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimosegundo pase (latest) — el backbone de eventos: 22 citas a Debezium y cero a Kafka
+## 2026-11-24 — vigesimotercer pase (latest) — la capa del remitente: 32 direcciones verificadas, 32 nuevas, y 9 licencias que la forja no sabe leer
+
+> **32 direcciones verificadas el 2026-11-24, las 32 nuevas para esta KB** (dedup medido: los 30
+> candidatos de partida daban **0 apariciones** en los nueve ficheros — la ausencia era estructural,
+> no de vocabulario). Instrumentos, en orden de autoridad: `gh api -X GET search/repositories`
+> (SPDX + ★ + `pushed_at` + `archived` + **rama por defecto**, todo en una llamada),
+> **`raw.githubusercontent.com` byte a byte**, y —decisivo este pase—
+> **`registry.npmjs.org/<pkg>/latest`** cuando el fichero del repo está roto.
+> `api.github.com/repos/…` sigue **denegado por el alcance de la sesión**; `HEAD` sigue bloqueado por
+> el proxy, así que se verifica con **GET**.
+
+**El reparto de licencias de la capa, medido:**
+
+| Veredicto | Repos |
+|---|---|
+| **MIT** | `mjl-/mox` (5.962 ★), `haraka/Haraka` (5.642 ★), `postalserver/postal` (16.975 ★), `axllent/mailpit` (11.024 ★, rama `develop`), `docker-mailserver` (19.776 ★), `emersion/go-msgauth` (231 ★), `emersion/go-smtp` (2.066 ★), `Mail-0/Zero` (10.900 ★), `Snawoot/postfix-mta-sts-resolver` (127 ★) |
+| **MIT, pero sólo legible en el registro** | `postalsys/mailauth` (v8.1.0), `Mailu/Mailu` (`LICENSE.md`) |
+| **MIT-0** | `nodemailer/nodemailer` (17.717 ★) — **clase nueva nº 19** |
+| **Apache-2.0** | `apache/james-project` (1.054 ★), `apache/spamassassin` (rama **`trunk`**), `rspamd/rspamd` (`LICENSE.md`), `albertito/chasquid` (`[mirror]`), `domainaware/parsedmarc` (1.319 ★) |
+| **BSD-2-Clause** | `trusteddomainproject/OpenARC` |
+| **BSD/ISC compuesto** | `OpenSMTPD/OpenSMTPD` |
+| **PSF-2.0** | `sdgathman/pyspf` — **clase nueva nº 20** |
+| **Doble TDP + Sendmail, por fichero** | `OpenDKIM`, `OpenDMARC` — **clase nueva nº 21** |
+| **EUPL-1.2** | `zone-eu/zone-mta`, `zone-eu/wildduck` |
+| **GPL-3.0** | `foxcpp/maddy` (6.142 ★), `liuch/dmarc-srg`, `mautic/mautic` (línea **91**) |
+| **AGPL-3.0** | `knadh/listmonk` (24.446 ★), `pentacent/keila`, `elie222/inbox-zero` |
+| **CC0-1.0** | `mail-in-a-box/mailinabox` (15.481 ★) |
+| **Sin fichero de licencia** | `stalwartlabs/stalwart` (**16.280 ★**) |
+
+**Los cuatro hallazgos de instrumento de este pase (T89–T92):**
+
+1. **`LICENSE.md` correlaciona con `NOASSERTION` — 2 de 2** (`rspamd` → Apache-2.0,
+   `Mailu` → MIT, ambos verbatim). **La correlación se registra; el mecanismo NO se afirma**: puede
+   ser la extensión o la línea de copyright modificada.
+2. **El registro gana cuando el fichero está ROTO, no sólo cuando falta.** `nodemailer`: `LICENSE`
+   presente, legible y **sin condiciones** → la API dice `NOASSERTION` porque no coincide ni con MIT
+   ni con MIT-0; el registro dice **MIT-0**. Extiende la regla de `date-fns` del pase dieciocho del
+   caso «ausente» al caso «presente y malformado», que es peor porque invita a confiar.
+3. **Una licencia compuesta se localiza por número de línea.** `mautic/mautic`: `LICENSE.txt` de
+   38.326 B que **abre con avisos de terceros** (Apache-2.0 de *Mousetrap*, línea 54) y no llega a la
+   **GPL-3.0** hasta la **línea 91**.
+4. **Una insignia del README no es un fichero de licencia.** `stalwart`: **8 rutas canónicas → 8
+   ×404**, `Cargo.toml` sin campo `license`, y la AGPL-3.0 afirmada sólo en insignia y prosa — con
+   **16.280 ★**. **`NOASSERTION` y `null` no son el mismo dato.**
+
+**Y una dirección que no se escribió porque se verificó primero:** `Snawoot/mta-sts-daemon`, el
+nombre que usan varias guías, **no existe** — la API responde **HTTP 422** *«repositories cannot be
+searched either because the resources do not exist»*. El repo real es
+**`Snawoot/postfix-mta-sts-resolver`** (MIT, 127 ★, push 2025-10-10). Su primo
+`SGSGermany/mta-sts-resolver` está **archivado** desde 2023. *La regla «verificar antes de escribir»
+pagó dos veces en un solo pase.*
+
+**Ramas por defecto:** el `main` ciego habría fallado **18 de 28 veces** en la capa de
+infraestructura (`master` ×15, `trunk`, `develop`, `7.x`).
+
+## 2026-11-24 — vigesimosegundo pase — el backbone de eventos: 22 citas a Debezium y cero a Kafka
 
 > Tema: **la tenencia y el bus que la transporta.** **13 direcciones verificadas el 2026-11-24**
 > (10 repos nuevos para esta KB + 3 ya presentes con una propiedad nueva probada a nivel de

@@ -1261,3 +1261,40 @@ vecino ruidoso, `partition_key`/`is_tenant` para el índice).
 > de fila con RLS forzada.** Se buscó y no está. Quien lo necesite lo construye en Postgres
 > (`FORCE ROW LEVEL SECURITY` + `tenant_id` por transacción, ver `repos/foundations.md`), y eso
 > es exactamente el entregable de la **Receta 44**.
+
+## La plataforma de correo — y el reparto de licencias que ya es una ley de esta KB (added twenty-third pass, 2026-11-24)
+
+> El agente empresarial no manda correo «desde la nada»: lo manda desde una plataforma que el
+> cliente ya tiene o que hay que desplegar. Estas son las reales, verificadas el **2026-11-24**.
+
+| Plataforma | Licencia **resuelta** · ★ · rama | Qué es, y para qué sirve con IA encima |
+|---|---|---|
+| [apache/james-project](https://github.com/apache/james-project) | **Apache-2.0** · 1.054 ★ · `master` | **La única plataforma de correo completa y permisiva de esta tabla.** Servidor Java con API de *mailets*: la lógica se inserta **en la ruta del mensaje**, que es exactamente donde tiene que vivir una política de agente (clasificar, redactar PII, exigir aprobación, firmar). Es el «Odoo del correo» para este estudio: base permisiva customizable. |
+| [postalserver/postal](https://github.com/postalserver/postal) | **MIT** · 16.975 ★ · `main` | Plataforma de entrega entrante y saliente con panel y API. Sustituye a un proveedor de envío cuando el requisito es que el correo **no salga de la infraestructura del cliente**. |
+| [docker-mailserver/docker-mailserver](https://github.com/docker-mailserver/docker-mailserver) | **MIT** · 19.776 ★ · `master` | Pila completa (Postfix + Dovecot + rspamd + OpenDKIM) empaquetada en contenedores. **La vía corta a un entorno de pruebas realista**, con la autenticación ya cableada. |
+| [Mailu/Mailu](https://github.com/Mailu/Mailu) | `NOASSERTION` → **MIT** (`LICENSE.md` 1.273 B) · 7.638 ★ · `master` | Servidor de correo como imágenes Docker, con panel de administración. |
+| [mail-in-a-box/mailinabox](https://github.com/mail-in-a-box/mailinabox) | **CC0-1.0** · 15.481 ★ · `main` | Despliegue «en un clic» de SMTP y todo lo demás. **CC0 es renuncia de derechos, no una licencia permisiva al uso**: no concede patentes ni incluye descargo de garantía, igual que el dominio público del pase dieciséis. |
+| [mautic/mautic](https://github.com/mautic/mautic) | `NOASSERTION` → **GPL-3.0** (en la **línea 91** de un `LICENSE.txt` compuesto de 38.326 B) · 11.103 ★ · **`7.x`** | **La automatización de marketing open source de referencia**: campañas, segmentos, *drip*. Es la plataforma vertical sobre la que un cliente ya manda correo masivo. **Copyleft**: se integra, no se forkea dentro de un producto. |
+| [knadh/listmonk](https://github.com/knadh/listmonk) | **AGPL-3.0** · 24.446 ★ · `master` | **La más estrellada de toda esta capa.** Gestor de listas y *newsletters*, binario único. AGPL. |
+| [pentacent/keila](https://github.com/pentacent/keila) | **AGPL-3.0** · 2.269 ★ · `main` | *Newsletter* en Elixir. AGPL. |
+
+### El reparto, y es la tercera confirmación independiente en tres pases consecutivos
+
+**La biblioteca es permisiva y la aplicación de cara al usuario es recíproca.** Medido en esta capa:
+las **bibliotecas** de autenticación y los **servidores** son MIT/Apache-2.0/BSD
+(`go-msgauth`, `mailauth`, `mox`, `james`, `haraka`, `postal`, `chasquid`, `rspamd`), mientras que
+**las aplicaciones con las que un humano manda campañas son copyleft sin excepción**: Mautic
+(GPL-3.0), listmonk (AGPL-3.0), Keila (AGPL-3.0) e `inbox-zero` (AGPL-3.0) — **cuatro de cuatro**.
+
+El pase diecisiete midió el mismo reparto en el transporte **AS4/Peppol**; el dieciocho, en las
+**aplicaciones de calendario** (cinco de cinco copyleft). **Tres capas sin relación entre sí y el
+mismo resultado**, que ya se puede enunciar como regla de posicionamiento y no como anécdota:
+**lo que Globant puede empaquetar dentro de un producto es la tubería; lo que el cliente ve como
+«la aplicación» hay que construirlo o integrarlo a distancia.** La excepción permisiva de esta capa
+es **Apache James**, y por eso es la pieza que vale la pena conocer bien.
+
+> **Lo que no se encontró, dicho explícitamente:** **ninguna** de estas plataformas trae un
+> **DKIM por inquilino con rotación de selector** —lo que haría falta para que un agente firme en
+> nombre de N clientes finales sin compartir clave— ni un **inyector de cabeceras RFC 8058** que un
+> test pueda afirmar. Se buscó y no está. Es el mismo tipo de hueco de producto que el pase
+> veintiuno midió para la etiqueta audible: **hay que construirlo**, y es la Receta 46.

@@ -8,7 +8,46 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimosegundo pase (latest) — el límite de la tenencia: una capa entera sin un solo agente dentro
+## 2026-11-24 — vigesimotercer pase (latest) — el límite del remitente: la novedad de la semana es que la implementación de referencia no se ha movido desde 2024
+
+> Tema: **con qué dominio firma el agente.** Catorce términos medidos en cero antes de empezar,
+> sobre **19.436 líneas y 22 pases previos**: `DMARC` = 0, `DKIM` = 0, `SPF` = 0, `ARC` = 0,
+> `BIMI` = 0, `MTA-STS` = 0, `SMTP` = 0, `IMAP` = 0, `phishing` = 0, `suplantación` = 0,
+> `rebote`/`bounce` = 0, `unsubscribe` = 0, `buzón` = 0, `correo electrónico` = 0 —
+> y `remitente` = **1**, que era de **voz** (la pre-declaración de CLI de TRAI del pase veintiuno).
+> **El pase veintiuno dio a esta KB el canal hablado; el canal escrito nunca se hizo.**
+>
+> **Lo nuevo de la semana en esta capa no es un agente: es una fecha de push.**
+> `trusteddomainproject/OpenARC` —la implementación de referencia de **ARC**, el mecanismo que hace
+> que el correo reenviado y las listas sobrevivan a DMARC— **no recibe un commit desde el
+> 2024-04-19**, tiene **150 ★** (el más estrellado de los tres hermanos del Trusted Domain Project)
+> y **no está archivada**, así que la forja la muestra viva. Al lado: `OpenDKIM` sigue en
+> **`2.11.0~beta2`** y `OpenDMARC` en **1.4.2 desde 2021** (*ambos secundarios*).
+> **Mientras tanto el estándar se reescribió**: DMARCbis salió el **2026-05-19** como **RFC 9989**
+> (deja obsoletos el **RFC 7489** y el **RFC 9091**), con **RFC 9990** y **RFC 9991**, y **eliminó
+> `pct`** en favor de un indicador binario `t=`. *El estándar es de mayo de 2026; el código que lo
+> ejecuta, de antes.*
+>
+> **Agentes reales encontrados: 2. Manos de buzón encontradas: 2, y las dos están muertas o
+> paradas.** `Mail-0/Zero` (**MIT**, 10.900 ★, push 2026-11-15) y `elie222/inbox-zero`
+> (**AGPL-3.0** leída byte a byte en 36.236 B, 13.112 ★) son los únicos agentes de correo con IA
+> de peso; el servidor MCP de Gmail más recomendado de los listados,
+> `GongRzhe/Gmail-MCP-Server` (**MIT**, 1.173 ★), está **ARCHIVADO** desde el 2025-08-06
+> —**decimosexto archivado-pero-recomendado de esta KB**— y su alternativa,
+> `MarkusPfundstein/mcp-gsuite` (**MIT**, 492 ★), lleva **19 meses sin un commit** sin estar
+> archivada. **La capa tiene infraestructura viva y manos agénticas muertas.**
+>
+> **La trampa de la semana, y es la biblioteca de envío más usada del mundo.**
+> `nodemailer/nodemailer` (**17.717 ★**) trae un `LICENSE` de 935 B que es un **MIT truncado**:
+> promete *«subject to the following conditions:»* y **no enumera ninguna condición**. El registro
+> resuelve lo que el fichero no puede: `registry.npmjs.org/nodemailer/latest` → **v10.6.1,
+> `license: "MIT-0"`**. **Clase de licencia nº 19 de esta KB.** Y en el otro extremo del tamaño,
+> `stalwartlabs/stalwart` (**16.280 ★**) **no tiene fichero de licencia en absoluto** —8 rutas
+> canónicas, 8 respuestas 404, y ningún campo `license` en su `Cargo.toml`—: su AGPL-3.0 vive en
+> **una insignia del README**, que también declara que **multi-tenencia y aprovisionamiento SCIM
+> son de la edición Enterprise**.
+
+## 2026-11-24 — vigesimosegundo pase — el límite de la tenencia: una capa entera sin un solo agente dentro
 
 > Tema: **de quién es la respuesta.** Diez términos medidos en cero (o casi) antes de empezar:
 > `tenancy` = 0, `BYOK` = 0, `tenant_id` = 0, `row level security` = 0, `Kafka` = 0,

@@ -3243,3 +3243,123 @@ práctica publicada; **páginas no verificables en esta sesión**, ver la nota d
 > los logs del agente **también** son datos del inquilino. Un pase anterior metió OpenTelemetry en
 > esta KB como observabilidad; este pase dice que **el pipeline de telemetría es superficie de
 > tenencia** y se aísla o se filtra por ahí.
+
+## La capa del remitente — 28 direcciones verificadas el 2026-11-24, 28 nuevas para esta KB (added twenty-third pass, 2026-11-24)
+
+> Instrumentos de este pase, en orden de autoridad: (1) `gh api -X GET search/repositories -f q='repo:…'`
+> (SPDX, ★, `pushed_at`, `archived`, **rama por defecto**); (2) `raw.githubusercontent.com` con
+> **lectura byte a byte del fichero de licencia**; (3) **`registry.npmjs.org/<pkg>/latest`** cuando el
+> fichero del repo está roto. `api.github.com/repos/…` sigue **denegado por el alcance de la sesión**
+> y `HEAD` sigue bloqueado por el proxy: la verificación se hace con **GET**.
+
+### 1. Las implementaciones de referencia — y son el eslabón débil de todo el canal
+
+| Repo | Licencia **resuelta** · ★ · último push · rama | Lo que hay que saber antes de proponerlo |
+|---|---|---|
+| [trusteddomainproject/OpenDKIM](https://github.com/trusteddomainproject/OpenDKIM) | `NOASSERTION` → **doble régimen, por FICHERO**: *Trusted Domain Project License* (estilo BSD-3) **+ Sendmail Open Source License** · 121 ★ · 2026-07-23 · `master` | El firmador DKIM de facto de Postfix. **Sigue en `2.11.0~beta2`** (*fuente secundaria*): beta como estado estable de facto. |
+| [trusteddomainproject/OpenDMARC](https://github.com/trusteddomainproject/OpenDMARC) | `NOASSERTION` → **el mismo doble régimen**: su `LICENSE` es **byte a byte idéntico** al de OpenDKIM (**2.238 B**, `diff` vacío) · 139 ★ · 2026-08-22 · `master` | *Milter* de DMARC. Releases muy rezagadas (**1.4.2 desde 2021**, *secundario*), con un informe de **desbordamiento de pila** abierto (jul-2026) y una petición de release (sep-2026) en su propio tracker — *ambos secundarios*. |
+| [trusteddomainproject/OpenARC](https://github.com/trusteddomainproject/OpenARC) | **BSD-2-Clause** (API, y el texto confirma **sólo dos cláusulas**: no lleva la de no-endoso) · **150 ★** · **último push 2024-04-19** · `master` | **El hallazgo más accionable del pase.** ARC es lo que hace que el correo **reenviado y las listas de distribución sobrevivan a DMARC**. Su implementación de referencia lleva **~2 años y medio sin un commit** y **no está archivada**, así que la forja la muestra viva. Es **el más estrellado de los tres hermanos y el más parado**. |
+
+**Tres repos de la misma organización y DOS regímenes de licencia distintos.** OpenDKIM y OpenDMARC
+comparten un `LICENSE` que dice, textualmente: los ficheros con el banner de Sendmail van bajo la
+**Sendmail Open Source License** (`LICENSE.Sendmail`), los del Trusted Domain Project bajo la de
+TDP, y *«Files bearing both banners are covered under both sets of license terms»*. **La licencia
+depende de qué ficheros copiaste** — tercera aparición de ese patrón en esta KB (tras `eggert/tz` en
+el pase dieciocho) y **clase de licencia nº 21 (`Sendmail Open Source License`, 0 apariciones en 22
+pases)**. OpenARC, en cambio, es **BSD-2-Clause limpia**. Es el espejo exacto de la regla T87:
+**la licencia es por repo-entregable, no por organización** — «está en el Trusted Domain Project» no
+dice nada sobre la licencia del repo que vas a importar.
+
+### 2. Las bibliotecas mantenidas y permisivas — aquí está el sustituto que ningún tutorial nombra
+
+| Repo | Licencia · ★ · último push · rama | Para qué |
+|---|---|---|
+| [emersion/go-msgauth](https://github.com/emersion/go-msgauth) | **MIT** · 231 ★ · **2026-11-06** · `master` | DKIM, DMARC, `Authentication-Results` **y ARC** en Go. **Es el reemplazo vivo de OpenARC**: sella y verifica ARC con mantenimiento de este mes frente a abril de 2024. **Receta 47.** |
+| [postalsys/mailauth](https://github.com/postalsys/mailauth) | `NOASSERTION` → **MIT** por registro (`registry.npmjs.org` → **v8.1.0, `license: "MIT"`**) · 151 ★ · 2026-11-17 · `master` | Verificación de **SPF, DKIM, DMARC, ARC y BIMI** en una sola biblioteca + CLI. El verificador que necesita el agente para *comprobar* lo que firma. |
+| [emersion/go-smtp](https://github.com/emersion/go-smtp) | **MIT** · 2.066 ★ · 2026-11-14 · `master` | SMTP cliente y servidor en Go. |
+| [nodemailer/nodemailer](https://github.com/nodemailer/nodemailer) | `NOASSERTION` → **MIT-0 por registro** (v10.6.1); el `LICENSE` del repo es un **MIT truncado sin condiciones** · 17.717 ★ · 2026-11-20 · `master` | El emisor de facto en Node. Ver la trampa en `agents/top.md`. **Mismo autor que `mailauth` y licencia distinta** — y ninguna de las dos es legible desde la forja. |
+| [sdgathman/pyspf](https://github.com/sdgathman/pyspf) | `NOASSERTION` → **PYTHON SOFTWARE FOUNDATION LICENSE v2** (`LICENSE` 2.715 B, byte a byte) · 56 ★ · 2025-10-31 · `master` | SPF en Python. **Clase de licencia nº 20 (`PSF-2.0`)**: permisiva, pero **no es ninguna de las 18 que esta KB tenía registradas**, así que entra al catálogo en lugar de asumirse «MIT-like». |
+| [ValiMail/authentication-headers](https://github.com/ValiMail/authentication-headers) | `NOASSERTION` · 19 ★ · **último push 2024-06-24** · `master` | Generación de cabeceras de autenticación. **Parado 2 años y medio, no archivado.** Se cataloga como *lo que no hay que elegir*, junto a OpenARC. |
+
+### 3. Los servidores — del permisivo al recíproco, y la licencia que no existe
+
+| Repo | Licencia **resuelta** · ★ · último push · rama | Nota |
+|---|---|---|
+| [mjl-/mox](https://github.com/mjl-/mox) | **MIT** · 5.962 ★ · 2026-10-27 · `main` | **La elección permisiva de este pase.** Servidor de correo en Go con **SPF, DKIM, DMARC, MTA-STS, DANE y TLS-RPT integrados de fábrica**, pensado para autohospedaje de bajo mantenimiento. Un solo binario cubre casi toda la columna de autenticación. |
+| [apache/james-project](https://github.com/apache/james-project) | **Apache-2.0** · 1.054 ★ · **2026-11-24T21:27Z** (doce minutos antes de esta verificación) · `master` | El servidor **customizable** de la ASF, en Java, con API de *mailets* para insertar lógica en la ruta del mensaje. Es la opción cuando el entregable es «correo empresarial con reglas propias» y el cliente ya es una casa Java. |
+| [haraka/Haraka](https://github.com/haraka/Haraka) | **MIT** · 5.642 ★ · 2026-11-23 · `master` | SMTP extensible por *plugins* en Node, dirigido por eventos. |
+| [postalserver/postal](https://github.com/postalserver/postal) | **MIT** · 16.975 ★ · 2026-11-20 · `main` | Plataforma completa de entrega (entrante y saliente) — el equivalente autohospedado de un servicio de envío. |
+| [albertito/chasquid](https://github.com/albertito/chasquid) | `NOASSERTION` → **Apache-2.0** (`LICENSE` 11.468 B) · 981 ★ · 2026-10-18 · `master` | SMTP en Go centrado en simplicidad y seguridad. **Su propia descripción dice `[mirror]`**: el repo primario vive fuera de GitHub. |
+| [OpenSMTPD/OpenSMTPD](https://github.com/OpenSMTPD/OpenSMTPD) | `NOASSERTION` → **compuesto BSD/ISC**; el `LICENSE` (15.287 B) declara que las partes *«are under a BSD licence, or a licence more free than that»* · 590 ★ · 2026-11-22 · `master` | El MTA de OpenBSD, versión portable. Permisivo, pero **la licencia se declara por componente**, no en una línea SPDX. |
+| [rspamd/rspamd](https://github.com/rspamd/rspamd) | `NOASSERTION` → **Apache-2.0** (`LICENSE.md` 9.334 B) · 2.577 ★ · 2026-11-24 · `master` | Filtrado y políticas de correo de alto rendimiento; hace también firma y verificación DKIM/ARC. |
+| [apache/spamassassin](https://github.com/apache/spamassassin) | **Apache-2.0** · 345 ★ · 2026-11-24 · **`trunk`** | *«Read-only mirror»*: el primario es la infraestructura de la ASF. **Rama por defecto `trunk`.** |
+| [foxcpp/maddy](https://github.com/foxcpp/maddy) | **GPL-3.0** · 6.142 ★ · 2026-11-21 · `master` | Servidor «todo en uno» en Go. **Copyleft**: queda fuera del filtro permisivo de esta KB, y se cataloga para poder justificar la exclusión. |
+| [zone-eu/zone-mta](https://github.com/zone-eu/zone-mta) | **EUPL-1.2** · 673 ★ · 2026-11-20 · `master` | MTA **de salida** modular. EUPL-1.2 es **recíproca europea** — clase ya registrada en esta KB, y es la licencia que más sorprende a un comité legal que esperaba MIT. |
+| [zone-eu/wildduck](https://github.com/zone-eu/wildduck) | **EUPL-1.2** · 2.114 ★ · 2026-11-24 · `master` | IMAP/buzón del mismo ecosistema. |
+| [stalwartlabs/stalwart](https://github.com/stalwartlabs/stalwart) | **`license: null` en la API — y no es un fallo de la API: el repo NO TIENE FICHERO DE LICENCIA** · **16.280 ★** · 2026-11-24 · `main` | Ver el recuadro siguiente. El más estrellado de toda la capa. |
+
+### Stalwart: 16.280 ★ y la licencia vive en una insignia del README
+
+**Medido, no inferido.** Se probaron **ocho rutas canónicas** en `main` —`LICENSE`, `LICENSE.md`,
+`LICENSE.txt`, `LICENSE-AGPL`, `LICENSE-AGPL-3.0`, `COPYING`, `LICENSES/AGPL-3.0.txt`,
+`licenses/AGPL-3.0.txt`— y **las ocho responden 404**. El `Cargo.toml` de la raíz **no tiene campo
+`license`** (sólo `members` y `default-members`: es un *workspace*). Lo único que afirma la licencia
+es **una insignia del README** que apunta a `gnu.org/licenses/agpl-3.0` y la frase del propio
+README: *«Stalwart remains licensed under the AGPL-3.0»*.
+
+**Y el reparto comercial está escrito por el proyecto, lo que lo hace citable:** *«About 85% of
+Stalwart's features are free and open source under the AGPL-3.0»*, y el resto es la **edición
+Enterprise**, con esta lista textual — ***multi-tenancy, SCIM provisioning, sharded storage and live
+telemetry***. **Eso es, literalmente, el límite de la tenencia del pase veintidós, con precio.**
+Tercera vez que esta KB encuentra el mismo reparto (Onyx: *permission sync* sólo en `ee/`; Weaviate:
+licencia partida dentro del repo; Stalwart: multi-tenencia y SCIM en Enterprise): **lo que se
+licencia no es la función, es el aislamiento y el aprovisionamiento entre clientes.**
+
+### 4. El bucle de realimentación — sin esto no hay progresión de política ni evidencia
+
+| Repo | Licencia · ★ · último push · rama | Para qué |
+|---|---|---|
+| [domainaware/parsedmarc](https://github.com/domainaware/parsedmarc) | **Apache-2.0** · 1.319 ★ · 2026-11-23 · `master` | Parseo de informes DMARC **agregados y forenses**, con CLI. **Es la pieza que convierte «publicamos DMARC» en evidencia medible**, y la base de la Receta 48. |
+| [liuch/dmarc-srg](https://github.com/liuch/dmarc-srg) | **GPL-3.0** · 304 ★ · 2026-11-23 · `master` | Visor e informes de DMARC entrante. Copyleft: útil como herramienta interna, no como base de producto. |
+| [axllent/mailpit](https://github.com/axllent/mailpit) | **MIT** · 11.024 ★ · 2026-11-23 · **`develop`** | Buzón de pruebas con **API**. **La puerta de preproducción del agente**: captura lo que el agente *habría* enviado y permite afirmarlo en un test. **Rama por defecto `develop`.** |
+| [Snawoot/postfix-mta-sts-resolver](https://github.com/Snawoot/postfix-mta-sts-resolver) | **MIT** · 127 ★ · 2025-10-10 | Demonio que resuelve políticas **MTA-STS** para Postfix. **El nombre importa:** `Snawoot/mta-sts-daemon` —la forma en que lo nombran varias guías— **no existe**: la API responde **HTTP 422** *«repositories cannot be searched either because the resources do not exist»*. Se escribió la dirección correcta porque se verificó antes de escribirla. |
+
+### 5. Plataformas de despliegue (detalle en `verticals/solutions.md`)
+
+| Repo | Licencia · ★ · push |
+|---|---|
+| [docker-mailserver/docker-mailserver](https://github.com/docker-mailserver/docker-mailserver) | **MIT** · 19.776 ★ · 2026-11-24 |
+| [Mailu/Mailu](https://github.com/Mailu/Mailu) | `NOASSERTION` → **MIT** (`LICENSE.md` 1.273 B) · 7.638 ★ · 2026-11-24 |
+| [mail-in-a-box/mailinabox](https://github.com/mail-in-a-box/mailinabox) | **CC0-1.0** · 15.481 ★ · 2026-11-08 · `main` |
+
+### Las cuatro reglas de método que deja este pase (T89–T92, reutilizables por toda la flota)
+
+1. **T89 — `LICENSE.md` correlaciona con `NOASSERTION`, y la causa NO está probada.** En **2 de 2**
+   casos de este pase (`rspamd` → Apache-2.0, `Mailu/Mailu` → MIT) el fichero se llamaba
+   **`LICENSE.md`** y su texto era permisivo verbatim, y la API devolvió `NOASSERTION`. **Se registra
+   la correlación, no el mecanismo**: puede ser la extensión, puede ser la línea de copyright
+   modificada (`"All Mailu contributors at the date"`). La acción es la misma — **probar también
+   `LICENSE.md` antes de concluir nada**— pero no se afirma la causa.
+2. **T90 — el registro de paquetes gana cuando el fichero está ROTO, no sólo cuando falta.** El pase
+   dieciocho estableció la regla con `date-fns`, donde el fichero **no estaba**. `nodemailer` es el
+   caso peor: el fichero **está, se lee, y es un MIT sin condiciones**. Autoridad:
+   `registry.npmjs.org/<pkg>/latest` → `MIT-0`. En Python, `pypi.org/pypi/<pkg>/json`.
+3. **T91 — una licencia COMPUESTA derrota al detector, y el permiso real se localiza por número de
+   línea.** `mautic/mautic` (11.103 ★, rama por defecto **`7.x`**) responde `NOASSERTION` porque su
+   `LICENSE.txt` de **38.326 B** **abre con avisos de terceros** (Apache-2.0 de *Mousetrap* en la
+   línea 54) y el texto de la **GPL-3.0** no empieza hasta la **línea 91**. Leer las primeras líneas
+   de un fichero de licencia da el veredicto equivocado.
+4. **T92 — una licencia afirmada sólo en una insignia del README no es un fichero de licencia.**
+   Antes de registrarla, probar **ocho rutas canónicas y el manifiesto del paquete** (Stalwart:
+   8/8 → 404 y `Cargo.toml` sin campo, con 16.280 ★). Y el corolario del pase: **`NOASSERTION` y
+   `null` no son el mismo dato** — `NOASSERTION` es *«hay fichero y no lo reconozco»*, `null` es
+   *«no hay fichero»*. Este pase resolvió **8 `NOASSERTION` con 6 veredictos distintos** (doble
+   TDP+Sendmail ×2, Apache-2.0 ×2, MIT ×1, MIT-0 ×1, PSF-2.0 ×1, GPL-3.0 ×1) y **1 `null`** que era
+   la ausencia real del fichero. Resolver por defecto, en cualquiera de las dos direcciones, sigue
+   acertando la mitad de las veces.
+
+> **Ramas por defecto, el contador que esta KB arrastra:** de las 28 direcciones, el `main` ciego
+> habría fallado **18 veces** (`master` ×15, **`trunk`** en `spamassassin`, **`develop`** en
+> `mailpit`, **`7.x`** en `mautic`), frente a 19/34 del pase dieciocho. **La rama por defecto se lee,
+> no se asume**, y en esta capa se lee con `gh api search/repositories`, que la devuelve en la misma
+> llamada que la licencia.

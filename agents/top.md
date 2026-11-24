@@ -1264,3 +1264,46 @@ leer en ambos sentidos.**
 > (12,7k ★, API de Kafka) ship-ea **BSL 1.1 + Redpanda Community License** y su README nombra una
 > **tercera** licencia cuyo texto no está en el repo. El sustituto permisivo verificado es
 > **AutoMQ** (Apache-2.0 leído byte a byte, API de Kafka).
+
+## El límite del remitente — en nombre de quién manda el agente, y qué lo prueba (added twenty-third pass, 2026-11-24)
+
+> **Tema: el canal hermano del pase veintiuno.** El pase veintiuno dio a esta KB el agente que
+> **habla**. Este pase pregunta por el agente que **escribe**, que es el canal por el que una
+> empresa alcanza de verdad a un cliente o a un proveedor. **Medido en los nueve ficheros antes de
+> buscar, sobre 19.436 líneas y 22 pases previos:** `DMARC` **0** · `DKIM` **0** · `SPF` **0** ·
+> `ARC` **0** · `BIMI` **0** · `MTA-STS` **0** · `SMTP` **0** · `IMAP` **0** · `phishing` **0** ·
+> `suplantación` **0** · `rebote`/`bounce` **0** · `unsubscribe` **0** · `buzón` **0** ·
+> `correo electrónico` **0** · `remitente` **1** (y es de **voz**: la pre-declaración de CLI de
+> TRAI) · `Gmail` **1** (un nombre de conector en una lista). **La KB sabía quién puede leer, quién
+> puede escribir, quién puede hablar — y no sabía con qué dominio firma.**
+
+### Las filas reales (4 verificadas el 2026-11-24, y el porqué de que no haya una quinta)
+
+| Agente | Licencia **resuelta** · ★ · último push | Qué hace, y la advertencia |
+|---|---|---|
+| [Mail-0/Zero](https://github.com/Mail-0/Zero) | **MIT** (API) · 10.900 ★ · 2026-11-15 · `main` | Cliente de correo con IA, orientado a privacidad. **La única pieza agéntica permisiva de esta capa.** Es un cliente de buzón, no un emisor empresarial: sirve de base de producto, no de MTA. |
+| [elie222/inbox-zero](https://github.com/elie222/inbox-zero) | `NOASSERTION` → **AGPL-3.0** (`LICENSE` **36.236 B**, texto íntegro de la AGPLv3 leído byte a byte) · 13.112 ★ · 2026-11-24 · `main` | El asistente de correo con IA más estrellado del ecosistema. **No es base proponible para un estudio**: la AGPL alcanza al servicio en red, que es exactamente la forma en que se entregaría. Catalogado para saber qué es y para poder decir *por qué no*. |
+| [GongRzhe/Gmail-MCP-Server](https://github.com/GongRzhe/Gmail-MCP-Server) | **MIT** · 1.173 ★ · **último push 2025-08-06** · `main` | **ARCHIVADO** (`archived: true` en la API). Es el servidor MCP de Gmail **más recomendado de los listados de MCP**, y es la forma habitual de dar manos de buzón a un agente. **Decimosexto proyecto archivado-pero-recomendado de esta KB**, y el delator es el de siempre: lo recomienda la documentación adyacente al propio ecosistema. |
+| [MarkusPfundstein/mcp-gsuite](https://github.com/MarkusPfundstein/mcp-gsuite) | **MIT** · 492 ★ · **último push 2025-04-14** · `main` | MCP sobre productos de Google Workspace. **No está archivado**, así que la forja lo muestra vivo: **19 meses sin un commit**. La alternativa al archivado anterior está, ella misma, parada. |
+
+**No hay quinta fila y esto es el hallazgo, no una carencia del pase.** Se buscó agente de correo
+empresarial permisivo —emisor, no cliente de buzón— y **no existe**: lo que hay es (a) dos
+aplicaciones de buzón con IA, una MIT y una AGPL, (b) dos servidores MCP que son las *manos* del
+agente, **uno archivado y el otro parado 19 meses**, y (c) una capa de **infraestructura de correo
+sin un solo LLM dentro**, con 28 direcciones verificadas en `repos/foundations.md`.
+**Es la misma forma que el pase veintidós encontró en la tenencia: una capa entera sin agentes.**
+La consecuencia comercial es directa: **el remitente no se compra, se construye**, y se construye
+sobre piezas permisivas que sí existen (Receta 46).
+
+> **La trampa de licencia de este pase, y es la más usada del mundo.**
+> [nodemailer/nodemailer](https://github.com/nodemailer/nodemailer) (**17.717 ★**), la biblioteca con
+> la que envía correo medio ecosistema Node —y por tanto medio agente empresarial—, trae un `LICENSE`
+> de **935 B** que es un **MIT truncado**: dice *«subject to the following conditions:»* y **no
+> enumera ninguna condición**, salta directo al descargo de garantía. Por eso la API de GitHub
+> responde `NOASSERTION`: el texto **no coincide ni con MIT ni con MIT-0**. La autoridad es el
+> registro: `registry.npmjs.org/nodemailer/latest` → **v10.6.1, `license: "MIT-0"`**.
+> **La diferencia práctica entre lo que dice el fichero y lo que declara el registro es si hay que
+> atribuir o no**, y el fichero no puede contestarlo. **Clase de licencia nº 19 para esta KB
+> (`MIT-0`, 0 apariciones en 22 pases).** Cuarta confirmación de la regla del pase dieciocho
+> —el registro gana a la insignia— y **la extiende**: en `date-fns` el fichero *faltaba*; aquí el
+> fichero **está y está roto**, que es el caso peor, porque invita a leerlo y confiar.
