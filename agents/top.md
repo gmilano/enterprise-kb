@@ -1377,3 +1377,100 @@ cliente que pide «que el agente firme» casi siempre quiere la 3 y le están ve
 - **[`Sphereon-Opensource/eidas-signature-client`](https://github.com/Sphereon-Opensource/eidas-signature-client) es la primera recomendación de la búsqueda y lleva 19 meses sin un commit** (último: **2024-04-09**), con **LGPL-3.0** (`LICENSE.md` 7.676 B). No está archivada, así que la forja la muestra viva. **Decimoséptimo proyecto parado-pero-recomendado de esta KB**, y el delator vuelve a ser el mismo: lo recomienda la documentación adyacente al propio ecosistema.
 - **La organización `OpenICP-BR` entera está muerta desde 2018** y es el primer resultado para «assinatura digital ICP-Brasil open source»: `libICP` (AGPL-3.0, **2018-09-24**), `wxApp` (AGPL-3.0, **2018-07-11**) y `ktLib` (**sin fichero de licencia**, **2018-11-05**). **Decimoctavo caso**, y el más antiguo que esta KB ha medido.
 - **Una dirección que inventé no existe:** `eu-digital-identity-wallet/eudi-srv-web-issuing-qeaa-py` devolvió fallo de autenticación en `ls-remote`, que es cómo se ve un 404 en esta sesión. **Se registra el 404 en lugar de borrarlo**, porque es la prueba de que el nombre se dedujo y no se verificó: de 45 direcciones probadas, **44 existen y 1 fue una conjetura mía**.
+
+---
+
+## Vigesimoquinto pase — 2026-11-24 — el límite de la contraparte: 7 filas reales, y la regla que invalida la fila más estrellada de la capa
+
+> Tema: **a quién le paga, le vende o le compra el agente, y si le está permitido.** Veintiséis
+> términos medidos **con límite de palabra** sobre las 20.810 líneas y 24 pases previos, y los
+> veintiséis dieron **cero**: `sanctions screening`, `OFAC`, `SDN list`, `denied party`,
+> `export control`, `dual-use`, `OpenSanctions`, `FollowTheMoney`, `yente`, `nomenklatura`,
+> `watchman`, `beneficial ownership`, `BODS`, `GLEIF`, `KYB`, `restricted party`,
+> `politically exposed`, `Entity List`, `MOFCOM`, `alephdata`, `openaleph`, `Archivematica`,
+> `REUSE.toml`, `GNU Free Documentation`, `open-supply-hub`, `openownership`.
+>
+> **El pase séptimo dio el límite de la titularidad (para quién actúa el agente). El octavo, el
+> límite de la escritura (qué puede cambiar). Este da el límite de la contraparte: *con quién*
+> puede operar.** Es el primero de la serie que no está gobernado por la política interna del
+> cliente sino por **listas de terceros que cambian varias veces por semana**.
+>
+> **Colisión de nombre, declarada para que nadie la confunda.** `counterparty` aparece 4 veces en
+> esta KB desde el quinto pase, pero **en otro sentido**: ahí significaba la persona al otro lado
+> de la pantalla (la capa de interacción). Aquí significa **la entidad comercial del otro lado de
+> la transacción**. Son dos capas distintas y ninguna de las dos contiene a la otra.
+
+### La razón por la que esta capa no se resuelve con una lista de nombres
+
+**La regla del 50 % de OFAC:** una entidad participada en **50 % o más en agregado** por partes
+sancionadas **está bloqueada aunque no figure en ninguna lista**. Es decir: el conjunto de
+contrapartes prohibidas **es estrictamente mayor que la unión de todas las listas publicadas**, y
+la diferencia sólo se puede calcular **sobre el grafo de titularidad**. Un `LEFT JOIN` contra la
+SDN responde la pregunta equivocada.
+
+Esto es lo que convierte la capa en un problema de datos y no de *lookup*, y lo que explica por
+qué las filas de abajo son un modelo de datos (`followthemoney`), un resolutor de entidades
+(`nomenklatura`) y un estándar de titularidad (`BODS`) — y no un cliente de API.
+
+### Las filas que son agentes o servicios de decisión (7 verificadas, 2026-11-24)
+
+| Repo | Licencia (leída del fichero) | ★ | Qué hace, y el detalle que decide la integración |
+|---|---|---|---|
+| [opensanctions/yente](https://github.com/opensanctions/yente) | MIT | 189 | API de *match-making* de entidades (buscar / recuperar / casar). Su propio README dice que **se puede correr on-premise como *KYC appliance***: el dato no sale del cliente. **Pero ver la trampa de licencia de abajo: el código MIT no te da los datos.** |
+| [moov-io/watchman](https://github.com/moov-io/watchman) | Apache-2.0 | 527 | Servicio Go que **descarga y parsea** US CSL (incluye BIS Entity List), OFAC, EU CSL, UK CSL y FinCEN 311. Es la única fila de la capa que trae **las listas oficiales** sin licencia de datos de por medio. Fija una *tagged release*: el motor de búsqueda se rehízo en v0.50+ y las listas EU/UK se estaban reincorporando. |
+| [opensanctions/nomenklatura](https://github.com/opensanctions/nomenklatura) | MIT | 274 | Resolución de entidades sobre FtM. **El detalle que importa:** su `Resolver` es un grafo cuyas aristas registran *igual / distinto / **sin decidir***, calcula componentes conexos y **infiere coincidencias transitivas**. El tercer estado es el que permite una cola de revisión humana en vez de un falso positivo. |
+| [openaleph/openaleph](https://github.com/openaleph/openaleph) | MIT | 167 | Búsqueda sobre documentos no estructurados **y** datos estructurados, enlazando personas y empresas entre conjuntos, sobre el esquema FtM. Mantenido por **DARC**; es el sucesor declarado de Aleph. |
+| [opensanctions/graph](https://github.com/opensanctions/graph) | MIT | — | Conjuntos de datos adyacentes convertidos a FtM, con catálogo JSON publicado. Es **el destino del puntero** de un repo archivado (ver trampa 5). |
+| [opensanctions/qarin](https://github.com/opensanctions/qarin) | MIT | 18 | Proyecto de investigación **financiado por la UE (NGI Search)** sobre *calidad del casado de nombres* en herramientas de screening: marco de evaluación, datasets abiertos y, a futuro, algoritmos. **No es un producto** — es el único sitio de la capa donde el criterio de aceptación está siendo construido en abierto. |
+| [opensanctions/yente-client](https://github.com/opensanctions/yente-client) | MIT | — | Librería cliente, SDK y CLI de yente. La fila aburrida que evita que cada engagement escriba el suyo. |
+
+### La trampa de licencia de este pase, y es de tres capas, no de dos
+
+`opensanctions/opensanctions` (884 ★) lleva **badge MIT**, y el badge es **cierto e insuficiente**.
+Su `COPYRIGHT.md`, leído byte a byte, divide el repositorio en **tres**:
+
+1. **Código — MIT.** Crawlers y configuración incluidos.
+2. **Datos producidos por OpenSanctions — CC BY-NC 4.0.** Explícitamente **no** cubiertos por MIT.
+   OpenSanctions **reclama derechos de base de datos** sobre la colección y **el uso comercial
+   requiere licencia aparte** (de pantalla plana, de reventa, o la API por consulta).
+3. **Material de terceros bajo `datasets/` — *ninguna licencia concedida*.** Son copias sin
+   modificar de publicaciones ajenas, y el proyecto dice literalmente que **no mantiene un índice
+   por fichero de cuáles son**.
+
+**Por qué esto importa para un engagement y no es una nota al pie:** el punto 3 significa que
+**no existe una comprobación programática** que separe lo redistribuible de lo que no lo es. Y el
+punto 2 significa que **la arquitectura on-premise que el README de yente ofrece es legal sólo con
+una licencia de datos de pantalla plana**. El código es gratis; **la capacidad de operar no**.
+
+**La forma correcta de venderlo:** `moov-io/watchman` (Apache-2.0) para las listas oficiales de
+gobierno, que no tienen dueño comercial; `yente` + datos licenciados cuando el cliente quiere
+cobertura PEP/agregada. Son dos decisiones de compra, no una.
+
+### La fila más estrellada de la capa está muerta, y **no tiene badge de archivado**
+
+[alephdata/aleph](https://github.com/alephdata/aleph) — **2.500 ★, MIT, marcado «Public», sin
+aviso de archivo** — declara en su propio README **`PROJECT STATUS: SUNSETTING`**, y que el
+mantenimiento **terminó después de diciembre de 2025**: sin actualizaciones, sin arreglos de bugs
+y sin soporte a partir del 31-12-2025. El equipo lo reescribió como **Aleph Pro**, de modelo
+**comercial** (OCCRP mantiene uso gratuito para periodismo sin ánimo de lucro).
+
+**Esto invierte la regla de detección que esta KB ha usado durante ocho pases.** Hasta ahora el
+*tell* de un proyecto muerto era **la bandera `archived`**; aquí el proyecto con **2.500 ★ — nueve
+veces las estrellas de su propio sucesor** — está vivo en la página y muerto en el README. La
+regla nueva: **la bandera `archived` es suficiente pero no necesaria. Hay que leer la línea de
+estado del README en los dos sentidos.** Cualquier *roundup* de 2026 que ordene esta capa por
+estrellas va a recomendar Aleph.
+
+**Qué usar en su lugar:** `openaleph/openaleph` (MIT, 167 ★, DARC), *soft fork* declarado y
+compatible con el esquema FtM.
+
+### Qué decirle a un lead de engagement
+
+- **No se vende «screening».** Se vende **la diferencia entre la lista y el grafo** — la regla del
+  50 % es la frase que abre la conversación con el comité de riesgo, y no requiere hablar de IA.
+- **El agente propone, no decide.** El tercer estado de `nomenklatura` (*sin decidir*) es el
+  entregable: una cola de revisión con trazabilidad, no un bloqueo automático. Un falso positivo
+  en esta capa **congela un pago a un cliente legítimo**; un falso negativo es una sanción.
+- **Dos presupuestos, no uno:** software (permisivo, Globant construye) y **datos** (licencia
+  comercial de un tercero, el cliente firma). Confundirlos es la forma más rápida de que el
+  proyecto muera en *procurement*.

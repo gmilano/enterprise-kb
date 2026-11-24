@@ -8,7 +8,111 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimocuarto pase (latest) — la capa de la firma: 45 direcciones probadas, 44 existen, 44 nuevas, y el instrumento cambió de carril
+## 2026-11-24 — vigesimoquinto pase (latest) — la capa de la contraparte: 26 términos medidos en cero, 25 direcciones verificadas, 24 existen, y el instrumento recuperó dos campos que el pase anterior declaró perdidos
+
+> **Dedup medido antes de escribir, no estimado.** Veintiséis términos de la capa, medidos **con
+> límite de palabra** sobre **20.810 líneas y 24 pases previos**: **los veintiséis en cero.**
+> `sanctions screening`, `OFAC`, `SDN list`, `denied party`, `export control`, `dual-use`,
+> `OpenSanctions`, `FollowTheMoney`, `yente`, `nomenklatura`, `watchman`, `beneficial ownership`,
+> `BODS`, `GLEIF`, `KYB`, `restricted party`, `politically exposed`, `Entity List`, `MOFCOM`,
+> `alephdata`, `openaleph`, `Archivematica`, `REUSE.toml`, `GNU Free Documentation`,
+> `open-supply-hub`, `openownership`. La ausencia era estructural: 24 pases construyeron lo que el
+> agente **lee, cambia, prueba, alcanza, firma y envía**, y ninguno **con quién puede tratar**.
+
+> **EL INSTRUMENTO, Y CORRIGE AL PASE ANTERIOR.** El vigesimocuarto pase dejó escrito que
+> `api.github.com` y `github.com` devuelven **403** y que por tanto **«estrellas y bandera
+> `archived` no están disponibles y no se inventan»**. La primera mitad sigue siendo cierta; la
+> segunda **era una conclusión sobre `curl`, no sobre la sesión**:
+>
+> - `curl` a `api.github.com` / `github.com` → **403** (la API está limitada a los repos adjuntos).
+>   `curl -I` (HEAD) sigue bloqueado: **verificar con GET**.
+> - `raw.githubusercontent.com` → **200 por GET plano**. Es el carril de lectura byte a byte, y de
+>   ahí salió **cada licencia** de este pase.
+> - **`WebFetch` sí alcanza el HTML de `github.com`** donde `curl` recibe 403, y su render **trae
+>   el contador de estrellas, la licencia del *sidebar* y el badge «Public archive» con su fecha
+>   de archivado.** **Estrellas y `archived` SÍ son recuperables en este entorno.**
+> - **`github.com/orgs/<org>/repositories?type=source`** por `WebFetch` devuelve licencia y estado
+>   de archivo de toda la organización **en una llamada** — de ahí salieron tres de las seis
+>   trampas de abajo. **Pagina a 30:** una org de 34 repos necesita la página 2 antes de que nadie
+>   declare inventario completo.
+> - **Y uno mejor que todos los anteriores cuando existe:** `opensanctions/opensanctions` publica
+>   un **`REUSE.toml`** (REUSE spec 3.3) en su raíz — **licenciamiento por fichero y legible por
+>   máquina**. Primera aparición de REUSE en esta KB. Vale la pena sondearlo en cada pase futuro.
+
+### Verificación: 25 direcciones probadas, 24 existen, 1 no
+
+**Existen y están verificadas (24).** Siete en `agents/top.md` y el resto en
+`repos/foundations.md`, ambos de esta fecha: `opensanctions/{yente, nomenklatura, followthemoney,
+opensanctions, rigour, qarin, graph, yente-client, countrynames, datapatch, zavod, bods-ftm}`,
+`moov-io/watchman`, `openaleph/openaleph`, `alephdata/aleph`, `openownership/{data-standard,
+visualisation-tool, register-ingester-psc, register-sources-psc, bodspipelines,
+bods-gleif-pipeline, lib-cove-bods}`, `opensupplyhub/open-supply-hub`,
+`artefactual/archivematica`.
+
+**No existe, y por eso no es una fila (1).** **`trade-tariff/trade-tariff-backend`** → **404 en la
+página del repo y 404 en `raw.githubusercontent.com` para `README.md` en `main` y en `master`.**
+La API oficial del Trade Tariff del Reino Unido es real y está documentada en `api.gov.uk`, y
+fuentes secundarias de 2026 nombran ese repositorio como su *backend* abierto. **Una fuente
+secundaria que nombra un repositorio no es el repositorio.** Resultado: **la clasificación
+aduanera/arancelaria no tiene base permisiva verificada en esta KB**, y queda declarada como hueco
+en vez de rellenada con una fila verosímil.
+
+### Las seis trampas, por orden de cuánto dinero cuestan
+
+1. **Licencia de tres capas en un solo repo.** `opensanctions/opensanctions` (badge **MIT**,
+   884 ★). Su `COPYRIGHT.md`: código **MIT** / datos **CC BY-NC 4.0** (el proyecto **reclama
+   derechos de base de datos**; uso comercial = licencia de pago) / terceros bajo `datasets/` con
+   **ninguna licencia concedida**, y el propio fichero dice que **no mantienen índice por fichero
+   de cuáles son**. **No existe comprobación programática** de qué es redistribuible.
+2. **Muerto sin badge de archivado.** `alephdata/aleph`: **2.500 ★**, MIT, «Public», **sin aviso de
+   archivo**, README `PROJECT STATUS: SUNSETTING`, mantenimiento **terminado tras diciembre de
+   2025**, reescrito como **Aleph Pro** comercial. Sucesor: `openaleph/openaleph` (MIT, 167 ★,
+   DARC). **`archived` es suficiente pero no necesaria.**
+3. **Un fichero `LICENSE`, dos licencias, partidas por tipo de artefacto.**
+   `openownership/data-standard`: **esquema → Apache-2.0** (línea 8), **documentación → GNU Free
+   Documentation License v1.3** (línea 25), **en el mismo fichero**. GitHub muestra sólo «Other».
+   Leer las primeras 30 líneas devuelve «Apache-2.0» y **se equivoca sobre la mitad del repo**.
+4. **La frontera de licencia atraviesa una sola organización.** En `openownership/*`: **spec +
+   *ingesters* del registro UK = Apache-2.0**, pero ***pipelines* BODS y el validador de
+   conformidad = AGPL-3.0** (`bodspipelines`, `bods-gleif-pipeline`, `lib-cove-bods`,
+   `bods-uk-psc-pipeline`, `enricher`, `beneficial-ownership-explorer`). Un estándar permisivo
+   cuyo **validador de referencia es copyleft**. El `LICENSE` de `lib-cove-bods` además **excluye
+   explícitamente el tema visual y el logo BODS**.
+5. **Archivado y con el código vivo.** `opensanctions/zavod` (MIT, 9 ★) archivado el **19-jul-2023**
+   y plegado al monorepo: `opensanctions/opensanctions/tree/main/zavod` → `zavod/pyproject.toml`
+   **HTTP 200**. **Depender de la ruta del monorepo, nunca del repo archivado.** Duodécimo caso
+   archivado-pero-vivo de esta KB.
+6. **Archivado con puntero bueno.** `opensanctions/bods-ftm` (8 ★), el puente obvio **BODS →
+   FollowTheMoney**, archivado el **5-dic-2022**, apunta a `opensanctions/graph` — y **el destino
+   verifica vivo** (200 en `main` y `master`). La composición natural existe: es un *redirect*, no
+   un repo. **Y `openownership/register` está archivado**, junto a todos los `register-*-dk`
+   (Dinamarca se cayó); los vivos son UK (PSC), Eslovaquia y OpenCorporates.
+
+### Un no-cero puede ser falso: tres colisiones medidas en el propio método de este pase
+
+Esta KB lleva **diez reglas sobre falsos ceros**. Este pase encontró la inversa, y la encontró en
+su propia medición de partida:
+
+- `yente` dio **2** → ambos dentro de la palabra española **contribu*yente***.
+- `Aleph` dio **2** → ambos **Aleph Alpha**, el proveedor alemán de modelos, sin relación con
+  `alephdata/aleph`.
+- `counterparty` dio **4** → todos en el sentido del quinto pase (**la persona al otro lado de la
+  pantalla**), no el comercial.
+
+**Regla: medir con límite de palabra y leer el *hit* antes de creérselo.** Un `grep -i` ingenuo
+habría reportado esta capa como parcialmente cubierta y el pase no se habría hecho.
+
+### El reloj de esta capa, que es lo que la hace un problema de agentes
+
+La **SDN de OFAC se actualiza varias veces por semana sin calendario fijo**, y la **BIS Entity
+List y la SDN más que se duplicaron entre 2020 y el 3T de 2026**. En paralelo, China mantiene un
+**esquema de dos niveles** (lista de control = prohibición; *watch list* = revisión caso por caso
+más estricta) y su **artículo 26 permite solicitar la baja**. Las listas **se mueven en los dos
+sentidos**: una decisión de screening cacheada caduca en días y **un bloqueo cacheado también**.
+
+---
+
+## 2026-11-24 — vigesimocuarto pase — la capa de la firma: 45 direcciones probadas, 44 existen, 44 nuevas, y el instrumento cambió de carril
 
 > **Dedup medido antes de escribir, no estimado:** de 45 direcciones de partida, **una sola** tenía
 > apariciones previas en los nueve ficheros (`documenso/documenso`, 2). **Las otras 44 son nuevas.**

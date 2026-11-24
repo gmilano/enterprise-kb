@@ -1346,3 +1346,93 @@ no es un producto para personas. Edición *community*, con el reparto CE/EE de s
 vez que esta KB mide que lo que se licencia es la operación y no la función** (Onyx: *permission
 sync* sólo en `ee/`; Weaviate: licencia partida; Stalwart: multi-tenencia y SCIM en Enterprise;
 SignServer/EJBCA: CE frente a EE).
+
+---
+
+## Vigesimoquinto pase — 2026-11-24 — la capa de plataforma de la contraparte: registros públicos, no productos
+
+> La diferencia con todas las capas anteriores de este fichero: aquí **la «plataforma» no es un
+> sistema que el cliente ya corre, sino un registro público que el cliente ya consulta a mano** —
+> o que paga a un proveedor para que consulte por él. Eso cambia el patrón de venta.
+
+### Lo que existe como plataforma desplegable, con la licencia leída del fichero
+
+| Plataforma | Licencia | ★ | Qué es, y qué se customiza encima |
+|---|---|---|---|
+| [moov-io/watchman](https://github.com/moov-io/watchman) | Apache-2.0 | 527 | Servicio de screening desplegable: descarga y parsea **US CSL (con BIS Entity List), OFAC, EU CSL, UK CSL, FinCEN 311**. **Es la única pieza de esta capa que es a la vez permisiva y autosuficiente en datos**, porque las listas de gobierno no tienen dueño comercial. Fijar *tagged release* |
+| [opensanctions/yente](https://github.com/opensanctions/yente) | MIT (código) | 189 | API de casado desplegable **on-premise como *KYC appliance***. El binario es MIT; **los datos que lo hacen útil, no** (ver abajo) |
+| [openaleph/openaleph](https://github.com/openaleph/openaleph) | MIT | 167 | Plataforma de investigación: documentos no estructurados + datos estructurados + enlace de entidades sobre el esquema FtM. Mantenida por **DARC** |
+| [artefactual/archivematica](https://github.com/artefactual/archivematica) | **AGPL-3.0** | 528 | Preservación digital de largo plazo, basada en estándares. **El lado de la retención** de esta misma frontera: la decisión de screening es el registro que tiene que sobrevivir. **No es Apache, aunque sea la respuesta estándar**, y **no hace eDiscovery** — no tiene retención legal ni revisión |
+| [openownership/visualisation-tool](https://github.com/openownership/visualisation-tool) | Apache-2.0 | — | Render de estructuras de titularidad. La pieza de UI que hace vendible el grafo |
+
+### El patrón real de esta capa: el registro es el libro mayor, el screening es una capa aparte
+
+Es el mismo patrón que el decimoséptimo pase encontró en el documento fiscal, y aquí aparece por
+segunda vez con otra forma:
+
+```
+[ Registro público / lista oficial — de un tercero, NO desplegable, cambia varias veces por semana ]
+            ↓   ingesta versionada y fechada  (watchman, register-ingester-*)
+[ Grafo de contrapartes del cliente — FtM + BODS + LEI, en la infraestructura del cliente ]
+            ↓   resolución de entidades con estado "sin decidir"  (nomenklatura)
+[ Decisión + evidencia — preservada, no sobrescrita  (Archivematica o el WORM del cliente) ]
+            ↓
+[ Capa de agente — MIT/Apache, IP de Globant: explica, reconcilia, escala a humano ]
+```
+
+**La frase que decide el alcance:** el cliente no necesita *una herramienta de screening* — casi
+siempre ya paga una. Necesita **que la decisión sea reproducible seis meses después**, con la
+versión de la lista que estaba vigente ese día. Eso es ingesta fechada y preservación, y es un
+entregable de datos, no de IA.
+
+### Los registros públicos como plataforma, con su régimen de acceso — que es lo que decide si el proyecto es posible
+
+| Registro | Régimen de acceso | Lo que implica para el diseño |
+|---|---|---|
+| **GLEIF / Global LEI Index** | **Datos CC0**; API `https://api.gleif.org/api/v1` **gratuita y sin autenticación ni API key**; búsqueda por nombre, LEI, BIC, ISIN y **estructuras de relación corporativa**; refresco ~3×/día; espejos en AWS Open Data | **El único identificador global de contraparte sin problema de licencia.** ~3,4 M entidades / 235 jurisdicciones (conteo de tercero contra la API en vivo el 2026-08-21, por tanto aproximado). **No se encontró repositorio oficial de GLEIF en GitHub** — la superficie de integración es una API y un fichero masivo, no una librería que vendorizar |
+| **Registros de titularidad real de la UE** | **Cerrados al público.** El TJUE (**WM y Sovim**, C-37/20 y C-601/20, **22-nov-2022**) anuló el acceso del público general; **AMLD6, Directiva (UE) 2024/1640**, lo reconduce a un test de **«interés legítimo»** | **El grafo de titularidad que el agente necesita está legalmente cerrado en EMEA.** Por eso los *ingesters* Apache-2.0 sobre registros que **sí** publican (UK PSC, Eslovaquia) valen más que cualquier *scraper* |
+| **UK Companies House PSC** | Publica; `register-ingester-psc` / `register-sources-psc` (**Apache-2.0**) | La ruta EMEA practicable hoy |
+| **Open Supply Hub** | [opensupplyhub/open-supply-hub](https://github.com/opensupplyhub/open-supply-hub), **MIT**, 23 ★ | Identidad **a nivel de instalación productiva** — la contraparte **física** debajo de la legal. Se unió a la red **GODIN** de GLEIF en **julio de 2026** |
+
+**El dato de 2026 que un lead debe tener en la cabeza:** en la **República Checa el Ministerio de
+Justicia desactivó el acceso público al registro de titularidad real el 17-dic-2025**, y
+Luxemburgo e Irlanda ya lo habían restringido a profesionales con interés legítimo o a sujetos
+obligados. La tendencia va **hacia el cierre**, no hacia la apertura. Un diseño que asuma lectura
+pública del registro europeo **no es desplegable**.
+
+### La trampa de este pase en esta capa, y es la inversa de la regla que gobierna el fichero
+
+La regla de este fichero dice: **las plataformas base son copyleft, la capa de agente es
+permisiva, y la IP de Globant va arriba.** Aquí se cumple **con una excepción que invierte el
+riesgo**: en `openownership/*` lo copyleft **no es la plataforma, es el validador**.
+
+- **Apache-2.0:** el estándar **BODS** (esquema), `visualisation-tool`, `register-ingester-psc`,
+  `register-sources-psc`, `register-common`, `register-sources-bods`.
+- **AGPL-3.0:** `bodspipelines`, `bods-gleif-pipeline` (**el puente GLEIF → BODS**),
+  `bods-uk-psc-pipeline`, `enricher`, `beneficial-ownership-explorer`, y **`lib-cove-bods`, el
+  validador oficial de conformidad**.
+
+**Qué hacer con eso:** desplegar `lib-cove-bods` **como servicio de validación separado que el
+cliente opera** —exactamente el trato que este fichero da a una plataforma base copyleft— y **no
+enlazarlo** dentro del *pipeline* que Globant pretende poseer. Es un estándar permisivo con
+validador de referencia copyleft: la conformidad se comprueba **por frontera de proceso**.
+
+Y una más, en el mismo sitio: el `LICENSE` de `lib-cove-bods` **excluye explícitamente el tema
+visual y el logo de BODS**. La licencia del código no te da la marca.
+
+### Y la plataforma que **no** existe, declarada como hueco
+
+**La clasificación aduanera/arancelaria no tiene plataforma abierta verificada.** La API oficial
+del *Trade Tariff* del Reino Unido existe y está documentada, y fuentes secundarias de 2026 nombran
+`trade-tariff/trade-tariff-backend` como su *backend* abierto; en esta sesión devolvió **404 en la
+página del repo y 404 en `raw.githubusercontent.com` para `README.md` en `main` y `master`**. No se
+escribe la fila. **Si un engagement necesita clasificación HS, hoy es desarrollo o un proveedor
+comercial, no una base abierta que customizar.**
+
+### Dónde encaja esto con el resto del fichero
+
+El ERP y el CRM de las secciones de arriba **ya tienen un maestro de proveedores y de clientes**.
+Esta capa **no lo reemplaza**: le añade un atributo —*¿puedo operar con esta entidad hoy?*— que
+**caduca en días** y cuya respuesta hay que poder reconstruir con la lista de entonces. La
+integración correcta es **al maestro de terceros del ERP**, por API documentada, nunca a su base
+de datos, y el agente vive en su propio repositorio permisivo.

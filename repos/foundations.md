@@ -3498,3 +3498,160 @@ la capa bien diseñado.
 pregunta, en español, dio cero repos de origen latinoamericano en varios pases; en portugués dio
 **seis**, uno de ellos del SERPRO y otro el único permisivo de su tipo. **Cuando una capa depende
 de una infraestructura estatal, el corpus está en el idioma del Estado que la impuso.**
+
+---
+
+## The counterparty boundary — the data layer that decides who the agent may transact with (added twenty-fifth pass, 2026-11-24)
+
+> Twenty-six terms measured with word boundaries across 20,810 lines and 24 prior passes; **all
+> twenty-six were zero.** Seven passes built *what the agent may read*, *change*, *prove* and
+> *reach*. None had asked **who is on the other side of the transaction, and is that permitted**.
+>
+> **Method note before the rows: three of those twenty-six measured non-zero on a naive grep and
+> all three were false.** `yente` matched **2** — both inside the Spanish word *contribu**yente***.
+> `Aleph` matched **2** — both **Aleph Alpha**, the German model vendor, nothing to do with
+> `alephdata/aleph`. `counterparty` matched **4** — all in the fifth pass's *interaction* sense
+> (the human at the screen), not the commercial one. See `intel/trends.md` for the rule this
+> produced; it is the inverse of the ten false-**zero** rules this KB already carries.
+
+### The model layer — ownership is a graph, and this is the only permissive schema for it
+
+| Repo | Licence (read from file) | ★ | What it is |
+|---|---|---|---|
+| [opensanctions/followthemoney](https://github.com/opensanctions/followthemoney) | MIT | 122 | The data model: people, companies, assets, payments, **ownership relations**, court cases. Ships validation, normalisation, tabular mapping and a CLI. Every other row in this section speaks it. |
+| [opensanctions/nomenklatura](https://github.com/opensanctions/nomenklatura) | MIT | 274 | Entity resolution over FtM. `Resolver` edges carry **same / different / undecided**; connected components pick a canonical ID; transitive matches are inferred. |
+| [opensanctions/rigour](https://github.com/opensanctions/rigour) | MIT | 74 | Cleaning and validation for business text: human and company names, language and country codes, **corporate and tax identifiers**. Has **absorbed** `fingerprints`, `languagecodes` and `pantomime` — depend on `rigour`, not on them. |
+| [opensanctions/countrynames](https://github.com/opensanctions/countrynames) | MIT | — | Country name → ISO two-letter. Unglamorous and load-bearing: jurisdiction is a join key in this layer. |
+| [opensanctions/datapatch](https://github.com/opensanctions/datapatch) | MIT | — | Rule-based overrides on messy data. This is where a client's manual "this match is wrong" decisions live without forking a crawler. |
+
+**Why this and not a vector index.** The question "is this counterparty blocked?" is not a
+similarity question. Under OFAC's **50 % Rule** an entity owned ≥50 % in aggregate by sanctioned
+parties is itself blocked **while appearing on no list**, so the answer is computed by traversing
+ownership, not by ranking neighbours. A RAG pipeline over sanctions PDFs answers a different
+question and answers it unaccountably.
+
+### The list layer — and the only row here with no commercial data owner
+
+| Repo | Licence | ★ | Lists it ingests |
+|---|---|---|---|
+| [moov-io/watchman](https://github.com/moov-io/watchman) | Apache-2.0 | 527 | Downloads and parses **US CSL** (incl. BIS **Entity List**), **OFAC**, **EU CSL**, **UK CSL**, **FinCEN 311**. EU download expects your own `europa.eu` account/token. |
+
+**Pin a tagged release.** The project's own documentation says the EU and UK lists were being
+re-added after the **v0.50+ search-engine rewrite**, while the README and package docs list them
+as supported. Those two statements are both current and they disagree; the release you deploy
+decides which is true. Its own README tells you to use a tagged release in production.
+
+### The ownership-register layer — and a licence boundary that runs *through the middle of one org*
+
+`openownership/*` publishes the **Beneficial Ownership Data Standard (BODS)** and the pipelines
+that produce it. The licence **splits by layer inside the single organisation**, and it splits the
+useful way round:
+
+| Repo | Licence (read from file) | ★ | Layer |
+|---|---|---|---|
+| [openownership/data-standard](https://github.com/openownership/data-standard) | **Apache-2.0 (schema) + GFDL-1.3 (documentation)** | 85 | The standard itself. **BODS v0.4, released May 2024; the schema is not in active development.** |
+| [openownership/visualisation-tool](https://github.com/openownership/visualisation-tool) | Apache-2.0 | — | Ownership-structure rendering |
+| [openownership/register-ingester-psc](https://github.com/openownership/register-ingester-psc) | Apache-2.0 | — | Ingests UK Companies House PSC data |
+| [openownership/register-sources-psc](https://github.com/openownership/register-sources-psc) | Apache-2.0 | — | Library over the same source |
+| [openownership/bodspipelines](https://github.com/openownership/bodspipelines) | **AGPL-3.0** | — | Shared library for building BODS pipelines |
+| [openownership/bods-gleif-pipeline](https://github.com/openownership/bods-gleif-pipeline) | **AGPL-3.0** | — | **GLEIF → BODS.** The LEI-to-ownership bridge |
+| [openownership/lib-cove-bods](https://github.com/openownership/lib-cove-bods) | **AGPL-3.0** | — | **The conformance validator** |
+
+**The consequence, stated so it survives into a proposal:** the **specification and the UK register
+ingesters are Apache-2.0**, so a Globant-built pipeline over them is Globant IP. But the
+**official tool that checks whether your output conforms to the spec is AGPL-3.0** — a permissive
+standard whose reference validator is copyleft. Run `lib-cove-bods` **as a separate validation
+service the client deploys**, exactly as `verticals/solutions.md` says to treat a copyleft base
+platform; do not link it into the pipeline you intend to own. (`lib-cove-bods`'s licence file also
+carries an explicit carve-out: it does **not** cover the BODS theme and logo assets.)
+
+### The identifier layer — and the one genuinely open counterparty identifier
+
+**GLEIF / the Legal Entity Identifier** is the only global counterparty identifier in this
+boundary with no licence problem at all:
+
+- **Data licence: CC0.** Not CC-BY-NC, not "contact us" — public domain dedication.
+- **API: `https://api.gleif.org/api/v1`, free, no authentication, no API key.** Search by entity
+  name, LEI, BIC, ISIN, and **corporate relationship structures** — which is the ownership edge
+  the 50 % Rule needs.
+- Scale, from a third-party count against the live API on 2026-08-21 and therefore approximate:
+  **~3.4 M entities across 235 jurisdictions**; refreshed about three times a day. Bulk mirrors
+  exist on AWS Open Data.
+- 2026 movement: GLEIF's **GODIN** open-data integration network was joined in **July 2026** by
+  **Open Supply Hub, Wikimedia Deutschland and Wikirate**; a **Global Energy Monitor** mapping of
+  energy-asset ownership began publishing in **June 2026**.
+
+**No official GLEIF GitHub repository was found.** A third-party R client (`gleifr`, MIT, on CRAN)
+exists. That absence is recorded as measured, not inferred: the integration surface here is an
+HTTP API and a bulk file, not a library to vendor.
+
+| Source | Licence | What it gives the agent |
+|---|---|---|
+| GLEIF LEI / Global LEI Index | **CC0** (data), free unauthenticated API | Legal entity identity + **relationship structure**, 235 jurisdictions |
+| [opensupplyhub/open-supply-hub](https://github.com/opensupplyhub/open-supply-hub) | MIT | 23 ★. Facility-level identity — "every goods production facility worldwide". The **physical** counterparty, below the legal one |
+
+### The retention side of the same boundary — and it is copyleft
+
+Once an agent has screened a counterparty, **the decision is the record that has to survive**.
+The reference open-source system for that is [artefactual/archivematica](https://github.com/artefactual/archivematica)
+— **AGPL-3.0, 528 ★, active** (default branch `qa/1.x`, ~4,986 commits), a standards-based digital
+preservation application. **It is not Apache, despite being the standard answer**, and it is a
+preservation system, **not** an eDiscovery platform — nothing in it does legal hold or review.
+
+### Traps found this pass
+
+1. **Three-way licence in one repo.** `opensanctions/opensanctions` (MIT badge, 884 ★): code MIT /
+   data **CC BY-NC 4.0** / vendored third-party under `datasets/` with **no licence granted and no
+   per-file index of which files those are**. Commercial use of the data needs a paid licence.
+2. **Sunset without an archive badge.** `alephdata/aleph` — 2,500 ★, MIT, "Public", **no archive
+   notice** — README says `PROJECT STATUS: SUNSETTING`, maintenance **ended after December 2025**,
+   rewritten as the commercial **Aleph Pro**. Successor: `openaleph/openaleph` (MIT, 167 ★, DARC).
+3. **One licence file, two licences, split by artefact kind.** `openownership/data-standard`'s
+   `LICENSE` declares **schema → Apache-2.0** (line 8) and **documentation → GNU Free
+   Documentation License v1.3** (line 25) in the *same file*. GitHub shows only "Other". Reading
+   the first 30 lines returns "Apache-2.0" and is **wrong about half the repository**.
+4. **`zavod` is archived and its code is live.** [opensanctions/zavod](https://github.com/opensanctions/zavod)
+   (MIT, 9 ★) was archived **19 Jul 2023** and folded into the monorepo. Verified: the code is at
+   `opensanctions/opensanctions/tree/main/zavod` (`zavod/pyproject.toml` → HTTP 200). **Depend on
+   the monorepo path, never on the archived repo.** Twelfth archived-but-live case in this KB.
+5. **An archived repo whose forwarding pointer is good.** [opensanctions/bods-ftm](https://github.com/opensanctions/bods-ftm)
+   — the obvious **BODS → FollowTheMoney bridge**, archived **5 Dec 2022**, 8 ★ — README points to
+   `opensanctions/graph`, and that target **verifies live** (HTTP 200 on `main` and `master`). The
+   natural composition exists; it is a redirect, not a repo.
+6. **`openownership/register` is archived**, along with every `register-*-dk` repo — the
+   demonstration transnational register and its Denmark source were both dropped. The UK (PSC),
+   Slovakia and OpenCorporates ingesters are the live ones.
+
+### Measured negative — recorded so silence is not read as coverage
+
+**`trade-tariff/trade-tariff-backend` could not be verified and is therefore not a row.** The
+UK's official Trade Tariff API is real and documented on `api.gov.uk`, and secondary sources name
+that repository as its open-source backend. In this session it returned **404 on the repository
+page and 404 on `raw.githubusercontent.com` for `README.md` on both `main` and `master`.** A
+secondary source naming a repository is not the repository. **Customs/tariff classification
+therefore has no verified permissive base in this KB** — stated as an open gap, not filled with a
+plausible-looking row.
+
+### Method note — a new instrument, and it overturns the previous pass's own constraint
+
+The twenty-fourth pass recorded that `api.github.com` and `github.com` return **403** in this
+session, and therefore that **"stars and the `archived` flag are not available and are not
+invented."** That constraint is now **half wrong, and the correction is reusable by the whole
+fleet**:
+
+- **Still true:** `curl` to `api.github.com` and `github.com` returns **403** (API access is
+  scoped to attached repositories only), and `curl -I` (HEAD) is blocked regardless.
+- **Newly available:** **`raw.githubusercontent.com` serves licence files over plain GET** — this
+  is the byte-read channel, and it is how every licence above was resolved.
+- **Newly available:** **the `WebFetch` tool reaches `github.com` HTML** where `curl` gets 403,
+  and its rendering **includes the star count, the sidebar licence, and the "Public archive"
+  badge with its archival date.** Every star count and every archive verdict in this pass came
+  from that channel. **Stars and `archived` *are* recoverable in this environment.**
+- **Also available without the API:** the **organisation repository listing**
+  (`github.com/orgs/<org>/repositories?type=source`) via `WebFetch`, which returns each repo's
+  licence and archive state in one call. That single call is what surfaced traps 4, 5 and 6 — and
+  it paginates at 30, so a 34-repo org needs page 2 before anyone claims a complete inventory.
+- **And one that beats all of the above when present:** `opensanctions/opensanctions` ships a
+  **`REUSE.toml`** (REUSE spec 3.3) at its root — **machine-readable, per-file licensing**. Where
+  a repo carries one, the licence question is answerable by parsing instead of by reading prose.
+  First occurrence of REUSE in this KB; worth probing for on every future pass.

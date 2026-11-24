@@ -3038,3 +3038,184 @@ contrario, y de haberlo creído este pase habría descartado **el único** proye
 la capa (**T96**). **Dos de los cinco hallazgos de método de este pase son fallos del propio
 instrumento**, y es la segunda vez consecutiva que la sonda del pase va por detrás de la realidad
 que mide.
+
+---
+
+## Twenty-fifth pass, 2026-11-24 — the counterparty boundary, and the first rule in this KB about a *false non-zero*
+
+### 40. The constraint moved again: from what the agent may *reach* to **whom it may transact with** — and this one is set by third parties, not by the client
+
+Seven passes built the agent's internal boundaries: entitlement (for whom it acts), write (what it
+may change), provenance (what it is made of), containment (what it may reach), signature (what
+makes its output stand), sender (what it may send as). **Every one of those is governed by the
+client's own policy.** This one is not. The counterparty boundary is governed by **lists published
+by governments that move several times a week**, and that changes the engineering.
+
+**The evidence that it is a data problem, not a lookup problem.** Under **OFAC's 50 % Rule**, an
+entity owned **50 % or more in aggregate** by sanctioned parties **is itself blocked while
+appearing on no list at all**. The set of prohibited counterparties is therefore **strictly larger
+than the union of every published list**, and the difference is computable only by **traversing the
+ownership graph**. A join against the SDN list answers a different question than the one the client
+is legally obliged to answer.
+
+**The evidence that it is an agent problem, not a nightly batch.** OFAC's SDN list is **updated
+multiple times per week on no fixed schedule**, and both the **BIS Entity List and the SDN list
+more than doubled between 2020 and Q3 2026**. A cached screening decision has a half-life of days.
+And the staleness runs **both ways**: China's dual-use rules (**Article 26**) let a listed entity
+apply for **removal**, so a cached *block* also expires. Re-verification with a declared freshness
+window is the design, not an optimisation.
+
+**So what:** sell **the difference between the list and the graph**. It is a sentence a risk
+committee understands, it requires no claim about AI, and it is the part the client's existing
+screening vendor does not do.
+
+### 41. A permissive badge on a data project is a statement about the code only — and in this layer the code is the cheap half
+
+`opensanctions/opensanctions` carries an **MIT badge, 884 ★**, and its `COPYRIGHT.md` splits the
+repository **three ways**:
+
+1. **Code — MIT.** Crawlers and configuration included.
+2. **Data produced by OpenSanctions — CC BY-NC 4.0.** Explicitly **not** covered by MIT. The
+   project **asserts database rights** in the collection, and **commercial use requires a separate
+   paid licence** (flat-rate in-house, reseller, or per-query hosted API).
+3. **Third-party material under `datasets/` — no licence granted at all.** Unmodified copies of
+   others' publications, and the file states that the project **does not maintain a per-file index
+   of which files these are**.
+
+**Point 3 is the one that matters commercially:** there is **no programmatic check** that separates
+redistributable from non-redistributable content in that repository. And point 2 means the
+**on-premise "KYC appliance" that yente's own README offers is lawful only with a data licence**.
+The code is free; **the capacity to operate is not.**
+
+**So what:** in this layer, **quote two budgets** — permissive software that Globant builds, and
+**third-party data that the client licenses directly**. Conflating them is the fastest way for the
+engagement to die in procurement. And where government lists suffice, `moov-io/watchman`
+(Apache-2.0) ingests them with **no commercial data owner in the path at all**: that is a different
+purchase, not a cheaper version of the same one.
+
+### A twelfth licence class: split by **artefact kind** inside a single licence *file*
+
+The ninth class was "split by component inside a single repository". This is finer. 
+`openownership/data-standard` has **one `LICENSE` file** that declares, in sequence:
+
+- line 3–8: **`### Schema` … Licensed under the Apache License, Version 2.0**
+- line 20–25: **`### Documentation` … under the terms of the GNU Free Documentation License,
+  Version 1.3**
+
+— then embeds **both full licence texts** in the same file (Apache at line 34, GFDL at line 104).
+GitHub's sidebar shows only **"Other"**.
+
+**The rule this produces:** reading the head of a `LICENSE` file returns the *first* licence, not
+*the* licence. **Read the whole file and grep for section headings**, because one file can carry
+two licences partitioned by artefact kind — and the half you intend to reuse may be the copyleft
+half. Here, a 30-line read returns "Apache-2.0" and is **wrong about the documentation**, which is
+the half an engagement is most likely to copy into a deliverable.
+
+### The licence-concentration rule, reproduced in a fifth layer — and this time the boundary runs *through one organisation*
+
+Previous passes found that each new layer concentrates on one licence. `openownership/*` splits
+**inside the org, by layer**, and it splits the useful way round:
+
+| Apache-2.0 | AGPL-3.0 |
+|---|---|
+| the **BODS specification** (schema), `visualisation-tool`, `register-ingester-psc`, `register-sources-psc`, `register-common`, `register-sources-bods` | `bodspipelines`, `bods-gleif-pipeline`, `bods-uk-psc-pipeline`, `enricher`, `beneficial-ownership-explorer`, **`lib-cove-bods` — the official conformance validator** |
+
+**A permissive standard whose reference validator is copyleft.** Deploy the validator as a separate
+service the client runs; do not link it into the pipeline Globant intends to own. (`lib-cove-bods`'s
+licence file additionally carves out the BODS **theme and logo** — the code licence does not grant
+the brand.)
+
+### A maintenance rule that inverts eight passes of practice — `archived` is sufficient, not necessary
+
+This KB has recorded **eleven** archived-but-starred or archived-but-recommended projects, and in
+every one the **`archived` flag was the tell**. `alephdata/aleph` breaks that:
+
+- **2,500 ★, MIT, marked "Public", no archive notice, open Issues and PRs.**
+- README: **`PROJECT STATUS: SUNSETTING`** — maintenance **ended after December 2025**; no updates,
+  no bug fixes, no support after 31 Dec 2025; rewritten as the **commercial Aleph Pro**.
+- Its open successor, `openaleph/openaleph` (MIT, **167 ★**, DARC, a declared soft fork, FtM-
+  compatible), has **under a fifteenth of the dead project's stars**.
+
+**The rule:** maintenance status must be read from **the README's status line as well as the
+archive flag**. Any 2026 roundup that ranks this layer by stars recommends Aleph, and recommends a
+project that stopped eleven months ago. This is also the **sharpest instance yet** of trend 11
+(star count has decoupled from enterprise suitability): here the ratio between the dead leader and
+the live successor is **15:1 in the wrong direction**.
+
+### Method — the first *false non-zero* rules in this KB, bringing the count to twenty-three
+
+This KB carries **ten rules about false zeros** — ways a layer looks uncovered when it is not.
+This pass found the **inverse**, and found it in its own opening measurement. Three terms measured
+non-zero and **all three were artefacts**:
+
+21. **Substring collision.** `yente` returned **2 hits** — both inside the Spanish word
+    *contribu**yente*** ("taxpayer"), from the seventeenth pass's fiscal-document work.
+    **Measure with word boundaries** (`grep -oE '\byente\b'`), not `grep -i`.
+22. **Homonym collision across domains.** `Aleph` returned **2 hits** — both **Aleph Alpha**, the
+    German sovereign-model vendor, which has nothing to do with `alephdata/aleph`, the
+    investigative data platform. **A matching string in a different domain is not coverage.**
+23. **Polysemy inside this KB's own vocabulary.** `counterparty` returned **4 hits**, all from the
+    fifth pass, where it meant **the human at the other side of the screen** (the interaction
+    layer). Here it means **the commercial entity on the other side of the transaction**. The same
+    word named two unrelated layers in the same KB, nineteen passes apart.
+
+**Why this matters more than the symmetrical false-zero rules:** a false zero causes a pass to
+*re-do* work, which is wasteful. A **false non-zero causes a pass to be skipped**, which is
+invisible. A naive `grep -i` over the twenty-six terms of this layer would have reported three as
+covered and this boundary would have stayed unbuilt.
+
+### Verification channel for this pass — and it corrects the twenty-fourth pass's own conclusion
+
+The twenty-fourth pass recorded that `api.github.com` and `github.com` return **403** and therefore
+that **"stars and the `archived` flag are not available and are not invented."** The first half
+holds; the second was a conclusion about **`curl`**, not about the session:
+
+| Channel | Result | Use |
+|---|---|---|
+| `curl` → `api.github.com`, `github.com` | **403** (API scoped to attached repos) | unusable |
+| `curl -I` (HEAD), any host | **blocked** | **verify with GET** |
+| `curl` GET → `raw.githubusercontent.com` | **200** | **byte-read of `LICENSE` — every licence in this pass** |
+| **`WebFetch` → `github.com/<owner>/<repo>`** | **200** | **star count, sidebar licence, and the "Public archive" badge *with its archival date*.** Stars and `archived` **are** recoverable |
+| **`WebFetch` → `github.com/orgs/<org>/repositories?type=source`** | **200** | licence + archive state for a whole org **in one call** — surfaced three of this pass's six traps. **Paginates at 30:** a 34-repo org needs page 2 |
+| `raw.githubusercontent.com/<repo>/<ref>/REUSE.toml` | **200** where present | **machine-readable per-file licensing** (REUSE spec 3.3). First REUSE sighting in this KB — probe for it first, it beats reading prose |
+
+**Not verifiable in this session, stated as such:** latest-commit dates (the GitHub HTML render
+returns commit *counts* without timestamps), so **no activity date in this pass is given as
+verified**. Maintenance claims above rest on README status lines and archive badges, both of which
+**are** verifiable here.
+
+### Sources that disagree — recorded, not reconciled
+
+- **`moov-io/watchman`'s EU and UK list coverage.** The project's own documentation site says the
+  EU and UK lists **were being re-added** after the **v0.50+** search-engine rewrite; the README and
+  package docs list them as **supported, EU on by default**. Both are current and they conflict.
+  **Resolution: the release you pin decides.** Its README says to use a tagged release in
+  production, which is the correct instruction either way.
+- **China's June 2026 listing volume.** One analysis reports **Announcements No. 27 and 28 of
+  29 Jun 2026 adding 20 entities to each** list; Global Trade Alert reports **16** added to the
+  Export Control List that day; a third source frames Notices No. 11 and No. 27 as placing **40**
+  entities on the controlled list. **Unresolved** — primary MOFCOM announcements were not read in
+  this session. The *structure* (two tiers) is consistent across all three and is what the design
+  depends on.
+- **GLEIF entity count.** ~3.4 M entities / 235 jurisdictions is a **third-party count against the
+  live API on 2026-08-21**, not a GLEIF figure. Treated as approximate.
+
+### Gaps measured this pass — stated, not left silent
+
+- **Customs / HS classification has no verified permissive base.** `trade-tariff/trade-tariff-backend`
+  is named by secondary sources as the open backend of the UK's official Trade Tariff API;
+  it returned **404 on the repository page and 404 on `raw.githubusercontent.com` for `README.md`
+  on both `main` and `master`**. **A secondary source naming a repository is not the repository.**
+- **No official GLEIF GitHub repository was found.** The integration surface is an unauthenticated
+  HTTP API plus bulk files; a third-party R client (`gleifr`, MIT, CRAN) exists. Recorded as
+  measured absence, not inferred.
+- **eDiscovery and legal hold: no permissive base found.** `artefactual/archivematica` (AGPL-3.0,
+  528 ★) is a **preservation** system and does neither. The search for an Apache/MIT records-
+  retention or eDiscovery platform returned nothing verifiable; Alfresco and Mayan EDMS surfaced
+  only through vendor listicles, and `Archivematica` itself is **AGPL-3.0, not Apache**, despite
+  being the standard answer.
+- **No LATAM-origin repository in this layer.** Measured, not assumed: the counterparty-boundary
+  inventory above is **North America (moov-io, GLEIF-adjacent mirrors) and EMEA (OpenSanctions
+  GmbH/Germany, DARC/Germany, Open Ownership/UK, OCCRP)**. The LATAM-specific artefacts in this
+  layer are **lists published by governments** (Mexico's SAT 69-B, Brazil's CEIS/CNEP), not
+  software. See `intel/market.md` → LATAM.

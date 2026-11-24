@@ -995,6 +995,48 @@ europeos tiene **ocho días** desde este pase y **casi con seguridad no tiene la
 divulgación por tipo de salida** (Receta 51), porque la respuesta de manual —«usamos C2PA»— **no
 cubre texto**, que es su salida principal.
 
+
+#### Vigesimoquinto pase (2026-11-24) — el límite de la contraparte: la regla que hace insuficiente a toda la industria de listas
+
+**El dato que abre la conversación, y es norteamericano.** Bajo la **regla del 50 % de OFAC**, una
+entidad participada en **50 % o más en agregado** por partes sancionadas **está bloqueada aunque no
+figure en ninguna lista**. El conjunto de contrapartes prohibidas es por tanto **estrictamente
+mayor que la unión de todas las listas publicadas**, y la diferencia **sólo se calcula sobre el
+grafo de titularidad**. Esto es lo que el proveedor de screening que el cliente ya paga **no hace**.
+
+**El reloj, con cifras.** La **SDN de OFAC se actualiza varias veces por semana, sin calendario
+fijo**, y la **BIS Entity List y la SDN más que se duplicaron entre 2020 y el 3T de 2026**. Una
+decisión de screening cacheada **caduca en días**. ⚠️ *Las cifras de duplicación vienen de un
+análisis sectorial, no de BIS/OFAC directamente.*
+
+**La pieza abierta de esta capa es de origen NA, y es la única sin dueño comercial del dato.**
+[moov-io/watchman](https://github.com/moov-io/watchman) (**Apache-2.0, 527 ★**) descarga y parsea
+**US CSL** (incluida la **BIS Entity List**), **OFAC**, **EU CSL**, **UK CSL** y **FinCEN 311**.
+Las listas de gobierno de EE. UU. no tienen licenciante comercial: eso hace a NA la región donde
+el *stack* abierto es **completo de extremo a extremo**, sin un contrato de datos de por medio.
+Los espejos masivos de **GLEIF** viven en **AWS Open Data**, también NA.
+
+**Cero medido, no silencio.** Se buscó específicamente una obligación regulatoria estadounidense
+de *screening automatizado aplicada a agentes de IA* y **no se encontró ninguna norma ni guía de
+agencia** que la cree. Lo que hay es producto (servidores MCP de screening de varios proveedores),
+**no obligación**. Decirlo así evita vender una urgencia regulatoria que no existe: la urgencia
+aquí es **de exposición**, no de plazo.
+
+**La oportunidad, enunciada como la compraría un comité de riesgo:**
+1. **El grafo, no la lista.** Entregable: el cálculo de titularidad agregada ≥50 % sobre
+   `followthemoney` + `nomenklatura` + relaciones corporativas de **GLEIF** (API CC0, sin
+   autenticación). No requiere afirmar nada sobre IA.
+2. **Reproducibilidad de la decisión.** Que la resolución de hoy se pueda reconstruir en seis meses
+   **con la versión de la lista vigente ese día**: ingesta fechada y preservación. Es un entregable
+   de datos, y es el que sobrevive a una auditoría.
+3. **La cola de revisión.** El estado *sin decidir* de `nomenklatura` convertido en flujo humano:
+   un falso positivo **congela un pago a un cliente legítimo**, un falso negativo es una sanción.
+
+**Enlace entre regiones que un lead de NA debe conocer:** una actualización de julio de 2026
+registra que acciones de OFAC **elevaron la exposición en operaciones con Brasil y México**,
+incluidas designaciones de empresas mexicanas vinculadas al CJNG. El riesgo NA de un cliente
+**se materializa en su cadena LATAM** — ver la subsección LATAM de este mismo pase.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -2075,6 +2117,60 @@ estudio eso es un riesgo de *due diligence* que se resuelve leyendo bytes, no in
 **verificador Apache-2.0**, existe, y **recibió commits el 2026-11-16**. La venta no es «cartera
 digital»: es **«aceptar la cartera», con el AI Act del 2026-12-02 en la misma factura**.
 
+
+#### Vigesimoquinto pase (2026-11-24) — el límite de la contraparte: el grafo que el agente necesita está legalmente cerrado
+
+**El hecho que decide la arquitectura en EMEA, y es jurídico antes que técnico.** El **TJUE anuló
+el acceso del público general a los registros de titularidad real** (**WM y Sovim**, asuntos
+**C-37/20 y C-601/20**, sentencia del **22-nov-2022**): la dificultad de definir el «interés
+legítimo» **no justifica** abrir el registro a cualquiera. La anulación alcanza **sólo al acceso
+público** — no al sistema de registro ni al acceso de autoridades competentes y UIF. La respuesta
+legislativa, **AMLD6 — Directiva (UE) 2024/1640**, reconduce el acceso a un **test de interés
+legítimo**, reconociendo expresamente a periodistas, sociedad civil y academia.
+
+**Y la tendencia va hacia el cierre, con fechas:** el **Ministerio de Justicia checo desactivó el
+acceso público al registro el 17-dic-2025**; **Luxemburgo** lo limitó a profesionales con interés
+legítimo acreditado; la **CRO irlandesa** lo restringió a sujetos obligados y autoridades.
+⚠️ *No se verificó el texto de la Regulación (UE) 2024/1624 ni su fecha de aplicación en esta
+sesión; las referencias de las fuentes apuntan a la Directiva 2024/1640.*
+
+**Consecuencia de diseño, no nota al pie:** en EMEA **un diseño que asuma lectura pública del
+registro europeo de titularidad real no es desplegable.** Por eso valen más los *ingesters*
+**Apache-2.0** sobre registros que **sí** publican —**UK Companies House PSC**
+([register-ingester-psc](https://github.com/openownership/register-ingester-psc),
+[register-sources-psc](https://github.com/openownership/register-sources-psc)), Eslovaquia— que
+cualquier *scraper*. Y es la razón por la que **GLEIF (CC0, API sin autenticación, con estructuras
+de relación corporativa)** es el único camino al grafo que no depende de un régimen de acceso
+nacional.
+
+**Control de exportación: la lista se movió este año.** La Comisión **adoptó el 14-sep-2026** un
+reglamento delegado que **actualiza el Anexo I del Reglamento (UE) 2021/821** (dual-use),
+alineándolo con las decisiones de los regímenes multilaterales de 2025 y modificando parámetros de
+control y definiciones técnicas; una fuente sitúa el cambio con relevancia para IA en la
+**ampliación de controles sobre chips de computación avanzada (3A501.a.16)**. **La entrada en vigor
+estaba pendiente del escrutinio y de la publicación en el DOUE** — verificar el Diario Oficial
+antes de apoyarse en ello. La actualización previa, **Reglamento Delegado (UE) 2025/2003**, se
+publicó en el DOUE el **14-nov-2025**. La Comisión además **está evaluando el propio marco
+2021/821**. ⚠️ *Fuentes secundarias (KPMG, Baker McKenzie, IHK); el texto final no se leyó.*
+
+**Diligencia debida en cadena: en vigor y sin aplicarse a nadie todavía.** Tras **Omnibus I**
+—**Directiva (UE) 2026/470**, publicada en el DOUE el **26-feb-2026** y en vigor el
+**18-mar-2026**— el ámbito de la **CSDDD** quedó en **empresas UE de más de 5.000 empleados y
+1.500 M€ de facturación mundial**, o extracomunitarias con **más de 1.500 M€ generados en la UE**.
+**Transposición hasta el 26-jul-2028** y aplicación en **2029**; las guías de la Comisión se
+consultaron hasta el **14-ago-2026** y **no estaban adoptadas**. Una fuente resume que **a 7-nov-2026
+la CSDDD está en vigor pero no se aplica aún a ninguna empresa**.
+
+**Lo que esto significa comercialmente, dicho sin adornos:** **no se vende CSDDD como urgencia en
+2026.** El plazo real está en 2028-2029 y el ámbito se redujo. La urgencia EMEA de esta capa está
+en **sanciones y dual-use**, que se mueven este trimestre, y en **el acceso al registro**, que se
+está cerrando. Vender el plazo equivocado es la forma más rápida de perder credibilidad técnica.
+
+**Origen del software de esta capa: EMEA lo domina.** **OpenSanctions Datenbanken GmbH** (Alemania),
+**DARC** (Alemania, `openaleph`), **Open Ownership** (Reino Unido, BODS), **OCCRP** (Aleph, en
+*sunsetting*). Es una de las pocas capas de esta KB donde **el inventario abierto no es
+norteamericano** — argumento directo de soberanía para un comprador europeo.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -3063,6 +3159,57 @@ India, un CA licenciado en China, Singpass en Singapur), **con el clasificador d
 delante** para que el agente no redacte lo que no se puede firmar. La pieza permisiva de esta capa
 que **sí** sirve en APAC es la de **marcado** (`c2patool`, `synthid-text`), porque la obligación de
 divulgación del AI Act alcanza a cualquier proveedor que venda en la UE, **incluidos los asiáticos**.
+
+
+#### Vigesimoquinto pase (2026-11-24) — el límite de la contraparte: dos niveles, y un campo booleano no los representa
+
+**El hallazgo estructural de APAC, y cambia el modelo de datos.** China opera **dos listas con
+efectos distintos**:
+
+- **Lista de control de exportación** → **prohibición** de exportar artículos de doble uso a esa
+  entidad.
+- ***Watch list*** → **no es prohibición**: somete la operación a **revisión caso por caso más
+  estricta y granular**, para asegurar que el bien no se desvía a usuario o uso final militar.
+
+**Un campo `blocked: true/false` no puede expresar «escalar».** El dominio mínimo de la decisión en
+APAC es **permitir / escalar / prohibir**, y eso hay que diseñarlo antes de la primera integración,
+no parchearlo después. Es, además, la mejor justificación del tercer estado *sin decidir* de
+`nomenklatura` (ver `repos/foundations.md` de esta fecha).
+
+**Las fechas de 2026.** **Anuncio n.º 1 de 2026 (6-ene-2026)**: prohibición de exportar **todos**
+los artículos de doble uso a usuarios finales militares japoneses, a usos finales militares y a
+cualquier otro uso o usuario que contribuya a reforzar la capacidad militar de Japón.
+**Anuncios n.º 11 y n.º 12 de 2026 (24-feb-2026)**: **40 entidades japonesas** añadidas entre la
+lista de control y la *watch list*.
+
+**Alcance extraterritorial, que es lo que afecta a un cliente global.** Organizaciones y personas
+**de fuera de China** quedan igualmente impedidas de **transferir o suministrar artículos de doble
+uso de origen chino** a entidades listadas, y **las actividades en curso deben cesar de inmediato**.
+Un cliente sin presencia en China puede quedar alcanzado **por el origen del componente**.
+
+**Las listas se mueven en los dos sentidos.** El **artículo 26** del reglamento de doble uso permite
+a una entidad de la *watch list* **solicitar la baja** tras cumplir obligaciones, y MOFCOM puede
+retirarla tras verificación. **Un bloqueo cacheado también caduca** — no sólo una autorización.
+
+⚠️ **Fuentes en conflicto, sin resolver.** Para el **29-jun-2026**: una fuente describe los
+**Anuncios n.º 27 y 28 añadiendo 20 entidades a cada** lista; **Global Trade Alert** reporta **16**
+añadidas a la lista de control ese día; una tercera encuadra los avisos n.º 11 y n.º 27 como 40
+entidades en la lista controlada. **No se leyeron los anuncios primarios de MOFCOM en esta sesión.**
+La **estructura de dos niveles es consistente en las tres fuentes**, y es de lo que depende el
+diseño.
+
+**Huecos medidos, declarados en vez de callados.** Se buscó explícitamente y **no se encontró**:
+(a) nada sobre la **lista de usuarios finales de METI (Japón)**; (b) nada sobre el régimen de
+**India** (DGFT u otro) ni sobre un marco APAC unificado de *restricted-party screening*. Son
+**huecos de esta investigación**, no ausencias del mundo: un engagement en Japón o India **empieza
+por cerrarlos**.
+
+**La oportunidad APAC, alineada con lo que la región ya está comprando.** Esta KB registra que la
+**soberanía del dato** manda en APAC y que la gobernanza unificada pasó de opcional a obligatoria.
+Esta capa encaja exactamente: **`yente` corre on-premise como *KYC appliance*** y **`moov-io/watchman`
+(Apache-2.0)** se despliega dentro del perímetro del cliente. **El screening es el caso de uso donde
+«no mandar el dato a un SaaS» deja de ser preferencia y pasa a ser requisito** — y donde el *stack*
+abierto gana por arquitectura, no por precio.
 
 ### LATAM
 
@@ -4262,6 +4409,61 @@ brasileño. **Para el resto de LATAM el cero sigue en pie y ahora se sabe que no
 Argentina, México, Chile, Colombia, Perú y Uruguay tienen marco legal de firma y **ninguna
 herramienta libre de origen propio apareció**. Se registra como **cero medido con instrumento
 corregido**, que es un dato más fuerte que el de los pases anteriores.
+
+
+#### Vigesimoquinto pase (2026-11-24) — el límite de la contraparte: las listas LATAM son públicas, y eso invierte la desventaja habitual de la región
+
+**México — la lista tiene cuatro estados, no dos, y aplanarla es el error caro.** El **artículo
+69-B del CFF** publica contribuyentes presuntamente emisores de comprobantes sin capacidad para
+prestar lo que facturan, y la lista se publica en **varios estados distintos**: **presunto**,
+**definitivo**, **desvirtuado** y **sentencia favorable**.
+
+**Lo que significa cada uno para el diseño:** *sentencia favorable* es **un contribuyente absuelto
+por un tribunal**, no un hallazgo de fraude; *presunto* es **no confirmado**. **Convertir el 69-B en
+una lista negra plana bloquea a proveedores legítimos y a contribuyentes exonerados judicialmente**
+— un daño reputacional que el cliente causa, no que evita. El estado **es parte del dato**, y el
+agente tiene que acarrearlo hasta la decisión.
+
+⚠️ **Los conteos de proveedores comerciales no coinciden entre sí** (p. ej. **11.238 vs 11.275**
+para el listado *definitivo*). **Contar contra la publicación del SAT**, no contra un agregador.
+
+**Y el contexto de 2026:** un análisis de **agosto de 2026** registra **mayor escrutinio
+estadounidense sobre empresas con vínculos en México**, y sostiene que la revisión de proveedores
+**debe ir más allá de las listas de sanciones** para cubrir **titularidad real, sustancia económica
+y flujos de pago** — es decir, exactamente el grafo del que habla la subsección de North America.
+
+**Brasil — el registro de proveedores sancionados existe, y no es el que nombran los proveedores.**
+Las listas oficiales de proveedores sancionados son **CEIS y CNEP**, de la **CGU**, publicadas en el
+**Portal da Transparência**. **COAF no es eso**: es la unidad de inteligencia financiera que recibe
+y analiza comunicaciones de operaciones sospechosas bajo la **Ley 9.613/1998**, y **no publica una
+lista negra de proveedores**. ⚠️ *Material de proveedor afirmaba lo contrario; se registra la
+corrección, no la afirmación.*
+
+**Exposición cruzada.** Una actualización de **julio de 2026** registra que acciones de **OFAC**
+elevaron el riesgo en operaciones con **Brasil y México**, incluidas designaciones de empresas
+mexicanas vinculadas al **CJNG**. La contraparte LATAM es donde **se materializa** el riesgo
+sancionador del cliente global.
+
+**Cero medido, con el instrumento corregido.** **No apareció ningún repositorio de origen LATAM en
+esta capa.** El inventario verificado es **NA** (`moov-io`, espejos GLEIF en AWS) y **EMEA**
+(OpenSanctions/Alemania, DARC/Alemania, Open Ownership/Reino Unido, OCCRP). Los artefactos LATAM de
+esta frontera son **listas publicadas por gobiernos** —SAT 69-B en México, CEIS/CNEP en Brasil—,
+**no software**. Es un cero de **software**, no de **dato**, y la distinción es la oportunidad.
+
+**Por qué esto invierte la desventaja habitual de LATAM, y es el hallazgo comercial del pase para la
+región.** En la mayoría de las capas de esta KB, LATAM llega tarde porque el componente abierto es
+de otro sitio. Aquí **el insumo crítico —la lista— lo publica el gobierno local y es gratuito**:
+**no hay licencia de datos comercial que negociar** para cubrir México y Brasil, mientras que la
+cobertura global de PEP/agregados **sí** la exige (CC BY-NC 4.0 de OpenSanctions, uso comercial de
+pago). Es decir: **un screening de contrapartes LATAM se puede construir íntegramente sobre
+software permisivo y datos públicos.** Ese es el *pitch*, y no existe en EMEA ni en APAC.
+
+**Y el problema técnico que es específicamente LATAM:** el casado de nombres en **español y
+portugués** —dos apellidos, partículas (*de la*, *dos*, *da*), acentos, razón social con sufijos
+societarios locales— es donde los motores anglocéntricos fallan. El único sitio donde ese criterio
+se está construyendo en abierto es [opensanctions/qarin](https://github.com/opensanctions/qarin)
+(**MIT, 18 ★**, financiado por la UE vía **NGI Search**): marco de evaluación de calidad de casado
+y datasets abiertos. **No es un producto** — y por eso es una posición, no una dependencia.
 
 ## Posicionamiento Globant
 

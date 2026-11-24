@@ -8,7 +8,93 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimocuarto pase (latest) — el límite de la firma: la capa sí tiene agentes, y lo nuevo de la semana es que el único bien diseñado pone la puerta en el servidor
+## 2026-11-24 — vigesimoquinto pase (latest) — el límite de la contraparte: la capa sí tiene agentes, y el más estrellado de todos está muerto sin decirlo
+
+> Tema: **con quién puede operar el agente.** Veintiséis términos medidos **con límite de palabra**
+> sobre **20.810 líneas y 24 pases previos**, y los veintiséis en cero: `sanctions screening` = 0,
+> `OFAC` = 0, `SDN list` = 0, `denied party` = 0, `export control` = 0, `dual-use` = 0,
+> `OpenSanctions` = 0, `FollowTheMoney` = 0, `yente` = 0, `nomenklatura` = 0, `watchman` = 0,
+> `beneficial ownership` = 0, `BODS` = 0, `GLEIF` = 0, `KYB` = 0, `restricted party` = 0,
+> `politically exposed` = 0, `Entity List` = 0, `MOFCOM` = 0, `alephdata` = 0, `openaleph` = 0,
+> `Archivematica` = 0, `REUSE.toml` = 0, `GNU Free Documentation` = 0, `open-supply-hub` = 0,
+> `openownership` = 0.
+>
+> **El séptimo pase dio para quién actúa el agente; el octavo, qué puede cambiar; el noveno, qué
+> puede probar; el décimo, qué puede alcanzar. Este da con quién puede tratar** — y es el primero
+> de la serie cuya regla **no la escribe el cliente**, sino listas de terceros que se mueven varias
+> veces por semana.
+
+### Lo nuevo de la semana, y es una inversión de método
+
+**El repo más estrellado de toda la capa está muerto y la página no lo dice.**
+[alephdata/aleph](https://github.com/alephdata/aleph) — **2.500 ★, MIT, «Public», sin badge de
+archivado** — lleva en su README `PROJECT STATUS: SUNSETTING` y la frase de que el mantenimiento
+**terminó después de diciembre de 2025** (sin updates, sin fixes, sin soporte desde el 31-12-2025).
+Se reescribió como **Aleph Pro**, comercial. Su sucesor abierto,
+[openaleph/openaleph](https://github.com/openaleph/openaleph) (MIT, **167 ★**, mantenido por
+**DARC**, *soft fork* declarado y compatible con el esquema FtM), tiene **menos de una quinceava
+parte de las estrellas del cadáver**.
+
+Durante ocho pases esta KB usó **la bandera `archived`** como el *tell* de un proyecto muerto.
+Aquí no hay bandera. **Regla nueva: `archived` es suficiente, no necesaria — hay que leer la línea
+de estado del README.** Cualquier ranking de 2026 que ordene esta capa por estrellas recomienda
+Aleph, y recomienda mal.
+
+### Las filas nuevas (7 verificadas el 2026-11-24, licencia leída del fichero)
+
+| Repo | Licencia | ★ | Papel |
+|---|---|---|---|
+| [moov-io/watchman](https://github.com/moov-io/watchman) | Apache-2.0 | 527 | Descarga y parsea **US CSL (con BIS Entity List), OFAC, EU CSL, UK CSL, FinCEN 311**. La única fila con listas oficiales y **sin dueño comercial del dato** |
+| [opensanctions/nomenklatura](https://github.com/opensanctions/nomenklatura) | MIT | 274 | Resolución de entidades; aristas **igual / distinto / sin decidir** + inferencia transitiva |
+| [opensanctions/yente](https://github.com/opensanctions/yente) | MIT | 189 | API de casado de entidades; **corre on-premise como *KYC appliance*** |
+| [openaleph/openaleph](https://github.com/openaleph/openaleph) | MIT | 167 | Búsqueda sobre documentos + datos estructurados, enlazando entidades (DARC) |
+| [opensanctions/qarin](https://github.com/opensanctions/qarin) | MIT | 18 | Investigación **financiada por la UE (NGI Search)** sobre **calidad del casado de nombres** |
+| [opensanctions/graph](https://github.com/opensanctions/graph) | MIT | — | Datasets adyacentes → FtM; destino del puntero de un repo archivado |
+| [opensanctions/yente-client](https://github.com/opensanctions/yente-client) | MIT | — | SDK/CLI cliente de yente |
+
+### El dato que convierte esto en un problema de agentes y no de *compliance*
+
+**La regla del 50 % de OFAC:** una entidad participada en **≥50 % en agregado** por partes
+sancionadas **está bloqueada aunque no aparezca en ninguna lista**. El conjunto de contrapartes
+prohibidas es **estrictamente mayor** que la unión de las listas publicadas, y la diferencia sólo
+se calcula **recorriendo el grafo de titularidad**.
+
+Y el reloj: **la SDN de OFAC se actualiza varias veces por semana, sin calendario fijo**, y la
+**BIS Entity List y la SDN más que se duplicaron entre 2020 y el 3T de 2026**. Una decisión de
+screening cacheada **caduca en días**, no en trimestres. Eso es diseño de agente —
+reverificación, no un *job* nocturno.
+
+### Lo que NO es un agente en esta capa, dicho para que nadie lo busque aquí
+
+`followthemoney` (modelo de datos), `rigour` (limpieza/validación), `countrynames`, `datapatch`,
+el estándar **BODS** y las *pipelines* de `openownership`, **GLEIF/LEI** (API CC0 sin
+autenticación) y `opensupplyhub/open-supply-hub` (MIT, 23 ★) son **cimientos**, no agentes: están
+en `repos/foundations.md` de esta misma fecha, con la frontera de licencia **Apache-2.0 (spec y
+*ingesters* UK) vs AGPL-3.0 (*pipelines* y el validador de conformidad)** explicada ahí.
+
+### La trampa de licencia, y es la razón por la que el presupuesto se parte en dos
+
+`opensanctions/opensanctions` (884 ★) lleva badge **MIT** y su `COPYRIGHT.md` parte el repo en
+**tres**: código **MIT**, datos **CC BY-NC 4.0** (uso comercial = licencia de pago; el proyecto
+reclama **derechos de base de datos**), y material de terceros bajo `datasets/` con **ninguna
+licencia concedida y sin índice por fichero de cuáles son**. Es decir: **no hay comprobación
+programática** posible de qué se puede redistribuir.
+
+**Consecuencia comercial:** el *KYC appliance* on-premise que ofrece el README de yente es legal
+**sólo con licencia de datos**. Dos presupuestos: software permisivo (Globant construye) y datos
+(contrato del cliente con un tercero).
+
+### Colisión de nombre, declarada
+
+`counterparty` ya aparecía 4 veces desde el quinto pase, **en otro sentido**: la persona al otro
+lado de la pantalla. Aquí es **la entidad comercial del otro lado de la transacción**. Además
+`yente` dio 2 falsos positivos (dentro de *contribu**yente***) y `Aleph` otros 2 (**Aleph Alpha**,
+el proveedor alemán de modelos). **Un no-cero puede ser falso**: medir con límite de palabra y
+leer el *hit* antes de creerlo.
+
+---
+
+## 2026-11-24 — vigesimocuarto pase — el límite de la firma: la capa sí tiene agentes, y lo nuevo de la semana es que el único bien diseñado pone la puerta en el servidor
 
 > Tema: **qué hace que lo que el agente produjo se sostenga.** Veintidós términos medidos en cero
 > antes de empezar, sobre **20.141 líneas y 23 pases previos**: `eIDAS` = 0, `PAdES` = 0,

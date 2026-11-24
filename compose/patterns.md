@@ -3816,3 +3816,170 @@ cualquier búsqueda —la organización **OpenICP-BR**— **no recibe un commit 
 2. **Si hace falta permisivo: [junior9283/assinador-icp-brasil](https://github.com/junior9283/assinador-icp-brasil) (MIT, 2026-10-10).** PAdES **AD-RB/AD-RT** con certificados **A1**. **El único firmador ICP-Brasil permisivo y vivo que este pase encontró.** Riesgo que se declara en la propuesta: **un solo mantenedor**. Se usa como **referencia de implementación** de los perfiles AD-RB/AD-RT, no como dependencia crítica sin fork propio.
 3. **Lo que NO se usa, y conviene decirlo antes de que lo proponga el cliente:** `OpenICP-BR/libICP` (AGPL-3.0, **2018-09-24**), `OpenICP-BR/wxApp` (AGPL-3.0, **2018-07-11**) y `OpenICP-BR/ktLib` (**sin fichero de licencia**, **2018-11-05**). El tercero es inusable por licencia **además** de estar muerto: sin licencia son **todos los derechos reservados**.
 4. **El puente a Europa, si el cliente es multinacional:** los formatos son los mismos (CAdES/XAdES/PAdES), así que **`esig/dss` valida un documento brasileño** en estructura — pero **no** contra la *trusted list* europea, porque ICP-Brasil no está en ella. **El formato viaja; la confianza no.** Esto es exactamente lo que hay que explicar cuando un cliente supone que «firma digital» es una sola cosa en los dos lados del Atlántico.
+
+---
+
+## Receta 53 — El límite de la contraparte: un agente que sabe **con quién** no se puede operar, incluso cuando no está en ninguna lista
+
+> **Añadida en el vigesimoquinto pase, 2026-11-24.** Todos los repos nombrados abajo se verificaron
+> ese día: existencia por GET, **licencia leída del fichero `LICENSE`** vía
+> `raw.githubusercontent.com`, y estrellas y bandera `archived` leídas del HTML de `github.com`.
+
+### El problema que resuelve, y por qué el proveedor que el cliente ya paga no lo resuelve
+
+El cliente ya tiene screening de sanciones: casi todos lo tienen. Lo que no tiene es la respuesta a
+**la regla del 50 % de OFAC** — *una entidad participada en **50 % o más en agregado** por partes
+sancionadas **está bloqueada aunque no aparezca en ninguna lista***.
+
+De ahí sale la única frase que hace falta para vender esto, y no menciona IA:
+
+> **El conjunto de contrapartes que no te está permitido tocar es estrictamente mayor que la unión
+> de todas las listas publicadas. La diferencia sólo se calcula recorriendo el grafo de
+> titularidad.**
+
+Y el segundo problema, que es el que pierde auditorías: **la decisión de hoy hay que poder
+reconstruirla en seis meses con la lista que estaba vigente ese día.** La SDN de OFAC se actualiza
+**varias veces por semana sin calendario fijo**; la **BIS Entity List y la SDN más que se
+duplicaron entre 2020 y el 3T de 2026**. Un *screenshot* no es evidencia.
+
+### La restricción de diseño que hay que fijar antes de la primera línea de código
+
+**El dominio de la decisión no es booleano.** China opera **dos listas con efectos distintos**:
+lista de control = **prohibición**; ***watch list*** = **revisión caso por caso más estricta**, que
+**no es un bloqueo**. Y su **artículo 26** permite la **baja** de la *watch list*, de modo que **un
+bloqueo cacheado también caduca**. México publica el **69-B en cuatro estados** —*presunto*,
+*definitivo*, *desvirtuado*, **sentencia favorable** (= absuelto por un tribunal)—.
+
+```
+decision ∈ { permitir, ESCALAR, prohibir }        ← nunca { true, false }
+evidencia = (lista, versión, fecha, estado_en_la_lista, ruta_de_titularidad)
+```
+
+Si este tipo se modela mal al principio, **bloquear a un contribuyente exonerado judicialmente** es
+el resultado por defecto, y el daño lo causa el cliente.
+
+### Qué se compone, todo verificado el 2026-11-24
+
+```
+  ┌─ LISTAS OFICIALES ──────────────────────────────────────────────────────────┐
+  │  moov-io/watchman            Apache-2.0  527★   US CSL (incl. BIS Entity   │
+  │   ↳ PIN a tagged release                        List), OFAC, EU CSL,       │
+  │                                                 UK CSL, FinCEN 311         │
+  └───────────────────────────────┬─────────────────────────────────────────────┘
+                                  │  ingesta FECHADA y versionada
+  ┌─ IDENTIDAD Y TITULARIDAD ─────▼─────────────────────────────────────────────┐
+  │  GLEIF LEI API      CC0, sin auth   api.gleif.org/api/v1                    │
+  │                                     → relaciones corporativas = la ARISTA   │
+  │  openownership/data-standard (BODS v0.4)   Apache-2.0 (esquema) 85★         │
+  │  openownership/register-ingester-psc       Apache-2.0  (UK PSC)             │
+  │  opensupplyhub/open-supply-hub             MIT  23★  (instalación física)   │
+  └───────────────────────────────┬─────────────────────────────────────────────┘
+                                  │
+  ┌─ MODELO, RESOLUCIÓN Y CÁLCULO ▼─────────────────────────────────────────────┐
+  │  opensanctions/followthemoney   MIT  122★   modelo (ownership relations)    │
+  │  opensanctions/nomenklatura     MIT  274★   Resolver: igual/distinto/       │
+  │                                             SIN DECIDIR + transitividad     │
+  │  opensanctions/rigour           MIT   74★   nombres, países, IDs fiscales   │
+  │  opensanctions/countrynames     MIT         jurisdicción → ISO-2            │
+  │  opensanctions/datapatch        MIT         overrides manuales del cliente  │
+  │  ── cálculo propio: titularidad agregada ≥50 % sobre el grafo ──            │
+  └───────────────────────────────┬─────────────────────────────────────────────┘
+                                  │
+  ┌─ SERVICIO Y EVIDENCIA ────────▼─────────────────────────────────────────────┐
+  │  opensanctions/yente       MIT  189★   API de casado, on-prem "appliance"   │
+  │   ↳ ⚠️ requiere LICENCIA DE DATOS para uso comercial                        │
+  │  openownership/lib-cove-bods  AGPL-3.0  → SERVICIO SEPARADO del cliente     │
+  │  artefactual/archivematica    AGPL-3.0  528★  → preservación de la decisión │
+  └───────────────────────────────┬─────────────────────────────────────────────┘
+                                  │
+  ┌─ CAPA DE AGENTE — MIT/Apache, repo aparte, IP de Globant ───────────────────┐
+  │  explica la ruta de titularidad · reconcilia estados · redacta el memo ·    │
+  │  escala a humano el estado SIN DECIDIR · reverifica por ventana de frescura │
+  └─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Orden de construcción — y el orden **es** el entregable
+
+1. **Semana 1-2 — el tipo de la decisión y el modelo de evidencia.** `followthemoney` como esquema;
+   `{permitir, escalar, prohibir}` + `(lista, versión, fecha, estado, ruta)` como registro. **Nada
+   de IA todavía.** Si el cliente no firma este tipo, el resto no importa.
+2. **Semana 2-4 — listas e ingesta fechada.** `moov-io/watchman` en una **tagged release** dentro
+   del perímetro del cliente. Cada ingesta guarda **la lista completa con su fecha**, no un *diff*.
+   Hito: *reproducir la decisión de una fecha pasada*.
+3. **Semana 4-7 — el grafo y el cálculo del 50 %.** `GLEIF` (relaciones corporativas) + `BODS`
+   sobre registros que publican (**UK PSC**) + `nomenklatura` para resolver entidades.
+   **El entregable es el camino**: «bloqueada porque A posee 30 % y B posee 25 %, ambos designados,
+   agregado 55 %». Sin el camino es una afirmación, no un control.
+4. **Semana 7-9 — la cola humana.** El estado **sin decidir** de `nomenklatura` convertido en flujo
+   de revisión con SLA. Aquí el agente **redacta** y **no decide**.
+5. **Semana 9-10 — frescura y reverificación.** Ventana declarada (días, no trimestres) y
+   reverificación **en los dos sentidos**: expiran las autorizaciones **y los bloqueos**
+   (artículo 26 chino; *desvirtuado* / *sentencia favorable* en el 69-B mexicano).
+6. **Semana 10-12 — preservación.** La decisión y su evidencia a `Archivematica` o al WORM que el
+   cliente ya tenga. **Esto es lo que se audita.**
+
+### Postura de licencia — y aquí el presupuesto se parte en dos, que es lo nuevo de esta receta
+
+| Pieza | Licencia | Quién la paga y quién la posee |
+|---|---|---|
+| `watchman`, `followthemoney`, `nomenklatura`, `rigour`, `countrynames`, `datapatch`, `yente` (código), BODS **esquema**, `register-ingester-psc`, `visualisation-tool`, `open-supply-hub` | **Apache-2.0 / MIT** | Globant construye, **la integración es IP de Globant** |
+| **GLEIF / LEI** | **CC0** (datos), API gratuita sin autenticación | Nadie. Es el único insumo global **sin coste ni licencia** |
+| **Listas de gobierno** (OFAC, BIS, EU CSL, UK CSL, SAT 69-B, CEIS/CNEP) | Publicación oficial | Nadie. **Vía `watchman` no hay licenciante comercial en el camino** |
+| **Datos de OpenSanctions** (PEP, agregados, cobertura global) | **CC BY-NC 4.0** → **uso comercial = licencia de pago** | **El cliente firma con OpenSanctions.** No es un coste de Globant y no se puede absorber |
+| `lib-cove-bods`, `bodspipelines`, `bods-gleif-pipeline` | **AGPL-3.0** | **Servicio separado que opera el cliente.** No enlazar en el *pipeline* propio |
+| `Archivematica` | **AGPL-3.0** | Despliegue del cliente, integración por API |
+
+**La trampa que hay que decir en voz alta en la primera reunión.** `opensanctions/opensanctions`
+lleva **badge MIT** y su `COPYRIGHT.md` parte el repo en **tres**: código **MIT**, datos
+**CC BY-NC 4.0** (con **derechos de base de datos** reclamados), y terceros bajo `datasets/` con
+**ninguna licencia concedida y sin índice por fichero de cuáles son** — o sea, **no hay
+comprobación programática posible** de qué es redistribuible. El *appliance* on-premise que ofrece
+el README de `yente` **es legal sólo con licencia de datos**.
+
+**Dónde empezar si el cliente no quiere firmar nada todavía:** `watchman` solo. Cubre listas
+oficiales de EE. UU., UE y Reino Unido **sin ningún contrato de datos**, y es suficiente para
+construir y demostrar los pasos 1, 2 y 6. La cobertura PEP/agregada se añade **cuando haya
+presupuesto de datos**, no antes.
+
+### Dimensionamiento y el hito que lo fija
+
+**10-12 semanas** para una contraparte-maestra de un dominio (proveedores **o** clientes, no los
+dos). **El hito que decide si el proyecto es real es el de la semana 2-4: reproducir una decisión
+pasada con la lista de esa fecha.** Si eso no se puede, el resto es una demo.
+
+### Qué decirle al cliente que son los límites
+
+- **El agente no decide.** Propone, explica la ruta de titularidad y escala. El bloqueo lo firma
+  una persona o una regla que el cliente aprobó. Un falso positivo **congela un pago a un cliente
+  legítimo**; un falso negativo es una sanción. Los dos errores son caros y **no son simétricos**.
+- **La cobertura no es global el día uno.** Es tan buena como los registros que publican. **En EMEA
+  los registros de titularidad real están cerrados al público** desde la sentencia del TJUE
+  (**WM y Sovim**, C-37/20 y C-601/20, 22-nov-2022), y **AMLD6 (Directiva (UE) 2024/1640)** los
+  reconduce a un test de **interés legítimo**: el acceso hay que **tramitarlo**, no programarlo.
+- **La clasificación aduanera no está aquí.** No se encontró base abierta verificada para HS/
+  aranceles (ver el negativo medido en `repos/foundations.md`). Si el alcance la incluye, es
+  desarrollo o un proveedor comercial.
+- **Esto no es asesoramiento legal.** El entregable es **el control y su evidencia**; la
+  interpretación de si una operación está permitida la firma el *compliance* del cliente.
+
+### Anti-patrones de esta receta — cada uno observado en la evidencia de este pase
+
+- **Hacer `LEFT JOIN` contra la SDN y llamarlo screening.** Omite por construcción todo lo que la
+  regla del 50 % alcanza, que es precisamente lo que una autoridad va a mirar.
+- **Modelar la decisión como booleano.** No puede representar la *watch list* china (escalar) ni los
+  cuatro estados del 69-B mexicano. **Bloquea a un contribuyente con sentencia favorable.**
+- **Cachear el bloqueo sin fecha de caducidad.** Las listas se mueven **en los dos sentidos**
+  (artículo 26 chino, *desvirtuado*/*sentencia favorable* en México).
+- **Asumir que el badge MIT cubre los datos.** Es el error que convierte un piloto exitoso en un
+  problema contractual en *procurement*.
+- **Enlazar `lib-cove-bods` (AGPL-3.0) en el *pipeline* que Globant quiere poseer.** La conformidad
+  se comprueba **por frontera de proceso**, no por *import*.
+- **Partir de `alephdata/aleph` porque tiene 2.500 ★.** Está en **`SUNSETTING`** desde su propio
+  README y el mantenimiento **terminó tras diciembre de 2025**, **sin badge de archivado**. El
+  sucesor vivo es `openaleph/openaleph` (MIT, 167 ★).
+- **Depender de `opensanctions/zavod`** (archivado el 19-jul-2023). El código vive en
+  `opensanctions/opensanctions/tree/main/zavod`. Igual con **`opensanctions/bods-ftm`** (archivado
+  el 5-dic-2022) → `opensanctions/graph`.
+- **Prometer CSDDD como urgencia 2026.** Tras **Omnibus I (Directiva (UE) 2026/470)** está **en
+  vigor pero sin aplicarse a ninguna empresa**: transposición hasta **26-jul-2028**, aplicación en
+  **2029**, ámbito reducido a **>5.000 empleados y 1.500 M€**.
