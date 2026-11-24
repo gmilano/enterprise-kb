@@ -958,3 +958,57 @@ Portuguese-language service duty, because they are different obligations with th
    product-quality project or a compliance project. `intel/market.md` has the duties by region.
 5. **Never quote the approval step as automatable** without naming the measured subset and getting
    the client's brand and legal owners to sign off on its boundary.
+
+---
+
+## Decimoséptimo pase — 2026-11-24 — la capa de plataforma del documento fiscal
+
+> La pregunta de este archivo es siempre la misma: **¿qué sistema real se puede customizar con AI
+> encima?** En el plano fiscal la respuesta tiene una trampa que conviene ver antes de elegir: **las
+> dos plataformas de facturación más estrelladas del ecosistema no son open source en el sentido que
+> necesita una entrega alojada.**
+
+### Las plataformas de facturación: estrellas altas, licencias que excluyen el alojamiento
+
+| Plataforma | Repo | Licencia (leída byte a byte) | ★ | Rama por defecto | Veredicto para entrega |
+|---|---|---|---|---|---|
+| **Invoice Ninja** | [invoiceninja/invoiceninja](https://github.com/invoiceninja/invoiceninja) | **Elastic License 2.0** (`LICENSE`, **3 891 B**) | 10 617 | `v5-stable` | ❌ **No para servicio gestionado.** ELv2 prohíbe *«provide the software to third parties as a hosted or managed service»*. Insignia: `NOASSERTION` — **y era honesta** |
+| **Akaunting** | [akaunting/akaunting](https://github.com/akaunting/akaunting) | **Business Source License 1.1** (texto de MariaDB, `LICENSE.txt`, **3 654 B**) | 10 338 | `master` | ⚠️ **Uso en producción permitido con exclusiones.** El *Additional Use Grant* enumera los usos prohibidos; hay que leerlo contra el modelo de entrega concreto antes de prometer nada |
+| **Invoicerr** | [invoicerr-app/invoicerr](https://github.com/invoicerr-app/invoicerr) | **AGPL-3.0** | 735 | **`dev`** | ⚠️ Copyleft de red: aceptable si el cliente la opera él mismo, no si Globant la aloja como SaaS multicliente |
+| **ERPNext** | [frappe/erpnext](https://github.com/frappe/erpnext) | **GPL-3.0** | 41 602 | **`develop`** | ⚠️ Ya en la KB. El dato **nuevo** es la rama: `develop`, no `main` |
+| **Apache OFBiz** | [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | **Apache-2.0** | 1 151 | **`trunk`** | ✅ Ya en la KB. La **única suite permisiva** de esta tabla; rama `trunk` |
+
+**Tercera aparición de la Elastic License 2.0 en esta red de KBs** (tras el hallazgo de
+`sovity/edc-ce` en automotive) y **la lectura byte a byte volvió a ser necesaria**: la insignia de
+GitHub dice `NOASSERTION` en los dos casos de arriba, y detrás hay **dos licencias distintas con dos
+consecuencias comerciales distintas**. Ninguna de las dos es «open source roto»; las dos son
+**decisiones de negocio del proyecto** que hay que respetar y presupuestar.
+
+### El patrón real: la plataforma es el libro mayor, la conformidad es una capa aparte
+
+Ninguna de las plataformas de arriba *es* el cumplimiento fiscal. En todas, la conformidad entra por
+**módulos de localización** o por **librerías externas**, y ahí es donde se decide el proyecto:
+
+- **Odoo** → módulos `OCA/l10n-*` (**AGPL-3.0**). Para Brasil, [`OCA/l10n-brazil`](https://github.com/OCA/l10n-brazil)
+  (376★, push 2026-11-24, **rama por defecto `19.0`**) y, por debajo,
+  [`akretion/nfelib`](https://github.com/akretion/nfelib) (**MIT**) — sus especificaciones NF-e y
+  CT-e se **regeneraron el 2026-11-03** para la reforma. ⚠️ *Fecha a nivel de snippet del issue
+  tracker del proyecto.*
+- **Cualquier ERP + Perú** → [`thegreenter/greenter`](https://github.com/thegreenter/greenter)
+  (**MIT**, 378★) con [`giansalex/lycet`](https://github.com/giansalex/lycet) (**MIT**) como fachada
+  REST: la **única pila nacional LATAM completamente permisiva** encontrada en este pase.
+- **Cualquier ERP + EMEA** → [`phax/phase4`](https://github.com/phax/phase4) /
+  [`phax/phoss-ap`](https://github.com/phax/phoss-ap) (**Apache-2.0**) para el transporte AS4/Peppol
+  y [`itplr-kosit/validator`](https://github.com/itplr-kosit/validator) (**Apache-2.0**) con su
+  configuración XRechnung para la validación. **Las reglas CEN que hay debajo son EUPL-1.2**: se
+  **referencian**, no se incrustan, si el producto final debe quedar permisivo.
+- **Cualquier ERP + México** → [`phpcfdi/sat-ws-descarga-masiva`](https://github.com/phpcfdi/sat-ws-descarga-masiva)
+  (**MIT**, 198★) para la conciliación contra el SAT, y `nodecfdi/cfdi-core` (**MIT**) para armar el
+  comprobante.
+
+> **La frase que debería entrar en toda propuesta de ERP agéntico de este plano:** el agente puede
+> leer, extraer, conciliar, proponer y validar; **la emisión del documento fiscal la firma un humano
+> o un PAC/proveedor acreditado.** No es una cautela de producto: en Malasia la *guideline* v4.8
+> exige la firma del emisor o de su proveedor de servicios, y en los regímenes de autorización
+> previa de LATAM **un reintento automático puede crear un segundo documento fiscal**.
+> ⚠️ *Obligaciones de fuente secundaria; detalle y matices en `intel/market.md`.*

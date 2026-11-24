@@ -853,3 +853,51 @@ further traps are in `repos/foundations.md`.
    human-service decree are in `intel/market.md` under their own regions.
 5. **This layer is where "the agent works" and "the agent is lawful here" diverge.** A pipeline that
    passes every test in English can be unshippable in Quebec and non-compliant in India.
+
+---
+
+## Decimoséptimo pase — 2026-11-24 — el límite del documento fiscal: 4 filas, y un cero que vale más que las cuatro
+
+> **Tema: lo que el agente puede *emitir en nombre del Estado*.** El pase buscó agentes en la capa
+> de factura electrónica / documento fiscal y el resultado tiene dos mitades, las dos útiles.
+
+**El cero, medido y explícito.** No existe —al menos no apareció en la búsqueda de este pase— **un
+agente open source específico de cuentas por pagar o de facturación electrónica**. Lo que existe en
+esa casilla es **comercial**: Basware InvoiceAI y su *Supplier Agent* (feb-2026), la compra de
+Rossum por Coupa (may-2026), Tipalti, Stampli, Vic.ai, AppZen, Ramp.
+⚠️ *Secundario: listados de proveedores a nivel de snippet de búsqueda.*
+**La lectura correcta no es «falta producto», es «la frontera está en otro sitio»:** en este plano lo
+abierto son **las primitivas de cumplimiento** (formato, validador, transporte, firma) y el agente
+es la parte que se construye. Para Globant eso es mejor noticia que lo contrario.
+
+**La regla de diseño que impone este plano, y es dura:** *el agente no puede ser el emisor.* La
+*guideline* v4.8 de MyInvois (ago-2026) exige la **firma digital del emisor o de su proveedor de
+servicios**; en India la ventana de reporte al IRP es de **30 días** desde la fecha del documento
+para AATO ≥ ₹10 crore, de modo que **un agente que encola y reintenta puede invalidar el documento
+de forma permanente**; y en los regímenes de autorización previa de LATAM un reintento no es
+idempotente: **puede crear un segundo documento fiscal.** El agente propone, valida y arma el
+expediente; **la emisión la firma un humano o un servicio acreditado.**
+⚠️ *Las tres obligaciones son de fuente secundaria (snippet), señaladas también en `intel/market.md`.*
+
+### Filas nuevas (4, verificadas 2026-11-24)
+
+| Agente / herramienta | Repo | Licencia (verificada) | ★ | Push | Por qué está en la capa de agentes |
+|---|---|---|---|---|---|
+| **mcp-myinvois** | [techtemplemy/mcp-myinvois](https://github.com/techtemplemy/mcp-myinvois) | **WTFPL** — ⚠️ **clase nº 15 en esta KB, y es un problema de política corporativa** | 3 | 2026-09-05 | **Servidor MCP + ficheros `SKILL.md`** para el régimen e-Invoice de Malasia: alta de credenciales, alta de empresa/cliente, envío y entrega. *Sandbox por defecto*; se declara **no oficial** y deja la responsabilidad fiscal en el usuario |
+| **Lycet** | [giansalex/lycet](https://github.com/giansalex/lycet) | **MIT** | 106 | 2026-11-10 | Convierte Greenter (PHP, SUNAT 🇵🇪) en **API REST**: es la forma de dar a un agente una herramienta fiscal **determinista y acotada** en lugar de acceso a la librería |
+| **einvoice-validate** | [einvoice-validator/einvoice-validator](https://github.com/einvoice-validator/einvoice-validator) | **código MIT**; binario distribuido `MIT AND EUPL-1.2 AND LicenseRef-OASIS… AND LicenseRef-UN-CEFACT… AND W3C-19980720` | 1 | 2026-11-23 | **La puerta de validación que el agente llama, no juzga.** CLI de salida determinista (`einvoice-validate factura.xml`), 5 005 casos de corpus, `rules fetch` para reglas nacionales. **No tiene superficie MCP** (comprobado: 0 coincidencias) — se invoca como proceso |
+| **invoice2data** | [invoice-x/invoice2data](https://github.com/invoice-x/invoice2data) | **MIT** | 2 254 | **2026-11-24** | La capa de **extracción** previa al documento estructurado: plantillas sobre PDF/texto/imagen. Es la parte que el modelo mejora, no la que decide validez |
+
+**Nota de licencia sobre la fila 1.** WTFPL es permisiva en intención pero **no trae renuncia de
+garantía ni concesión de patentes**, no está certificada por OSI y **varias políticas corporativas
+de ingesta la rechazan de plano**. Con 3★ y un régimen fiscal detrás, la recomendación honesta es:
+**leerlo como documentación ejecutable del flujo MyInvois** (sus `SKILL.md` describen el camino
+completo del portal `hasil.gov.my`) y **no** importarlo como dependencia.
+
+### Qué no cambió, y por qué es la respuesta correcta
+
+Ninguna fila de los *tiers* anteriores se movió. El patrón que el cuarto pase registró —buscar por
+**consecuencia** devuelve capas, no agentes— se repite aquí por sexta vez: de las **46 direcciones**
+verificadas en este pase (**42 nuevas** para la KB), **4** entran en este archivo y las demás en `repos/foundations.md` y
+`verticals/solutions.md`. En un plano donde la validez la decide un tercero, **lo escaso no es la
+inteligencia: es la prueba.**

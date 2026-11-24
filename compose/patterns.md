@@ -2719,3 +2719,95 @@ regional assertions, four conversations with four different buyers.
 - **Promising the EU language question is settled.** This pass searched for it and **found no
   evidence either way.** Say so — it is a cheap question for the client's counsel and an expensive
   thing to guess.
+
+## Receta 32 — El agente de cuentas por pagar que no emite: extraer, validar y conciliar con un firmante humano (added seventeenth pass, 2026-11-24)
+
+**El problema que resuelve.** El cliente quiere «AI para facturación» y lo que compra realmente es
+**un expediente que la autoridad tributaria acepta**. El plano tiene una restricción que no es
+negociable: **el agente no puede ser el emisor** (firma del emisor o de su proveedor acreditado en
+Malasia; certificado del contribuyente o PAC en LATAM; y en los regímenes de autorización previa un
+reintento automático puede crear **un segundo documento fiscal**).
+
+**Qué se compone, todo verificado el 2026-11-24.**
+
+| Capa | Pieza | Licencia | Papel |
+|---|---|---|---|
+| Extracción | [`invoice-x/invoice2data`](https://github.com/invoice-x/invoice2data) | **MIT**, 2 254★ | Plantillas sobre PDF/texto/imagen. El modelo **mejora** las plantillas; no decide validez |
+| Formato híbrido | [`ZUGFeRD/mustangproject`](https://github.com/ZUGFeRD/mustangproject) | **Apache-2.0**, 498★ | Leer/escribir Factur-X/ZUGFeRD: el XML **dentro** del PDF/A-3 |
+| | [`akretion/factur-x`](https://github.com/akretion/factur-x) | **BSD-3-Clause**, 317★ | Lo mismo en Python, si la casa es Python |
+| **Puerta de validación** | [`einvoice-validator/einvoice-validator`](https://github.com/einvoice-validator/einvoice-validator) | código **MIT**; binario **MIT AND EUPL-1.2 AND …** | `einvoice-validate factura.xml` → salida determinista. **El agente lo invoca, no lo juzga** |
+| | [`itplr-kosit/validator`](https://github.com/itplr-kosit/validator) + `validator-configuration-xrechnung` | **Apache-2.0**, 199★/120★ | Si el destino es Alemania: motor permisivo + reglas XRechnung **referenciadas** |
+| Transporte | [`phax/phase4`](https://github.com/phax/phase4) + [`phax/phoss-ap`](https://github.com/phax/phoss-ap) | **Apache-2.0**, 246★/59★ | AS4/Peppol. Vale igual para Peppol EU, PINT-SG y DBNAlliance |
+| Nacional (ejemplos) | [`thegreenter/greenter`](https://github.com/thegreenter/greenter) + [`giansalex/lycet`](https://github.com/giansalex/lycet) | **MIT**, 378★/106★ | Perú, con fachada REST para que el agente tenga **una herramienta**, no una librería |
+| | [`akretion/nfelib`](https://github.com/akretion/nfelib) + [`erpbrasil/erpbrasil.edoc`](https://github.com/erpbrasil/erpbrasil.edoc) | **MIT**, 224★/32★ | Brasil permisivo (la alternativa `sped-nfe` es **LGPL-3.0**) |
+| | [`phpcfdi/sat-ws-descarga-masiva`](https://github.com/phpcfdi/sat-ws-descarga-masiva) | **MIT**, 198★ | México: conciliar contra lo que el SAT realmente tiene |
+
+**Cómo se cablea (y dónde va la frontera).**
+
+1. **Ingesta → extracción.** `invoice2data` produce campos candidatos. El agente **sólo** completa,
+   normaliza y explica; cada campo lleva su procedencia (página, caja, plantilla).
+2. **Construcción del documento estructurado** en la sintaxis que toca (UBL o CII) con `ph-ubl` /
+   `mustangproject` / la librería nacional. **Nunca** generando XML con el modelo: el modelo rellena
+   un objeto, la librería serializa.
+3. **Puerta determinista, y es la pieza que hace el encargo defendible.**
+   `einvoice-validate` sobre **las dos vinculaciones** cuando hay conversión, más el conjunto de
+   reglas nacional (`rules fetch xrechnung` / Peppol BIS). **Salida: pasa / no pasa + el id de regla**
+   (`BR-CO-17`, `BR-S-08`…). Si no pasa, el agente **no reintenta**: explica y devuelve.
+4. **Firma y emisión.** Fuera del agente. Humano con certificado, o PAC/proveedor acreditado. El
+   agente **prepara** el sobre y **espera**.
+5. **Idempotencia a nivel fiscal.** La clave de deduplicación es **serie + número** (+ clave de
+   autorización cuando existe), persistida **antes** del primer envío. Cualquier `retry` de
+   biblioteca HTTP se desactiva explícitamente en este tramo.
+6. **Alarma de antigüedad, no de reintentos.** Un documento no entregado envejece: en India
+   **30 días** desde la fecha del documento (AATO ≥ ₹10 crore) y se vuelve irreportable. El reloj se
+   vigila **por documento**, y vence hacia un humano, no hacia una cola.
+7. **Conciliación.** Contra los registros de la propia autoridad donde se puede
+   (`sat-ws-descarga-masiva` en México) — porque el ledger del cliente y el de la autoridad **no son
+   la misma verdad**, y el valor del agente está justo en esa diferencia.
+
+**Lo que se entrega como producto.** No «un agente»: **un expediente por documento** — campos con
+procedencia, veredicto de validación con id de regla y versión de artefactos, firmante identificado,
+clave de autorización y traza de conciliación. Eso es lo que ninguna plataforma comercial vende,
+porque venden la transmisión.
+
+**Trampas que ya están medidas.** `invoiceninja` es **Elastic License 2.0** (prohibido el servicio
+gestionado); `akaunting` es **BSL 1.1**; `invoicerr` es **AGPL-3.0**; `sped-nfe` **LGPL-3.0**;
+`LibreDTE` y `OCA/l10n-*` **AGPL-3.0**; `amaseng/myinvois-open-sdk` es Apache-2.0 **y está dos años
+sin push** contra un SDK oficial que sacó 1.0 en sep-2026; `techtemplemy/mcp-myinvois` es **WTFPL**
+(sin renuncia de garantía ni patentes) y sirve como **documentación ejecutable**, no como dependencia.
+
+## Receta 33 — La puerta de validación de doble vinculación: convertir UBL↔CII sin invertir la validez (added seventeenth pass, 2026-11-24)
+
+**El problema que resuelve, y es un hallazgo byte a byte de este pase.** Los artefactos **oficiales**
+de EN 16931 **1.3.17** no validan igual las dos sintaxis: `BR-CO-17` usa `<` en UBL y `<=` en CII
+(una factura desviada **exactamente 1,00** pasa en CII y falla en UBL) y `BR-S-08` tiene
+**tolerancia ±1** en UBL frente a **igualdad estricta** en CII. **Una conversión fiel puede invertir
+la validez sin tocar un número** — y convertir entre sintaxis es lo que hace todo el ecosistema
+Peppol/XRechnung/Factur-X/ViDA.
+
+**La receta, en orden, y es corta a propósito.**
+
+1. **Fijar la versión.** El artefacto es un dato de configuración, no una dependencia implícita:
+   `validation-1.3.17`, commit `6e35e0ab…`. Se registra en el expediente de cada documento. Una
+   validación sin versión de artefactos **no es reproducible** y por tanto no es evidencia.
+2. **Validar en origen** con el conjunto de la sintaxis de entrada.
+3. **Convertir** (`ph-ubl` / `mustangproject` según el par).
+4. **Validar en destino** con el conjunto de la sintaxis de salida **y** con el nacional que aplique.
+5. **Comparar los dos veredictos y tratar la discrepancia como un hallazgo, no como un error.**
+   Si origen pasa y destino falla, el documento **no se envía**: se devuelve con el id de regla que
+   discrepa. Si **origen falla y destino pasa**, es peor: significa que la conversión **ocultó** un
+   defecto, y eso se escala a una persona.
+6. **Registro de equivalencia.** Por documento: sintaxis origen/destino, versión de artefactos,
+   conjunto nacional, los dos veredictos con sus ids de regla, y la huella del par de archivos.
+
+**Dónde está la ventaja competitiva.** Las plataformas comerciales de este mercado venden
+**transmisión** (y la cobran por documento). Nadie vende **la prueba de que la conversión no cambió
+la validez**. Es un entregable pequeño, auditable, con una obligación fechada detrás en Alemania
+(**2027-01-01** para emisores > €800 000) y Francia (**2027-09-01** para pymes) — y con una condición
+previa que el cliente ya cumple: haber descubierto, en la primera fase del mandato, que su ERP no
+sabe hacer esto. ⚠️ *Fechas de mandato de fuente secundaria; el hallazgo de `BR-CO-17`/`BR-S-08` es
+byte a byte sobre los artefactos oficiales.*
+
+**Coste honesto.** 2–3 semanas con un equipo que ya tenga Java o Rust en casa. El riesgo real **no**
+es técnico: es que el cliente ya haya firmado con una plataforma que le prohíbe por contrato validar
+fuera de ella. **Esa pregunta va en la primera reunión**, no en la segunda.

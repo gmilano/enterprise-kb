@@ -8,7 +8,55 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — sixteenth pass (latest) — the language boundary: three agent rows, and a metric that inverts
+## 2026-11-24 — decimoséptimo pase (latest) — el límite del documento fiscal: el agente no puede ser el emisor
+
+> Tema: **lo que el agente puede emitir en nombre del Estado.** Ocho límites anteriores los decidía
+> quien construye el sistema; este lo decide una autoridad tributaria. Medido antes de buscar, sobre
+> los nueve archivos y en los dos idiomas: `Peppol` **0** · `AS4` **0** · `EN 16931` **0** ·
+> `Factur-X` **0** · `ZUGFeRD` **0** · `Schematron` **0** · `CFDI` **0** · `NF-e` **0** ·
+> `Verifactu` **0** · `KSeF` **0** · `FatturaPA` **0** · `ViDA` **0** · `SAF-T` **0** · `X12` **0**.
+> **No fue cero limpio** y el residuo define el hueco: `facturacion` **25** y `e-invoic` **5**
+> estaban desde el pase once — la KB tenía los **módulos de localización fiscal** de LATAM y no tenía
+> **ni el formato, ni el validador, ni el transporte, ni el modelo de autorización**.
+
+**Nuevo en la capa de agentes (4 filas, todas verificadas 2026-11-24):**
+
+- **`techtemplemy/mcp-myinvois`** — **WTFPL**, **3★**, push 2026-09-05. Servidor **MCP** con
+  ficheros `SKILL.md` para el régimen e-Invoice de Malasia (LHDN), *sandbox* por defecto y aviso
+  explícito de no oficialidad. **Clase de licencia nº 15 de esta KB y la más problemática hasta la
+  fecha**: permisiva en intención, **sin renuncia de garantía ni concesión de patentes**, no
+  certificada por OSI. Se registra como **documentación ejecutable del flujo**, no como dependencia.
+- **`giansalex/lycet`** — **MIT**, **106★**, push 2026-11-10. API REST sobre Greenter (SUNAT 🇵🇪):
+  la manera de dar al agente **una herramienta fiscal determinista** en vez de una librería.
+- **`einvoice-validator/einvoice-validator`** — **código MIT**, binario
+  `MIT AND EUPL-1.2 AND LicenseRef-OASIS… AND LicenseRef-UN-CEFACT… AND W3C-19980720`, **1★**,
+  push 2026-11-23. La **puerta de validación determinista** que el agente invoca. **Sin superficie
+  MCP** (medido: 0 coincidencias de `mcp` en todo el repo) — se llama como proceso.
+- **`invoice-x/invoice2data`** — **MIT**, **2 254★**, push **2026-11-24**. Extracción por plantillas,
+  la capa anterior al documento estructurado.
+
+**El cero que vale más que las cuatro filas.** No apareció **ningún agente open source específico de
+cuentas por pagar o facturación electrónica**. Esa casilla es comercial (Basware InvoiceAI y su
+*Supplier Agent* de feb-2026, Coupa↔Rossum may-2026, Tipalti, Stampli, Vic.ai, AppZen, Ramp).
+⚠️ *Secundario: snippets, no verificado en primario.* **Lo abierto de este plano son las primitivas
+de cumplimiento; el agente es la parte que se construye.**
+
+**La restricción de diseño del plano, y contradice el reflejo habitual de los agentes.** El agente
+**no puede ser el emisor**: MyInvois (*guideline* v4.8, ago-2026) exige firma digital del emisor o
+de su proveedor acreditado; India impone **30 días** de ventana de reporte al IRP para
+AATO ≥ ₹10 crore —de modo que **encolar y reintentar puede invalidar el documento para siempre**—;
+y en los regímenes de **autorización previa** de LATAM un reintento **no es idempotente**: puede
+crear un **segundo documento fiscal**. Idempotencia a nivel de **serie y número de documento**,
+nunca a nivel de HTTP. ⚠️ *Las tres obligaciones, de fuente secundaria.*
+
+**Hallazgo probado byte a byte, y es el del pase.** Los dos conjuntos **oficiales** de artefactos
+EN 16931 (CEN/TC 434, versión **1.3.17**) **no validan igual**: `BR-CO-17` usa `<` en UBL y `<=` en
+CII —una factura desviada **exactamente 1,00** pasa en CII y falla en UBL— y `BR-S-08` tiene
+**tolerancia ±1** en UBL frente a **igualdad estricta** en CII. Una conversión UBL↔CII fiel **puede
+invertir la validez sin tocar un número**. Detalle en `intel/trends.md` (tendencia 34).
+
+
+## 2026-11-24 — sixteenth pass — the language boundary: three agent rows, and a metric that inverts
 
 > Theme: **what the agent *says*, in which language, and who approved the wording.** Measured before
 > searching, across all nine files and both of the KB's languages: **28 of 30 terms at a clean zero**

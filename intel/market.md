@@ -615,6 +615,53 @@ The deliverable is the measured subset in Receta 30 plus a per-locale conformanc
 permissive stack for it — Pontoon (BSD-3-Clause), CTranslate2 (MIT), Opus-MT (CC-BY-4.0 models),
 COMET (Apache-2.0), lingua-py (Apache-2.0) — is in `repos/foundations.md`.
 
+
+#### The fiscal-document boundary — seventeenth pass, 2026-11-24 (North America)
+
+**The region's position is the mirror image of EMEA's, and the gap is the opportunity.** There is
+**no US federal B2B e-invoicing mandate**; adoption is voluntary and market-led. The main private-
+sector framework is the **DBNAlliance** exchange network, a **four-corner** model whose access points
+exchange documents over **AS4** using **UBL 2.x**, **SMP** and **PINT** — i.e. **the same building
+blocks as Peppol**, with some service providers certified on both and bridging between them. One
+source adds that AS2 may also be in use. Reported status for 2026: major enterprises onboarding, and
+a first US E-Invoicing Conference held in April 2026; the sources **disagree** on when the first live
+exchange happened (March vs April 2024) and on DBNAlliance's incorporation date (late 2023 vs January
+2024). The B2G side sits with Treasury/GSA.
+⚠️ **Secondary-sourced**: vendor blogs and compliance trackers; **no primary DBNAlliance
+documentation was readable from this session**, so the technical details above should be checked
+against DBNAlliance's own materials before they reach a statement of work.
+
+**Why «no mandate» is not «no project».** Three things follow, and they are the actual sales argument:
+
+1. **The stack transfers.** Because DBNAlliance reuses UBL/AS4/SMP/PINT, a permissive access point
+   built for an EMEA mandate — `phax/phase4` + `phoss-ap` + `peppol-commons` (**Apache-2.0**) —
+   serves a North American network with a different configuration, not a different build. **An
+   EMEA-funded investment is reusable in NA; the reverse journey is far more expensive.** For a
+   multinational client this is the cheapest possible framing of a global e-invoicing programme.
+2. **The incumbent transport is EDI, and its open source is copyleft.** The real North American
+   plumbing is **X12 over AS2**, and the open-source AS2 implementation of record,
+   [`OpenAS2/OpenAs2App`](https://github.com/OpenAS2/OpenAs2App), is **GPL-3.0** (243★, pushed
+   2026-11-16). **Measured permissive gap:** this pass found **no maintained, permissively licensed
+   AS2 or X12 stack** — recorded as a gap, which is also a build opportunity for anything Globant
+   wants to own.
+3. **Voluntary means the buyer is a CFO, not a compliance officer.** With no deadline to point at,
+   the North American case has to be made on **touchless AP cost** and **cash-cycle** — which puts
+   the agent layer (extraction, matching, exception handling) in front, and the compliance layer
+   behind it. That is the exact inverse of the EMEA pitch, and the same code.
+
+**Canada and Mexico.** No federal Canadian B2B mandate was found in this pass **(recorded as an
+informed gap, not verified absence)**; Québec's language duty, already documented in the sixteenth
+pass above, still applies to any invoicing UI shown to Québec users. **Mexico's CFDI regime is
+documented under LATAM**, following this KB's regional vocabulary, with its North American geography
+noted there in prose.
+
+**Opportunity, placed.** The North American offer is **an AP agent whose compliance layer is already
+paid for**: deterministic extraction and matching on top of a permissive validation core
+(`einvoice-validator`, MIT code; `mustangproject`, Apache-2.0), with a DBNAlliance/Peppol-capable
+access point ready for the day a customer or a state asks for structured exchange. Sold as cost and
+cycle time now, it is also the cheapest possible hedge against a future mandate — and it is the same
+artefact the EMEA engagement produces.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1304,6 +1351,68 @@ the data-sovereignty concern the region's own surveys keep reporting. ⚠️ Reg
 **secondary-sourced** from law-firm and analyst commentary; `artificialintelligenceact.eu` and the
 legal hosts did not resolve from this session.
 
+
+#### The fiscal-document boundary — seventeenth pass, 2026-11-24 (EMEA)
+
+**The region where this plane is already law, with dates that have passed.** Reported mandate
+timeline, country by country — **all of it secondary-sourced** (compliance blogs and vendor trackers;
+no official gazette was readable from this session), and flagged where the sources disagree:
+
+| Country | Reported obligation | Date | Source quality |
+|---|---|---|---|
+| 🇩🇪 Germany | **Receiving** structured e-invoices, all businesses | in force **2025-01-01** | well corroborated |
+| 🇩🇪 Germany | **Issuing**, if 2026 turnover > **€800 000** | **2027-01-01** | corroborated; one source notes a postponement request was **refused** |
+| 🇩🇪 Germany | **Issuing**, almost everyone else | **2028-01-01** | corroborated |
+| 🇫🇷 France | **Receiving** (all) + **issuing** (large and mid-size) | **2026-09-01** — *already in force* | corroborated; certified-platform (PDP) model with Peppol as interoperability layer |
+| 🇫🇷 France | **Issuing**, SMEs and micro-enterprises | **2027-09-01** | corroborated |
+| 🇵🇱 Poland | **KSeF**, 2024 sales > PLN 200 M | **2026-02-01** — *in force* | corroborated |
+| 🇵🇱 Poland | **KSeF**, other taxpayers | **2026-04-01** — *in force* | corroborated |
+| 🇵🇱 Poland | **KSeF**, monthly sales ≤ PLN 10 000 | **2027-01-01** | corroborated |
+| 🇵🇱 Poland | **Penalties** | **disputed**: deferral to 2027-12-31 vs a September-2026 draft bill moving it to 2028-01-01 — **not law** | ⚠️ unsettled |
+| 🇸🇰 Slovakia | Domestic B2B e-invoicing + reporting, **five-corner** Peppol-based | **2027-01-01** | single source |
+| 🇪🇸 Spain | B2B mandate phases (first: turnover > €8 M) | **disputed**: order **HAC/1028/2026** reported in force **2026-10-06** starting the clock in **RD 238/2026** → first phase ≈ 12 months later (**2027-10-06** per one source), rest ≈ 24 months | ⚠️ one source says the order was still a draft |
+| 🇪🇸 Spain | **Verifactu** | **2027-01-01** corporates / **2027-07-01** sole traders, with one source reporting a slip toward 2028 | ⚠️ unsettled |
+| 🇪🇺 EU | **ViDA** intra-EU B2B e-invoicing + digital reporting | **2030-07-01** | corroborated |
+
+**What this calendar means commercially, stated plainly.** The EU-level date (2030) is **not** the
+sales date. The sales dates are **2027-01-01 in Germany** and **2027-09-01 in France**, and both are
+*second* phases of mandates whose first phase already landed — which means the clients who will buy
+in 2027 are the ones who deferred in 2025 and 2026. **A mandate with a passed first phase is a
+better qualifier than a mandate with a future one**: the organisation has already discovered that
+its ERP cannot do this.
+
+**The architectural finding, and it is byte-proven rather than reported.** EN 16931 is **one**
+semantic model with **two** syntax bindings (UBL and CII), and the **official** CEN/TC 434 validation
+artefacts **do not validate the two identically**. Read from
+[`ConnectingEurope/eInvoicing-EN16931`](https://github.com/ConnectingEurope/eInvoicing-EN16931) at
+version **1.3.17** (tag `validation-1.3.17`, commit `6e35e0ab8b09eb183f7d84b282e24ef95f9f5715`):
+**`BR-CO-17`** uses `abs(…) - 1 <` in UBL and `abs(…) - 1 <=` in CII — so an invoice off by
+**exactly 1,00** passes as CII and fails as UBL — and **`BR-S-08`** carries a **±1 tolerance** in UBL
+against **strict equality** in CII. **A faithful UBL↔CII conversion can therefore flip validity
+without changing a number**, and cross-syntax conversion is precisely what Peppol, XRechnung,
+Factur-X and ViDA integrations do. Detail in `repos/foundations.md` and `intel/trends.md`
+(trend 34).
+
+**The licence of the rules themselves is EUPL-1.2** (byte-read: `LICENSE.txt`, 13 871 B; GitHub shows
+`NOASSERTION`). The EUPL is reciprocal, so **anyone who embeds the official artefacts ships copyleft
+rules inside their product**. The German **KoSIT** motor
+([`itplr-kosit/validator`](https://github.com/itplr-kosit/validator), **Apache-2.0**, 199★) and its
+**XRechnung configuration** (**Apache-2.0**, 120★) are built exactly to avoid that: permissive engine,
+**referenced** rule package. The transport corner is the opposite shape — **structurally copyleft
+except for one author**: Oxalis-NG is **EUPL-1.1-or-later** (declared only in its `pom.xml`),
+Holodeck B2B is **GPL-3.0**, the Commission's Domibus is EUPL-1.2, and the only permissive, actively
+maintained AS4/Peppol stack is **`phax/*`** (phase4, phoss-ap, peppol-commons — Apache-2.0, all
+pushed within the last 24 hours). **That concentration belongs in the risk section of a proposal.**
+
+**Opportunity, placed.** Two distinct offers, and they should not be sold as one:
+1. **The access point** — stand up a permissive AS4/Peppol corner (phase4 + phoss-ap + an SMP) so the
+   client is not renting a mandatory channel from a platform per document. Best fit where a mandate
+   has already landed (France, Poland, Germany-receiving) and the ERP integration is the pain.
+2. **The dual-binding validation gate** — a pre-submission check that runs **both** CEN bindings plus
+   the applicable national rule set, pins the artefact version, and produces a per-document record of
+   which rule set accepted it. This is what the byte-proven `BR-CO-17` / `BR-S-08` divergence makes
+   necessary, and no commercial platform sells the *evidence*, only the transmission. Receta 33.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1926,6 +2035,67 @@ clearest statute-to-stack mapping in the whole pass: the law names a list of lan
 MIT-licensed project covers exactly that list. ⚠️ Statutory detail is **secondary-sourced** (law-firm
 and advisory summaries). Verify against the Gazette text of the DPDP Rules, 2025 and any 2026 MeitY
 notifications before it reaches a contract.
+
+
+#### The fiscal-document boundary — seventeenth pass, 2026-11-24 (APAC)
+
+**The regional pattern: the duty is to *report*, and it rides on the invoicing rails.** This is the
+distinction that gets mis-scoped most often in this region.
+
+**Singapore — InvoiceNow is a reporting obligation, not a B2B e-invoicing mandate.** The obligation
+is to **transmit invoice data to IRAS** through InvoiceNow-Ready solutions in the **PINT-SG** format
+(specification identifier reported as `urn:peppol:pint:billing-1@sg-1`, replacing SG Peppol BIS
+Billing 3.0). Reported phasing: **2025-11-01** for companies registering for GST voluntarily within
+six months of incorporation, **2026-04-01** for all voluntary registrants, and existing GST-
+registered businesses from **2029-04-01** (supplies up to S$1 M) through **2030-04-01** (up to S$4 M)
+to **2031-04-01** (above S$4 M). One secondary source gives **2028-04-01** for the smallest tier
+(S$200 000 or less) and **could not be confirmed against IRAS**.
+**Commercially:** because the format is Peppol PINT, **the EMEA access-point investment transfers
+directly** — `phase4` / `phoss-ap` (Apache-2.0) speak AS4 to a Singapore SMP the same way they speak
+it to a European one. The country-specific work is the **rule set**, not the transport.
+
+**Malaysia — the only region in this pass with an explicit *signature* duty on the issuer.** The
+**e-Invoice Guideline v4.8 (reported 2026-08-30)** requires the **digital signature of the issuer, or
+of its service provider**, while the official SDK is reported to keep document version 1.0 with
+signature validation disabled. The SDK's **1.0 release (2026-09-25)** added the **e-Invoice Special
+Voluntary Disclosure Programme (SVDP)**, running to **2027-12-31**, with new document versions
+SVDP 1.2 / 1.3. There is **no published API fee schedule** and the portal is reported free to
+taxpayers. ⚠️ *All of the above is snippet-level, including one third-party reading of the guideline.*
+**The agent consequence is hard and immediate:** a signature duty on a named legal person means the
+**agent cannot be the issuer**. It can assemble, validate and submit *as* an accredited service
+provider's client — and that distinction has to appear in the engagement's RACI, not in a footnote.
+Five open SDKs were verified (`klsheng/myinvois-php-sdk` **MIT** 103★;
+`zahidaramai/MyInvoice-SDK-Middleware` **MIT** 13★; `farhan-syah/myinvois-client` **LGPL-3.0** 51★;
+`amaseng/myinvois-open-sdk` **Apache-2.0** 31★ **but idle since 2024-10-10**;
+`techtemplemy/mcp-myinvois` **WTFPL** 3★, an **MCP server with `SKILL.md` files**, sandbox by
+default, self-declared unofficial).
+
+**India — the constraint is a clock, and it is the most agent-hostile rule found in this pass.** The
+e-invoicing threshold is reported to remain **₹5 crore** aggregate annual turnover (in force since
+**2023-08-01**), with sources **disagreeing** on whether first crossing ₹5 crore in FY 2025-26
+created a **2026-04-01** liability — **recorded as a conflict**. Separately, and more important
+architecturally: GSTN's advisory lowered the reporting threshold to **AATO ≥ ₹10 crore**, where a
+**30-day limit** from the document date applies for reporting to the IRP.
+**A 30-day hard window turns a queue into a liability**: an agent that batches, backs off, or waits
+for a human who is on holiday can push a document past the window and make it **permanently
+unreportable**. Any design in this market needs an **ageing alarm on undelivered documents**, not
+just a retry policy. ⚠️ *Secondary-sourced: vendor and consultant summaries; verify against GST
+notifications.*
+
+**Japan — declared gap, measured not assumed.** Two searches that explicitly included Japan returned
+**no verifiable detail** on the qualified invoice system, on **PINT JP**, or on any 2026 date; Japan
+appeared only in passing lists of Peppol-based national specifications. **This is recorded as a
+known hole in this KB, not as an absence of obligation** — Japan is a Peppol country and the duty
+almost certainly exists; this pass simply could not source it. Next pass should query in Japanese
+(`適格請求書` / `デジタルインボイス`) rather than in English, which is the same language-bias lesson the
+sixteenth pass recorded for gap audits.
+
+**Opportunity, placed.** Sell the **reporting obligation**, not the invoice: in Singapore the
+deliverable is an InvoiceNow-ready transmission path plus evidence that what IRAS received matches
+the ledger; in Malaysia it is a **submission pipeline with a human or accredited signer in it** and
+the SVDP window (to 2027-12-31) as the reason to move now; in India it is an **ageing control on the
+30-day window**. All three are short, dated and auditable — and all three reuse the same permissive
+AS4/UBL core.
 
 ### LATAM
 
@@ -2677,6 +2847,80 @@ finding**, and writing it down is what keeps the next pass from re-searching it 
 agent plus a provable 24/7 handoff, with evidence per conversation — against a decree that took
 effect three weeks ago and whose sector regulators have not yet issued accessibility rules. First
 mover advantage here is measured in months, and the compliance deadline has already passed.
+
+
+#### The fiscal-document boundary — seventeenth pass, 2026-11-24 (LATAM)
+
+**Why this region is architecturally different, and it is not a matter of degree.** EMEA and North
+America run **post-audit** models: the supplier sends the invoice to the buyer (four corners) and the
+tax authority looks afterwards. Most of LATAM runs **clearance**: the document is **not valid until
+the tax authority authorises it**, and the authority sits **in the critical path of the sale**. Two
+consequences that decide an architecture, not a preference:
+
+1. **A retry is not idempotent.** In a clearance regime, re-sending a document whose response was
+   lost can produce a **second authorised fiscal document**. Idempotency has to live at the level of
+   **series + document number** (and the authority's own authorisation key), never at the HTTP layer.
+   This is the single most important sentence to put in front of a client's architects before an
+   agent is allowed anywhere near issuance.
+2. **Availability of the authority becomes availability of the business.** Offline/contingency modes
+   are part of the fiscal rules themselves, not a resilience nicety.
+
+**Brazil — 2026 is the transition year, and that is the commercial window.** Under the consumption
+tax reform (**EC 132/2023**, **LC 214/2025**), **IBS and CBS** fields are being carried in NF-e/NFC-e
+per **NT 2025.002**. The reported 2026 rates are **test rates — IBS 0,1 % and CBS 0,9 %** — with
+**CBS rules reported to take effect 2027-01-01**. The practical reading: **every Brazilian ERP must
+emit the new fields a full year before they cost money**, which is exactly the kind of deadline that
+funds an integration project now and a remediation project later.
+⚠️ **Secondary-sourced** (vendor/community material and project issue trackers; `nfe.fazenda.gov.br`
+was not read in primary from this session). Verify against the SEFAZ technical notes before a
+contract. One further snippet-level claim, **explicitly unverified**: that rejection for missing
+IBS/CBS fields was *suspended* as of 2026-07-31.
+
+**The usable Brazilian stack, with its licence consequences.** The reference library
+[`nfephp-org/sped-nfe`](https://github.com/nfephp-org/sped-nfe) (1 637★) is **LGPL-3.0**, byte-read
+(`LICENSE.md`, 8 851 B) — **not permissive**, which matters because it is what every local team
+proposes by default. The **permissive** Brazilian path is a different pair:
+[`akretion/nfelib`](https://github.com/akretion/nfelib) (**MIT**, 224★) plus
+[`erpbrasil/erpbrasil.edoc`](https://github.com/erpbrasil/erpbrasil.edoc) (**MIT**, 32★). For the
+reform specifically, [`edueevaristo/reforma-tributaria-api`](https://github.com/edueevaristo/reforma-tributaria-api)
+(**MIT**, 1★, pushed **2026-11-24**) computes IBS/CBS per line against the official XSD and ships
+**WireMock mocks of the SEFAZ services** — one star, and the only thing in this pass that lets a team
+test the reform without an authority in the loop.
+
+**Mexico — stable format, moving catalogues.** **CFDI 4.0** has been the only valid format since
+**2023-04-01**; 2026 brings **catalogue updates**, and the sources **conflict on their dates**
+(postal-code catalogue reported mandatory **2026-01-30** by one vendor, a customs catalogue
+`c_NumPedimentoAduana` change reported for **2026-06-19** by another; these may be two separate
+updates). **Recorded as a conflict, not resolved**: the operational lesson is that in Mexico the
+breaking change is usually a **catalogue**, not a schema version, so the agent's reference data needs
+a freshness check of its own. Permissive assets: `phpcfdi/sat-ws-descarga-masiva` (**MIT**, 198★) and
+`nodecfdi/cfdi-core` (**MIT**). ⚠️ *Secondary-sourced; SAT not read in primary.*
+**Convention note:** Mexico is placed in **LATAM** here, following this KB's regional vocabulary, and
+its North American geography is stated in prose rather than in the `region` field.
+
+**Chile, Peru, Argentina — three different kinds of risk.**
+- **Chile:** a **goods-movement / dispatch-guide traceability requirement reported for 2026-11-01**,
+  postponed by **Res. Ex. 52 of 2026-04-10**, with voluntary early adoption open. The DTE core
+  ([`LibreDTE/libredte-lib-core`](https://github.com/LibreDTE/libredte-lib-core), 228★) is
+  **AGPL-3.0**; the hosted-service client is LGPL-3.0. **No permissive Chilean core exists.**
+- **Peru:** the **SIRE** deadline for *principal taxpayers* (PRICOS) was **postponed from June 2026
+  to October 2026**. And Peru holds the single best licence position in the region:
+  **Greenter + Lycet + ubl-validator, MIT all three.**
+- **Argentina:** the risk is **maintenance, not licence**.
+  [`reingart/pyafipws`](https://github.com/reingart/pyafipws) (366★, **LGPL-3.0**) has **not been
+  pushed since 2025-07-20** — about sixteen months — in the country of the region that changes its
+  fiscal interfaces most often (AFIP → ARCA). A client proposal that leans on it is taking on
+  maintenance it has not priced.
+⚠️ *Chile and Peru dates come from a single compliance tracker each: snippet level, verify against
+SII and SUNAT.*
+
+**Opportunity, placed.** The LATAM sale here is **not** «AI for invoicing». It is: *you already have
+clearance-model plumbing that works; the agent's job is everything around it* — extraction
+(`invoice2data`, MIT), **pre-submission validation** so the authority never sees a malformed
+document, reconciliation against the authority's own records (`sat-ws-descarga-masiva` in Mexico),
+and the **reform dual-run** in Brazil (old regime vs IBS/CBS, side by side, during a year when the
+rates are 0,1 % and 0,9 % and mistakes are therefore cheap). The engagement has a date on it and the
+date is already running.
 
 ## Posicionamiento Globant
 

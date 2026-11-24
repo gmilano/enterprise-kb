@@ -2188,3 +2188,207 @@ while its root `readme.md` is a **22-byte pointer file** containing the string
    the probe is not finished until that directory's own licence is read.
 3. **The licence may not be in a file named `LICENSE`.** Two rows this pass: `marian` → `LICENSE.md`,
    `lingo.dev` → `LICENSE.md`. A 404 on `LICENSE` is not evidence of an unlicensed project.
+
+---
+
+## Decimoséptimo pase — 2026-11-24 — el límite del documento de registro fiscal
+
+> **El tema: lo que el agente puede *emitir en nombre del Estado*.** Dieciséis pases construyeron
+> ocho límites — lectura, escritura, procedencia, contención, borrado, accesibilidad, pesos, huella
+> e idioma. Todos los decide, en última instancia, quien construye el sistema. **Este no.** Un
+> documento fiscal electrónico no es válido porque el software lo diga: es válido porque una
+> autoridad tributaria lo acepta, con un formato que ella fija y unas reglas que ella publica.
+>
+> **Medido antes de buscar**, sobre los nueve archivos y en los dos idiomas de la KB:
+> `Peppol` **0** · `AS4` **0** · `EN 16931` **0** · `UBL` **0** (con límite de palabra) ·
+> `Factur-X` **0** · `ZUGFeRD` **0** · `Schematron` **0** · `CFDI` **0** · `NF-e` **0** ·
+> `Verifactu` **0** · `KSeF` **0** · `FatturaPA` **0** · `ViDA` **0** · `SAF-T` **0** ·
+> `EDIFACT` **0** · `X12` **0** · `GS1` **0** · `CTC` **0**.
+> **No fue un cero limpio, y el resto importa:** `facturacion` **25** y `e-invoic` **5** ya estaban,
+> desde el pase once — tres repos de *localización fiscal* LATAM en GitLab
+> (`dansanti/facturacion_electronica`, `odoocoop/…`, `torresoftware/apidian2020`) y los módulos
+> `OCA/l10n-*`. Es decir: **la KB tenía el módulo de localización y no tenía ni el formato, ni el
+> validador, ni el transporte, ni el modelo de autorización.** Tenía el enchufe y le faltaba la red.
+
+**Instrumento de este pase.** `api.github.com` responde **403** desde esta sesión para repos fuera
+del alcance de la sesión, pero `gh api -X GET search/repositories -f q='repo:owner/name …'`
+devuelve **estrellas + SPDX + `pushed_at` + `default_branch` + `archived` en una sola llamada** y
+acepta varios `repo:` por consulta. Toda licencia `NOASSERTION`/`null` se resolvió **leyendo los
+bytes** por GET con rango sobre `raw.githubusercontent.com` (`HEAD` sigue bloqueado por el proxy).
+Dos repos se **clonaron** (`--depth 1`) para inspeccionar el árbol, porque la pregunta no era qué
+licencia declara el repo sino **qué archivos de terceros empaqueta**.
+
+### Las dos sintaxis de la misma norma no validan igual — probado byte a byte
+
+EN 16931 define **un** modelo semántico de factura y **dos** vinculaciones de sintaxis: **UBL**
+(OASIS) y **CII** (UN/CEFACT). Los artefactos oficiales de validación —los *Schematron* que deciden
+si una factura pasa— se publican en
+[`ConnectingEurope/eInvoicing-EN16931`](https://github.com/ConnectingEurope/eInvoicing-EN16931).
+Se leyeron los de la versión **1.3.17** (tag `validation-1.3.17`, commit
+`6e35e0ab8b09eb183f7d84b282e24ef95f9f5715`) y **las dos vinculaciones implementan la misma regla de
+negocio con aritmética distinta**:
+
+| Regla | UBL (`EN16931-UBL-validation.sch`) | CII (`EN16931-CII-validation.sch`) | Consecuencia |
+|---|---|---|---|
+| **BR-CO-17** | `abs(cbc:TaxAmount) - 1 < round(…)` — **estricto** | `abs(ram:CalculatedAmount) - 1 <= round(…)` — **inclusivo** | Una factura desviada **exactamente 1,00** unidad monetaria **pasa en CII y falla en UBL**. Un carácter de diferencia en el artefacto oficial. |
+| **BR-S-08** | `TaxableAmount - 1 < suma … and TaxableAmount + 1 > suma` — **tolerancia ±1** | `xs:decimal(ram:BasisAmount) = (round(…) …)` — **igualdad estricta** contra sumandos redondeados uno a uno | La base imponible del desglose de IVA admite holgura en UBL y **ninguna** en CII. |
+
+**Por qué esto no es trivia de implementación.** La conversión UBL↔CII es exactamente lo que hace
+falta en Peppol, en XRechnung, en Factur-X y en cualquier integración ViDA; es también el primer
+trabajo que se le pedirá a un agente en esta capa. **Una conversión fiel puede invertir la validez
+sin tocar un solo número.** De ahí la regla de redacción de propuestas:
+
+> **«Cumple EN 16931» no significa nada sin tres datos: qué vinculación (UBL o CII), qué versión de
+> artefactos (1.3.17 ≠ 1.3.14) y qué conjunto de reglas encima (CEN, Peppol BIS, XRechnung,
+> PINT-SG).** Las reglas nacionales son *forks* de las de CEN, no capas sobre ellas.
+
+### Las reglas oficiales son EUPL-1.2 — sexta aparición de la misma regla de licencia
+
+`ConnectingEurope/eInvoicing-EN16931` — **EUPL-1.2**, leído byte a byte: `LICENSE.txt`, **13 871 B**,
+encabezado `Licensed under European Union Public Licence (EUPL) version 1.2`. GitHub lo muestra como
+`NOASSERTION`. **La EUPL es recíproca**: quien *empaqueta* los artefactos distribuye obra EUPL.
+
+> **El SPDX de un repo describe su código; no dice nada de los datos que empaqueta, los pesos que
+> descarga ni el servicio al que llama.** Pesos (pase 12), AUP (pase 12), SOM-1.0 (pase 13), datos de
+> intensidad de red (pase 15), `ee/` (pase 16) — y ahora **las reglas de la propia norma**. Es la
+> primera vez que lo empaquetado **es el producto**: un validador sin reglas no valida nada.
+
+### El repo de 1★ que documenta la pila de licencias mejor que los de 200★
+
+| Repo | Licencia (verificada) | ★ | Último push | Rama por defecto | Qué es |
+|---|---|---|---|---|---|
+| [einvoice-validator/einvoice-validator](https://github.com/einvoice-validator/einvoice-validator) | **código MIT** (`LICENSE`, 1 092 B); *crates* publicados: `MIT AND EUPL-1.2 AND LicenseRef-OASIS-Copyright-Notice AND LicenseRef-UN-CEFACT-Copyright-Notice AND W3C-19980720` | 1 | 2026-11-23 | `main` | Validador EN 16931 (UBL+CII), Peppol BIS 3.0 y Factur-X/ZUGFeRD en Rust. CLI, librería y WASM/npm |
+| [attestwire/en16931](https://github.com/attestwire/en16931) | **MIT** | 1 | 2026-10-04 | `main` | Validador y generador EN 16931 en TypeScript, **cero dependencias** |
+
+**Dos maneras de entregar validación EN 16931, y el intercambio es exactamente opuesto.**
+
+1. **Empaquetar los artefactos oficiales.** `einvoice-validator` *vendoriza sin modificar* los dos
+   conjuntos 1.3.17 (**364 archivos**, con `SHA256SUMS`, `README` de procedencia y `LICENSE.txt`
+   propio por directorio), y declara por *crate* la **expresión compuesta de cinco términos** de la
+   tabla. Fidelidad perfecta a la regla oficial; a cambio, **tu binario lleva EUPL-1.2 dentro** más
+   los avisos de copyright de OASIS, UN/CEFACT y W3C de los esquemas UBL 2.1 y CII D16B. El
+   `Cargo.toml` del *workspace* dice `license = "MIT"` **y es cierto del código**: la expresión
+   compuesta vive en los *crates* que sí empaquetan (`einvoice-validator`, `einvoice-cli`,
+   `einvoice-wasm`). **La insignia del repo y lo que se distribuye no son la misma cosa.**
+2. **Reimplementar las reglas.** `attestwire/en16931` no contiene **ni un solo `.sch` ni `.xslt`**
+   (contado: **0**). Reescribe las reglas en TypeScript — sus propios tests razonan sobre el medio
+   céntimo de `BR-S-09` y sobre que `CEN-EN16931-CII.sch` usa `<=` donde UBL no. Licencia limpia
+   (MIT puro, sin herencia EUPL); a cambio **pasas a ser el autor de las reglas** y heredas la
+   divergencia cada vez que CEN publica 1.3.18.
+
+**Lo que `einvoice-validator` *no* empaqueta es igual de instructivo**, y es el inventario de
+derechos que nadie más de esta capa escribe: los esquemas **XAdES de ETSI** (el entregable no
+permite reproducción sin permiso escrito), los **CII D22B de UNECE** (publicados **sin aviso ni
+licencia**, luego sin derecho de redistribución) y los archivos **Peppol BIS 3.0** (se descargan en
+tiempo de test, no se redistribuyen). Corpus de pruebas: **5 005 archivos**.
+
+### El transporte: una sola pila permisiva, y es de un solo autor
+
+| Repo | Licencia (verificada) | ★ | Push | Rama | Papel |
+|---|---|---|---|---|---|
+| [phax/phase4](https://github.com/phax/phase4) | **Apache-2.0** (`LICENSE`, 10 173 B) | 246 | 2026-11-23 | `master` | Cliente y servidor **AS4** embebible; perfiles Peppol y CEF eDelivery incorporados |
+| [phax/phoss-ap](https://github.com/phax/phoss-ap) | **Apache-2.0** | 59 | **2026-11-24** | `main` | *Access Point* Peppol completo y autónomo sobre phase4 |
+| [phax/peppol-commons](https://github.com/phax/peppol-commons) | **Apache-2.0** | 51 | 2026-11-23 | `master` | Identificadores, *codelists*, SBDH, cliente SMP/SML, MLR/MLS |
+| [phax/phoss-smp](https://github.com/phax/phoss-smp) | **MPL-2.0 el *backend*, Apache-2.0 el resto** (`LICENSE.md`, **347 B**) | 216 | 2026-11-23 | `master` | Servidor **SMP** Peppol/OASIS BDXR |
+| [phax/ph-ubl](https://github.com/phax/ph-ubl) | **Apache-2.0** | 142 | 2026-11-23 | `master` | Lectura/escritura UBL 2.0–2.4 con validación de esquema |
+| [phax/ph-schematron](https://github.com/phax/ph-schematron) | **Apache-2.0** | 137 | 2026-11-23 | `master` | Motor Schematron (XSLT y nativo) — **el que compila las reglas de CEN** |
+| [OxalisCommunity/oxalis-ng](https://github.com/OxalisCommunity/oxalis-ng) | **EUPL-1.1-or-later** — declarada **solo en la cabecera del `pom.xml`** | 53 | 2026-10-04 | `master` | *Access Point* Peppol de la comunidad noruega (NorStella) |
+| [OxalisCommunity/oxalis](https://github.com/OxalisCommunity/oxalis) | **sin archivo de licencia en la raíz** — `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `NOTICE` → **404** | 150 | 2026-04-16 | `master` | Oxalis clásico. **Su propio README dice: usa Oxalis-NG para toda implementación nueva** |
+| [holodeck-b2b/Holodeck-B2B](https://github.com/holodeck-b2b/Holodeck-B2B) | **GPL-3.0** | 93 | 2026-09-09 | `master` | Mensajería AS4 ebMS3 |
+| [iterasdev/peppol-py](https://github.com/iterasdev/peppol-py) | **0BSD** | 10 | 2026-10-19 | `master` | Cliente Peppol en Python — **clase de licencia nº 14 en esta KB** |
+| [dbkosky/as4](https://github.com/dbkosky/as4) | **Apache-2.0** | 3 | 2026-09-26 | `master` | Implementación AS4 mínima |
+| [OpenAS2/OpenAs2App](https://github.com/OpenAS2/OpenAs2App) | **GPL-3.0** | 243 | 2026-11-16 | `master` | **AS2** — el transporte real del EDI norteamericano |
+
+**La forma del hallazgo.** La esquina de transporte de este plano es **estructuralmente copyleft**
+salvo por un autor: Oxalis-NG es EUPL, Holodeck B2B y OpenAS2 son GPL-3.0, Domibus (de la Comisión
+Europea) es EUPL-1.2. **La única pila AS4/Peppol permisiva y mantenida es la de Philip Helger**, y
+eso es un riesgo de concentración que hay que decir en voz alta en una propuesta, no un detalle.
+**Quinta aparición del patrón «archivado/desaconsejado pero recomendado»**, con una variante nueva:
+Oxalis (150★) no está archivado — **su propio README desaconseja usarlo** mientras sigue siendo el
+primer resultado de búsqueda, y además **no tiene archivo de licencia**.
+
+**Sexta vía de resolución de licencia, nueva en esta KB.** Oxalis-NG no tiene `LICENSE`: la licencia
+está en la **cabecera del `pom.xml`** (`Licensed under the EUPL, Version 1.1 or – as soon they …`).
+Orden de desempate actualizado: (1) `SPDX-License-Identifier` en el manifiesto, (2) directorio REUSE
+`LICENSES/<SPDX>.txt`, (3) lectura byte a byte + tamaño, (4) clasificadores de PyPI,
+(5) **cabecera del manifiesto de construcción (`pom.xml`, `build.gradle`, `*.csproj`)**.
+
+### Validadores nacionales y formato híbrido (EMEA)
+
+| Repo | Licencia | ★ | Push | Qué resuelve |
+|---|---|---|---|---|
+| [itplr-kosit/validator](https://github.com/itplr-kosit/validator) | **Apache-2.0** | 199 | 2026-11-17 | Motor de validación XSD+Schematron del **KoSIT** alemán — el de referencia para **XRechnung** |
+| [itplr-kosit/validator-configuration-xrechnung](https://github.com/itplr-kosit/validator-configuration-xrechnung) | **Apache-2.0** | 120 | 2026-11-17 | La **configuración** XRechnung para ese motor: escenarios, reglas y versiones |
+| [ZUGFeRD/mustangproject](https://github.com/ZUGFeRD/mustangproject) | **Apache-2.0** | 498 | 2026-11-23 | Librería, validador y herramienta **Factur-X / ZUGFeRD / Order-X** en Java |
+| [akretion/factur-x](https://github.com/akretion/factur-x) | **BSD-3-Clause** (`LICENSE.txt`, 1 508 B; `NOASSERTION` en la insignia) | 317 | 2026-11-19 | Factur-X en Python: incrusta y extrae el XML del PDF/A-3 |
+
+**Motor y reglas se licencian por separado, y conviene.** El motor de KoSIT es Apache-2.0; la
+configuración XRechnung, Apache-2.0; **las reglas CEN que hay debajo, EUPL-1.2**. Es exactamente la
+separación que permite entregar: se distribuye el motor permisivo y se **referencia** el paquete de
+reglas en lugar de incrustarlo (`einvoice-validate rules fetch xrechnung` hace esto mismo contra el
+registro de KoSIT).
+
+### LATAM — el modelo de autorización previa, con la pila realmente disponible
+
+| Repo | País | Licencia (verificada) | ★ | Push | Nota |
+|---|---|---|---|---|---|
+| [thegreenter/greenter](https://github.com/thegreenter/greenter) | 🇵🇪 Perú (SUNAT) | **MIT** | 378 | 2026-11-16 | **La librería fiscal LATAM permisiva más estrellada de este pase** |
+| [giansalex/lycet](https://github.com/giansalex/lycet) | 🇵🇪 Perú | **MIT** | 106 | 2026-11-10 | API REST sobre Greenter — **la superficie que un agente puede llamar** |
+| [thegreenter/ubl-validator](https://github.com/thegreenter/ubl-validator) | 🇵🇪 Perú | **MIT** | 16 | 2026-09-02 | Validación UBL antes de enviar a SUNAT |
+| [nfephp-org/sped-nfe](https://github.com/nfephp-org/sped-nfe) | 🇧🇷 Brasil | **LGPL-3.0** (`LICENSE.md`, 8 851 B; insignia `NOASSERTION`) | 1 637 | 2026-11-23 | La librería NF-e de referencia — **copyleft débil, no permisiva** |
+| [akretion/nfelib](https://github.com/akretion/nfelib) | 🇧🇷 Brasil | **MIT** | 224 | 2026-11-05 | Enlaces Python generados desde los XSD oficiales (NF-e, CT-e, …) |
+| [erpbrasil/erpbrasil.edoc](https://github.com/erpbrasil/erpbrasil.edoc) | 🇧🇷 Brasil | **MIT** | 32 | 2026-11-18 | Transmisión de documentos electrónicos a SEFAZ |
+| [edueevaristo/reforma-tributaria-api](https://github.com/edueevaristo/reforma-tributaria-api) | 🇧🇷 Brasil | **MIT** | 1 | **2026-11-24** | IBS/CBS por ítem según **NT 2025.002**, validado contra el XSD oficial; incluye *mocks* WireMock de SEFAZ |
+| [grupomg-tech/calculadora-reforma-tributaria](https://github.com/grupomg-tech/calculadora-reforma-tributaria) | 🇧🇷 Brasil | **MIT** | 3 | 2026-11-02 | Simulador IBS/CBS/IS — **declara no ser la calculadora oficial de la Receita** |
+| [OCA/l10n-brazil](https://github.com/OCA/l10n-brazil) | 🇧🇷 Brasil | **AGPL-3.0** | 376 | 2026-11-24 | Localización Odoo. **Rama por defecto `19.0`**, no `main` |
+| [phpcfdi/sat-ws-descarga-masiva](https://github.com/phpcfdi/sat-ws-descarga-masiva) | 🇲🇽 México | **MIT** | 198 | 2026-09-20 | Descarga masiva de CFDI desde el SAT |
+| [nodecfdi/cfdi-core](https://github.com/nodecfdi/cfdi-core) | 🇲🇽 México | **MIT** | 4 | 2026-11-23 | Núcleo CFDI en TypeScript |
+| [LibreDTE/libredte-lib-core](https://github.com/LibreDTE/libredte-lib-core) | 🇨🇱 Chile | **AGPL-3.0** | 228 | 2026-11-19 | Núcleo DTE del SII. **No permisivo** |
+| [LibreDTE/libredte-api-client-python](https://github.com/LibreDTE/libredte-api-client-python) | 🇨🇱 Chile | **LGPL-3.0** | 10 | 2026-11-24 | Cliente del servicio alojado |
+| [reingart/pyafipws](https://github.com/reingart/pyafipws) | 🇦🇷 Argentina | **LGPL-3.0** | 366 | **2025-07-20** | Facturación AFIP/ARCA. **Sin push desde hace ~16 meses** — el riesgo es el país que más cambia de interfaz |
+
+**El mapa de licencias de LATAM es el inverso del de EMEA y hay que decirlo en la propuesta.** En
+EMEA el *transporte* es copyleft y el *validador* tiene opción permisiva; en LATAM **los núcleos
+nacionales más usados son copyleft** (sped-nfe LGPL-3.0, LibreDTE AGPL-3.0, OCA AGPL-3.0, pyafipws
+LGPL-3.0) y **la única pila nacional permisiva y viva es la peruana** (Greenter + Lycet + ubl-validator,
+MIT las tres). Para Brasil, la vía permisiva existe pero es **otra**: `nfelib` (MIT) + `erpbrasil.edoc`
+(MIT), no `sped-nfe`.
+
+### APAC — SDK de un régimen de autorización, con el riesgo de obsolescencia medido
+
+| Repo | Licencia | ★ | Push | Nota |
+|---|---|---|---|---|
+| [klsheng/myinvois-php-sdk](https://github.com/klsheng/myinvois-php-sdk) | **MIT** | 103 | 2026-01-08 | SDK MyInvois (🇲🇾 LHDN) más estrellado y permisivo |
+| [zahidaramai/MyInvoice-SDK-Middleware](https://github.com/zahidaramai/MyInvoice-SDK-Middleware) | **MIT** | 13 | 2026-11-03 | Pasarela REST: autenticación, firma y envío |
+| [farhan-syah/myinvois-client](https://github.com/farhan-syah/myinvois-client) | **LGPL-3.0** | 51 | 2025-10-28 | Cliente TypeScript |
+| [amaseng/myinvois-open-sdk](https://github.com/amaseng/myinvois-open-sdk) | **Apache-2.0** | 31 | **2024-10-10** | **Dos años sin push**, y el SDK oficial publicó la versión **1.0 en septiembre de 2026**: permisivo pero **desfasado respecto del régimen que implementa** |
+| [deadboy18/myinvois-docs](https://github.com/deadboy18/myinvois-docs) | **`NOASSERTION` sin resolver** | 10 | 2026-11-23 | Espejo de documentación. Se registra **sin veredicto**, no como permisivo |
+
+**La trampa específica de esta capa**: aquí la licencia no es el primer filtro, **la fecha de push
+lo es**. Un SDK fiscal desfasado no «funciona peor»: produce documentos **rechazados**. El
+Apache-2.0 de `amaseng` es el más limpio de los cinco y el **menos utilizable hoy**.
+
+### La capa de extracción — donde sí hay repos grandes, y no son agentes
+
+| Repo | Licencia | ★ | Push | Nota |
+|---|---|---|---|---|
+| [invoice-x/invoice2data](https://github.com/invoice-x/invoice2data) | **MIT** | 2 254 | **2026-11-24** | Extracción de datos de facturas por plantillas (PDF/texto/imagen). El repo más estrellado del pase |
+| [invoicerr-app/invoicerr](https://github.com/invoicerr-app/invoicerr) | **AGPL-3.0** | 735 | 2026-11-24 | Facturación autoalojada. Rama por defecto **`dev`** |
+
+**Hallazgo negativo, medido y relevante para la propuesta:** la búsqueda de *agentes* de cuentas por
+pagar devolvió **productos comerciales** (Basware InvoiceAI y su Supplier Agent de feb-2026, la
+compra de Rossum por Coupa anunciada en may-2026, Tipalti, Stampli, Vic.ai, AppZen, Ramp) y **ningún
+agente open source específico de facturación electrónica**. Lo abierto de este plano **no es el
+agente: son las primitivas de cumplimiento** —formato, validador, transporte, firma—. Esa es
+exactamente la división de trabajo que hace vendible el encargo (ver `compose/patterns.md`,
+Receta 32). ⚠️ *Secundario: listado de proveedores a nivel de snippet, no verificado en primario.*
+
+### Ramas por defecto de este pase — el `main` ciego habría fallado 6 veces
+
+De las **46 direcciones** verificadas en este pase (**42 nuevas** para la KB), **la rama por defecto no fue `main` en 6 casos no obvios**:
+`apache/ofbiz-framework` → **`trunk`**, `frappe/erpnext` → **`develop`**,
+`OCA/l10n-brazil` → **`19.0`** (¡un número de versión!), `invoiceninja/invoiceninja` →
+**`v5-stable`**, `invoicerr-app/invoicerr` → **`dev`**, `LibreDTE/libredte-app-community` →
+**`legacy`**, además de los muchos `master` de la pila `phax/*`. `gh api search/repositories`
+devuelve `default_branch` **en la misma llamada** que la licencia, así que construir un `raw` URL
+sobre `main` por defecto es un error evitable, no una fatalidad.

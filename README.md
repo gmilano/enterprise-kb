@@ -27,78 +27,87 @@ enterprise-kb/
 2. **Proponer solución AI**: `agents/top.md` + `compose/patterns.md`
 3. **Mantenerse al día**: correr `ingest/update.sh` semanalmente
 
-## Estado de la KB — medido, no estimado (fifteenth pass, 2026-11-24)
+## Estado de la KB — medido, no estimado (decimoséptimo pase, 2026-11-24)
 
 | Medida | Valor |
 |---|---|
 | Archivos de contenido | 9 (8 + README) |
-| Direcciones de repositorio distintas | **437** |
-| …en `github.com` | 416 |
+| Direcciones de repositorio distintas | **514** |
+| …en `github.com` | 493 |
 | …en `gitlab.com` | 21 |
-| Nuevas direcciones este pase | **32**, todas con licencia, estrellas y fecha de push medidas |
-| Recetas en `compose/patterns.md` | **29** |
-| Tendencias numeradas en `intel/trends.md` | **33** (con una colisión de numeración registrada) |
-| Clases de licencia registradas | **13** |
-| Formas registradas de equivocarse | **33** |
-| Proyectos archivados-pero-recomendados detectados | **11** |
-| Preguntas registradas como **sin resolver** | 7 |
+| Direcciones verificadas este pase | **46** (licencia, estrellas, rama por defecto y último push medidos) |
+| …de ellas **nuevas** para la KB | **42** |
+| Recetas numeradas en `compose/patterns.md` | **33** |
+| Tendencias numeradas en `intel/trends.md` | **36** (con una colisión de numeración heredada) |
+| Clases de licencia registradas | **16** (+EUPL-1.2, +0BSD, +WTFPL) |
+| Formas registradas de equivocarse | **40** |
+| Proyectos archivados-o-desaconsejados pero recomendados | **12** |
+| Preguntas registradas como **sin resolver** | **14** |
 
-> **Lea esto antes de prometer una cifra de huella.** Catorce pases construyeron seis límites —
-> lectura, escritura, procedencia, contención, borrado y accesibilidad — más la licencia de los
-> **pesos**. Todos gobiernan lo que el agente **puede hacer**. El pase quince añade el séptimo: **lo
-> que el agente gasta**, y es el primero que **no lo decide quien lo construye**. Medido antes de
-> buscar, en los nueve archivos y **en los dos idiomas de la KB**: `carbon` 0, `kWh` 0, `emisión` 0,
-> `CSRD` 0, `codecarbon` 0, `consumo` 0. Cero limpio. `FinOps` y `metering` **sí** estaban: esta capa
-> no es FinOps con otro nombre — **FinOps mide dinero, esta mide julios, y el obligado a declararlos
-> no es el CFO.**
+> **Lea esto antes de prometer una fecha de cumplimiento fiscal.** Dieciséis pases construyeron ocho
+> límites —lectura, escritura, procedencia, contención, borrado, accesibilidad, **pesos** e
+> **idioma**— más lo que el agente **gasta**. Todos los decide, al final, quien construye el sistema.
+> **El noveno no.** Un documento fiscal electrónico no es válido porque el software lo diga: lo es
+> porque **una autoridad tributaria lo acepta**, con el formato que ella fija y las reglas que ella
+> publica. Medido antes de buscar, en los nueve archivos y en los dos idiomas: `Peppol` 0 · `AS4` 0 ·
+> `EN 16931` 0 · `Factur-X` 0 · `ZUGFeRD` 0 · `Schematron` 0 · `CFDI` 0 · `NF-e` 0 · `Verifactu` 0 ·
+> `KSeF` 0 · `ViDA` 0 · `SAF-T` 0 · `X12` 0. **No fue un cero limpio, y el residuo es el hallazgo de
+> inventario:** `facturacion` **25** y `e-invoic` **5** estaban desde el pase once. **La KB tenía los
+> módulos de localización fiscal de LATAM y no tenía ni el formato, ni el validador, ni el
+> transporte, ni el modelo de autorización. Tenía el enchufe y le faltaba la red.**
 >
-> **Clase de licencia nº 13 — ODbL, y es la primera que no recae sobre código.**
-> `thegreenwebfoundation/co2.js` figura como `NOASSERTION`; su `LICENSE` (12 678 bytes) contiene
-> **dos licencias para dos activos**: el código es **Apache-2.0** y los **datos de intensidad de
-> red** se republican de Electricity Maps bajo **Open Database License**, con ***share-alike***. Y
-> muerde donde importa, porque **el factor de intensidad de red es justamente lo que convierte kWh
-> en gCO₂e**. De ahí la regla:
+> **EL HALLAZGO DEL PASE, PROBADO BYTE A BYTE SOBRE LOS ARTEFACTOS OFICIALES: la norma es una, sus
+> conjuntos de reglas son dos, y no coinciden.** EN 16931 tiene un modelo semántico y dos
+> vinculaciones de sintaxis (UBL y CII). Leídos los *Schematron* de CEN/TC 434 en la versión
+> **1.3.17** (tag `validation-1.3.17`, commit `6e35e0ab…`): **`BR-CO-17`** usa `abs(…) - 1 **<**` en
+> UBL y `abs(…) - 1 **<=**` en CII —**una factura desviada exactamente 1,00 unidad monetaria pasa en
+> CII y falla en UBL**— y **`BR-S-08`** admite **tolerancia ±1** en UBL frente a **igualdad
+> estricta** en CII. **Una conversión UBL↔CII fiel puede invertir la validez sin tocar un número**, y
+> convertir entre sintaxis es justo lo que hacen Peppol, XRechnung, Factur-X y toda integración ViDA.
+> **Regla de redacción:** «cumple EN 16931» no significa nada sin **vinculación + versión de
+> artefactos + conjunto nacional**.
 >
-> **el SPDX de un repo describe su código; no dice nada de los datos que empaqueta, los pesos que
-> descarga ni el servicio al que llama.** Cuarta vez que esta KB encuentra el mismo patrón —
-> pesos (pase 12), AUP (pase 12), SOM-1.0 (pase 13), **datos (pase 15)**.
+> **Clase de licencia nº 14, 15 y 16, y una de ellas recae sobre las reglas de la norma.** Los
+> artefactos oficiales son **EUPL-1.2** (`LICENSE.txt`, **13 871 B**; GitHub dice `NOASSERTION`), que
+> es **recíproca**: quien los **empaqueta** distribuye copyleft. Sexta aparición de la regla de esta
+> KB —**el SPDX de un repo describe su código, no lo que empaqueta**— y la **primera en que lo
+> empaquetado es el producto**: un validador sin reglas no valida. El repo que lo documenta bien
+> tiene **1 estrella** (`einvoice-validator`, cuyos *crates* publicados declaran
+> `MIT AND EUPL-1.2 AND LicenseRef-OASIS-… AND LicenseRef-UN-CEFACT-… AND W3C-19980720`), y ninguno
+> de los de 200★+ de la capa publica una expresión compuesta. La alternativa existe y es opuesta:
+> `attestwire/en16931` **reimplementa** las reglas (**0** archivos `.sch`/`.xslt` en todo el repo) y
+> queda MIT puro **a cambio de ser ahora el autor de la regla**. Las otras dos clases nuevas:
+> **0BSD** (`iterasdev/peppol-py`) y **WTFPL** (`techtemplemy/mcp-myinvois`, un servidor MCP con
+> `SKILL.md` — permisiva en intención, **sin renuncia de garantía ni concesión de patentes**, no
+> certificada por OSI).
 >
-> **Prueba de vendorización por la errata.** El mismo texto, con su errata (`"Licening for the
-> CO2.js library"`), está dentro del `LICENSE` de `green-coding-solutions/green-metrics-tool`
-> (35 429 bytes), **tres licencias en un archivo y con el encabezado contradiciendo a su cuerpo**: la
-> sección titulada *"Apache License"* contiene la **AGPL-3.0**. Veredicto real: AGPL-3.0 (código) +
-> ODbL (datos). Los tres proyectos de referencia de la capa son AGPL.
+> **La esquina de transporte es estructuralmente copyleft salvo por un autor.** Oxalis-NG es
+> **EUPL-1.1-or-later** —declarada **solo en la cabecera del `pom.xml`**, sexta vía de resolución de
+> licencia de esta KB—, Holodeck B2B y OpenAS2 son **GPL-3.0**, Domibus es EUPL-1.2, y la única pila
+> AS4/Peppol **permisiva y viva** es la de Philip Helger (`phase4`, `phoss-ap`, `peppol-commons`,
+> Apache-2.0, las tres con push en las últimas 24 h). **Esa concentración va en la sección de riesgos
+> de la propuesta.** Variante nueva del patrón «recomendado pero no usable»: `OxalisCommunity/oxalis`
+> (150★) **no está archivado — su propio README desaconseja usarlo** y **no tiene archivo de
+> licencia** (cuatro rutas → 404).
 >
-> **La única prueba de código del pase, y es la que habilita una receta.** El *scheduling*
-> carbon-aware de `jobrunr/jobrunr` está en el **núcleo abierto** —91 coincidencias bajo
-> `core/src/main/java/org/jobrunr/`, no en un módulo Pro— y por tanto es usable bajo
-> **LGPL-3.0-or-later** (su archivo se llama **`License.md`**, y declara el proyecto
-> *multi-licensed*: LGPL **o** comercial). Pero por defecto **llama a `https://api.jobrunr.io`** cada
-> 5 minutos: una salida de red a un tercero, activada por defecto, en una librería de licencia
-> impecable — y `carbonIntensityApiUrl` es configurable, así que la mitigación es una línea.
+> **Dos modelos regulatorios, dos arquitecturas incompatibles.** **Post-auditoría** (EMEA, NA: cuatro
+> esquinas, la autoridad mira después) frente a **autorización previa** (LATAM: el documento no vale
+> hasta que la autoridad lo autoriza y ella está en el camino crítico). De ahí tres reglas que
+> contradicen reflejos habituales de los agentes: **el reintento no es idempotente** —puede crear un
+> segundo documento fiscal, así que la clave es **serie + número**, nunca la capa HTTP—; **encolar
+> puede caducar el documento** —India, **30 días** al IRP para AATO ≥ ₹10 crore—; y **el agente no
+> puede ser el emisor** —MyInvois *guideline* v4.8 exige firma del emisor o de su proveedor
+> acreditado—. ⚠️ Las tres obligaciones son **de fuente secundaria**.
 >
-> **Dos obligaciones de EMEA se movieron en direcciones opuestas y deciden qué se vende.** El
-> **CSRD se encogió** (Directiva (UE) **2026/470**: de ~50 000 a ~5 000 obligados, ≈90 % menos)
-> mientras el deber de **centros de datos** de la **EED** (Reglamento Delegado (UE) **2024/1364**,
-> ≥ **500 kW**, informe anual al **15 de mayo**) quedó intacto **y con un incumplimiento medido: 770
-> centros reportaron, ≈36 % de los obligados**. Misma capa técnica, dos conversaciones comerciales
-> opuestas. **Y la hipótesis con la que empezó el pase era falsa:** la obligación **no** está en el
-> art. 40 del AI Act (normas armonizadas), está en la EED.
->
-> **LATAM: Brasil derogó su propio mandato ISSB.** La **Resolución CVM 244 (mayo 2026)** revocó la
-> obligatoriedad que la **193** había fijado desde el 1-ene-2026, y la dejó **voluntaria** — pero
-> quien se adhiere queda atado a **tres ejercicios consecutivos con aseguramiento razonable**, que es
-> un cliente **mejor**, no peor. **No cite el "65 % de empresas brasileñas no preparadas": es de
-> 2024 y anterior a la reversión.** Pieza LATAM aprovechable y permisiva:
-> `EquipoAnaliticaXM/API_XM` (**MIT**, SIMEM/XM Colombia).
->
-> **Límite declarado y asimétrico, más marcado que en pases anteriores.** `arxiv.org` y los *hosts*
-> legales y de analistas **no resuelven desde esta sesión** (comprobado una vez, no vuelto a
-> sondear). Por eso **los hechos de código y licencia de este pase son byte a byte, y todos los
-> regulatorios y de mercado son a nivel de snippet de búsqueda** — cada archivo lo dice donde
-> aparece. Sin verificar en el primario, y marcadas como tales: ~**850×** la energía de un *token* de
-> salida frente a uno de entrada (HotCarbon'26) y hasta **8,3×** de variación entre idiomas — lo
-> segundo implicaría que **el mismo agente cuesta más energía por respuesta en español que en
-> inglés**, y es una **hipótesis con fuente, no un hecho de esta KB** (open item 15-R1).
+> **Límite declarado, y es la misma asimetría de siempre.** Los hechos de **código y licencia de este
+> pase son byte a byte**; **todos los regulatorios y de mercado son a nivel de snippet de búsqueda** y
+> van marcados donde aparecen (no se pudo leer en primario `nfe.fazenda.gov.br`, el SAT, el BOE, la
+> documentación de DBNAlliance ni IRAS). **Conflictos registrados sin resolver:** fecha de las
+> sanciones de KSeF en Polonia, estado de la orden **HAC/1028/2026** en España, fechas de los
+> catálogos CFDI 2026 en México y si cruzar ₹5 crore en FY 2025-26 generó obligación el 2026-04-01 en
+> India. **Hueco declarado:** **Japón** — dos búsquedas con el país en la consulta no devolvieron
+> nada verificable sobre PINT JP ni el régimen de factura cualificada. El próximo pase debe
+> preguntar en japonés (`適格請求書`, `デジタルインボイス`), que es la misma lección de sesgo de idioma
+> que el pase dieciséis registró para las auditorías de huecos.
 ---
 *Red de KBs Globant AI Studios → [globant-kb](../globant-kb/)*

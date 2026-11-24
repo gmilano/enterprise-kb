@@ -2239,3 +2239,104 @@ is `pemistahl/lingua-py` (**Apache-2.0**, 1,822★) — with **one-fourteenth** 
 default. This is the **eleventh and twelfth archived-but-highly-starred project** this KB has
 recorded, and the pattern now has a reliable tell: **the archived ones are the ones the tutorials
 recommend.** A compliance control resting on an archived dependency is a finding, not a footnote.
+
+---
+
+## Decimoséptimo pase — 2026-11-24 — el límite del documento de registro fiscal
+
+### 34. Una norma, dos sintaxis, y los artefactos oficiales no validan igual — probado byte a byte
+
+EN 16931 define **un** modelo semántico de factura y **dos** vinculaciones de sintaxis: **UBL**
+(OASIS) y **CII** (UN/CEFACT). Lo que decide si una factura pasa no es la norma, son los
+***Schematron* oficiales** que publica CEN/TC 434 en
+[`ConnectingEurope/eInvoicing-EN16931`](https://github.com/ConnectingEurope/eInvoicing-EN16931).
+Leídos en la versión **1.3.17** (tag `validation-1.3.17`, commit `6e35e0ab8b09eb183f7d84b282e24ef95f9f5715`):
+
+- **`BR-CO-17`** — misma regla de negocio, operador distinto:
+  UBL `abs(xs:decimal(cbc:TaxAmount)) - 1 **<** round(…)` frente a
+  CII `abs(xs:decimal(ram:CalculatedAmount)) - 1 **<=** round(…)`.
+  **Una factura desviada exactamente 1,00 unidad monetaria pasa en CII y falla en UBL.** Un
+  carácter.
+- **`BR-S-08`** — misma regla, régimen distinto: UBL admite **tolerancia ±1**
+  (`TaxableAmount - 1 < suma … and TaxableAmount + 1 > suma`), CII exige **igualdad estricta**
+  contra sumandos redondeados uno a uno (`xs:decimal(ram:BasisAmount) = (round(…) …)`).
+
+**La consecuencia operativa.** La conversión UBL↔CII es el trabajo central de Peppol, XRechnung,
+Factur-X y cualquier integración ViDA — y el primero que se le pedirá a un agente en este plano.
+**Una conversión fiel puede invertir la validez sin tocar un número.** De aquí sale una regla de
+redacción que vale para toda propuesta:
+
+> **«Cumple EN 16931» no significa nada sin tres datos: la vinculación (UBL o CII), la versión de
+> artefactos (1.3.17 ≠ 1.3.14) y el conjunto de reglas nacional encima (CEN, Peppol BIS, XRechnung,
+> PINT-SG).** Las reglas nacionales son *forks* de las de CEN, no capas sobre ellas — así lo dice la
+> propia documentación de Peppol BIS.
+
+**Lo que esto le hace a la idea de «validar con un LLM»**: nada de lo anterior es ambiguo ni
+interpretable. Es aritmética y un operador de comparación. **Un modelo que opina sobre validez
+fiscal está sustituyendo una prueba determinista por una estimación**, y en este plano la diferencia
+tiene nombre: documento rechazado.
+
+### 35. Las reglas de la norma tienen su propia licencia, y es copyleft — sexta aparición del mismo patrón
+
+Los artefactos oficiales de EN 16931 son **EUPL-1.2** (leído: `LICENSE.txt`, **13 871 B**; la
+insignia de GitHub dice `NOASSERTION`). La EUPL es **recíproca**: quien **empaqueta** los artefactos
+distribuye obra EUPL. Y aquí es donde esta KB ya tenía la regla escrita:
+
+> **El SPDX de un repo describe su código; no dice nada de los datos que empaqueta, los pesos que
+> descarga ni el servicio al que llama.**
+
+Pesos (pase 12) · AUP (pase 12) · SOM-1.0 (pase 13) · datos de intensidad de red (pase 15) ·
+directorio `ee/` (pase 16) · **y ahora las reglas de la propia norma (pase 17)**. Es la **sexta**
+aparición, y la primera en que **lo empaquetado es el producto**: un validador sin reglas no valida.
+
+**Las dos estrategias de entrega son opuestas y hay que elegir conscientemente:**
+
+| | Empaquetar los artefactos | Reimplementar las reglas |
+|---|---|---|
+| Ejemplo verificado | `einvoice-validator/einvoice-validator` — vendoriza 1.3.17 sin modificar (364 archivos, `SHA256SUMS`, `LICENSE.txt` por directorio) | `attestwire/en16931` — **0 archivos `.sch`/`.xslt`** en todo el repo |
+| Licencia de lo que entregas | `MIT AND EUPL-1.2 AND LicenseRef-OASIS-… AND LicenseRef-UN-CEFACT-… AND W3C-19980720` | **MIT** puro |
+| Fidelidad a la regla oficial | **Exacta por construcción** | **Tú eres ahora el autor de la regla** |
+| Coste recurrente | Re-vendorizar en cada versión CEN | Reimplementar y re-verificar en cada versión CEN |
+
+**El detalle que convierte esto en una lección y no en una curiosidad:** el repo que documenta
+correctamente esta pila **tiene 1 estrella**, y ninguno de los de 200★+ de la misma capa publica una
+expresión de licencia compuesta. Además declara **lo que no redistribuye** —esquemas XAdES de ETSI
+(prohibida la reproducción sin permiso escrito), CII D22B de UNECE (**publicados sin aviso ni
+licencia**, luego sin derecho de redistribución) y los archivos Peppol BIS (descargados en tiempo de
+test)—. **El inventario de derechos de esta capa tiene cinco titulares distintos, y casi nadie lo
+escribe.**
+
+### 36. Post-auditoría frente a autorización previa: el mismo agente, dos arquitecturas incompatibles
+
+Los dos modelos regulatorios de este plano **no son grados del mismo diseño**:
+
+- **Post-auditoría (EMEA, Norteamérica).** Cuatro esquinas: emisor → su *access point* → *access
+  point* del receptor → receptor. La autoridad mira **después**. El fallo típico es de
+  **conformidad**: el documento viaja y después se discute.
+- **Autorización previa / *clearance* (la mayor parte de LATAM).** El documento **no es válido hasta
+  que la autoridad lo autoriza**, y la autoridad está **en el camino crítico de la venta**. El fallo
+  típico es de **estado**: no sabes si el documento existe.
+
+**Tres consecuencias de diseño, y las tres contradicen reflejos habituales de los agentes:**
+
+1. **El reintento no es idempotente.** Reenviar un documento cuya respuesta se perdió puede producir
+   **un segundo documento fiscal autorizado**. La idempotencia vive en **serie + número de documento**
+   (y en la clave de autorización de la autoridad), **nunca** en la capa HTTP. Un `retry` de
+   biblioteca cliente, con *jitter* y todo, es aquí un generador de duplicados fiscales.
+2. **Encolar puede caducar el documento.** En India la ventana de reporte al IRP es de **30 días**
+   desde la fecha del documento para AATO ≥ ₹10 crore: un agente que espera a un humano que está de
+   vacaciones puede dejar el documento **permanentemente no reportable**. Hace falta una **alarma de
+   antigüedad sobre documentos no entregados**, no sólo una política de reintentos.
+   ⚠️ *Fuente secundaria.*
+3. **El agente no puede ser el emisor.** La *guideline* v4.8 de MyInvois exige la **firma digital del
+   emisor o de su proveedor de servicios**; los regímenes LATAM exigen certificado del contribuyente
+   o PAC acreditado. El agente **propone, extrae, concilia, valida y arma el expediente**; la
+   **emisión la firma una persona o un servicio acreditado**. ⚠️ *Fuente secundaria.*
+
+**Y la observación de mercado que lo cierra:** la búsqueda de agentes de cuentas por pagar devolvió
+**sólo productos comerciales** (Basware InvoiceAI y su *Supplier Agent*, feb-2026; Coupa↔Rossum,
+may-2026; Tipalti, Stampli, Vic.ai, AppZen, Ramp) y **ningún agente open source específico** de
+facturación electrónica. **Lo abierto de este plano son las primitivas de cumplimiento, no el
+agente** — que es exactamente la división de trabajo que hace vendible el encargo: el cliente no
+compra un modelo, compra **un expediente que la autoridad acepta**. ⚠️ *Listado de proveedores a
+nivel de snippet.*

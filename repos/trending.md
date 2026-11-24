@@ -8,7 +8,102 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — sixteenth pass (latest) — the language boundary, and a licence that lives in a subdirectory
+## 2026-11-24 — decimoséptimo pase (latest) — el documento de registro fiscal: 46 direcciones y una norma que no se valida igual a sí misma
+
+> Tema: **el documento que no valida el cliente, sino el Estado.** **46 direcciones** verificadas con
+> `gh api -X GET search/repositories` el **2026-11-24** (estrellas, SPDX, `pushed_at`,
+> `default_branch`, `archived` en **una sola llamada**, varios `repo:` por consulta), porque
+> `api.github.com` responde **403** desde esta sesión para repos fuera de su alcance. Toda insignia
+> `NOASSERTION`/`null` se resolvió **leyendo los bytes** por GET con rango (`HEAD` sigue bloqueado por
+> el proxy). **Dos repos se clonaron** (`--depth 1`) porque la pregunta no era qué licencia declara el
+> repo, sino **qué archivos de terceros empaqueta**.
+
+**Los artefactos oficiales y los validadores (5):**
+[`ConnectingEurope/eInvoicing-EN16931`](https://github.com/ConnectingEurope/eInvoicing-EN16931)
+**EUPL-1.2** (`LICENSE.txt` **13 871 B**; insignia `NOASSERTION`) 271★ ·
+[`itplr-kosit/validator`](https://github.com/itplr-kosit/validator) **Apache-2.0** 199★ ·
+[`itplr-kosit/validator-configuration-xrechnung`](https://github.com/itplr-kosit/validator-configuration-xrechnung)
+**Apache-2.0** 120★ ·
+[`einvoice-validator/einvoice-validator`](https://github.com/einvoice-validator/einvoice-validator)
+**código MIT / binario de cinco licencias** 1★ ·
+[`attestwire/en16931`](https://github.com/attestwire/en16931) **MIT** 1★.
+
+**El transporte AS4/Peppol (7):** [`phax/phase4`](https://github.com/phax/phase4) **Apache-2.0**
+(10 173 B) 246★ · [`phax/phoss-ap`](https://github.com/phax/phoss-ap) **Apache-2.0** 59★ (push
+**hoy**) · [`phax/peppol-commons`](https://github.com/phax/peppol-commons) **Apache-2.0** 51★ ·
+[`phax/phoss-smp`](https://github.com/phax/phoss-smp) **MPL-2.0 el *backend* + Apache-2.0 el resto**
+(`LICENSE.md` **347 B**) 216★ · [`OxalisCommunity/oxalis-ng`](https://github.com/OxalisCommunity/oxalis-ng)
+**EUPL-1.1-or-later, declarada solo en el `pom.xml`** 53★ ·
+[`holodeck-b2b/Holodeck-B2B`](https://github.com/holodeck-b2b/Holodeck-B2B) **GPL-3.0** 93★ ·
+[`OpenAS2/OpenAs2App`](https://github.com/OpenAS2/OpenAs2App) **GPL-3.0** 243★.
+Más [`iterasdev/peppol-py`](https://github.com/iterasdev/peppol-py) **0BSD** 10★ (**clase de licencia
+nº 14**) y [`dbkosky/as4`](https://github.com/dbkosky/as4) **Apache-2.0** 3★.
+
+**Formato híbrido y herramienta Java (3):** [`ZUGFeRD/mustangproject`](https://github.com/ZUGFeRD/mustangproject)
+**Apache-2.0** 498★ · [`akretion/factur-x`](https://github.com/akretion/factur-x) **BSD-3-Clause**
+(1 508 B; insignia `NOASSERTION`) 317★ · [`phax/ph-ubl`](https://github.com/phax/ph-ubl)
+**Apache-2.0** 142★ + [`phax/ph-schematron`](https://github.com/phax/ph-schematron) **Apache-2.0** 137★.
+
+**LATAM, autorización previa (14):** `thegreenter/greenter` **MIT** 378★ · `giansalex/lycet` **MIT**
+106★ · `thegreenter/ubl-validator` **MIT** 16★ · `nfephp-org/sped-nfe` **LGPL-3.0** (8 851 B) 1 637★ ·
+`akretion/nfelib` **MIT** 224★ · `erpbrasil/erpbrasil.edoc` **MIT** 32★ ·
+`edueevaristo/reforma-tributaria-api` **MIT** 1★ (push **hoy**) ·
+`grupomg-tech/calculadora-reforma-tributaria` **MIT** 3★ · `OCA/l10n-brazil` **AGPL-3.0** 376★ ·
+`phpcfdi/sat-ws-descarga-masiva` **MIT** 198★ · `nodecfdi/cfdi-core` **MIT** 4★ ·
+`LibreDTE/libredte-lib-core` **AGPL-3.0** 228★ · `LibreDTE/libredte-api-client-python` **LGPL-3.0**
+10★ · `reingart/pyafipws` **LGPL-3.0** 366★ (**sin push desde 2025-07-20**).
+
+**APAC, SDK de régimen (5):** `klsheng/myinvois-php-sdk` **MIT** 103★ ·
+`zahidaramai/MyInvoice-SDK-Middleware` **MIT** 13★ · `farhan-syah/myinvois-client` **LGPL-3.0** 51★ ·
+`amaseng/myinvois-open-sdk` **Apache-2.0** 31★ **pero sin push desde 2024-10-10** ·
+`techtemplemy/mcp-myinvois` **WTFPL** 3★ (**clase nº 15**). `deadboy18/myinvois-docs` queda
+**`NOASSERTION` sin resolver**: se registra sin veredicto, no como permisivo.
+
+**Plataformas y extracción (6):** `invoice-x/invoice2data` **MIT** 2 254★ (push **hoy**) ·
+`invoicerr-app/invoicerr` **AGPL-3.0** 735★ (rama `dev`) · `invoiceninja/invoiceninja`
+**Elastic License 2.0** (`LICENSE` 3 891 B) 10 617★ (rama `v5-stable`) · `akaunting/akaunting`
+**Business Source License 1.1** (texto de MariaDB, `LICENSE.txt` 3 654 B) 10 338★ ·
+`apache/ofbiz-framework` **Apache-2.0** 1 151★ (rama **`trunk`**) · `frappe/erpnext` **GPL-3.0**
+41 602★ (rama **`develop`**).
+
+### Las cuatro cosas que este pase aprendió sobre el método
+
+1. **Sexta vía de resolución de licencia: la cabecera del manifiesto de construcción.**
+   `OxalisCommunity/oxalis-ng` no tiene `LICENSE` en ninguna de las seis rutas habituales — la
+   licencia (**EUPL-1.1-or-later**) está en el comentario de cabecera del **`pom.xml`**. Orden de
+   desempate actualizado: (1) `SPDX-License-Identifier` en el manifiesto, (2) REUSE
+   `LICENSES/<SPDX>.txt`, (3) lectura byte a byte + tamaño, (4) clasificadores PyPI,
+   (5) **cabecera de `pom.xml`/`build.gradle`/`*.csproj`**. Y su hermano `OxalisCommunity/oxalis`
+   (150★) **no tiene licencia en absoluto** (cuatro rutas → 404): **no proponible**, y además su
+   propio README dice *«usa Oxalis-NG para toda implementación nueva»* mientras sigue siendo el
+   primer resultado de búsqueda. **Variante nueva del patrón «recomendado pero no usable»: no está
+   archivado, se desaconseja a sí mismo.**
+2. **La regla del tamaño frente a la longitud canónica volvió a pagar, y en los dos sentidos.**
+   `phax/phoss-smp` trae **347 B** que *nombran* Apache-2.0 y MPL-2.0: es un **puntero**, y leído
+   como prosa dice **MPL-2.0 para `phoss-smp-backend` y Apache-2.0 para el resto** — licencia **por
+   módulo**, no por repo. En cambio `ConnectingEurope/eInvoicing-EN16931` trae **13 871 B**, que es
+   longitud de licencia completa, y efectivamente **es** la EUPL-1.2 entera.
+3. **ADVERTENCIA DE INSTRUMENTO, Y ES LA MÁS IMPORTANTE DE ESTE PASE: desde esta sesión, un GET a
+   `github.com` NO PRUEBA NADA.** Comprobado explícitamente: `https://github.com/torvalds/linux`
+   devuelve **403** y `https://github.com/this-definitely-does-not-exist-xyz123/nope` devuelve
+   **403 también**. **Un repo real y uno inexistente son indistinguibles**, así que un barrido de
+   liveness sobre las URL HTML de GitHub produciría 42 falsos negativos o, peor, un «todo correcto»
+   si alguien contara los 403 como respuesta. Los tres instrumentos que **sí** prueban existencia
+   aquí: (a) `gh api -X GET search/repositories -f q='repo:owner/name'`, que sólo devuelve fila si el
+   repo existe; (b) un GET a `raw.githubusercontent.com/<owner>/<repo>/<rama>/<archivo>`, que prueba
+   repo **y** rama **y** archivo a la vez; (c) `git clone --depth 1`, que prueba el árbol entero.
+   **Las 42 direcciones nuevas de este pase pasaron (a), y las 42 pasaron también (b)** — 39 con
+   `README.md` y 3 con `README.rst` (`akretion/factur-x`, `erpbrasil/erpbrasil.edoc`,
+   `LibreDTE/libredte-api-client-python`: proyectos Python, donde `README.md` da 404 y el repo está
+   perfectamente vivo). **Un 404 de `README.md` no es un repo muerto: es una suposición sobre la
+   extensión del README.**
+
+4. **La fecha de push manda sobre la licencia en las capas reguladas.** `amaseng/myinvois-open-sdk`
+   es el más permisivo de los cinco SDK de Malasia (**Apache-2.0**) y el **menos utilizable**: dos
+   años sin push, contra un SDK oficial que publicó **1.0 en septiembre de 2026**. Un SDK fiscal
+   desfasado no rinde peor: **produce documentos rechazados.**
+
+## 2026-11-24 — sixteenth pass — the language boundary, and a licence that lives in a subdirectory
 
 > Theme: **the language the agent speaks, and who signed off on the wording.** **36 new addresses**
 > this pass. Licence, stars, archived state and last push come from `gh api search/repositories` on
