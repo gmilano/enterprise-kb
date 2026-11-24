@@ -1431,3 +1431,276 @@ results, all of them wrong.
 - **`huggingface.co`: zero addresses, and unprobed.** The KB holds no model-side address of any kind.
   Whether that is a real gap or correct scoping for an infrastructure KB has **not been decided**; it
   is recorded here so the next pass decides it deliberately instead of inheriting it.
+
+---
+
+## Twelfth pass, 2026-11-24 — the weights boundary, and the first licence finding about something that is not code
+
+> Passes 7 to 10 measured four boundaries of the agent: what it may **read** (entitlement), what it
+> may **change** (write), what it **is** (provenance), and where it may **reach** (containment).
+> Pass 11 measured the **instrument** and found the inventory sat on one forge. This pass points the
+> KB's most developed apparatus — eleven passes of licence taxonomy — at the one object it had never
+> been pointed at: **the model weights the agent runs on**.
+>
+> The result is the sharpest commercial finding in several passes. Every licence class in this KB
+> was derived from a `LICENSE` file in a code repository. **For weights, that file is the wrong
+> document, and reading it produces the wrong answer in both directions.**
+
+### 27. The licence of the code and the licence of the weights are independent, and the clause that matters most is in neither
+
+This KB holds 338 repository addresses and a ten-class licence taxonomy, all of it built by reading
+`LICENSE` files. Four model families were probed this pass by raw byte-read. The agreement rate
+between *the repository's licence* and *the weights' licence* was **two in four**, and the two
+failures run in **opposite** directions:
+
+| Model family | What the code repo's `LICENSE` says | What the weights actually carry | Direction of the error |
+|---|---|---|---|
+| Gemma (`google-deepmind/gemma`) | **Apache-2.0**, 11,358 bytes | Gemma Terms of Use — bespoke, with a separate prohibited-use policy (**and see the unresolved item below**) | **False positive** — the badge reads permissive, the weights are not |
+| Qwen3 (`QwenLM/Qwen3`) | **No `LICENSE` at all** — 404 at both `main` and `master` | Apache-2.0, per the vendor's own `README.md:397`: *"All our open-weight models are licensed under Apache 2.0."* | **False negative** — the repo looks unlicensed, the weights are permissive |
+| Llama (`meta-llama/llama-models`) | Root `LICENSE` is **78 bytes containing a URL** and nothing else | Per-model agreements: `models/llama4/LICENSE` is the 7,603-byte **LLAMA 4 COMMUNITY LICENSE AGREEMENT** (effective 2025-04-05); llama3_3 7,909 B, llama3_2 7,669 B, llama3_1 7,680 B | **Scanner blindness** — a licence detector sees a pointer, which is why this repo is commonly reported as `NOASSERTION` |
+| OLMo (`allenai/OLMo`, `allenai/OLMo-core`) | **Apache-2.0**, 11,359 bytes | Apache-2.0 | Agreement |
+
+**The rule, and it is new:** `repo_license` and `weights_license` are **two different facts about two
+different artefacts**. Neither predicts the other. A permissive badge on an inference-code repository
+is not evidence about the model it loads, and a missing licence file is not evidence against it.
+This is the same shape as the rules this fleet already carries for `NOASSERTION` and `other`
+(a verdict that informs in neither direction) — but one layer up, on an object no SBOM tool in a
+normal pipeline even enumerates.
+
+#### The operative clause is in the acceptable-use policy, not the licence — measured, not argued
+
+Several widely-cited 2026 write-ups quote an EU carve-out as **Section 1(a) text of the Llama 4
+Community License**. It is not there. Run over the licence files themselves:
+
+```
+grep -c 'European Union' models/llama4/LICENSE    → 0
+grep -c 'European Union' models/llama3_3/LICENSE  → 0
+grep -c 'European Union' models/llama3_2/LICENSE  → 0
+grep -c 'European Union' models/llama3_1/LICENSE  → 0
+grep -c 'European Union' models/llama4/USE_POLICY.md    → 1
+grep -c 'European Union' models/llama3_2/USE_POLICY.md  → 1
+```
+
+The clause lives at `models/llama4/USE_POLICY.md:71`, and this is its full text, read from Meta's
+own repository on 2026-11-24:
+
+> *"With respect to any multimodal models included in Llama 4, the rights granted under Section 1(a)
+> of the Llama 4 Community License Agreement are not being granted to you if you are an individual
+> domiciled in, or a company with a principal place of business in, the European Union. This
+> restriction does not apply to end users of a product or service that incorporates any such
+> multimodal models."*
+
+**A document that is not the licence withdraws the licence grant.** Three consequences, and the
+third is the one that costs money:
+
+1. **Licence scanning is structurally incomplete for weights.** Every scanner, every SPDX tool and
+   every GitHub badge reads `LICENSE`. None of them reads `USE_POLICY.md`. A clean licence report on
+   a Llama-derived model is therefore *not* evidence that the model may be used — it is evidence
+   that the scanner looked at the wrong file.
+2. **The AUP must be treated as part of the licence** for any weights, and read in full, because it
+   is incorporated by reference and can modify the grant itself.
+3. **The clause turns on the licensee's domicile, so it depends on which entity signs.** The
+   restriction does not reach *end users* of a product incorporating the model — it reaches the party
+   exercising the §1(a) rights. For a services company building a multimodal Llama 4 system for a
+   European client, the question *"who is the licensee, and where is its principal place of business?"*
+   decides whether the rights exist at all. **That question must be asked before a pilot starts, not
+   during legal review of the statement of work.** Globant S.A.'s Luxembourg incorporation is a
+   matter of public record; whether it makes the contracting entity *"a company with a principal
+   place of business in the European Union"* for the purposes of this clause is a question for
+   counsel, and this KB states the question rather than answering it.
+
+### 28. The "sovereign" model is a licence question, not a technology question — and it inherits
+
+The strongest regional finding of the pass, and it inverts a conclusion this KB has repeated: at the
+*agent* layer the inventory is North-American and APAC-origin with measured zeros for EMEA and LATAM.
+At the **weights** layer, EMEA and LATAM are *present and funded* — but what they ship is, in two
+headline cases, **someone else's licence**.
+
+- **LATAM — Latam-GPT (CENIA, Chile), launched 2026-02-10.** The region's flagship sovereignty
+  project is published as `latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0`: continued pretraining and SFT
+  **on Llama 3.1 70B**, with the model card stating use is subject to the **Llama 3.1 Community
+  License Agreement**. Reported as >300B tokens, free to companies and public institutions, first
+  trained on AWS with future training planned at Universidad de Tarapacá.
+  **The sovereignty is linguistic and in the data. It is not legal.** A Chilean public body adopting
+  it inherits Meta's acceptable-use policy, Meta's naming obligation and Meta's 700-million-MAU
+  clause. *(Model-card licence and launch details are secondary-sourced — the model card itself is on
+  a host this session cannot reach; see the verification channel below.)*
+- **APAC — SEA-LION (AI Singapore).** Its own `README.md:88`, read this pass, is unusually honest and
+  should be quoted to any client who asks for "the MIT one":
+
+  > *"All SEA-LION releases will therefore embrace an open-source ethos under the MIT license as much
+  > as possible; however, the exact licensing terms may vary depending on the underlying base model's
+  > restrictions or requirements. For instance, if the model leverages Meta's Llama3 codebase, it may
+  > be bound by the Llama3 License, which places certain restrictions on commercial use. Similarly,
+  > the Gemma-based variants may carry different terms."*
+
+  Meanwhile the project's own arXiv paper (2504.05747) states the team *"release our models under the
+  fully open MIT license."* **A peer-reviewed paper and the shipped artefact disagree**, and the
+  README sides with the artefact. The Gemma-derived variant is listed as Gemma Community License on
+  its model card and on Ollama.
+- **EMEA — the genuinely permissive options exist and were verified.**
+  `langtech-bsc/salamandra` (Barcelona Supercomputing Center) carries a **plain Apache-2.0** 11,357-byte
+  `LICENSE`, read this pass. **Apertus** (EPFL + ETH Zurich + CSCS, Swiss AI Initiative; v1.5
+  released 2026-07-24) is reported as Apache-2.0 at the licence level **but adds a separate Apertus
+  LLM Acceptable Use Policy, and the v1.5 weights are gated** — login and acceptance required before
+  download. Sources disagree on whether the AUP binds downstream redistribution of unmodified
+  weights; recorded as disagreeing, not reconciled.
+
+**The rule for the shortlist:** *"it is a national or sovereign model"* is a claim about who trained
+it and on what data. **It carries no information about the licence.** Resolve the base model first,
+then the fine-tune, then the AUP — in that order, because the restrictions compose downward and the
+derivative cannot be freer than its base.
+
+### An eleventh licence class — and the first one written for weights rather than code
+
+**OpenMDW-1.1** (Open Model, Data and Weights), stewarded by the Linux Foundation out of the Model
+Openness Framework. Verified this pass by byte-read of the canonical text at
+`OpenMDW/OpenMDW` → `1.1/LICENSE.OpenMDW-1.1`, **2,619 bytes** — and found **byte-size identical** in
+the wild at `NVIDIA/Cosmos` → `LICENSE`, which is how the adoption was confirmed from NVIDIA's own
+repository rather than from a press release.
+
+What the text actually does, quoted and paraphrased from the 2,619 bytes:
+
+- **One instrument for four artefacts.** "Model Materials" is defined as *"(1) one or more machine
+  learning models (including architecture and parameters); and (2) all related artifacts (including
+  associated data, documentation and software)."* This is the first licence in this KB that covers
+  weights, data, docs and code in a single grant — the thing pass 9's provenance work kept needing
+  and never had.
+- **It grants more rights than Apache-2.0 names.** Permission to deal in the materials *"without
+  restriction, including under all copyright, patent, **database**, and **trade secret** rights."*
+  The **database right** matters specifically in EMEA: the EU *sui generis* database right is a real
+  encumbrance on training corpora that Apache-2.0 simply does not address.
+- **Outputs are explicitly free.** *"This agreement does not impose any restrictions or obligations
+  with respect to any use, modification, or sharing of any outputs generated by using the Model
+  Materials."* This is the clause that distinguishes it commercially from the Llama family (naming
+  and "Built with Llama" obligations) and from OpenRAIL-style use restrictions.
+- **No field-of-use restriction, no acceptable-use policy, no user-count ceiling.**
+- **Defensive termination that reaches copyright, not only patents.** All grants terminate if the
+  licensee files or voluntarily participates in a suit asserting the materials infringe *"any patent
+  or copyright"*, unless responsive to a suit brought first. **This is the clause blocking OSI
+  approval** (see below).
+- **Rights clearance is pushed onto the licensee, in capitals.** The licensee is *"SOLELY RESPONSIBLE
+  FOR (1) CLEARING RIGHTS OF OTHER PERSONS THAT MAY APPLY TO THE MODEL MATERIALS."* **An OpenMDW
+  model is a clean licence from the licensor. It is not an indemnity for the training data**, and a
+  client who reads "permissive" as "someone else carries the copyright risk on the corpus" has
+  misread it.
+
+**Status, and it is the part that breaks pipelines:** OpenMDW-1.1 was submitted to the OSI
+license-review list and **the review was still open at the last message traced (2026-08-29) with no
+board decision**. Richard Fontana objected that extending termination to copyright claims is *"unlike
+any OSI-approved license I can think of"*; at least one reviewer stated it does not provide software
+freedom; Pamela Chestek floated falling back to OpenMDW-1.0 to clear the objections. It is
+consequently **not OSI-approved and not on the SPDX License List.**
+
+> **The operational consequence, and it connects straight to pass 9.** Because OpenMDW-1.1 has no
+> SPDX identifier, every SPDX-based tool in a client's pipeline will emit `NOASSERTION` or a custom
+> string for an NVIDIA Cosmos-class model. This KB's own ninth pass established that `NOASSERTION`
+> has two causes and resolves in both directions. **Here is a third cause: a real, deliberate,
+> foundation-stewarded licence that the identifier list has not caught up with.** Do not let a client's
+> scanner downgrade an OpenMDW model to "unlicensed" — and do not let it upgrade one either.
+
+Also recorded: the licence's own `FAQ.md`, which the README points to for details, is a **171-byte
+stub**. The documentation for the newest licence class does not exist yet.
+
+### The machine-readable artefact for weights exists in two standards, and both make it optional
+
+Pass 8 found that MCP's `ToolAnnotations` are all hints that clients must treat as untrusted, so
+write-path safety cannot live in tool metadata. **The same structural failure reproduces one layer up,
+and this pass measured it in the schemas themselves.**
+
+- **CycloneDX 1.6** — `CycloneDX/specification` (Apache-2.0, 11,341-byte `LICENSE`). Byte-read of
+  `schema/bom-1.6.schema.json` (**262,666 bytes**) confirms a `machine-learning-model` component
+  type, plus `modelCard` and `modelParameters`. ML-BOM is real and in the published schema.
+- **SPDX 3.0** — the AI profile is **not** in `spdx/spdx-spec`. It is in `spdx/spdx-3-model`, at
+  `model/AI/Classes/AIPackage.md` (1,687 bytes), whose own header reads
+  `SPDX-License-Identifier: Community-Spec-1.0`. `AIPackage` is a concrete subclass of
+  `/Software/Package` carrying `autonomyType`, `domain`, `energyConsumption`, `hyperparameter`,
+  `informationAboutApplication`, `informationAboutTraining` and `limitation`.
+- **And every one of those properties is declared `minCount: 0`.** All optional. A fully conformant
+  SPDX 3.0 AI SBOM can therefore be **silent about training data, silent about limitations and
+  silent about autonomy** — and still validate.
+
+**The rule:** the field existing in the standard is not the same as the field being populated.
+**Require the fields in the contract, not in the format.** "Give us an AI-BOM" is not a requirement;
+"give us an AI-BOM in which `informationAboutTraining` and `limitation` are non-empty, and the
+weights' licence and its acceptable-use policy are both named" is one.
+
+### A licence trap inside the weights tooling itself
+
+The two tools that inspect the serialisation format most weights-adjacent attacks use are **not in
+the same licence class**, and the better-known one is the restricted one:
+
+- `trailofbits/fickling` — **LGPL** (7,652-byte `LICENSE`, at `master`, not `main`). Copyleft. Fine
+  as a standalone CI binary, a problem if someone links it into a shipped product.
+- `mmaitre314/picklescan` — **MIT** (1,072 bytes). The permissive peer, and the one to reach for when
+  the scanner has to ship inside a client deliverable.
+
+### Method — three more ways to be wrong, bringing the count to twenty-two
+
+- **T89 — `LICENSE` is the wrong file for a model, and reading it harder does not help.** Resolve
+  weights in this order: (1) the weights' own card or registry entry, (2) the vendor's
+  `README`/licence directory in the source repo, (3) the **acceptable-use policy as part of the
+  licence**, (4) the base model's licence if the artefact is a fine-tune. A clean `LICENSE` read is
+  not a verdict on the weights; it is a verdict on the code.
+- **T90 — a restriction can live outside the instrument that grants the rights, and it still binds.**
+  Measured here as a one-line `grep`: zero hits for `European Union` across four Llama `LICENSE`
+  files, one hit in each `USE_POLICY.md`. **Before quoting any weights licence, enumerate the
+  documents the licence incorporates by reference and read all of them.** Every KB in this fleet that
+  recommends a model should run this `grep` against its own shortlist.
+- **T91 — the vendor's own instruction for finding the licence may point at a host you cannot
+  reach, and that is not the same as the licence being unknown.** `QwenLM/Qwen3:398` says *"You can
+  find the license files in the respective Hugging Face repositories"*; `aisingapore/sealion:88` says
+  *"Users should always refer to the Hugging Face model card."* **Both pointers resolve to a host that
+  returns `CONNECT tunnel failed, 403` from this session.** The licence was still recoverable — from
+  the README prose in one case and from the base model's repository in the other. **Follow the chain
+  to a reachable primary rather than recording an unknown**, and when it genuinely cannot be reached,
+  say which host refused.
+
+### Sources that disagree — resolved and unresolved, this pass
+
+| Question | State | What to do about it |
+|---|---|---|
+| Is the EU multimodal carve-out in the Llama 4 **licence**? | **Resolved: no.** It is in `USE_POLICY.md:71`. Multiple secondary write-ups attribute it to licence §1(a); the licence files contain zero occurrences | Cite the AUP, with the file and line. Do not cite the blogs |
+| Does NVIDIA ship Nemotron under OpenMDW? | **Resolved as a two-document case, not a contradiction.** The press release describes OpenMDW for the Nemotron *model family*; `NVIDIA-NeMo/Nemotron` → `LICENSE` is **Apache-2.0** (11,358 B) — that is the **code**. `NVIDIA/Cosmos` → `LICENSE` **is** OpenMDW-1.1 (2,619 B) | Exactly trend 27 in the adopter's own repos. Never infer a weights licence from a code repo, including when the vendor announced the weights licence |
+| **Gemma 4's licence** | **UNRESOLVED.** Two 2026 secondary sources state Gemma 4 moved to **Apache-2.0** in April 2026 with Gemma 1–3 remaining under the Gemma Terms of Use; another states Gemma ships under the Gemma Terms with a separate AUP. `google-deepmind/gemma`'s `README` contains **no licence statement at all** (grep: zero hits), and its `LICENSE` is Apache-2.0 — i.e. the code. The primary source, `ai.google.dev/gemma/terms`, **does not resolve from this session** | **Do not put a Gemma licence in a proposal this week.** Have legal read the terms page directly. The KB records the disagreement and refuses to average it |
+| Does the Apertus AUP bind downstream redistribution of unmodified weights? | **Unresolved.** One source argues redistributing unmodified under Apache-2.0 leaves downstream users with Apache-2.0 obligations only; another characterises the release as carrying a custom AUP | Treat as Apache-2.0 + AUP until read in full. The v1.5 download gate is independently confirmed |
+| Is OpenMDW-1.1 OSI-approved? | **Resolved: no, and still under review** at the last traced message, 2026-08-29 | Call it "foundation-stewarded, permissive in substance, **not OSI-approved, no SPDX ID**". Never "OSI-approved" |
+
+### Verification channel for this pass — what could and could not be checked
+
+**What worked.** `raw.githubusercontent.com` is reachable and is the instrument this pass ran on:
+every licence claim above with a byte count attached was produced by fetching the file and measuring
+it. Licence identity was confirmed by **byte-size comparison** against a known-good copy of the same
+text — which is how OpenMDW-1.1 in `NVIDIA/Cosmos` was matched to the canonical 2,619-byte file.
+
+**What was refused, and the consequence for this pass's tables.**
+
+| Host | Result | What it cost |
+|---|---|---|
+| `huggingface.co` | `CONNECT tunnel failed, 403` via curl; **DNS does not resolve** for the fetch tool | **The canonical weights-licence oracle is unreachable.** Model cards could not be read. Every weights licence here was recovered from a source repository instead, or flagged secondary |
+| `ai.google.dev` | **DNS does not resolve** | The Gemma licence question stays open rather than being resolved |
+| `api.github.com` | **403 for every repository outside this session's scope** | **No star counts and no last-push dates were obtainable this pass.** New rows therefore carry licence, byte-verified evidence and the verification date, and **omit stars rather than copy them from a blog.** Existing rows were left untouched |
+
+> **This is a declared gap, not a silent one.** A reader comparing this pass's tables to pass 11's
+> will see the star column missing and should not read that as the projects being small or new. The
+> measurement was refused, and the KB's own rule already covers it: cite the institution and the
+> evidence, never the star.
+
+**Repository paths probed and not found** — stated so nobody reads absence as non-existence:
+`swiss-ai/apertus`, `utter-project/EuroLLM`, `OpenGPT-X/Teuken`, `sarvamai/sarvam-1`, `lfai/mof`,
+and `aisingapore/sea-lion` (the correct path is `aisingapore/sealion`, which was read successfully).
+**Apertus, EuroLLM, Teuken and Sarvam are real projects whose repository addresses this pass failed
+to locate** — they are an open inventory item for pass 13, not a measured zero.
+
+### Gaps measured this pass — stated, not left silent
+
+- **No LATAM-origin and no EMEA-origin *base* model with a permissive licence was found beyond
+  Salamandra (EMEA, Apache-2.0, verified).** Latam-GPT, the LATAM flagship, is a Llama derivative.
+  This is a **measured** finding about the licence layer, and it is the opposite of a gap in
+  capability.
+- **APAC remains under-measured for the same reason as pass 11:** `gitee.com` is unreachable from
+  this session, so Chinese-hosted model repositories were never enumerated. Qwen3's licence was
+  recovered from GitHub prose, not from a registry.
+- **The KB still holds zero machine-readable AI-BOM artefacts for its own shortlist.** The standards
+  were verified this pass; no model in this KB has an ML-BOM attached. That is the obvious pass-13
+  deliverable and it is now unblocked.

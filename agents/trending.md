@@ -8,7 +8,59 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — eleventh pass (latest) — the agent layer on a forge nobody had searched
+## 2026-11-24 — twelfth pass (latest) — the licence of the model the agent runs on
+
+> Theme: **the weights boundary**. This KB holds 338 repository addresses and an eleven-class licence
+> taxonomy, all of it built by reading `LICENSE` files in code repositories. This pass pointed that
+> apparatus at the one artefact it had never been pointed at — **the model weights the agent
+> actually runs on** — and found that the file every scanner reads is the wrong file.
+>
+> There is no new agent in this section. The news is that **the licence posture of every agent in
+> `agents/top.md` is incomplete**, because an agent's MIT licence says nothing about the weights it
+> loads. Full analysis in `intel/trends.md` trends 27–28; the gate to build is Receta 23.
+
+### The measurement, in one block
+
+```
+grep -c 'European Union'  models/llama4/LICENSE        → 0
+grep -c 'European Union'  models/llama3_3/LICENSE      → 0
+grep -c 'European Union'  models/llama3_2/LICENSE      → 0
+grep -c 'European Union'  models/llama3_1/LICENSE      → 0
+grep -c 'European Union'  models/llama4/USE_POLICY.md  → 1   ← the clause lives here
+```
+
+`models/llama4/USE_POLICY.md:71`, read from Meta's own repository on 2026-11-24, withdraws the
+**Section 1(a) rights** for multimodal Llama 4 from *"an individual domiciled in, or a company with a
+principal place of business in, the European Union"*, while exempting **end users** of a product
+incorporating such a model. **A document that is not the licence modifies the licence grant, and no
+licence scanner reads it.**
+
+### What moved this week in the weights layer
+
+| What | Licence | Verified how, 2026-11-24 | Why it is this week's news |
+|---|---|---|---|
+| **OpenMDW-1.1** (Linux Foundation) | Permissive in substance; **not OSI-approved, no SPDX ID** | Canonical text `OpenMDW/OpenMDW` → `1.1/LICENSE.OpenMDW-1.1`, **2,619 bytes** | **An eleventh licence class, and the first written for weights rather than code.** One grant over model + data + docs + code, adding **database and trade-secret** rights; **outputs explicitly unrestricted**. OSI review still open at 2026-08-29 over termination reaching copyright claims |
+| **NVIDIA Cosmos ships under it** | OpenMDW-1.1 | `NVIDIA/Cosmos` → `LICENSE`, **2,619 bytes — byte-identical to canonical** | First major adoption **confirmed from the vendor's own repository**, not a press release. By contrast `NVIDIA-NeMo/Nemotron` → `LICENSE` is **Apache-2.0** — the code, not the weights |
+| **Latam-GPT** (CENIA, Chile), launched **2026-02-10** | **Llama 3.1 Community License** (secondary-sourced) | Published as `latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0`; model card on a host this session cannot reach | **LATAM's sovereignty flagship is a Llama 3.1 70B derivative** and inherits Meta's AUP, naming obligation and 700M-MAU clause. The sovereignty is in the data and the language, **not in the licence** |
+| **SEA-LION** (AI Singapore) | **Varies by base model** | `aisingapore/sealion` → `README.md:88` | The project's own README says MIT *"as much as possible… may be bound by the Llama3 License"*, while its arXiv paper (2504.05747) claims *"fully open MIT"*. **Paper and artefact disagree; the README sides with the artefact** |
+| **Salamandra** (Barcelona Supercomputing Center) | **Apache-2.0** | `langtech-bsc/salamandra` → `LICENSE`, **11,357 bytes** | **EMEA's cleanest sovereign base model** — no AUP, no download gate, no inherited base licence. The one to put in front of a European client this week |
+| **Qwen3** | **Apache-2.0** | `QwenLM/Qwen3` → `README.md:397`, with **no `LICENSE` file at `main` or `master`** | The most permissive frontier-class family verified this pass, and a **false negative** for any scanner: the repo looks unlicensed while the weights are Apache-2.0 |
+
+### The licence trap of the week, and it is in the tooling
+
+`trailofbits/fickling` — the best-known pickle-security tool — is **LGPL** (`master/LICENSE`, 7,652
+bytes), not permissive. Its peer `mmaitre314/picklescan` is **MIT** (1,072 bytes). **Two tools, one
+job, different licence classes.** Ship the MIT one; keep the LGPL one as a standalone CI binary.
+
+### Declared gap for this section
+
+`api.github.com` returns **403 for every repository outside this session's scope**, so **no star
+counts or push dates appear in this pass's rows**. `huggingface.co` and `ai.google.dev` **do not
+resolve from this session**, which is why two weights licences above are marked secondary-sourced and
+**Gemma's is recorded as unresolved rather than guessed**. Absence of a number here means the
+measurement was refused, not that the project is small.
+
+## 2026-11-24 — eleventh pass — the agent layer on a forge nobody had searched
 
 > Theme: **the instrument**. Passes 7 to 10 each measured a boundary of the agent — what it may
 > read, change, prove and reach. This pass measured the **KB itself** and found that all 314 of its

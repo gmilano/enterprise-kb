@@ -601,3 +601,48 @@ suites a client is likely to name: Odoo, ERPNext, OFBiz, Dolibarr, Krayin, Huly 
 Dokos, Mayan EDMS, GitLab CE on GitLab. The workplace suite is new and sits **above** the catalog
 layer and **beside** the chat layer: chat is where the employee talks to the agent, the workplace
 suite is what the agent reads and writes while they do.
+
+---
+
+## Twelfth pass, 2026-11-24 — the base model as a vertical platform, and the licence that decides whether you may customise it
+
+This file exists because of a simple proposition: a real system you can customise beats a greenfield
+build. **Odoo, ERPNext and Tryton are in here for that reason — and an open-weights model is the same
+kind of asset.** It is a platform you fine-tune, quantise, distil and redistribute. Which of those
+four verbs you are permitted to perform is **not** a property of the model's quality; it is a property
+of its licence, and for weights that licence is **not** in the `LICENSE` file.
+
+Every licence below was byte-verified from `raw.githubusercontent.com` on **2026-11-24**.
+
+| Base model | Origin / region | Weights licence | May you fine-tune and ship the result? |
+|---|---|---|---|
+| **Salamandra** ([langtech-bsc/salamandra](https://github.com/langtech-bsc/salamandra)) | Barcelona Supercomputing Center — **EMEA** | **Apache-2.0**, `LICENSE` 11,357 B | **Yes, unconditionally.** No AUP, no download gate, no inherited base licence, no naming obligation. Strong Iberian-language coverage. **The default recommendation for a European client who wants a non-US base** |
+| **OLMo** ([allenai/OLMo](https://github.com/allenai/OLMo)) | AI2 — **North America** | **Apache-2.0**, `LICENSE` 11,359 B | **Yes.** And uniquely among the families probed, training data and code are published too, so it survives an OSAID-style openness test rather than merely an "open weights" claim |
+| **Qwen3** ([QwenLM/Qwen3](https://github.com/QwenLM/Qwen3)) | Alibaba — **APAC** | **Apache-2.0**, per `README.md:397`; **no `LICENSE` file in the repo** | **Yes** — but expect to defend it, because the repository looks unlicensed to a scanner. Keep the README line in the engagement file |
+| **NVIDIA Cosmos** ([NVIDIA/Cosmos](https://github.com/NVIDIA/Cosmos)) | NVIDIA — **North America** | **OpenMDW-1.1**, `LICENSE` 2,619 B | **Yes, and outputs are explicitly unrestricted.** Caveat: no SPDX identifier, so the client's SBOM tooling will report it as unlicensed. Budget one conversation with their security team |
+| **SEA-LION** ([aisingapore/sealion](https://github.com/aisingapore/sealion)) | AI Singapore — **APAC** | **Depends on the checkpoint** — MIT where possible, otherwise Llama 3 or Gemma terms (`README.md:88`) | **Only after resolving the specific checkpoint.** The project's own paper claims "fully open MIT"; the README and the Gemma-variant card disagree. Excellent Southeast-Asian language coverage, so it is worth the resolution work |
+| **Latam-GPT** (`latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0`) | CENIA, Chile — **LATAM**; launched 2026-02-10 | **Llama 3.1 Community License** *(secondary-sourced; model card host unreachable from this session)* | **Yes, subject to Meta's terms** — which means the AUP, the "Llama" naming obligation and the 700M-MAU clause travel with it. Reported free to companies and public institutions, >300B tokens |
+| **Apertus** (EPFL + ETH Zurich + CSCS) | Swiss AI Initiative — **EMEA**; v1.5 released 2026-07-24 | Reported **Apache-2.0 + a separate Apertus LLM Acceptable Use Policy**; v1.5 weights **gated** (login + acceptance) | **Probably yes, with an AUP to read.** Sources disagree on whether the AUP binds redistribution of unmodified weights. **The download gate is a procurement fact**: an air-gapped client cannot `wget` it |
+| **Gemma** ([google-deepmind/gemma](https://github.com/google-deepmind/gemma)) | Google — **North America** | **UNRESOLVED.** Repo `LICENSE` is Apache-2.0 **for the code**; `README` states no licence at all | **Do not commit this week.** Secondary sources split on whether Gemma 4 moved to Apache-2.0 in April 2026 while 1–3 remain under the Gemma Terms of Use. `ai.google.dev` does not resolve from this session |
+
+### The inheritance rule, because it is the one that catches people
+
+**A fine-tune cannot be freer than its base.** Two of the three "sovereign" models above are
+derivatives of US base models and inherit those licences in full. When a client says *"we want to
+build on the national model"*, the resolution order is:
+
+1. **The base model's licence** — and its acceptable-use policy, which is part of the licence.
+2. **The fine-tune's own licence**, which can only add restrictions, never remove them.
+3. **Any download gate**, which is not a licence term but will still stop an air-gapped deployment.
+
+"It is a sovereign model" is a claim about the training data and the language coverage. **It carries
+no information about the licence**, and in the LATAM case it is specifically a Meta licence.
+
+### How this pairs with the ERP and CRM platforms above
+
+The pairing a client will actually ask for is **Odoo or ERPNext plus a model that may be customised
+and redistributed**. For an EMEA engagement that is **Salamandra (Apache-2.0)**; for an air-gapped one
+it is Salamandra or OLMo, because both can simply be downloaded; for a LATAM engagement where
+Spanish and Portuguese quality is decisive, Latam-GPT is the strongest linguistic option **and the
+Llama terms must be in the statement of work**. The gate that produces this determination in a
+repeatable way is **Receta 23** in `compose/patterns.md`.

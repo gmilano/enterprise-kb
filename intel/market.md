@@ -415,6 +415,41 @@ framework a client wrote themselves has no such section, which is precisely why 
 *(All adoption figures in this subsection are search-listed at snippet level and not verified against
 the primary reports; attribute them, do not adopt them.)*
 
+#### Twelfth pass, 2026-11-24 — the weights boundary in North America
+
+**The region owns both sides of this layer: the licences and the body that refuses to bless them.**
+OpenMDW-1.1 — the first licence instrument written for model weights, and the eleventh licence class
+in this KB — is stewarded by the **Linux Foundation**, with contributors from **Amazon, Meta, IBM,
+Microsoft and NVIDIA** named in its own repository. Meta's Community Licenses are the de facto
+default for enterprise open-weights deployment. And the **OSI**, which has **not** approved
+OpenMDW-1.1 (review still open at the last traced message, 2026-08-29), is the gatekeeper whose
+verdict client security teams will cite.
+
+Adoption context, all search-listed at snippet level: a 2026 Gartner survey of 1,303 enterprise
+respondents at $50M+ revenue found only **22% had scaled AI across multiple business units**; a
+separate survey of 120,000+ respondents found only **8.6% with agents in production**; Dentons
+reports **31% of AI initiatives reaching full production against 88% of organisations using AI**.
+MarketsandMarkets values the North America AI market at **$254.86B in 2026**; BCC Research puts the
+region at **38.5% of global share**. Named players in a market-research summary: Google, Microsoft,
+IBM, AWS, NVIDIA, Oracle, Salesforce, OpenAI, Meta.
+
+**The sellable work here is a licence audit of the model layer, and it is new because nobody's
+scanner covers it.** Dentons' finding that US companies are **writing their own AI governance
+frameworks** absent federal regulation is the opening: a framework a client wrote themselves has no
+weights-licence section, because the tooling that would have prompted one reads `LICENSE` files and
+models do not keep their terms there. Two concrete offers:
+
+1. **The weights register (Receta 23)** — four licence facts per model, the base-model edge made
+   explicit, and the acceptable-use policy read as part of the licence. Days, not weeks.
+2. **OpenMDW migration advisory for model-shipping ISVs.** A North American ISV that publishes
+   weights has a genuine reason to adopt OpenMDW-1.1 — one grant over model, data, docs and code,
+   with **outputs explicitly unrestricted**. The counterweight is that it has **no SPDX identifier**,
+   so their customers' SBOM tooling will report it as unlicensed. **That trade is a consulting
+   conversation, and right now almost nobody is having it.**
+
+*(Adoption and market figures in this subsection are search-listed at snippet level and not verified
+against the primary reports; attribute them, do not adopt them. Licence facts are byte-verified.)*
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -849,6 +884,55 @@ components, not the programme.** Clients in this region reward that sentence.
 *(IDC, Veeam and EU AI Act timing figures are search-listed at snippet level and unverified against
 primary sources; attribute, do not adopt. Repository rows are verified.)*
 
+#### Twelfth pass, 2026-11-24 — the weights boundary in EMEA, and the clause that makes this region different
+
+**This is the subsection where the pass has a hard, actionable finding rather than a trend.**
+
+`meta-llama/llama-models` → `models/llama4/USE_POLICY.md:71`, read 2026-11-24, states that for
+**multimodal models in Llama 4** the Section 1(a) rights *"are not being granted to you if you are an
+individual domiciled in, or a company with a principal place of business in, the European Union"*,
+and that the restriction *"does not apply to end users of a product or service that incorporates any
+such multimodal models."* `grep -c 'European Union'` over the Llama 4, 3.3, 3.2 and 3.1 **licence**
+files returns **zero** in every case: the clause is in the acceptable-use policy, which no licence
+scanner reads.
+
+**Consequences for an EMEA engagement, in order of urgency:**
+
+1. **Multimodal Llama 4 is the highest-risk default in this region**, and the risk is contractual,
+   not technical. The clause turns on **the licensee's** domicile, and expressly spares **end
+   users**. So the determining question is *which entity exercises the rights* — a question for
+   counsel, answered in week one, in writing. Globant S.A.'s Luxembourg incorporation is a matter of
+   public record; whether it brings the contracting entity within the clause is **for legal to
+   determine, and this KB states the question rather than answering it.**
+2. **Verified permissive European alternatives exist.** **Salamandra**
+   ([langtech-bsc/salamandra](https://github.com/langtech-bsc/salamandra), **Apache-2.0**, `LICENSE`
+   11,357 bytes) is the clean option: no AUP, no gate, no inherited base licence. **Apertus**
+   (EPFL + ETH Zurich + CSCS; v1.5 released 2026-07-24) is reported Apache-2.0 **plus a separate
+   acceptable-use policy**, with **v1.5 weights gated behind login and acceptance** — a procurement
+   fact that matters for any air-gapped build.
+3. **OpenMDW-1.1 has a specifically European value that Apache-2.0 lacks.** Its grant runs under
+   *"all copyright, patent, **database**, and trade secret rights."* The EU *sui generis* **database
+   right** is a real encumbrance on training corpora, and Apache-2.0 does not address it. For a
+   client worried about the provenance of a European training set, that clause is worth explaining.
+
+Regional context, search-listed at snippet level: the AI Act's **high-risk provisions apply from
+2 August 2026**, with penalties cited up to **€35M or 7% of global revenue**; IDC reports only **9%
+of EMEA organisations** delivered measurable outcomes from most AI projects over two years, and
+frames execution — not ambition — as the blocker; OECD finds **half of surveyed SMEs** name a skills
+shortage as the primary barrier, with one analysis arguing regulation is **not** the main brake and
+citing Denmark's enterprise adoption as above the US enterprise average; a Veeam-linked report claims
+**88% already operating AI agents against 7% feeling prepared to manage them**. HSBC's partnership
+with Mistral AI for enterprise-wide deployment **with full data ownership** remains the reference
+deployment this KB already records.
+
+**The offer that follows:** the AI Act deadline has arrived, every client needs an evidence artefact,
+and **the model layer is the part of their estate with no licence evidence at all.** Receta 23
+produces it in under a week, and Receta 24 turns it into the machine-readable record the Annex IV
+discussion keeps asking for and the standards keep making optional.
+
+*(Adoption, penalty and survey figures are search-listed at snippet level and unverified against
+primary sources; attribute, do not adopt. All licence facts and byte counts are verified.)*
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1258,6 +1342,48 @@ search result as a regional analysis.
 *(Lenovo, Forrester, AlphaSense and BSA figures are search-listed at snippet level and unverified
 against primary sources; attribute, do not adopt. The forge probe results are measured in this
 session.)*
+
+#### Twelfth pass, 2026-11-24 — the weights boundary in APAC: the most permissive option and the least measurable region
+
+**The finding that should change a shortlist:** **Qwen3** is **Apache-2.0** — stated by the vendor at
+[QwenLM/Qwen3](https://github.com/QwenLM/Qwen3) `README.md:397`, *"All our open-weight models are
+licensed under Apache 2.0"* — while the repository carries **no `LICENSE` file at all** (404 at both
+`main` and `master`). It is the most permissive frontier-class family verified this pass, and the
+most likely to be **wrongly rejected** by a client's licence scanner, which sees an unlicensed
+repository. The counter-evidence is one line of vendor prose; keep it in the engagement file.
+
+**The inheritance finding, with APAC's own honest example.** **SEA-LION** (AI Singapore),
+`aisingapore/sealion` → `README.md:88`: releases *"embrace an open-source ethos under the MIT license
+as much as possible; however, the exact licensing terms may vary depending on the underlying base
+model's restrictions… it may be bound by the Llama3 License… Similarly, the Gemma-based variants may
+carry different terms."* Its own arXiv paper (2504.05747) claims the team *"release our models under
+the fully open MIT license."* **The paper and the shipped artefact disagree, and the README sides with
+the artefact.** For Southeast-Asian language coverage SEA-LION is still the right answer — but
+**resolve the specific checkpoint, never the project.**
+
+Regional context, search-listed at snippet level: Lenovo's CIO Playbook reports **96% of APAC
+organisations planning to raise AI investment by ~15% in 2026**; Forrester finds APAC **leading on
+enterprise AI use**, with Singapore, Australia, New Zealand and South Korea ahead of most North
+American and European countries, and expects **sovereignty to shape AI infrastructure choices for
+half of firms**; IDC frames unified AI governance as moving from optional to mandatory; Singapore is
+consulting on AI use in financial institutions; BSA warns of divergence costs in **Vietnam and
+India**; China's national **"AI Plus"** programme pairs adoption targets with extensive governance.
+The ADB's AI Preparedness Index (April 2026) records a gap between advanced and developing economies
+in the region.
+
+**The measured limit, carried forward from pass 11 and re-confirmed here.** `gitee.com` is
+unreachable from this session, so **Chinese-hosted model repositories were never enumerated** —
+Qwen3's licence had to be recovered from GitHub prose rather than from a registry. **The APAC weights
+inventory is therefore under-measured, not scarce.** Any claim about "the best open-weights options
+in APAC" from this KB should read *"the best we could reach on GitHub."*
+
+**The offer:** sovereignty is the regional buying motive, and **Qwen3 under Apache-2.0 is the
+strongest sovereignty-plus-permissive combination verified anywhere this pass.** Pair it with Receta
+23 so the client's own scanner does not veto it on a filing convention, and with Receta 24 so the
+base-model edge of any fine-tune is recorded before it becomes an inherited obligation.
+
+*(Investment and adoption figures are search-listed at snippet level and unverified; attribute, do
+not adopt. Licence facts are verified from the repositories named.)*
 
 ### LATAM
 
@@ -1758,6 +1884,56 @@ credible regional contribution and it costs one conversation per repository.
 *(RSM, investment and regulatory figures are search-listed at snippet level and unverified against
 primary sources; attribute, do not adopt. Repository rows are verified, with the one unresolved
 licence marked as unresolved.)*
+
+#### Twelfth pass, 2026-11-24 — the weights boundary in LATAM: the sovereign model carries someone else's licence
+
+**The headline, and it is this pass's most consequential regional finding.** **Latam-GPT** — the
+region's AI-sovereignty flagship, launched by **CENIA (Chile) on 2026-02-10** — is published as
+`latam-gpt/Llama-3.1-70B-LatamGPT-SFT-1.0`: continued pretraining and supervised fine-tuning **on
+Llama 3.1 70B**, with its model card stating that use is **subject to the Llama 3.1 Community License
+Agreement**. Reported at **>300B tokens**, free to companies and public institutions, first trained
+on AWS with future training planned at **Universidad de Tarapacá**.
+
+**So the sovereignty is real — and it is linguistic and in the data, not legal.** A Chilean ministry,
+a Brazilian bank or a Colombian retailer that adopts Latam-GPT inherits **Meta's acceptable-use
+policy, Meta's "Llama" naming obligation and Meta's 700-million-MAU clause**. That is not a criticism
+of the project, which is the strongest Spanish- and Portuguese-language option in the region. **It is
+a fact that belongs in the statement of work**, and today it is in almost none of them.
+
+*(Latam-GPT's licence and launch details are secondary-sourced: the model card lives on a host that
+returns `CONNECT tunnel failed, 403` from this session. Flagged, not laundered.)*
+
+Regional context, search-listed at snippet level: RSM's survey of 400+ business leaders finds **~40%
+already implementing AI** and **68% of adopters planning to scale within 12 months**, with efficiency
+the leading motive at 67% — **and fewer than one in five holding a formal AI governance framework**.
+Baker McKenzie describes a patchwork with **no country yet holding a fully mature, harmonised
+regime**; the IBA notes the region broadly **follows the EU model**, consistent with **Uruguay's
+Council of Europe signature** and **Peru's Law 31814 implementing regulation** that this KB already
+records. WEF with McKinsey estimates AI could lift regional productivity by **1.9–2.3% annually** and
+generate **$1.1–1.7T** in additional value per year. Chile is repeatedly named as the regional leader
+on the back of Latam-GPT.
+
+**The offer, and the two halves fit together unusually well.** Demand is scaling (40% / 68%),
+**governance maturity is the lowest of any region (<20%)**, and the regional flagship model has a
+**legal** dependency rather than a technical one. So the LATAM pitch is not "we will help you comply"
+— it is:
+
+> *"The model your sovereignty programme is built on is licensed by Meta. Here is the register that
+> says so, the clauses that travel with it, and the permissive alternatives if any of them bite."*
+
+That is Receta 23, it takes under a week, and it is the rare governance deliverable a client finds
+genuinely informative rather than procedural. Where a client's requirement is strictly permissive
+weights, the verified alternatives are **Salamandra (Apache-2.0)** for Iberian languages and
+**OLMo (Apache-2.0)** where training-data openness must also survive scrutiny — with the honest
+caveat that neither matches Latam-GPT's regional data coverage.
+
+**Measured gap:** **no LATAM-origin base model with a permissive licence was found this pass.** The
+region's flagship is a Llama derivative. That is a measured finding about the **licence** layer and
+says nothing about capability — and it is the same shape as this KB's earlier measured zero for
+LATAM-origin agent repositories.
+
+*(RSM, WEF/McKinsey and regulatory figures are search-listed at snippet level and unverified against
+primary sources; attribute, do not adopt.)*
 
 ## Posicionamiento Globant
 

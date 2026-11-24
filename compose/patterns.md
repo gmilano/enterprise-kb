@@ -1828,3 +1828,198 @@ the data side: *point the agent at what the client already runs.*
 - **Writing a bespoke MCP server per API.** That is forty integrations again, wearing a new name.
 - **Leaving CI uncontained while hardening the chat surface.** The chat surface holds a session;
   CI holds a deploy token.
+
+---
+
+## Receta 23 — The weights boundary: resolve the licence of the model before the pilot, not after the demo
+
+**For:** any engagement where the deliverable runs on open-weights models — which, after the
+sovereignty and cost pressure of 2026, is most of them. **Especially** any EMEA engagement
+considering multimodal Llama 4, and any LATAM engagement considering Latam-GPT.
+
+**Duration:** 3–5 days as a standalone gate; one day per additional model once the gate exists.
+
+### The failure mode, stated plainly so it can be sold
+
+The client's AI governance programme scans licences. It reads `LICENSE` files, because that is what
+licence scanners read. The agent framework comes back MIT, the serving stack Apache-2.0, the whole
+report is green — **and not one line of it describes the model**, which is a separate artefact under
+a separate licence that the scanner never enumerated.
+
+Three ways that bill arrives late:
+
+1. **The multimodal EU case.** `meta-llama/llama-models` → `models/llama4/USE_POLICY.md:71` withdraws
+   the Section 1(a) rights for multimodal Llama 4 from a *"company with a principal place of business
+   in the European Union"*. `grep -c 'European Union'` over `models/llama4/LICENSE` returns **0**.
+   The pilot demos, then legal reads the AUP.
+2. **The inherited-licence case.** The client adopts the national model for sovereignty reasons.
+   Latam-GPT is a **Llama 3.1 70B** derivative under the **Llama 3.1 Community License**: the AUP,
+   the naming obligation and the 700M-MAU clause came along with it. The sovereignty was in the data.
+3. **The false-negative case.** Someone rejects **Qwen3** because its repository has no `LICENSE`
+   file. The weights are **Apache-2.0** (`README.md:397`). A permissive frontier-class model was
+   dropped for a filing convention.
+
+### Components, all permissive, all byte-verified 2026-11-24
+
+| Role | Component | Licence |
+|---|---|---|
+| Weights serialisation requirement | [huggingface/safetensors](https://github.com/huggingface/safetensors) | Apache-2.0 (11,357 B) |
+| Admission scan of third-party weights | [protectai/modelscan](https://github.com/protectai/modelscan) | Apache-2.0 (10,754 B) |
+| Pickle scan, shippable inside a deliverable | [mmaitre314/picklescan](https://github.com/mmaitre314/picklescan) | **MIT** (1,072 B) |
+| Signing the approved weights | [sigstore/model-transparency](https://github.com/sigstore/model-transparency) | Apache-2.0 |
+| Licence text source of truth for the Llama family | [meta-llama/llama-models](https://github.com/meta-llama/llama-models) | per-model Community Licenses |
+| Guidance the gate implements | [ossf/ai-ml-security](https://github.com/ossf/ai-ml-security) | Apache-2.0 (11,356 B) |
+
+**Do not** reach for `trailofbits/fickling` here: it is **LGPL** (`master/LICENSE`, 7,652 B). It is
+fine as a standalone CI binary, a licence problem linked into a shipped product. `picklescan` is the
+MIT peer.
+
+### Wiring — the gate is a document plus a CI job, in that order
+
+**Step 1 — build the weights register. One row per model, four licence facts, not one.**
+
+```
+model_id            | base_model        | weights_licence        | aup_document            | gate_doc_read
+--------------------+-------------------+------------------------+-------------------------+--------------
+Qwen3-32B           | (none, base)      | Apache-2.0 (README:397)| none                    | n/a
+Salamandra-7B       | (none, base)      | Apache-2.0 (LICENSE)   | none                    | n/a
+Llama-4-*-multimodal| (none, base)      | Llama 4 Community      | USE_POLICY.md:71  ← EU  | REQUIRED
+LatamGPT-SFT-1.0    | Llama-3.1-70B     | Llama 3.1 Community    | Llama 3.1 USE_POLICY    | REQUIRED
+Gemma-*             | (none, base)      | UNRESOLVED             | Gemma prohibited-use    | BLOCKED
+```
+
+The `base_model` column is the whole point: **restrictions compose downward and a fine-tune can
+never be freer than its base.** Resolve in this order — base licence, then AUP, then the fine-tune's
+own licence, then any download gate.
+
+**Step 2 — read the acceptable-use policy as part of the licence.** Not as a policy document. For
+each candidate, enumerate every document the licence incorporates by reference and read all of them.
+The one-line audit that proves the point, runnable against any shortlist:
+
+```bash
+# A restriction can live outside the instrument that grants the rights.
+for f in LICENSE USE_POLICY.md; do
+  printf '%-16s ' "$f"; grep -c 'European Union' "$f" 2>/dev/null || echo 0
+done
+```
+
+**Step 3 — answer the licensee question in writing.** For every model whose licence has a
+domicile, user-count or field-of-use term, record **which legal entity is exercising the rights**.
+For multimodal Llama 4 the clause turns on the licensee's principal place of business and expressly
+does **not** reach end users of a product incorporating the model, so the answer depends on
+contract structure, not architecture. **This is a question for counsel and it belongs in week one.**
+
+**Step 4 — then, and only then, the CI job.** Require `safetensors`; run `modelscan` and
+`picklescan` on anything that arrives in another format; sign the approved weights directory with
+`sigstore/model-transparency` so "these are the weights legal approved" is a verifiable claim about
+`(path, digest)` pairs rather than an assertion in a slide.
+
+**Step 5 — emit the record as data.** See Receta 24.
+
+### Build order — and the order is the deliverable
+
+1. Weights register with the four licence columns, every value traced to a file and a line.
+2. AUP read and summarised per model, with the restrictive clauses quoted verbatim.
+3. The licensee-entity determination, in writing, from counsel.
+4. CI: format requirement → scan → signature.
+5. AI-BOM emission (Receta 24).
+
+### Licence posture
+
+Six components, five permissive (four Apache-2.0, one MIT), one deliberately excluded for being
+LGPL. Nothing in this gate obliges the client to disclose anything, and nothing in it ships copyleft.
+
+### What to tell the client the limits are
+
+- **This gate resolves the licence, not the copyright position of the training data.** OpenMDW-1.1
+  says so in capitals: the licensee is *"solely responsible for clearing rights of other persons."*
+  **A permissive weights licence is not an indemnity for the corpus.** If the client needs that, it
+  is a commercial term with a vendor, not an open-source licence.
+- **Two licences could not be resolved from this session and the gate says so rather than guessing:**
+  Gemma (primary source `ai.google.dev` does not resolve) and the downstream reach of the Apertus
+  AUP. A gate that returns "unresolved" is working correctly.
+- **Scanners will keep being wrong here**, in both directions, because they read the wrong file.
+  The register is the artefact; the CI job only enforces what the register already decided.
+
+---
+
+## Receta 24 — The AI-BOM that actually names the weights licence, because the standards make it optional
+
+**For:** the client who already produces SBOMs — so the pipeline, the signing and the review habit
+exist — and now has models in production that the SBOM does not mention. Sequel to **Receta 18**
+(the provenance boundary) and the natural consumer of **Receta 23**'s register.
+
+**Duration:** 2–3 weeks on top of an existing SBOM pipeline.
+
+### The architectural finding that determines the whole design
+
+Both standards have the fields. **Neither requires them.**
+
+- **CycloneDX 1.6** — `schema/bom-1.6.schema.json`, byte-read at **262,666 bytes**, carries a
+  `machine-learning-model` component type plus `modelCard` and `modelParameters`. ML-BOM is real and
+  published.
+- **SPDX 3.0** — the AI profile lives in [spdx/spdx-3-model](https://github.com/spdx/spdx-3-model) at
+  `model/AI/Classes/AIPackage.md` (1,687 B), **not** in `spdx/spdx-spec`. `AIPackage` subclasses
+  `/Software/Package` and carries `informationAboutTraining`, `limitation`, `autonomyType`,
+  `domain`, `energyConsumption`, `hyperparameter`.
+- **And every one of those properties is `minCount: 0`.** A fully conformant SPDX 3.0 AI SBOM can be
+  **silent about training data, silent about limitations, silent about autonomy** — and still validate.
+
+This is the same failure this KB documented one layer down in pass 8: MCP's `ToolAnnotations` are all
+hints the client must treat as untrusted, so write-path safety cannot live in tool metadata. **Here:
+licence and training-data governance cannot live in SBOM metadata either, because the schema makes it
+optional.** The rule is identical — **require the fields in the contract, not in the format.**
+
+### Wiring
+
+| Role | Component | Licence |
+|---|---|---|
+| ML-BOM schema and validation | [CycloneDX/specification](https://github.com/CycloneDX/specification) | Apache-2.0 (11,341 B) |
+| AI profile model and field definitions | [spdx/spdx-3-model](https://github.com/spdx/spdx-3-model) | Community-Spec-1.0 |
+| Weights signature referenced from the BOM | [sigstore/model-transparency](https://github.com/sigstore/model-transparency) | Apache-2.0 |
+| The licence facts the BOM carries | Receta 23's weights register | — |
+
+### Steps
+
+1. **Write the acceptance criteria as a contract clause, not a format choice.** The sentence that
+   does the work: *"Each model component shall carry a non-empty `informationAboutTraining` and
+   `limitation`, and shall name both the weights licence and every document that licence
+   incorporates by reference."* Without that clause the BOM validates while saying nothing.
+2. **Emit one `machine-learning-model` component per model**, with `modelCard` and `modelParameters`
+   populated from the register, and the **base model recorded as a dependency** — that edge is what
+   makes inherited licences visible to a reviewer, and it is the edge that would have shown a
+   reader that Latam-GPT is a Llama derivative.
+3. **Record the AUP as a referenced document with its file and line**, not as a URL. `USE_POLICY.md:71`
+   is a citation a reviewer can check; "see Meta's website" is not.
+4. **Handle the identifier gap deliberately.** OpenMDW-1.1 is **not on the SPDX License List**, so an
+   NVIDIA Cosmos-class model will serialise as `NOASSERTION` or a custom string. Put the licence name
+   in a declared field and **tell the client's security team in advance**, or their own tooling will
+   report a foundation-stewarded permissive licence as "unlicensed". This KB's ninth pass found
+   `NOASSERTION` has two causes; **this is a third — a real licence the identifier list has not
+   caught up with.**
+5. **Attach the signature.** Reference the `sigstore/model-transparency` bundle from the BOM so the
+   component identity is `(path, digest)` pairs that can be recomputed, closing the loop with
+   Receta 18.
+
+### Deliverables, and the sentence that sells it
+
+An ML-BOM per deployed model, a contract clause that makes its fields mandatory, and a licence
+register behind it. The sentence: **"Your SBOM pipeline is already compliant and it does not mention
+the models. The standards added the fields and made them optional — so we make them contractual."**
+
+### Anti-patterns — each one observed in this pass's evidence
+
+- **Reading `LICENSE` and calling the model cleared.** It is the wrong file. Measured divergence: two
+  of four families, in opposite directions.
+- **Treating an acceptable-use policy as a policy.** It modifies the grant. `USE_POLICY.md:71`.
+- **Buying "sovereign" as a licence claim.** Latam-GPT carries Meta's licence; SEA-LION's licence
+  depends on the checkpoint and its own paper overstates it.
+- **Rejecting a model because the repo has no `LICENSE`.** Qwen3 is Apache-2.0.
+- **Accepting a model because the repo *has* an Apache-2.0 `LICENSE`.** `google-deepmind/gemma` does;
+  that file governs the code.
+- **Quoting an OpenMDW model as "OSI-approved".** It is not, and the review was still open at
+  2026-08-29 over termination reaching copyright claims.
+- **Treating a permissive weights licence as an indemnity for training data.** OpenMDW-1.1 disclaims
+  exactly that, in capitals.
+- **Shipping `fickling` inside a product.** LGPL. Use `picklescan` (MIT).
+- **Accepting "we emit an AI-BOM" as governance.** Every field is optional. Require them by contract.

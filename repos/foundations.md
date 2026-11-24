@@ -1461,3 +1461,52 @@ that defeats the detector built for those: **the path is stable and the product 
 it.** A link that still resolves, a licence that is still MIT, and a component that is no longer the
 thing the KB described. Check the description against your own one-line summary, not just the HTTP
 status.
+
+---
+
+## Twelfth pass, 2026-11-24 — the weights layer: licence instruments, model sources and the tools that inspect them
+
+> **Read the column headings before reading the rows.** There is **no star column in this section**
+> and that is deliberate: `api.github.com` returned **403 for every repository outside this session's
+> scope**, so star counts and last-push dates **could not be measured this pass**. Rather than copy
+> numbers from a listicle, each row carries the **licence, the byte-verified evidence for it, and the
+> date it was read**. Every row below was fetched from `raw.githubusercontent.com` on **2026-11-24**.
+>
+> The organising finding is in `intel/trends.md` (trends 27 and 28): **a model's code repository and
+> its weights are two different artefacts with two independent licences**, and reading the `LICENSE`
+> file — the only thing a scanner reads — gives the wrong answer in both directions.
+
+### A. The licence instruments themselves
+
+| Repo | Licence | Verified evidence (read 2026-11-24) | Why it matters |
+|---|---|---|---|
+| [OpenMDW/OpenMDW](https://github.com/OpenMDW/OpenMDW) | The OpenMDW-1.1 text itself; repo docs **CC-BY-4.0** | Canonical text at `1.1/LICENSE.OpenMDW-1.1`, **2,619 bytes**. `README.md` 2,846 B. `FAQ.md` is a **171-byte stub** | **The eleventh licence class in this KB and the first written for weights.** One grant covering model + data + docs + code; adds **database and trade-secret** rights Apache-2.0 does not name; **outputs explicitly unrestricted**; no AUP, no user ceiling. Defensive termination reaches **copyright as well as patents**, which is why it is **not OSI-approved and has no SPDX ID** (review still open 2026-08-29). Rights clearance on training data is pushed to the licensee in capitals — permissive, **not an indemnity** |
+| [meta-llama/llama-models](https://github.com/meta-llama/llama-models) | Per-model **Llama Community License Agreements** — not OSI open source | Root `LICENSE` is **78 bytes containing only a URL**. `models/llama4/LICENSE` **7,603 B**; llama3_3 **7,909 B**; llama3_2 **7,669 B**; llama3_1 **7,680 B**. `models/llama4/USE_POLICY.md` **5,824 B** | **The source of truth for the licence family most enterprise agents actually run on**, and the reason Llama repos are reported as `NOASSERTION`: a scanner at the root finds a pointer. **The EU multimodal carve-out is in `USE_POLICY.md:71`, not in any `LICENSE`** — `grep -c 'European Union'` returns 0 across all four licence files and 1 in the AUP |
+| [spdx/spdx-3-model](https://github.com/spdx/spdx-3-model) | **Community-Spec-1.0** | `model/AI/Classes/AIPackage.md` **1,687 B**, header reads `SPDX-License-Identifier: Community-Spec-1.0` | The **SPDX 3.0 AI profile**, and it is **not** in `spdx/spdx-spec` — a path worth knowing. `AIPackage` subclasses `/Software/Package` with `informationAboutTraining`, `limitation`, `autonomyType`, `energyConsumption`, `hyperparameter`. **Every property is `minCount: 0`** — all optional, so a conformant AI SBOM can be silent about training data. Require the fields contractually |
+| [CycloneDX/specification](https://github.com/CycloneDX/specification) | **Apache-2.0** | `LICENSE` **11,341 B**. `schema/bom-1.6.schema.json` **262,666 B**, containing `machine-learning-model`, `modelCard` and `modelParameters` | The **ML-BOM**, confirmed present in the published 1.6 schema by byte-read rather than by blog. The practical counterpart to SPDX's AI profile, and the one most client toolchains can already emit |
+
+### B. Model sources whose licence this pass verified from a reachable primary
+
+| Repo | Licence of the **weights** | Verified evidence (read 2026-11-24) | Posture for an engagement |
+|---|---|---|---|
+| [langtech-bsc/salamandra](https://github.com/langtech-bsc/salamandra) | **Apache-2.0** | `LICENSE` **11,357 bytes**, plain Apache-2.0 | **EMEA's cleanest sovereign option.** Barcelona Supercomputing Center, multilingual with Iberian-language focus. No AUP layer, no gate, no inheritance problem. The default answer when a European client wants a non-US base model and a licence legal will sign in one reading |
+| [allenai/OLMo](https://github.com/allenai/OLMo) · [allenai/OLMo-core](https://github.com/allenai/OLMo-core) | **Apache-2.0** | `LICENSE` **11,359 bytes** in both | **The only family probed this pass where the code licence and the weights licence agree and both are permissive.** AI2 also publishes training data and code, which is what makes it the realistic candidate when a client asks for a model that survives an OSAID-style openness test |
+| [QwenLM/Qwen3](https://github.com/QwenLM/Qwen3) | **Apache-2.0** (per the vendor's own README) | **No `LICENSE` at `main` or `master` (404 both).** `README.md:397`: *"All our open-weight models are licensed under Apache 2.0."* | **The most permissive frontier-class family verified this pass, and a false negative waiting to happen** — the repo looks unlicensed. Note `README.md:398` points to Hugging Face for the licence files, a host this session cannot reach: the prose is the reachable primary |
+| [aisingapore/sealion](https://github.com/aisingapore/sealion) | **Varies by base model — MIT "as much as possible", Llama 3 or Gemma otherwise** | `README.md:88` states the terms *"may vary depending on the underlying base model's restrictions"*, naming the Llama3 License and Gemma variants | **APAC's regional model, and the honest example of inheritance.** Its own arXiv paper (2504.05747) claims *"fully open MIT"* while the README and the Gemma-variant card say otherwise. **Resolve the specific checkpoint, never the project** |
+| [google-deepmind/gemma](https://github.com/google-deepmind/gemma) | **Code Apache-2.0; weights are a separate question and currently UNRESOLVED** | `LICENSE` **11,358 B** Apache-2.0 — this is the **code**. `README.md` contains **zero** licence statements (grep: no hits) | **The canonical false positive.** Secondary sources disagree on whether Gemma 4 moved to Apache-2.0 in April 2026 while Gemma 1–3 stay under the Gemma Terms of Use. The primary page `ai.google.dev/gemma/terms` **does not resolve from this session**. **Do not quote a Gemma weights licence until legal reads that page** |
+| [NVIDIA/Cosmos](https://github.com/NVIDIA/Cosmos) | **OpenMDW-1.1** | `LICENSE` is the OpenMDW-1.1 text at **2,619 bytes — byte-size identical to the canonical file** | **Primary confirmation of the first major adoption of the new class, read from NVIDIA's own repo rather than from a press release.** For contrast, `NVIDIA-NeMo/Nemotron` → `LICENSE` is **Apache-2.0 (11,358 B)**: the code repo, not the weights. Trend 27 reproduced inside one vendor |
+
+### C. Tools that inspect weights — and the licence split between them
+
+| Repo | Licence | Verified evidence (read 2026-11-24) | Use |
+|---|---|---|---|
+| [mmaitre314/picklescan](https://github.com/mmaitre314/picklescan) | **MIT** | `LICENSE` **1,072 bytes** | Scans pickle files for unsafe opcodes. **The permissive one** — reach for this when the scanner has to ship inside a client deliverable |
+| [trailofbits/fickling](https://github.com/trailofbits/fickling) | **LGPL** | `LICENSE` **7,652 B** at `master` (not `main`), header *"GNU LESSER GENERAL PUBLIC LICENSE"* | The better-known pickle-security tool, and **copyleft**. Fine as a standalone CI binary; a licence problem if linked into a shipped product. **The two tools in this slot are not in the same licence class** |
+| [protectai/modelscan](https://github.com/protectai/modelscan) | **Apache-2.0** | `LICENSE` **10,754 bytes** | Scans serialised models across formats for unsafe code execution on load. The permissive, pipeline-ready option for an admission gate on third-party weights |
+| [huggingface/safetensors](https://github.com/huggingface/safetensors) | **Apache-2.0** | `LICENSE` **11,357 bytes** | The serialisation format that removes the arbitrary-code-execution problem rather than scanning for it. **Prefer requiring `safetensors` over scanning pickles**, and keep the scanner for what arrives anyway |
+| [ossf/ai-ml-security](https://github.com/ossf/ai-ml-security) | **Apache-2.0** | `LICENSE` **11,356 bytes** | OpenSSF's AI/ML security working-group material. Foundation-governed, permissive, and the reference to cite when a client asks whose guidance the admission gate implements |
+| [sigstore/model-transparency](https://github.com/sigstore/model-transparency) | **Apache-2.0** | Already held in this KB from the ninth pass | **Signs the weights themselves** — Sigstore bundle → DSSE → in-toto statement listing every file as `(path, digest)`. The piece that makes "these are the approved weights" verifiable rather than asserted. Pairs directly with the licence gate in Receta 23 |
+
+**Fifteen repositories, every licence byte-verified from a reachable primary on 2026-11-24, with two
+licences deliberately recorded as unresolved rather than guessed.** No row carries a star count,
+because stars could not be measured this pass.

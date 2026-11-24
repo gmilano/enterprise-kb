@@ -544,3 +544,57 @@ The two rows worth a client conversation this week are **`rmcp-openapi`** — be
 client already owns an OpenAPI catalogue and this converts it into agent tools without writing a
 service — and **`gitlab-opencode`**, because CI is the one place in the estate where an agent already
 has credentials, and almost nobody has scoped its tool permissions.
+
+---
+
+## Twelfth pass, 2026-11-24 — the licence posture of every row above is incomplete, and here is the missing half
+
+**No agent row changed this pass, for the seventh consecutive pass.** What changed is a column that
+was never there. Every licence in the tables above describes **the agent's code**. None of them
+describes **the weights the agent loads at runtime** — and those are a separate artefact under a
+separate licence, which this KB had never measured.
+
+> **The one-sentence version for a client conversation:** *"CrewAI is MIT. That tells you nothing
+> about whether you may use the model it calls."*
+
+### The rule, measured this pass on four model families
+
+`repo_license` and `weights_license` are **independent facts**, and they diverged in **two of the
+four** families probed — in **opposite** directions:
+
+| Family | The code repo's `LICENSE` | The weights | Error if you trust the badge |
+|---|---|---|---|
+| Gemma | **Apache-2.0** (11,358 B) | Gemma Terms of Use (**and currently unresolved** — see below) | **False positive** |
+| Qwen3 | **absent** — 404 at `main` and `master` | **Apache-2.0** per `README.md:397` | **False negative** |
+| Llama | root `LICENSE` = **78 bytes, a bare URL** | Llama Community License, per model | Scanner reports `NOASSERTION` |
+| OLMo | **Apache-2.0** (11,359 B) | **Apache-2.0** | none |
+
+### The clause that decides an EMEA engagement is not in the licence
+
+`meta-llama/llama-models` → `models/llama4/USE_POLICY.md:71`, read 2026-11-24, withdraws the
+**Section 1(a)** rights for **multimodal Llama 4** from *"an individual domiciled in, or a company
+with a principal place of business in, the European Union"* — while expressly **not** reaching the
+**end users** of a product incorporating such a model. `grep -c 'European Union'` over the licence
+files of Llama 4, 3.3, 3.2 and 3.1 returns **zero** every time.
+
+**So the question that gates a multimodal Llama 4 pilot for a European client is not technical and
+not even really a licence question — it is "which entity is the licensee?"** Ask it in week one.
+
+### The weights to pair with the agents above, licence verified
+
+| Model | Weights licence | Pair it when |
+|---|---|---|
+| **Qwen3** (`QwenLM/Qwen3`) | **Apache-2.0** (vendor README) | You want frontier-class capability under a permissive licence and can accept a Chinese-origin base model |
+| **OLMo** (`allenai/OLMo`) | **Apache-2.0** | The client needs openness that survives scrutiny of the *training data*, not just the weights |
+| **Salamandra** (`langtech-bsc/salamandra`) | **Apache-2.0** | EMEA, sovereignty-constrained, and legal wants a licence they can read once and sign |
+| **NVIDIA Cosmos** (`NVIDIA/Cosmos`) | **OpenMDW-1.1** | Fine — but warn the client their SPDX tooling will emit `NOASSERTION`, because the licence has no SPDX ID yet |
+| **Llama 4 multimodal** | Llama 4 Community License **+ AUP** | Only after the EU-domicile question above has a written answer |
+| **Gemma** | **Unresolved this pass** | Not this week. `ai.google.dev` does not resolve from this session; have legal read the terms page |
+
+### What to tell an engagement lead
+
+The agent shortlist is stable and the stability is real. **The new work is one gate, not one tool:**
+before any pilot, resolve the weights licence as its own artefact — base model, then fine-tune, then
+the acceptable-use policy — and record it next to the agent's licence. That gate is **Receta 23** in
+`compose/patterns.md`, it is four permissive components, and it closes the gap that an MIT badge on
+the orchestrator has been hiding for eleven passes.

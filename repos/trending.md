@@ -8,7 +8,58 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — eleventh pass (latest) — the forge boundary
+## 2026-11-24 — twelfth pass (latest) — the weights boundary
+
+> Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
+> components **are what they claim to be**, pass 10 what it may **reach**, pass 11 **where this KB had
+> looked**. This pass asks the question none of them did: **under what licence does the model itself
+> arrive?** Fifteen repositories, every licence byte-verified from `raw.githubusercontent.com` on
+> 2026-11-24. Full tables in `repos/foundations.md`, analysis in `intel/trends.md` (trends 27–28).
+
+> **No star counts in this section.** `api.github.com` answered **403 for every repository outside
+> this session's scope**, so stars and push dates **could not be measured**. Each row carries the
+> licence and the byte-verified evidence instead. An omitted number is a refused measurement, not a
+> small project.
+
+### New to this KB — the licence instruments
+
+| Repo | Licence | Byte-verified evidence | Note |
+|---|---|---|---|
+| [OpenMDW/OpenMDW](https://github.com/OpenMDW/OpenMDW) | OpenMDW-1.1 text; docs CC-BY-4.0 | `1.1/LICENSE.OpenMDW-1.1` **2,619 B**; `FAQ.md` a **171-byte stub** | **Eleventh licence class in this KB, first one written for weights.** Model + data + docs + code in one grant; **database and trade-secret** rights named; **outputs unrestricted**; **not OSI-approved, no SPDX ID** |
+| [meta-llama/llama-models](https://github.com/meta-llama/llama-models) | Per-model Llama Community Licenses | Root `LICENSE` **78 B — a bare URL**; `models/llama4/LICENSE` **7,603 B**; `models/llama4/USE_POLICY.md` **5,824 B** | The licence source of truth for the family most enterprise agents run on. **The EU carve-out is in the AUP at line 71, not in any `LICENSE`** |
+| [spdx/spdx-3-model](https://github.com/spdx/spdx-3-model) | Community-Spec-1.0 | `model/AI/Classes/AIPackage.md` **1,687 B** | The SPDX 3.0 **AI profile** — and it is **not** in `spdx/spdx-spec`. Every property is `minCount: 0`, so a conformant AI SBOM may be silent about training data |
+| [CycloneDX/specification](https://github.com/CycloneDX/specification) | Apache-2.0 | `LICENSE` **11,341 B**; `schema/bom-1.6.schema.json` **262,666 B** with `machine-learning-model`, `modelCard`, `modelParameters` | **ML-BOM confirmed in the published schema by byte-read.** The AI-BOM most client toolchains can already emit |
+
+### New to this KB — model sources, licence verified from a reachable primary
+
+| Repo | Weights licence | Byte-verified evidence | Note |
+|---|---|---|---|
+| [langtech-bsc/salamandra](https://github.com/langtech-bsc/salamandra) | **Apache-2.0** | `LICENSE` **11,357 B** | EMEA sovereign (Barcelona Supercomputing Center). No AUP, no gate, no inheritance. **The clean European option** |
+| [allenai/OLMo](https://github.com/allenai/OLMo) · [allenai/OLMo-core](https://github.com/allenai/OLMo-core) | **Apache-2.0** | `LICENSE` **11,359 B** both | The only family probed where code and weights agree **and** both are permissive |
+| [QwenLM/Qwen3](https://github.com/QwenLM/Qwen3) | **Apache-2.0** | **No `LICENSE` (404 at `main` and `master`)**; `README.md:397` states it | APAC, frontier-class, permissive — and a **false negative** for every scanner |
+| [aisingapore/sealion](https://github.com/aisingapore/sealion) | **Varies by base model** | `README.md:88` | APAC regional model. README contradicts its own arXiv paper's "fully open MIT" claim |
+| [NVIDIA/Cosmos](https://github.com/NVIDIA/Cosmos) | **OpenMDW-1.1** | `LICENSE` **2,619 B**, byte-identical to canonical | First major adoption, confirmed from the vendor's repo |
+| [NVIDIA-NeMo/Nemotron](https://github.com/NVIDIA-NeMo/Nemotron) | Repo is **Apache-2.0** (code) | `LICENSE` **11,358 B** | Held beside Cosmos as the **two-document rule inside one vendor** |
+| [google-deepmind/gemma](https://github.com/google-deepmind/gemma) | Code Apache-2.0; **weights UNRESOLVED** | `LICENSE` **11,358 B**; `README.md` has **zero** licence statements | The canonical false positive. `ai.google.dev` does not resolve from this session, so the weights question stays open |
+
+### New to this KB — weights inspection tooling
+
+| Repo | Licence | Byte-verified evidence | Note |
+|---|---|---|---|
+| [mmaitre314/picklescan](https://github.com/mmaitre314/picklescan) | **MIT** | `LICENSE` **1,072 B** | The permissive pickle scanner — ship this one |
+| [trailofbits/fickling](https://github.com/trailofbits/fickling) | **LGPL** | `master/LICENSE` **7,652 B** | The better-known one, and **copyleft**. Standalone CI binary only |
+| [protectai/modelscan](https://github.com/protectai/modelscan) | **Apache-2.0** | `LICENSE` **10,754 B** | Admission scanning for third-party weights across formats |
+| [huggingface/safetensors](https://github.com/huggingface/safetensors) | **Apache-2.0** | `LICENSE` **11,357 B** | Removes the code-execution problem rather than scanning for it. **Require the format, keep the scanner** |
+| [ossf/ai-ml-security](https://github.com/ossf/ai-ml-security) | **Apache-2.0** | `LICENSE` **11,356 B** | OpenSSF AI/ML security WG — whose guidance the gate implements |
+
+### Paths probed and not found — recorded so absence is not read as non-existence
+
+`swiss-ai/apertus`, `utter-project/EuroLLM`, `OpenGPT-X/Teuken`, `sarvamai/sarvam-1`, `lfai/mof`, and
+`aisingapore/sea-lion` (correct path: `aisingapore/sealion`). **Apertus, EuroLLM, Teuken and Sarvam
+are real projects whose repository addresses this pass failed to locate** — an open inventory item
+for pass 13, not a measured zero.
+
+## 2026-11-24 — eleventh pass — the forge boundary
 
 > Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
 > components **are what they claim to be**, pass 10 what it may **reach**. This pass asks the
