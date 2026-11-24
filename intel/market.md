@@ -574,6 +574,47 @@ expediente**: Kepler por *pod* → atribución por unidad de negocio → `Green-
 como cálculo auditable → salida en XBRL con `Arelle/Arelle`. Es la **misma forma** que `energy-kb`
 documentó para el expediente tarifario y `legal-kb`/`enterprise-kb` para OSCAL: **el producto es el
 expediente, no el modelo.** Quinta confirmación independiente de esa tesis en esta red.
+
+#### The language boundary — sixteenth pass, 2026-11-24 (North America)
+
+**The duty: Quebec's Charter of the French Language (as amended by Bill 96).** This is the hardest
+language obligation in the region and it lands squarely on software, not just on marketing copy.
+Per a 2026 law-firm guide, where a **French-language version of a software product exists and has
+been made commercially available**, non-French versions may be sold in Québec only if a
+**functionally equivalent French version** is offered. Read for employee-facing tools, the operative
+test reported is simpler still: **if the vendor offers French, the employer must make it available to
+Québec employees.** The final provisions came into force **2025-06-01**, and reported penalties for
+organisations are **CAD 3,000–30,000** per offence.
+⚠️ **Secondary-sourced** — law-firm and vendor commentary, not the Charter text or the OQLF. Verify
+against the statute before it reaches a contract. The *existence and direction* of the duty is well
+corroborated across independent sources; the **numbers** are the part to check.
+
+**Why this is an agent problem and not a translation-budget problem.** An agent UI is software with a
+user interface. A conversational agent deployed to a client's Québec employees or customers, that
+answers in English because the model defaulted to the language of its system prompt, is the exact
+failure this rule addresses — and it fails **per conversation**, not once at release. Three
+consequences for scoping:
+1. **Functional equivalence is the bar, not availability of a translation.** A French UI that loses a
+   feature, degrades the answer, or falls back to English mid-conversation is not equivalent.
+2. **Language detection becomes a compliance control**, which makes `pemistahl/lingua-py`
+   (Apache-2.0) a governed component — and makes the archived state of `fastText` (26,502★, archived
+   2024-03-22) and `cld3` (archived 2023-05-24) a live risk, not trivia.
+3. **The federal layer is separate.** Canada's *Official Languages Act* duties bind federal
+   institutions and their suppliers; Québec's Charter binds commerce in the province. An engagement
+   can be subject to one, the other, or both.
+
+**US federal and state:** this pass found **no language-specific AI obligation** — the regional
+picture remains governance frameworks built voluntarily against fragmented federal rules, with
+**regulatory fragmentation rather than strictness** reported as the brake on scale-up. Sector
+language-access duties (healthcare, benefits, voting) exist but are **not AI-specific** and were not
+verified in this pass. **Recorded as an informed gap, not as absence of risk.**
+
+**Opportunity, placed:** a **French-equivalence audit of an agent estate** is a short, well-bounded,
+legally motivated engagement with a named deadline already past — the strongest kind of door-opener.
+The deliverable is the measured subset in Receta 30 plus a per-locale conformance record. The
+permissive stack for it — Pontoon (BSD-3-Clause), CTranslate2 (MIT), Opus-MT (CC-BY-4.0 models),
+COMET (Apache-2.0), lingua-py (Apache-2.0) — is in `repos/foundations.md`.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1213,6 +1254,56 @@ intensidad de red de la vía más usada (`co2.js` → Electricity Maps) son **OD
 Para un cliente europeo que quiera el número **sin** heredar obligaciones sobre su base de datos
 derivada, la salida es un factor de fuente propia o de operador nacional. Ver la trampa completa en
 `repos/foundations.md`.
+
+#### The language boundary — sixteenth pass, 2026-11-24 (EMEA)
+
+**The duty that is confirmed: EU AI Act Article 50 transparency.** Obligations became applicable
+**2026-08-02**, with reported penalties up to **€15 million or 3% of global turnover**. The chatbot
+limb (Art. 50(1)) requires disclosure that the user is interacting with an AI system, **except where
+that is obvious from the circumstances and context**. The Commission published **non-binding
+guidelines on 2026-07-20**, which national market-surveillance authorities and the AI Office are
+expected to follow closely.
+
+**The clause that decides who pays, and it is a contracting question.** A company that **commissions
+and brands** a chatbot can itself become the **provider** under Art. 50, which means the disclosure
+duty does not stay with the model vendor by default. For Globant this cuts both ways and must be
+written down: in a white-labelled agent the **client** is likely the provider, and the statement of
+work should say which party carries each Art. 50 duty rather than leaving it to be discovered by a
+regulator. The voluntary Code of Practice covers machine-readable marking under 50(2) and labelling
+under 50(4) — **not** chatbot disclosure under 50(1), so there is no safe-harbour text to point at
+for the chatbot case.
+
+**The explicit gap — and it is the most useful thing in this subsection.** This pass searched
+specifically for whether an Art. 50 disclosure must be given **in the official language(s) of the
+member state** and **found no evidence either way**. The searches returned the disclosure duty in
+detail and nothing on its language. What the sources do support is that **multiple national
+authorities will interpret Art. 50 and their readings may not always align**, which makes national
+variation plausible but is **not** evidence of a language rule. Closing this needs the Commission
+guidelines text and a specific member state's market-surveillance guidance, neither of which this
+session could reach. **Written down as an informed gap: do not tell a client the disclosure may be
+English-only, and do not tell them it may not be.** The question is open and it is cheap to ask
+their counsel.
+
+**Consumer-protection law is the likelier source of a language duty than the AI Act**, since
+several member states require consumer-facing information in the local language under general
+consumer and contract rules. Not verified in this pass — **a lead, not a finding.**
+
+**The regional execution picture, for sizing.** Only **9% of EMEA organisations** report measurable
+business outcomes from most AI projects over the past two years; the blocker is reported as
+execution capability rather than ambition, with **half of surveyed SMEs** citing a skills shortage.
+One vendor survey reports **88% already operating AI agents** while **only 7%** believe they are
+fully prepared to manage them. Regulation is framed by analysts as **both** constraint and catalyst
+for trusted adoption.
+
+**Opportunity, placed:** an **Art. 50 disclosure and language conformance review** across an
+agent estate, delivered as a record rather than an opinion — who is the provider for each agent,
+what the disclosure says, in which locales, and the evidence it rendered. EMEA is also the region
+where the permissive stack matters most: `langtech-bsc/salamandra` (Apache-2.0, Iberian languages)
+and Opus-MT's CC-BY-4.0 pairs allow a **wholly self-hosted** language layer, which is the answer to
+the data-sovereignty concern the region's own surveys keep reporting. ⚠️ Regulatory figures here are
+**secondary-sourced** from law-firm and analyst commentary; `artificialintelligenceact.eu` and the
+legal hosts did not resolve from this session.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1791,6 +1882,51 @@ de control que esta KB ya tiene en `Receta 9`.
 sistema de IA**. Lo que existe es (a) divulgación financiera de sostenibilidad vía ISSB y (b)
 regulación de la **instalación** física. **El hueco entre ambas es donde cae el agente**, y hoy nadie
 lo cubre por mandato.
+
+#### The language boundary — sixteenth pass, 2026-11-24 (APAC)
+
+**The duty: India's DPDP Act §5(3) — the notice must be available in 22 languages.** A data
+principal must have the option to view the privacy notice **in English or in any of the 22 languages
+listed in the Eighth Schedule to the Constitution of India**. The DPDP Rules were notified in
+**November 2025**; **Consent Manager** provisions commence **November 2026**, and the **remaining
+operational provisions in May 2027** — so the notice-and-consent machinery is **phasing in now, not
+retrospective**, which is exactly the window in which a platform project gets funded.
+
+**This KB already held DPDP and had missed this.** The measurement at the top of this pass found
+`DPDP` with **10 pre-existing hits** — all treating it as a **privacy and erasure** instrument
+(Rule 8 retention, the Consent Manager registration requirement). Its **language** duty appeared
+nowhere. The lesson generalises past this row: **a statute read for one boundary yields only the
+clauses that boundary was looking for.** Four of the five regional duties in this pass come from
+laws this KB had already cited for other reasons.
+
+**The asset that makes it feasible, and it has 500 stars.**
+[`AI4Bharat/IndicTrans2`](https://github.com/AI4Bharat/IndicTrans2) is **MIT**, and covers
+**translation for all 22 scheduled languages of India** — the same set §5(3) names. It is the
+lowest-starred and highest-leverage row in this pass: a permissively licensed, self-hostable path to
+a 22-language notice obligation, against a statutory clock. Last push **2025-10-03**, so confirm
+maintenance before it becomes a dependency rather than a starting point.
+
+**Regional picture, for sizing.** **96% of APAC organisations** plan to increase AI investment, by
+an average of **15%** in 2026. Forrester reports APAC leading on some genAI adoption, with
+**Singapore, Australia, New Zealand and South Korea** ahead of most North American and European
+countries. The region is reported as **five distinct adoption stories rather than one**, with some
+jurisdictions advanced on AI regulation and others nascent; **sovereignty is predicted to shape AI
+infrastructure choices for half of firms**, and **security** tops the barrier list. Singapore's
+consultations on AI in financial institutions are the named example of a regulator shaping
+enterprise boundaries; **Vietnam and India** are flagged as markets whose rules could raise costs,
+with **training-data disclosure** the sharpest live issue for enterprise software.
+
+**Other language-relevant assets, placed:** `aisingapore/sealion` (Southeast Asian languages,
+already in this KB as a sovereign model) and `SakuraLLM/SakuraLLM` (**GPL-3.0** — recorded and
+**not** recommended; copyleft, and its domain is light novels).
+
+**Opportunity, placed:** a **22-language notice and consent layer** for an India-exposed client,
+built on IndicTrans2 + a TMS approval gate, with the phase-in dates as the project plan. This is the
+clearest statute-to-stack mapping in the whole pass: the law names a list of languages, and an
+MIT-licensed project covers exactly that list. ⚠️ Statutory detail is **secondary-sourced** (law-firm
+and advisory summaries). Verify against the Gazette text of the DPDP Rules, 2025 and any 2026 MeitY
+notifications before it reaches a contract.
+
 ### LATAM
 
 - **Regulatory shape: fragmented, privacy law is the real gate.** **Peru enacted the
@@ -2490,6 +2626,58 @@ creciendo **15-20 % anual**, con el crecimiento de IA limitado **más por sumini
 inversión que por demanda**. Para esta capa eso significa que **el consumo del agente es un problema
 de costo y de licencia social antes que de reporte regulatorio** — no hay un mandato LATAM de
 declaración energética de IA encontrado en este pase, y se declara como **hueco medido**.
+
+#### The language boundary — sixteenth pass, 2026-11-24 (LATAM)
+
+**The duty: Brazil's new SAC decree — Decree No. 13,135/2026.** It regulates the Consumer Protection
+Code, replaces Decree No. 11,034/2022, was published **2026-10-13** and takes effect **20 days
+later (≈2026-11-02)** — i.e. **three weeks before this pass**. The finding that matters for an agent
+engagement: **the use of AI and automated technologies does not remove the consumer's right to
+real-time human customer service** during the hours the decree sets. Chatbots must be **free and
+available 24/7** where telephone service is limited to 8 hours. Scope covers regulated sectors,
+Central Bank-supervised digital financial services, digital intermediation platforms, ride-hailing
+and delivery. Accessibility of SAC channels is **delegated to the relevant sector regulator**.
+
+**Why this belongs in the language boundary even though it is not a language rule.** It is the
+**escalation duty** that every conversational agent in Brazil must now implement: a verifiable,
+always-available path from the agent to a human, which is a **product requirement, not a policy
+page**. It pairs directly with the human-approval layer this KB already holds
+(`humanlayer/humanlayer` in `repos/foundations.md`) and with the approval gate in Receta 30 — the
+same control, one for *wording* and one for *handoff*.
+
+**The explicit gap.** This pass searched specifically for a **Portuguese-language requirement** for
+digital services or chatbots and **found none** in the decree coverage. Brazil's Consumer Protection
+Code is generally understood to require Portuguese for consumer information, but **that was not
+verified here** and the decree results do not address it. **Recorded as an informed gap.**
+`planalto.gov.br` returned **HTTP 000** from this session, so the decree's own text could not be
+read — all of the above is **secondary-sourced** from law-firm and trade coverage, and one source
+gives a conflicting adoption date of 2026-11-02 that appears to be an error for the entry-into-force
+date. **Verify against the Senate or Planalto text before quoting.**
+
+**Regional picture, for sizing.** About **40% of LATAM organisations** are already implementing AI
+and **68% of those adopters plan to expand within 12 months** (survey of 400+ business leaders) —
+but **fewer than one in five have a formal AI governance framework**. WEF/McKinsey estimate AI could
+lift regional productivity by **1.9–2.3% a year** while describing the region as lagging in
+capturing it. On regulation: **no LATAM country yet has a fully mature, harmonised AI regime**, the
+regional approach largely **follows the EU model**, regulated sectors face heightened accountability,
+**Uruguay** was the first in the region to sign the Council of Europe AI treaty (2025), and **Peru**
+published the regulation for its AI law in September 2025.
+
+**The measured tooling gap, stated because silence would look like coverage.** **No LATAM-origin
+translation or localisation project surfaced in this pass.** The region's open-language assets
+already in this KB — `latam-gpt/language_identifier`, `latam-gpt/anonymization-filter`,
+`latam-gpt/toxicity-classifier` — are **corpus-cleaning tools, not translation tooling**, and
+Chile's **Latam-GPT** (launched February 2026) is a base model, not a localisation stack. For
+Spanish and Portuguese the honest recommendation is **Opus-MT's pairs (CC-BY-4.0 models, MIT code)
+plus a client-owned glossary and a TMS approval gate** — not a regional project that does not exist.
+This is the second consecutive pass in which the LATAM row is a **real gap rather than a thin
+finding**, and writing it down is what keeps the next pass from re-searching it blind.
+
+**Opportunity, placed:** a **human-escalation conformance build** for a Brazil-exposed client —
+agent plus a provable 24/7 handoff, with evidence per conversation — against a decree that took
+effect three weeks ago and whose sector regulators have not yet issued accessibility rules. First
+mover advantage here is measured in months, and the compliance deadline has already passed.
+
 ## Posicionamiento Globant
 
 - **Assets in hand.** Multi-year **Anthropic alliance (30 Jun 2026)** with Claude-powered

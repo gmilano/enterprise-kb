@@ -2132,3 +2132,110 @@ y la única defensa barata es citar siempre instrumento + fecha, nunca "el AI Ac
 7. **Atribuir la obligación al instrumento de moda.** No es el art. 40 del AI Act; es la EED.
 8. **Suponer que el `default_branch` es `main`.** Las cuatro suites de este pase: `20.0`, `develop`,
    `2026.9.x`, `trunk`. **Ninguna.**
+
+---
+
+## Sixteenth pass, 2026-11-24 — the language boundary: the trend is that "it works" and "it is lawful here" have separated
+
+> Theme: **what the agent says, in which language, and who approved the wording.** Measured before
+> searching: **28 of 30 terms for this layer at zero** across all nine files. Full evidence in
+> `repos/foundations.md`; duties by region in `intel/market.md`.
+
+### Trend 1 — The message-format standard stopped being optional, and it replaces what everyone has
+
+The **Unicode MessageFormat Standard (MF2)** is now a **stable part of CLDR**, **approved by the CLDR
+Technical Committee** and **recommended for implementation and adoption**, published normatively in
+TR35. Read from `unicode-org/message-format-wg`'s own README, because `unicode.org` does not resolve
+from this session.
+
+Three things are true simultaneously and all three belong in a client conversation:
+1. **It is no longer a preview to wait out.** Approved and recommended.
+2. **It replaces the ICU MessageFormat syntax every existing estate is written in.** That is a
+   migration, with a cost, that no one has budgeted.
+3. **It is not fully frozen** — *"some default functions and items in the `u:` namespace are still in
+   Draft status."*
+
+The trend to call: **2026–2027 is the MF2 migration window**, and the reason it matters now is
+agentic. Hand-written strings get migrated once by a human; **LLM-generated strings get produced
+continuously**, so an estate that has not fixed its message format is accumulating ungrammatical
+plural and gender handling at machine speed. The format decision is now upstream of the content
+pipeline, which it never was when humans wrote all the copy.
+
+### Trend 2 — Terminology control moved from post-editing to generation time, with a measured bar
+
+The converging practice across research and products: **inject approved glossary terms at generation
+time rather than correcting output afterwards**. The measured bar is **AIDAterm** (ACL 2026, Industry
+Track): a four-agent pipeline (Analysis → Translation → Post-editing → Review) reporting **99.4%
+terminology accuracy on the WMT25 Terminology Translation benchmark** and, per its authors,
+outperforming **all 20 systems** submitted to that shared task. Its design choices are the
+transferable part: **glossary injected at every stage**, not once, and a **reasoning-enabled review
+agent** last.
+
+The contrast worth quoting: a practitioner report puts **glossary-specific prompting alone
+plateauing in the mid-80% range** for terminology compliance. That is anecdotal, but the gap between
+~85% and 99.4% is the gap between a demo and a deliverable — and it is **architectural**, not a
+matter of a better model. Product confirmation that the pattern is now table stakes: ServiceNow,
+Ada and Zowie all shipped glossary features in which terms carry per-market translations and a
+conversation view shows **which terms were applied on each turn**.
+
+### Trend 3 — The region is now a property of the sentence, not of the deployment
+
+The 2026 compliance picture turned language into a per-utterance obligation, and the four regions
+have **four different duties** (detail and sourcing caveats in `intel/market.md`):
+
+| Region | Duty | Status |
+|---|---|---|
+| **North America** | Québec Charter / Bill 96 — **functionally equivalent French** UI where a French version exists | In force since **2025-06-01** |
+| **EMEA** | EU AI Act **Art. 50** chatbot disclosure, up to €15M/3% | Applicable **2026-08-02** |
+| **APAC** | India DPDP **§5(3)** — notice viewable in **English or any of 22 Eighth Schedule languages** | Rules notified Nov 2025; phase-in **Nov 2026 → May 2027** |
+| **LATAM** | Brazil Decree **13,135/2026** — AI **does not remove** the right to real-time human service | Effective **≈2026-11-02** |
+
+**The trend is not "more regulation".** It is that the unit of compliance shrank: from *the system*,
+which you certify once, to *the utterance*, which has to be right every time. A model estate
+certified in English is not certified. This is the same shift the accessibility pass (fourteenth)
+and the erasure pass (thirteenth) recorded in their own layers, which makes it the strongest
+cross-boundary pattern in this KB: **2026's obligations attach to individual interactions and
+demand per-interaction evidence.**
+
+### Trend 4 — The evaluation metric the whole field quotes can point the wrong way
+
+From `andrewyng/translation-agent`'s own README: translations that **human raters preferred** over
+commercial offerings scored **lower on BLEU**. So the standard metric can **invert** on exactly the
+agentic pipelines the market is now building. Meanwhile **reference-free quality estimation**
+(CometKiwi and relatives) matured enough to be used in production — scoring output with **no human
+reference**, which is the only kind of evaluation an agent can run on its own output at runtime.
+
+The practical consequence, and it is a commercial one: **"BLEU ≥ X" is a defective acceptance
+criterion** and it is still the default in statements of work. Rank with COMET or reference-free QE,
+keep sacreBLEU as a reproducible regression tripwire, and reserve document-level human review for
+the terms that carry legal weight. Note what else this exposes: **FLORES**, the benchmark named in
+that README, is **archived since 2023-11-20** — the field's reference evaluation set is unmaintained
+while the field's output volume grows.
+
+### Trend 5 — In this layer, popularity and licence point in opposite directions
+
+Measured across the two layers where there is a clear leader:
+
+| Category | Most-starred | Licence | Permissive alternative |
+|---|---|---|---|
+| Translation API/engine | LibreTranslate — **17,840★** | **AGPL-3.0** | `argos-translate` — **MIT**, 6,691★, **and it is the same engine** without the AGPL wrapper |
+| TMS | Weblate — **6,180★** | **GPL-3.0** | **Pontoon** — **BSD-3-Clause**, 1,679★ |
+
+Plus the trap that generalises beyond this layer: **Tolgee** (4,162★) presents as Apache-2.0 and
+fences its enterprise features into **`ee/` under a non-commercial licence** — the **second
+occurrence of the `onyx` pattern** this KB has recorded. The trend to name for 2026: **the
+"open-core by directory" model is spreading**, and it is **invisible to a licence badge, to an
+SPDX scan of the root, and to every aggregator this pass consulted.** Three aggregators described
+Tolgee's self-hosting as fully open source. A supply-chain policy that reads the root `LICENSE` and
+stops there will keep getting this wrong, so the check belongs in CI:
+**probe `ee/LICENSE` and any directory a root licence names.**
+
+### Trend 6 — The language-identification layer is unmaintained underneath everything above
+
+Every duty in Trend 3 presupposes knowing which language the user used. The three best-known
+libraries for it are **dead**: `facebookresearch/fastText` (**26,502★, archived 2024-03-22**),
+`google/cld3` (archived 2023-05-24) and the FLORES benchmark (archived 2023-11-20). The live answer
+is `pemistahl/lingua-py` (**Apache-2.0**, 1,822★) — with **one-fourteenth** the stars of the archived
+default. This is the **eleventh and twelfth archived-but-highly-starred project** this KB has
+recorded, and the pattern now has a reliable tell: **the archived ones are the ones the tutorials
+recommend.** A compliance control resting on an archived dependency is a finding, not a footnote.

@@ -2467,3 +2467,255 @@ lo es. **(2) se resuelve antes de escribir código.**
 más limpia — salvo `kube-green`, que sí reduce julios porque apaga. La diferencia importa cuando el
 cliente paga la electricidad: **el desplazamiento mejora el informe y casi no mueve la factura.**
 Dígalo antes de que lo pregunte el CFO.
+
+---
+
+## Receta 30 — The agent that may speak to a customer in their own language: terminology-controlled generation with a human approval gate (added sixteenth pass, 2026-11-24)
+
+**The problem it solves.** A client wants their agent to answer customers in Spanish, Portuguese,
+French and Hindi. The naive build — put the target language in the system prompt — fails four
+different ways at once: brand and product terms drift per utterance, plural and gender agreement
+breaks, nobody can say who approved any sentence, and in **Québec, the EU, India and Brazil** the
+result may be unlawful rather than merely poor. This receta makes the wording **governed**:
+generated, measured, approved, and provable after the fact.
+
+### The architectural finding that determines the whole design
+
+**Glossary injection has to happen at every stage, not once.** The measured bar is **AIDAterm**
+(ACL 2026, Industry Track): a four-agent pipeline reporting **99.4% terminology accuracy on the
+WMT25 Terminology Translation benchmark** — per its authors, better than **all 20 systems** submitted
+to that shared task. The contrast that makes it an architecture and not a prompt-tuning exercise: a
+practitioner report puts **glossary prompting alone plateauing in the mid-80s**. The gap between
+~85% and 99.4% is **structural** — pre-analysis, injection at each hop, and a reasoning review agent
+last — not a better model.
+
+And the second finding, which decides the acceptance criteria: from `andrewyng/translation-agent`'s
+own README, translations its **human raters preferred** scored **lower on BLEU**. **So BLEU can
+reject the better pipeline.** Rank with COMET/QE; use sacreBLEU only as a regression tripwire.
+
+### Components — all verified 2026-11-24, licences byte-read
+
+| Role | Component | Licence | Why this one |
+|---|---|---|---|
+| String + glossary system of record | [`mozilla/pontoon`](https://github.com/mozilla/pontoon) | **BSD-3-Clause** | **The only fully permissive TMS.** Holds source strings, translations, glossary, translation memory, reviewer sign-off and the audit trail |
+| Message format | [`unicode-org/message-format-wg`](https://github.com/unicode-org/message-format-wg) (MF2) + [`messageformat/messageformat`](https://github.com/messageformat/messageformat) | **Unicode-3.0** / **MIT** | MF2 is **stable in CLDR and recommended**; it is what keeps plural/gender correct in generated text |
+| Locale data | [`unicode-org/cldr`](https://github.com/unicode-org/cldr) + [`unicode-org/icu`](https://github.com/unicode-org/icu) | **Unicode-3.0** | Plurals, dates, collation, bidi — the things an LLM gets subtly wrong |
+| Language detection | [`pemistahl/lingua-py`](https://github.com/pemistahl/lingua-py) | **Apache-2.0** | Accurate on short text. **Not** fastText (archived) or cld3 (archived) |
+| Deterministic MT (bulk/fallback) | [`OpenNMT/CTranslate2`](https://github.com/OpenNMT/CTranslate2) + [`Helsinki-NLP/Opus-MT`](https://github.com/Helsinki-NLP/Opus-MT) models | **MIT** / models **CC-BY-4.0** | Self-hosted, CPU-viable, commercially usable **with attribution**. ⚠️ **not NLLB** — see the licence posture |
+| Quality estimation | [`Unbabel/COMET`](https://github.com/Unbabel/COMET) (CometKiwi, reference-free) | **Apache-2.0** | **Reference-free** — the only kind of score an agent can compute on its own output at runtime |
+| Regression tripwire | [`mjpost/sacrebleu`](https://github.com/mjpost/sacrebleu) | **Apache-2.0** | Reproducible, version-stamped. A tripwire, **not** a gate |
+| Glossary/format QA | [`translate/translate`](https://github.com/translate/translate) (`pofilter`) | GPL-3.0 | Run as a **CLI in a pipeline** (separate process, invoked not linked) so copyleft stays contained |
+| Pre-release layout check | [`tryggvigy/pseudo-localization`](https://github.com/tryggvigy/pseudo-localization) | **MIT** | Finds hard-coded strings and layout breakage **before** a translator is paid |
+| Localisation CI agent | [`lingodotdev/lingo.dev`](https://github.com/lingodotdev/lingo.dev) | **Apache-2.0** (in `LICENSE.md`) | Extract → translate → open PR, with **your own model** (`model: "anthropic/claude-sonnet-4.5"`) |
+| India 22-language path | [`AI4Bharat/IndicTrans2`](https://github.com/AI4Bharat/IndicTrans2) | **MIT** | Covers exactly the **Eighth Schedule** set DPDP §5(3) names |
+| Human escalation (Brazil) | `humanlayer/humanlayer` *(already in this KB)* | — | Decree 13,135/2026 requires a real-time human path |
+
+### Wiring
+
+```
+                        ┌──────────────────────────────────────┐
+  customer utterance ──▶│ lingua-py  →  locale + script        │
+                        └──────────────┬───────────────────────┘
+                                       ▼
+                  ┌────────────────────────────────────────────┐
+                  │ STAGE 1 · ANALYSIS agent                    │
+                  │ pull glossary + TM for THIS locale from     │
+                  │ Pontoon; mark which terms are in scope      │
+                  └────────────────┬───────────────────────────┘
+                                   ▼
+                  ┌────────────────────────────────────────────┐
+                  │ STAGE 2 · GENERATION agent                  │
+                  │ answer in target locale, glossary INJECTED  │
+                  │ output as MF2 messages, never concatenation │
+                  └────────────────┬───────────────────────────┘
+                                   ▼
+                  ┌────────────────────────────────────────────┐
+                  │ STAGE 3 · POST-EDIT agent                   │
+                  │ glossary re-injected (NOT assumed held)     │
+                  │ + pofilter + MF2 parse must both pass       │
+                  └────────────────┬───────────────────────────┘
+                                   ▼
+                  ┌────────────────────────────────────────────┐
+                  │ STAGE 4 · REVIEW agent (reasoning-enabled)  │
+                  │ CometKiwi score + glossary term validation  │
+                  └────────────────┬───────────────────────────┘
+                                   ▼
+                    ┌──────────── GATE ─────────────┐
+            QE ≥ θ AND 100% glossary terms valid    │  else
+            AND locale ∈ auto-approve set           │   ▼
+                    │                        ┌──────────────────────┐
+                    ▼                        │ Pontoon suggestion   │
+             render to customer              │ queue → HUMAN review │
+             + evidence record               └──────────┬───────────┘
+                                                        ▼
+                                              approved → TM → reused
+```
+
+### Build order — and the order is the deliverable
+
+1. **Pseudo-localise the existing UI first.** `pseudo-localization` over the current product, before
+   any agent work. It finds hard-coded strings and layout breakage in hours, and it tells you
+   whether this is a two-week project or a two-quarter one. Skipping this is how the estimate is
+   wrong.
+2. **Stand up Pontoon and import the client's existing glossary.** If they have none, the first
+   deliverable is the glossary — 50–200 brand, product and legal terms. **Do not** let the agent
+   invent it; it is a client sign-off artefact.
+3. **Fix the message format before generating anything.** Convert the target surfaces to MF2.
+   Generated strings multiply a format problem by volume.
+4. **Wire detection + the four stages**, glossary re-injected at each.
+5. **Calibrate the gate on a held-out set the client's reviewers score by hand.** θ is **derived,
+   not chosen**: pick it so that auto-approved output matches reviewer-accepted output at the rate
+   the client's brand owner will sign. Record the number and the date.
+6. **Turn auto-approval on for one locale only**, then widen by measurement.
+7. **Attach the evidence record** (below) before go-live, not after the first complaint.
+
+### The gate, stated so it can be audited
+
+Auto-approve **only** when all four hold: **(a)** reference-free QE ≥ θ, **(b)** **100%** of in-scope
+glossary terms present and correctly formed, **(c)** the MF2 message parses and its plural/gender
+categories are complete for the target locale, **(d)** the locale is in the client-approved
+auto-approve set. Anything else becomes a **Pontoon suggestion for a human**. Every TMS in this
+layer models machine output as a *suggestion* precisely because it has always needed review —
+Receta 30 uses that data model as the control rather than working around it.
+
+**The agent must never call the approval endpoint.** An agent that approves its own wording turns the
+only control in this layer into a logging step.
+
+### The evidence record — one row per customer-facing utterance
+
+`timestamp · conversation id · detected locale · rendered locale · model + version · glossary
+version · MF2 message id · QE model + score · glossary validation result · auto-approved or
+reviewer id · AI-disclosure string rendered (EU) · human-escalation offered (BR)`
+
+This single row is what answers all four regional duties, and it is why the receta is worth more
+than a translation feature: **Québec** (was functionally equivalent French served?), **EU Art. 50**
+(was the disclosure rendered?), **India DPDP §5(3)** (was the notice available in the principal's
+language?), **Brazil 13,135/2026** (was a real-time human path offered?). Without the record each
+answer is an opinion.
+
+### Licence posture
+
+Permissive throughout the **generation and scoring** path: Pontoon **BSD-3-Clause**, CTranslate2
+**MIT**, COMET/sacreBLEU **Apache-2.0**, lingua-py **Apache-2.0**, messageformat **MIT**, ICU/CLDR
+**Unicode-3.0**, IndicTrans2 **MIT**, lingo.dev **Apache-2.0**. Two conditions to honour and one to
+avoid:
+- **Opus-MT models are CC-BY-4.0** → **attribution belongs in the client's notices file.**
+- **`pofilter` is GPL-3.0** → invoke as a **subprocess**, do not link.
+- ❌ **Do not substitute NLLB weights.** `stopes`/`fairseq` are MIT but the checkpoints are reported
+  **CC-BY-NC-4.0 (non-commercial)** — ⚠️ secondary-sourced, `huggingface.co` unreachable from this
+  session. Every file in the repo will say MIT while a non-commercial model does the translating.
+- ❌ **Do not use Tolgee as the TMS.** Its `ee/` tree is **non-commercial** and forbids managed
+  service provision.
+
+### What to tell the client the limits are
+
+1. **99.4% is the published terminology bar, not a guarantee** — and it is terminology accuracy, not
+   correctness of meaning.
+2. **θ is a business decision**, calibrated on their reviewers' judgments, revisited when the model
+   changes. A model upgrade **invalidates the calibration**.
+3. **Reference-free QE scores content, not liability.** Legally operative sentences — pricing, safety,
+   consent, contractual terms — stay on the human path regardless of score.
+4. **MF2's `u:` namespace and some default functions are still Draft.** Most of the standard is
+   stable and recommended; that part may still move.
+5. **This does not make the agent lawful by itself.** It makes the language defensible and the
+   evidence available. The regional duties in `intel/market.md` are **secondary-sourced** and need
+   the client's counsel.
+
+### Anti-patterns — each one observed in this pass's evidence
+
+- **"BLEU ≥ X" as the acceptance criterion.** The one metric whose own reference implementation's
+  ecosystem shows it inverting against human preference on agentic pipelines.
+- **Injecting the glossary once, in the system prompt.** This is the mid-80s plateau. AIDAterm's
+  result comes from injecting at **every** stage.
+- **String concatenation for generated text.** `"You have " + n + " messages"` cannot be translated
+  correctly into languages with non-trivial plural rules. MF2 exists for this.
+- **Detecting language with fastText because it has 26,502 stars.** Archived 2024-03-22. cld3 too
+  (2023-05-24).
+- **Taking "Apache-2.0" from Tolgee's badge.** Its root `LICENSE` is a multi-licence declaration and
+  `ee/` is non-commercial.
+- **Benchmarking on FLORES without saying it is archived** (2023-11-20).
+- **Letting the agent approve its own wording.** The control becomes a log line.
+
+---
+
+## Receta 31 — The French-equivalence audit: proving an agent estate meets a per-utterance language duty (added sixteenth pass, 2026-11-24)
+
+**Why this is a separate receta.** Receta 30 **builds** a governed language pipeline — weeks to
+months. This one **measures an estate the client already runs** and produces a defensible record in
+**two to three weeks**. It is the door-opener, because the Québec deadline has **already passed**
+(final provisions in force **2025-06-01**) and the EU Art. 50 date has too (**2026-08-02**). A
+client in breach today buys an audit faster than a platform.
+
+### The question it answers, in the regulator's own terms
+
+Not "is the agent translated?" but **"is a functionally equivalent French version being served to
+this user, in this conversation, every time?"** Reported duty: where a French version of software
+exists and has been commercially released, non-French versions may be sold in Québec only if a
+**functionally equivalent French version** is offered; for employee-facing tools, if the vendor
+offers French, the employer must make it available. ⚠️ **Secondary-sourced** (law-firm and vendor
+commentary) — verify against the Charter and the OQLF.
+
+**Functional equivalence is where agents fail, and it is testable.** Four failure modes, each a test:
+
+| Failure | Test | Component |
+|---|---|---|
+| Agent answers English to a French prompt | detect language of **every turn**, compare to rendered language | `lingua-py` (Apache-2.0) |
+| Agent starts French, drifts to English mid-conversation | per-**turn** comparison, not per-session | same |
+| French path loses a feature or tool | run the **same task script** in both locales, diff tool calls and outcomes | harness |
+| French output is grammatically degraded | **reference-free QE** per locale, compare distributions | CometKiwi (Apache-2.0) |
+
+### Wiring
+
+```
+  task script (N scenarios × both locales)
+        │
+        ▼
+  agent under test ──▶ turn log ──┬─▶ lingua-py       ─▶ language match per turn
+                                  ├─▶ CometKiwi       ─▶ quality per locale
+                                  ├─▶ tool-call diff  ─▶ feature parity
+                                  └─▶ MF2 parse       ─▶ plural/gender completeness
+        │
+        ▼
+  conformance record ──▶ per-locale gap list, ranked by customer exposure
+```
+
+### Steps
+
+1. **Inventory the estate.** Every agent surface with customer or employee contact, and the locales
+   each claims. Half the findings are usually here: surfaces nobody listed.
+2. **Write 20–40 task scenarios** from the client's real top intents — not synthetic prompts.
+3. **Run each in both locales**, logging every turn.
+4. **Score the four tests.** Language match is the headline; **feature parity is the one that
+   surprises people**, because a French path that silently loses a tool is a non-equivalent version
+   even when every sentence is perfect French.
+5. **Rank gaps by customer exposure**, not by ease of fix.
+6. **Deliver the record plus the remediation plan** — and the plan is Receta 30, scoped to the gaps
+   actually found.
+
+### Deliverables, and the sentence that sells it
+
+A **per-locale conformance record** (the same row shape as Receta 30), a **ranked gap list**, and a
+**reproducible harness the client keeps and re-runs in CI**. The sentence: *"You can currently
+answer, with evidence, the question of whether a Québec user was served a functionally equivalent
+French experience in each of the last N conversations — or you cannot, and the deadline was
+2025-06-01."*
+
+### Extending it to the other three regions, at marginal cost
+
+The harness is the same; only the assertion changes. **EMEA:** was the Art. 50 AI disclosure rendered,
+in which language (**open question** — see the EMEA gap in `intel/market.md`), and is the client the
+**provider** for that agent. **APAC:** can the data principal view the notice in **any of the 22
+Eighth Schedule languages** (IndicTrans2, MIT, is the remediation path). **LATAM:** was a **real-time
+human path** offered, per Brazil Decree 13,135/2026 — effective ≈**2026-11-02**. One harness, four
+regional assertions, four conversations with four different buyers.
+
+### Anti-patterns for this receta
+
+- **Auditing per session instead of per turn.** Drift is the common failure and per-session sampling
+  hides it.
+- **Testing only text quality.** Feature parity is half the legal definition.
+- **Reporting a score instead of a record.** The duty is per-utterance; a single percentage is not
+  evidence.
+- **Promising the EU language question is settled.** This pass searched for it and **found no
+  evidence either way.** Say so — it is a cheap question for the client's counsel and an expensive
+  thing to guess.

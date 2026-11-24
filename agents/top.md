@@ -772,3 +772,84 @@ de citar sigue siendo barato y sigue pagando.
 **motor es permisivo y el *leaderboard* no declara nada**. Misma lección que el pase catorce dejó con
 el *wrapper* y el motor, en el sentido contrario: **la licencia no se hereda dentro de una
 organización, ni hacia arriba ni hacia abajo.** Use Zeus; no reempaquete el *leaderboard*.
+
+---
+
+## The language boundary — three real agent rows, and the metric that would reject the best of them (added sixteenth pass, 2026-11-24)
+
+> **Theme: what the agent *says*, in which language, and who approved that wording.** Measured
+> before searching across all nine files: 28 of 30 terms for this layer at a clean zero
+> (`weblate` 0 · `tolgee` 0 · `messageformat` 0 · `glossary` 0 · `terminolog` 0 · `XLIFF` 0 ·
+> `sacrebleu` 0 · `COMET` 0 …). The full measurement and the whole component substrate are in
+> `repos/foundations.md` → *The language boundary*. This file carries only what is **agent-shaped**.
+
+### The rows that are agents (3 verified — not 5, and the reason is stated)
+
+| Agent | Licence (verified) | Stars | Last push | What it does | Verdict |
+|---|---|---|---|---|---|
+| [lingodotdev/lingo.dev](https://github.com/lingodotdev/lingo.dev) | **Apache-2.0** — byte-read from **`LICENSE.md`** | 5,397★ | **2026-11-20** | Localisation-engineering agent: extracts strings, translates, opens a PR with the result. Config takes **your own model** (`model: "anthropic/claude-sonnet-4.5"`), so the translating step is BYO-key and self-hostable | ✅ **The one adoptable row.** Permissive, active, and the only agent here that fits a CI pipeline |
+| [andrewyng/translation-agent](https://github.com/andrewyng/translation-agent) | **MIT** | 5,817★ | **2024-08-04** | The reflection workflow in three steps: translate → have the model critique its own translation → apply the critique | ⚠️ **A pattern, not a dependency.** Two years without a push. Copy the three-step loop; do not `pip install` it |
+| [SakuraLLM/SakuraLLM](https://github.com/SakuraLLM/SakuraLLM) | **GPL-3.0** | 4,865★ | 2026-07-23 | JP→ZH translation LLM, APAC-origin | ❌ **Recorded, not recommended.** GPL-3.0, and its domain is light novels and Galgame, not enterprise prose. Listed so an APAC star-count search does not surface it as a finding |
+
+### Why this is three rows and not five, stated so nobody looks for the other two
+
+The language boundary is **overwhelmingly a component layer, not an agent layer** — the fourth time
+in this KB a boundary has turned out that way (containment, erasure and consumption were the
+others). The things that do the work here are a **TMS** where a human approves wording
+(`mozilla/pontoon`, BSD-3-Clause), a **message format** (`unicode-org/message-format-wg`), an
+**engine** (`CTranslate2`, MIT), an **evaluator** (`Unbabel/COMET`, Apache-2.0) and a
+**language detector** (`pemistahl/lingua-py`, Apache-2.0). None of those is an agent, and padding
+this table with them would have produced five rows that no engagement lead could act on. They are
+all in `repos/foundations.md` under their own layer headings.
+
+### The strongest agentic result in this layer is a paper, not a repo — recorded as such
+
+**AIDAterm** (ACL 2026, Industry Track) is a **four-agent pipeline** — Analysis → Translation →
+Post-editing → Review — for terminology-constrained translation. Its reported result is
+**99.4% average terminology accuracy on the WMT25 Terminology Translation benchmark**, which its
+authors state **outperformed all 20 systems submitted** to that shared task. The design choices
+that matter for anyone rebuilding it: terminology-aware **pre-analysis**, **explicit glossary
+injection at every stage** rather than once at the start, and a **reasoning-enabled Review agent**
+as the last hop.
+
+⚠️ **No repository was found for it in this pass**, so it is recorded as a **reproducible design**,
+not an inventory row. It is the architecture behind Receta 30 in `compose/patterns.md`.
+
+### The finding that should change the acceptance criteria, from the row's own README
+
+`andrewyng/translation-agent` reports, about itself:
+
+> *"even on documents where our agentic workflow captures **context and terminology better**,
+> resulting in translations that **our human raters prefer** over current commercial offerings,
+> evaluation at the sentence level (using the FLORES dataset) resulted in the agentic system
+> **scoring lower on BLEU**."*
+
+**BLEU can move opposite to human preference on exactly the agentic pipelines this KB recommends.**
+A statement of work with "BLEU ≥ X" as its acceptance test can therefore **reject the better
+pipeline and accept the worse one**. Rank with **COMET** or a reference-free QE model, keep
+**sacreBLEU** only as a reproducible regression tripwire, and put **document-level human review on
+the terms that carry legal weight**. Note also that **FLORES**, the benchmark in that sentence,
+is `facebookresearch/flores` — **770★ and archived since 2023-11-20**.
+
+### The licence trap an engagement lead must know before quoting this layer
+
+**Tolgee** — the developer-friendly TMS an aggregator in this pass described as *"self-hosting is
+fully open-source"* — fences its enterprise features into `ee/` under the **Tolgee EE License
+version 1**: *"non-commercial purposes only"*, plus no hosted/managed service and no circumventing
+the licence key. Its root `LICENSE` is a multi-licence declaration that says so in its third line.
+This is the **onyx pattern from the seventh pass repeated exactly**. Byte-level evidence and four
+further traps are in `repos/foundations.md`.
+
+### What to tell an engagement lead
+
+1. **There is one adoptable agent here: `lingo.dev`** (Apache-2.0, BYO model). Everything else in
+   this layer is a component or a pattern.
+2. **The architecture to propose is AIDAterm's**, not a single translation call: glossary injected
+   at every stage, with a review agent last. 99.4% terminology accuracy is the published bar.
+3. **Do not accept a BLEU threshold as the acceptance criterion.** It is the one metric this
+   layer's own evidence says can invert.
+4. **The language duty is regional and legally binding, not a nice-to-have** — Quebec's French UI
+   rule, the EU AI Act's Art. 50 disclosure, India's 22-language notice duty and Brazil's new
+   human-service decree are in `intel/market.md` under their own regions.
+5. **This layer is where "the agent works" and "the agent is lawful here" diverge.** A pipeline that
+   passes every test in English can be unshippable in Quebec and non-compliant in India.

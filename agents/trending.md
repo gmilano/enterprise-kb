@@ -8,6 +8,53 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-24 — sixteenth pass (latest) — the language boundary: three agent rows, and a metric that inverts
+
+> Theme: **what the agent *says*, in which language, and who approved the wording.** Measured before
+> searching, across all nine files and both of the KB's languages: **28 of 30 terms at a clean zero**
+> — `weblate` 0 · `pontoon` 0 · `tolgee` 0 · `messageformat` 0 · `glossary` 0 · `terminolog` 0 ·
+> `XLIFF` 0 · `sacrebleu` 0 · `COMET` 0 · `fasttext` 0 · `IndicTrans` 0 · `Bill 96` 0 ·
+> `Eighth Schedule` 0. The two non-zero hits are the exact shape of the blind spot: `lingua` **1**
+> (the *description* of a sovereign base model the KB already held) and `DPDP` **10** — India's
+> statute was in this KB as a **privacy** instrument, with its **§5(3) language duty absent**. The
+> KB had read the law and kept only the half that matched the pass it was running.
+
+**New in the agent layer this week (3 rows, all verified 2026-11-24):**
+
+- **`lingodotdev/lingo.dev`** — **Apache-2.0**, **5,397★**, push **2026-11-20**. Localisation
+  engineering agent: extracts strings, translates, opens the PR. Config takes **your own model**
+  (`model: "anthropic/claude-sonnet-4.5"`), so the translating step is BYO-key — the one row here
+  that fits a client CI pipeline. Licence lives in **`LICENSE.md`**; the root `readme.md` is a
+  **22-byte pointer file**, so a naive README fetch returns nothing.
+- **`andrewyng/translation-agent`** — **MIT**, **5,817★**, push **2024-08-04**. The reflection loop:
+  translate → self-critique → apply critique. **Two years stale — a pattern to copy, not a
+  dependency to install.**
+- **`SakuraLLM/SakuraLLM`** — **GPL-3.0**, **4,865★**, push 2026-07-23. APAC-origin JP→ZH
+  translation LLM. **Recorded, not recommended**: copyleft, and the domain is light novels.
+
+**Three rows, not five, and that is the finding.** This is the **fourth boundary in this KB that
+turns out to be a component layer rather than an agent layer** (after containment, erasure and
+consumption). The work here is done by a TMS, a message format, an engine, an evaluator and a
+language detector — none of them agents. They are in `repos/foundations.md`; padding this file with
+them would have produced five unusable rows.
+
+**The strongest agentic result in the layer has no repository.** **AIDAterm** (ACL 2026, Industry
+Track) is a four-agent pipeline — Analysis → Translation → Post-editing → Review — reporting
+**99.4% terminology accuracy on WMT25**, which its authors say beat **all 20 submitted systems**.
+No repo surfaced, so it is recorded as a **reproducible design** (Receta 30), not an inventory row.
+
+**The sentence that should change an acceptance criterion**, from `translation-agent`'s own README:
+translations its **human raters preferred** scored **lower on BLEU**. So BLEU can invert on exactly
+the agentic pipelines this KB recommends — an SOW with "BLEU ≥ X" can reject the better system.
+Rank with **COMET**/reference-free QE; keep sacreBLEU as a regression tripwire only. The benchmark
+named in that sentence, **FLORES**, is **archived since 2023-11-20** with 770★.
+
+**Trap carried over from the seventh pass, repeated exactly.** **Tolgee** was described by an
+aggregator this pass as *"self-hosting is fully open-source"*. Its root `LICENSE` is a multi-licence
+declaration: everything under **`ee/`** is **"Tolgee EE License version 1" — non-commercial only**,
+no hosted service, no circumventing the licence key. The **onyx pattern**, second occurrence.
+
+
 ## 2026-11-24 — fifteenth pass (latest) — el límite del consumo: tres agentes reales y un cero medido
 
 > Tema: **el límite del consumo** — lo que el agente **gasta** y lo que hay que **declarar** sobre

@@ -8,6 +8,92 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
+## 2026-11-24 — sixteenth pass (latest) — the language boundary, and a licence that lives in a subdirectory
+
+> Theme: **the language the agent speaks, and who signed off on the wording.** **36 new addresses**
+> this pass. Licence, stars, archived state and last push come from `gh api search/repositories` on
+> **2026-11-24**; every `NOASSERTION` **and `null`** badge was resolved by **byte-reading the licence
+> file** over a ranged GET (`HEAD` is blocked by this session's proxy and `api.github.com` answers
+> only for session-scoped repos, so neither shortcut existed). **`huggingface.co` is proxy-dead from
+> this session (HTTP 000)** — so this pass's **code and licence facts are byte-proven while its one
+> model-weights claim is explicitly marked secondary-sourced.** `planalto.gov.br` is also dead
+> (HTTP 000), which is why the Brazilian decree is flagged the same way in `intel/market.md`.
+
+**The translation management layer — where a human approves wording (6):**
+`mozilla/pontoon` **BSD-3-Clause** 1,679★ · `WeblateOrg/weblate` **GPL-3.0** 6,180★ ·
+`tolgee/tolgee-platform` **Apache-2.0 except `ee/`** 4,162★ · `ever-co/ever-traduora` **AGPL-3.0**
+2,140★ · `translate/translate` **GPL-3.0** 988★ (ships `pofilter` QA checks) ·
+`translate/pootle` GPL-3.0 1,501★ **stale since 2024-08-26**.
+
+**The message-format layer — the shape a translatable string may have (10):**
+`unicode-org/message-format-wg` **Unicode-3.0** 424★ · `unicode-org/icu` **Unicode-3.0** 3,651★ ·
+`unicode-org/cldr` **Unicode-3.0** 1,172★ · `messageformat/messageformat` **MIT (OpenJS)** 1,773★ ·
+`formatjs/formatjs` **MIT per-package** 14,756★ · `i18next/i18next` **MIT** 8,664★ ·
+`lingui/js-lingui` **MIT** 5,939★ · `projectfluent/fluent` **Apache-2.0** 1,695★ ·
+`projectfluent/python-fluent` **Apache-2.0** 246★ · `tryggvigy/pseudo-localization` **MIT** 141★.
+
+**Engines and weights (7):** `OpenNMT/CTranslate2` **MIT** 4,764★ · `argosopentech/argos-translate`
+**MIT** 6,691★ · `LibreTranslate/LibreTranslate` **AGPL-3.0** 17,840★ ·
+`Helsinki-NLP/Opus-MT` **code MIT / models CC-BY-4.0** 880★ · `OpenNMT/OpenNMT-py` **MIT** 7,023★ ·
+`marian-nmt/marian` **MIT in `LICENSE.md`** 1,475★ **stale since 2023-08-25** ·
+`facebookresearch/stopes` **MIT** 315★.
+
+**Evaluation (3):** `Unbabel/COMET` **Apache-2.0** 791★ · `mjpost/sacrebleu` **Apache-2.0** 1,266★ ·
+`google-research/mt-metrics-eval` **Apache-2.0** 141★.
+
+**Language identification (4) — and three of the four are dead:** `pemistahl/lingua-py`
+**Apache-2.0** 1,822★ ✅ · `pemistahl/lingua` **Apache-2.0** 831★ ✅ ·
+`facebookresearch/fastText` MIT **26,502★ ARCHIVED 2024-03-22** ❌ ·
+`google/cld3` Apache-2.0 886★ **ARCHIVED 2023-05-24** ❌.
+
+**Regional assets (3 + one measured gap):** `AI4Bharat/IndicTrans2` **MIT** 500★ — all **22
+scheduled languages of India**, i.e. exactly the set DPDP §5(3) names (**APAC**) ·
+`masakhane-io/masakhane-mt` **MIT** 334★ **stale since 2022-06-14** (**EMEA**) ·
+`SakuraLLM/SakuraLLM` **GPL-3.0** 4,865★ (**APAC**, not recommended) ·
+`facebookresearch/flores` 770★ **ARCHIVED 2023-11-20**. **LATAM: nothing found** — the region's
+open-language repos already in this KB are corpus-cleaning tools, not translation tooling.
+
+**Agent rows (3):** `lingodotdev/lingo.dev` **Apache-2.0** 5,397★ ·
+`andrewyng/translation-agent` **MIT** 5,817★ **stale** · `SakuraLLM/SakuraLLM` (above).
+
+### The headline, and it is a licence inside a directory
+
+**`tolgee/tolgee-platform` is not Apache-2.0.** Its root `LICENSE` is a *multi-licence declaration*:
+everything under **`ee/`** and **`/webapp/src/ee`** falls under **"Tolgee EE License version 1"** —
+*"non-commercial purposes only"*, plus *"you may not provide the software to third parties as a
+hosted or managed service"* and *"you may not … circumvent the license key functionality"*. Only
+the content **outside** those directories defaults to Apache-2.0. **The onyx pattern of the seventh
+pass, second occurrence** — and the method consequence is sharp: byte-reading the first 400 bytes of
+`LICENSE` returns the string `Apache License` and is **wrong**. When a root licence names a
+*directory*, the probe is not finished until that directory's licence is read too.
+
+### Four more traps from this pass
+
+- **Weblate is GPL-3.0.** Two aggregators returned **MIT** this pass. Byte-read says
+  `GNU GENERAL PUBLIC LICENSE Version 3`. Fine as a hosted internal TMS, **not** a component to
+  link into a client product.
+- **In two of six layers the most-starred option is the copyleft one.** LibreTranslate (17,840★,
+  AGPL-3.0) and Weblate (6,180★, GPL-3.0) top their categories; the permissive answers are quieter —
+  `argos-translate` (MIT, 6,691★) **is** LibreTranslate's engine without the AGPL wrapper, and
+  **Pontoon** (BSD-3-Clause, 1,679★) is the TMS. **Sorting by stars sorts away from what Globant can
+  ship.**
+- **`traduora/traduora` does not exist** — the aggregator path **422s**. Real owner:
+  **`ever-co/ever-traduora`**. Eighth rename-ledger entry.
+- **`NOASSERTION`/`null` resolved four different ways in one pass:** `marian` → MIT in
+  **`LICENSE.md`** (wrong filename) · `icu`/`cldr`/`message-format-wg` → **Unicode-3.0** (real,
+  permissive, simply unbadged) · `python-fluent` → Apache-2.0 · `formatjs` → **no root licence file
+  at all**, MIT declared per package, which is why its badge is `null` rather than `NOASSERTION`.
+
+### Primary source of the pass — read from the spec repo because `unicode.org` is unreachable
+
+`unicode-org/message-format-wg`'s own README: the **Unicode MessageFormat Standard is a stable part
+of CLDR**, **approved by the CLDR Technical Committee** and **recommended for implementation**,
+and it **replaces earlier message formatting built into ICU** — while *"some default functions and
+items in the `u:` namespace are **still in Draft status**."* All three are true at once: MF2 is no
+longer a preview to wait out, every existing ICU-syntax estate has a migration ahead of it, and the
+surface is **not** fully frozen. Quoting only the first sentence is how a 2028 rewrite gets sold.
+
+
 ## 2026-11-24 — fifteenth pass (latest) — el límite del consumo, y una licencia que recae sobre datos
 
 > Tema: **lo que el agente gasta y lo que hay que declarar sobre ese gasto.** **33 direcciones

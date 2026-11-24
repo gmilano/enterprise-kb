@@ -851,3 +851,110 @@ de acceso a **SIMEM.co** y **SINERGOX/XM**, los sistemas de información del ope
 eléctrico **colombiano**. No es contabilidad de carbono: es el **dato de red nacional** con licencia
 permisiva, que es justamente lo que falta para calcular un factor de intensidad local sin heredar
 ODbL de Electricity Maps. Es el hallazgo LATAM del pase y se detalla en `intel/market.md`.
+
+---
+
+## Sixteenth pass, 2026-11-24 — the translation management system: the platform that decides whether the agent's prose is allowed to ship
+
+> This file's governing rule has held for fifteen passes: **the base platforms are copyleft, the
+> agent layer is permissive, so Globant's IP belongs in the agent layer over a documented API.**
+> This layer obeys that rule, and then adds a twist the file has not recorded before — **the one
+> permissive platform here is also the least popular**, so the usual "pick the most-starred base
+> platform" instinct lands on exactly the wrong row.
+
+### Why a TMS is a vertical platform and not a library
+
+A translation management system is the **system of record for approved wording**: it holds the
+source strings, the translations, the glossary, the translation memory, the reviewer's sign-off and
+the audit trail of who changed which sentence. That makes it the same *kind* of thing as the ERP and
+CRM rows above — something the client may already run, with a documented API, that an agent layer
+can sit on top of. It is **not** the thing that translates; that is the engine layer in
+`repos/foundations.md`.
+
+The agentic pattern is the same one this file has recommended since the first pass, with the
+approval step restored: **the agent proposes wording, the TMS holds it as an unapproved
+suggestion, a human reviewer approves it, and only approved strings reach production.** An agent
+that writes customer-facing prose straight into the product has skipped the only control in this
+layer.
+
+| Platform | Licence (verified 2026-11-24) | Stars | Last push | Why it is a starting point | Licence verdict for Globant |
+|---|---|---|---|---|---|
+| [mozilla/pontoon](https://github.com/mozilla/pontoon) | **BSD-3-Clause** | 1,679★ | 2026-11-24 | Mozilla's own platform, running Mozilla's own localisation at scale for over a decade. Translation memory, per-locale permissions, reviewer workflow | ✅ **The recommendation.** The only fully permissive TMS in this layer — embeddable, extendable, re-licensable, no copyleft and no `ee/` |
+| [WeblateOrg/weblate](https://github.com/WeblateOrg/weblate) | **GPL-3.0** (byte-read) | 6,180★ | 2026-11-24 | The category leader: widest file-format coverage, tight git integration, large self-hosted install base — **the one a client most likely already runs** | ⚠️ **Fine to run and integrate, not to embed.** Hosting it internally and calling its API is not distribution; linking its code into a client product is |
+| [tolgee/tolgee-platform](https://github.com/tolgee/tolgee-platform) | **Apache-2.0 *except* `ee/` = non-commercial** (byte-read) | 4,162★ | 2026-11-24 | In-context editing of UI strings — genuinely the best developer experience in the layer | ❌ **Do not quote it.** See the carve-out below |
+| [ever-co/ever-traduora](https://github.com/ever-co/ever-traduora) | **AGPL-3.0** | 2,140★ | 2026-11-24 | API-first and light — the easiest to drive programmatically | ⚠️ **AGPL network clause.** Exposing it as a service to the client's users triggers source obligations. Internal-only, or not at all |
+| [translate/translate](https://github.com/translate/translate) | **GPL-3.0** | 988★ | 2026-11-24 | Translate Toolkit: format conversion **plus `pofilter`** — programmatic QA checks over translated files | ⚠️ Use as a **CLI in a pipeline** (a separate process, invoked, not linked), which is how its copyleft stays contained |
+
+### The carve-out to read before quoting Tolgee — the onyx pattern, second occurrence
+
+An aggregator in this pass described Tolgee as *"self-hosting is fully open-source"*. Its root
+`LICENSE` says otherwise, in its own third line:
+
+> *"Tolgee monorepo uses multiple licenses … All content that resides under the **`"ee/"` and
+> `"/webapp/src/ee"`** directory of this repository, is licensed under the license defined in
+> `"ee/LICENSE"`. Content **outside** of the above mentioned directories … defaults to the
+> **"Apache License 2.0"**."*
+
+And `ee/LICENSE` is the **Tolgee EE License version 1**: *"non-commercial purposes only"*, *"you may
+not provide the software to third parties as a hosted or managed service"*, *"you may not … disable,
+or circumvent the license key functionality"*.
+
+**Two separate consequences, both commercial:** Globant **may not use `ee/` features in paid client
+work at all**, and **may not run Tolgee as a managed service for a client** where that service
+exposes `ee/` functionality. This is the **seventh pass's `onyx-dot-app/onyx` finding repeated** —
+permissive headline, enterprise features fenced into `ee/`, and the fence is invisible to a licence
+badge. The seventh pass called it a one-off. It is now a pattern with two instances, and the
+check-before-quoting step belongs in every scoping call:
+**`curl raw.githubusercontent.com/<org>/<repo>/<branch>/ee/LICENSE` before the platform goes in a deck.**
+
+### The inversion this layer adds to the file's governing rule
+
+Everywhere else in this file, the most popular platform is a reasonable starting point and the
+licence is the thing to check. Here, **popularity and licence point in opposite directions**:
+
+| Rank by stars | Platform | Licence | Usable as a Globant deliverable? |
+|---|---|---|---|
+| 1 | Weblate — 6,180★ | GPL-3.0 | Run it, integrate over its API — do not embed |
+| 2 | Tolgee — 4,162★ | Apache-2.0 **+ non-commercial `ee/`** | **No** |
+| 3 | ever-traduora — 2,140★ | AGPL-3.0 | Internal only |
+| **4** | **Pontoon — 1,679★** | **BSD-3-Clause** | ✅ **Yes, without conditions** |
+
+The permissive answer is **last by stars** and **first by licence**. The same inversion holds one
+layer down in `repos/foundations.md`: LibreTranslate is the most-starred engine (17,840★) and AGPL,
+while `argos-translate` (MIT, 6,691★) **is the same engine** without the AGPL API wrapper.
+
+### How the agent layer attaches — and where it must not
+
+**Attach here:** the TMS's API — read untranslated strings, write **suggestions**, read the
+glossary, read the translation memory. Every TMS above exposes this, and suggestions are a
+first-class concept in the data model precisely because machine output has always needed review.
+
+**Do not attach here:** the approval endpoint. An agent that approves its own suggestions converts
+the one human control in this layer into a logging step. If the client wants volume, the correct
+move is **auto-approving a measured, named subset** — e.g. strings whose reference-free QE score
+clears a threshold *and* whose glossary terms all validate — with the rest queued for a human.
+That subset is a decision the client's legal and brand owners make, **not** a default, and it is
+written down in Receta 30.
+
+### Where this sits relative to the rest of this file
+
+Every platform already in this file is a **source of strings** for this one. The ERP's invoice
+templates, the CRM's email templates, the ITSM's ticket macros, the knowledge platform's articles,
+the collaboration platform's bot replies — each is customer-facing prose that a region's language
+law can reach. The fiscal localisation section above (`OCA/l10n-argentina`, `l10n-brazil`,
+`l10n-chile`, `l10n-mexico`) is the **false friend to keep straight**: in the ERP world "l10n" means
+*tax rules and invoice layouts*; in this layer it means *language*. Both are now in this KB. An
+Odoo deployment can be fully `l10n-brazil` compliant on tax and still be in breach of a
+Portuguese-language service duty, because they are different obligations with the same nickname.
+
+### What to check before quoting any of this
+
+1. **Does the client already run a TMS?** If it is Weblate, the engagement is an integration, not a
+   platform build — and that is a cheaper, better engagement.
+2. **If not, propose Pontoon** and say why in licence terms, because the client's engineers will ask
+   why not the 6,180★ option.
+3. **Probe `ee/`** on any platform before it reaches a deck.
+4. **Confirm which regions the client's prose is served into** — that determines whether this is a
+   product-quality project or a compliance project. `intel/market.md` has the duties by region.
+5. **Never quote the approval step as automatable** without naming the measured subset and getting
+   the client's brand and legal owners to sign off on its boundary.

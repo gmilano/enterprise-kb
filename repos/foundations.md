@@ -1939,3 +1939,252 @@ pase trece documentó con SOM-1.0 —*la cláusula que decide está fuera de la 
 más abajo: aquí lo que está fuera de la licencia es una **salida de red a un tercero**, activada por
 defecto, en una librería cuya licencia es impecable. En un cliente regulado eso se revisa antes del
 *go-live*, y la mitigación es una línea de configuración.
+
+---
+
+## The language boundary — what the agent *says*, in which language, and who signed off on the wording (added sixteenth pass, 2026-11-24)
+
+> **Theme of this pass: the language boundary.** Seven previous passes mapped who the agent acts
+> for (entitlement), what it may change (write), what proves it (provenance), where it runs
+> (containment), what it is made of (weights), what it must forget (erasure), who can perceive it
+> (accessibility) and what it costs the grid (footprint). None asked **in which language the agent
+> speaks, and who approved that wording.** For a company that sells into four regions, that is not
+> a cosmetic question — it is the one layer where the *same* deliverable is legal in one market and
+> unlawful in another.
+>
+> **Measured before searching, across all nine files and both of the KB's languages:**
+> `weblate` 0 · `pontoon` 0 · `tolgee` 0 · `traduora` 0 · `libretranslate` 0 · `argos` 0 ·
+> `ctranslate2` 0 · `opus-mt` 0 · `marian` 0 · `messageformat` 0 · `message format` 0 ·
+> `sacrebleu` 0 · `COMET` 0 · `fasttext` 0 · `cld3` 0 · `IndicTrans` 0 · `masakhane` 0 ·
+> `pseudo-local` 0 · `glossary` 0 · `terminolog` 0 · `translation memory` 0 · `XLIFF` 0 ·
+> `locale` 0 · `CLDR` 0 · `Bill 96` 0 · `Eighth Schedule` 0 · `13.135` 0.
+> **28 of 30 terms at a clean zero.**
+>
+> The two non-zero hits are the precise shape of the blind spot, and worth stating:
+> - `lingua` **1** — and it is `langtech-bsc/salamandra`'s *description* (Barcelona Supercomputing
+>   Center, Iberian languages), already held as a **sovereign base model**. The KB knew about
+>   multilingual *models*; it held nothing about multilingual *strings*.
+> - `DPDP` **10** — India's data law was already in this KB, but **only as a privacy and erasure
+>   instrument**. Its §5(3) language duty (below) appears nowhere. The KB had read the same statute
+>   and taken only the half that matched the pass it was doing.
+>
+> The 18 `l10n` hits that exist are `OCA/l10n-argentina`, `l10n-brazil`, `l10n-chile` and
+> `l10n-mexico` — Odoo **fiscal** localisation (tax rules, invoice layouts). That is a false friend:
+> in the ERP world "l10n" means tax, in this layer it means language. Both are in this KB now; do
+> not let a search for one return the other.
+>
+> **Verification method for this pass.** Licence, stars, archived state and last push come from
+> `gh api search/repositories` on **2026-11-24**. Every `NOASSERTION` or `null` badge was resolved
+> by **byte-reading the licence file** from `raw.githubusercontent.com` with a ranged GET (`HEAD` is
+> blocked by this session's proxy, and `api.github.com` answers only for session-scoped repos, so
+> neither shortcut was available). **`huggingface.co` is proxy-dead from this session (HTTP 000)**,
+> which is why every model-*weights* licence below is marked either byte-proven from a GitHub repo
+> or explicitly **secondary-sourced**.
+
+### Layer 1 — The translation management system: where a human approves the wording
+
+This is the system of record for *approved* text. An agent that generates customer-facing prose
+without one is generating unreviewed legal exposure in every market it ships to.
+
+| Repo | Licence (verified) | Stars | Last push | What it is |
+|---|---|---|---|---|
+| [mozilla/pontoon](https://github.com/mozilla/pontoon) | **BSD-3-Clause** | 1,679★ | 2026-11-24 | Mozilla's own localisation platform. **The only fully permissive TMS found in this pass** — see the licence conclusion below |
+| [WeblateOrg/weblate](https://github.com/WeblateOrg/weblate) | **GPL-3.0** (byte-read) | 6,180★ | 2026-11-24 | The category leader: widest file-format support, tight version-control integration |
+| [tolgee/tolgee-platform](https://github.com/tolgee/tolgee-platform) | **Apache-2.0 *except* `ee/`, which is non-commercial** (byte-read — see trap) | 4,162★ | 2026-11-24 | Developer-friendly platform with in-context editing of UI strings |
+| [ever-co/ever-traduora](https://github.com/ever-co/ever-traduora) | **AGPL-3.0** | 2,140★ | 2026-11-24 | API-first TMS. **Note the owner** — see the rename ledger entry |
+| [translate/translate](https://github.com/translate/translate) | **GPL-3.0** | 988★ | 2026-11-24 | Translate Toolkit: format converters (PO/XLIFF/…) **plus `pofilter` QA checks** — the programmatic gate on translated output |
+| [translate/pootle](https://github.com/translate/pootle) | GPL-3.0 | 1,501★ | **2024-08-26** | Superseded by Weblate. Recorded so nobody adopts it from a 2019 blog post |
+
+### Layer 2 — The message format: the shape a translatable string is allowed to have
+
+An LLM that writes `"You have " + n + " messages"` has produced a string that **cannot be
+translated correctly** into any language with non-trivial plural rules. This layer is the contract
+that prevents it, and it changed status this year.
+
+| Repo | Licence (verified) | Stars | Last push | What it is |
+|---|---|---|---|---|
+| [unicode-org/message-format-wg](https://github.com/unicode-org/message-format-wg) | **Unicode-3.0** (byte-read; badge said `NOASSERTION`) | 424★ | 2026-10-19 | **The MessageFormat 2 standard.** Primary-source status finding below |
+| [unicode-org/icu](https://github.com/unicode-org/icu) | **Unicode-3.0** (byte-read) | 3,651★ | 2026-11-24 | ICU itself — plurals, gender, dates, collation, bidi |
+| [unicode-org/cldr](https://github.com/unicode-org/cldr) | **Unicode-3.0** (byte-read) | 1,172★ | 2026-11-24 | The locale **data** under ICU. Separate repo, separate release train |
+| [messageformat/messageformat](https://github.com/messageformat/messageformat) | **MIT** (byte-read; OpenJS Foundation) | 1,773★ | 2026-11-09 | MF2 + ICU MessageFormat for JavaScript. Foundation-owned, not vendor-owned |
+| [formatjs/formatjs](https://github.com/formatjs/formatjs) | **MIT** — *per package*; **no root licence file** (see trap) | 14,756★ | 2026-11-24 | `react-intl` and friends. The most-starred row in this layer |
+| [i18next/i18next](https://github.com/i18next/i18next) | **MIT** (byte-read) | 8,664★ | 2026-11-24 | The default runtime in most JS/TS estates |
+| [lingui/js-lingui](https://github.com/lingui/js-lingui) | **MIT** | 5,939★ | 2026-11-19 | Compile-time extraction; small runtime |
+| [projectfluent/fluent](https://github.com/projectfluent/fluent) | **Apache-2.0** | 1,695★ | 2026-03-21 | Fluent: asymmetric localisation — a translator may add a plural distinction the source language does not have |
+| [projectfluent/python-fluent](https://github.com/projectfluent/python-fluent) | **Apache-2.0** (byte-read; badge said `NOASSERTION`) | 246★ | 2026-06-01 | Fluent for Python — the server-side half |
+| [tryggvigy/pseudo-localization](https://github.com/tryggvigy/pseudo-localization) | **MIT** | 141★ | 2026-09-24 | Pseudo-localisation in browser/node: **finds hard-coded strings and layout breakage before a translator is paid** |
+
+#### The primary-source status finding, read from the spec repository
+
+`modelcontextprotocol.io` was proxy-dead in the eighth pass and `unicode.org` reports are no more
+reachable from this session, so this was read from `unicode-org/message-format-wg`'s own `README.md`:
+
+> *"The [Unicode MessageFormat Standard](./spec/) is a **stable part of CLDR**. It was **approved by
+> the CLDR Technical Committee** and is **recommended for implementation and adoption**. The
+> normative version of the specification is published as a part of TR35."*
+>
+> *"**Unicode MessageFormat** is sometimes referred to as *MessageFormat 2.0*, since it **replaces
+> earlier message formatting capabilities built into ICU**."*
+>
+> *"Some **default functions** and items in the **`u:` namespace are still in Draft status**.
+> Feedback from users and implementers might result in changes to these capabilities."*
+
+**Why this is the decision-grade sentence of the pass.** MF2 is no longer a tech preview to wait
+out — it is approved, stable and *recommended*, and it **replaces** the ICU MessageFormat syntax
+that every existing enterprise estate is written in. So a greenfield agent UI should be authored in
+MF2, an existing estate has a migration ahead of it, **and** the `u:` namespace and some default
+functions are still Draft, so a client must not be told the whole surface is frozen. All three
+statements are true at once; quoting only the first is how a 2028 rewrite gets sold today.
+
+### Layer 3 — The engine that actually translates, and the licence that is not on the repo
+
+| Repo | Licence (verified) | Stars | Last push | What it is |
+|---|---|---|---|---|
+| [OpenNMT/CTranslate2](https://github.com/OpenNMT/CTranslate2) | **MIT** (byte-read) | 4,764★ | 2026-11-22 | The fast inference engine under most self-hosted MT. CPU-viable |
+| [argosopentech/argos-translate](https://github.com/argosopentech/argos-translate) | **MIT** (byte-read) | 6,691★ | 2026-11-17 | Offline translation library — **the permissive core of LibreTranslate** |
+| [LibreTranslate/LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) | **AGPL-3.0** (byte-read) | 17,840★ | 2026-11-24 | The self-hosted translation **API**. Most-starred row in the layer and the one legal will stop |
+| [Helsinki-NLP/Opus-MT](https://github.com/Helsinki-NLP/Opus-MT) | **code MIT · models CC-BY-4.0** (both byte-read) | 880★ | 2026-02-23 | ~1,000+ language-pair models. The cleanest commercially usable weights in this layer |
+| [OpenNMT/OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py) | **MIT** | 7,023★ | 2025-10-14 | Training framework, if a client needs a domain-tuned pair |
+| [marian-nmt/marian](https://github.com/marian-nmt/marian) | **MIT** (in `LICENSE.md`, not `LICENSE` — badge said `NOASSERTION`) | 1,475★ | **2023-08-25** | The C++ engine behind Opus-MT's published models. **Three years without a push** |
+| [facebookresearch/stopes](https://github.com/facebookresearch/stopes) | **MIT** | 315★ | 2026-08-16 | The NLLB **data pipeline**. MIT — the *code*. See the weights row |
+
+#### The rule this layer proves, and it is the sequel to the twelfth pass
+
+The twelfth pass established that **a repository licence does not govern model weights**. This layer
+is the cleanest demonstration of it in the whole KB, because the same lab ships both halves under
+different terms:
+
+| Asset | What is MIT/permissive | What actually governs the thing that translates |
+|---|---|---|
+| **Opus-MT** (Helsinki-NLP) | the repo and tooling: **MIT** | the published models: **CC-BY-4.0** — commercial use permitted **with attribution**. Byte-read from the repo's own `README.md` |
+| **NLLB-200** (Meta) | `stopes` pipeline and `fairseq`: **MIT** | the released checkpoints: reported **CC-BY-NC-4.0 — non-commercial**. ⚠️ **SECONDARY-SOURCED.** `huggingface.co` is unreachable from this session (HTTP 000), so this was *not* byte-proven here. **Verify on the model card before it reaches a statement of work** |
+
+**The operational consequence, stated plainly:** an engagement that self-hosts "open source
+translation" by pulling NLLB weights behind an MIT-licensed pipeline has, if the secondary source is
+right, shipped a **non-commercial** model into a commercial deliverable, and every file in the
+repository will say MIT while it does so. Opus-MT is the row that does not have this problem, and
+`CC-BY-4.0` carries an **attribution** duty that belongs in the client's notices file, not in a
+developer's head.
+
+### Layer 4 — Measuring translation quality, and the metric that disagrees with your users
+
+| Repo | Licence (verified) | Stars | Last push | What it is |
+|---|---|---|---|---|
+| [Unbabel/COMET](https://github.com/Unbabel/COMET) | **Apache-2.0** | 791★ | 2026-04-21 | Neural MT evaluation. Also the **reference-free QE** family (CometKiwi) — scores output with **no human reference**, which is the only kind of metric an agent can run in production |
+| [mjpost/sacrebleu](https://github.com/mjpost/sacrebleu) | **Apache-2.0** | 1,266★ | 2026-08-20 | The reproducible BLEU/chrF++ implementation. Emits a version string so a score is comparable |
+| [google-research/mt-metrics-eval](https://github.com/google-research/mt-metrics-eval) | **Apache-2.0** | 141★ | 2026-04-23 | Evaluates *the metrics themselves* against WMT human judgments |
+
+#### The finding that should change how this gets quoted
+
+From `andrewyng/translation-agent`'s own `README.md` — the author's own reported result, not a
+third-party benchmark:
+
+> *"even on documents where our agentic workflow captures **context and terminology better**,
+> resulting in translations that **our human raters prefer** over current commercial offerings,
+> evaluation at the sentence level (using the FLORES dataset) resulted in the agentic system
+> **scoring lower on BLEU**."*
+
+So on this layer's own evidence: **BLEU can move in the opposite direction from human preference
+for exactly the agentic pipelines this KB recommends building.** An acceptance criterion written as
+"BLEU ≥ X" can therefore fail a pipeline that is better, and — worse for a consultancy — pass one
+that is worse. Use **COMET or a reference-free QE model for ranking**, keep **sacreBLEU only as a
+reproducible regression tripwire**, and put **document-level human or MQM review on the terms that
+carry legal weight**. That ordering is the deliverable, not the numbers.
+
+Note also what the quote names: **FLORES**, the field's standard benchmark, is
+[`facebookresearch/flores`](https://github.com/facebookresearch/flores) — **770★ and ARCHIVED
+since 2023-11-20**.
+
+### Layer 5 — Knowing which language you were spoken to in, and three archived staples
+
+Routing, per-locale policy and the Brazilian and Indian duties below all presuppose detecting the
+user's language. The three best-known libraries for it are **dead**, and their star counts hide it.
+
+| Repo | Licence (verified) | Stars | State | Verdict |
+|---|---|---|---|---|
+| [pemistahl/lingua-py](https://github.com/pemistahl/lingua-py) | **Apache-2.0** | 1,822★ | push 2026-07-20 | ✅ **The live answer.** Accurate on short text, which is the hard case |
+| [pemistahl/lingua](https://github.com/pemistahl/lingua) | **Apache-2.0** | 831★ | push 2025-03-21 | ✅ JVM sibling, for a Java estate |
+| [facebookresearch/fastText](https://github.com/facebookresearch/fastText) | MIT | **26,502★** | **ARCHIVED 2024-03-22** | ❌ The most-starred row in this entire pass, and it is archived |
+| [google/cld3](https://github.com/google/cld3) | Apache-2.0 | 886★ | **ARCHIVED 2023-05-24** | ❌ Still the default suggestion in older tutorials |
+
+### Layer 6 — Regional language assets, placed deliberately
+
+Globant sells into four regions; the languages are not interchangeable, and neither is the tooling.
+
+| Repo | Licence (verified) | Stars | Last push | Region | Note |
+|---|---|---|---|---|---|
+| [AI4Bharat/IndicTrans2](https://github.com/AI4Bharat/IndicTrans2) | **MIT** | 500★ | 2025-10-03 | **APAC** | Translation for **all 22 scheduled languages of India** — i.e. exactly the set India's DPDP §5(3) names. The lowest-starred, highest-leverage row in this pass |
+| [masakhane-io/masakhane-mt](https://github.com/masakhane-io/masakhane-mt) | **MIT** | 334★ | **2022-06-14** | **EMEA** | MT for African languages. Permissive and relevant, **four years without a push** — treat as a research corpus, not a dependency |
+| [langtech-bsc/salamandra](https://github.com/langtech-bsc/salamandra) | Apache-2.0 | *(held since twelfth pass)* | — | **EMEA** | Already in this file as a sovereign base model; **also** the Iberian-language asset |
+| [SakuraLLM/SakuraLLM](https://github.com/SakuraLLM/SakuraLLM) | **GPL-3.0** | 4,865★ | 2026-07-23 | **APAC** | JP→ZH translation LLM. Listed for completeness and **not recommended**: GPL-3.0, and its domain is light novels and games, not enterprise prose |
+| **LATAM** | — | — | — | **LATAM** | **Informed gap.** No LATAM-origin translation or localisation project surfaced in this pass. The region's open-language assets already in this KB (`latam-gpt/language_identifier`, `anonymization-filter`, `toxicity-classifier`) are **corpus-cleaning tools, not translation tooling**. For Spanish/Portuguese, Opus-MT's pairs plus a client-owned glossary is the honest recommendation — not a regional project that does not exist |
+
+### Licence traps in this layer — five, and the first is the one that ends an engagement
+
+**1. Tolgee is not Apache-2.0, and its own root licence file says so.** The badge reads
+`NOASSERTION`; an aggregator read it as "Apache-2.0" and another as *"self-hosting is fully
+open-source"*. Byte-read from `tolgee/tolgee-platform/main/LICENSE`:
+
+> *"Tolgee monorepo uses multiple licenses. Portions of this software are licensed as follows:
+> — All content that resides under the **`"ee/"` and `"/webapp/src/ee"`** directory of this
+> repository, is licensed under the license defined in `"ee/LICENSE"`. — Content **outside** of the
+> above mentioned directories or restrictions **defaults to the "Apache License 2.0"**."*
+
+And `ee/LICENSE` is **"Tolgee EE License version 1"**:
+
+> *"You can use software made available under this license for **non-commercial purposes only**."*
+> … *"**Hosted or Managed Services**: You may not provide the software to third parties as a hosted
+> or managed service"* … *"**License Key Functionality**: You may not move, change, disable, or
+> circumvent the license key functionality."*
+
+This is the **onyx pattern from the seventh pass, exactly repeated**: a permissive headline with the
+enterprise-grade features fenced into `ee/` under terms a consultancy cannot use. Two independent
+implications: Globant **may not use `ee/` features in client work at all** (non-commercial), and
+**may not run even the Apache-2.0 portion for a client as a managed service** if that service
+exposes `ee/` functionality. A probe of a repo's root `LICENSE` that stops at the first line
+`Apache License` — which is exactly what a `grep -i "apache"` does — gets this **wrong**.
+
+**2. Weblate is GPL-3.0, and the directories say MIT.** Two aggregators returned MIT in this pass's
+searches. Byte-read: `GNU GENERAL PUBLIC LICENSE Version 3`. GPL-3.0 is workable for a *hosted
+internal TMS* (no distribution, no network clause) but it is **not** a component to link into a
+client's product. The distinction is the engagement.
+
+**3. The most-starred option in two of six layers is the copyleft one.** LibreTranslate
+(**17,840★, AGPL-3.0**) and Weblate (6,180★, GPL-3.0) both top their categories. The permissive
+answers are **quieter**: `argos-translate` (MIT, 6,691★) *is* LibreTranslate's engine without the
+AGPL API wrapper, and **Pontoon** (BSD-3-Clause, 1,679★) is the TMS. In this layer, sorting by
+stars sorts **away** from what Globant can ship.
+
+**4. `traduora/traduora` does not exist.** The path returned by an aggregator **422s** against the
+search API. The real project is **`ever-co/ever-traduora`** (AGPL-3.0, 2,140★). Eighth addition to
+the rename ledger below.
+
+**5. `NOASSERTION`/`null` resolved in four different directions in one pass** — confirming the
+ninth pass's inverted rule that a missing badge is *the absence of a verdict*, not a bad licence:
+`marian` → **MIT in `LICENSE.md`** (wrong filename); `icu`/`cldr`/`message-format-wg` →
+**Unicode-3.0** (a real, permissive, OSI-approved licence GitHub simply does not badge);
+`python-fluent` → **Apache-2.0**; `formatjs` → **no root licence file at all**, MIT declared
+**per package** (`packages/intl/package.json` → `"license": "MIT"`), which is why the badge is
+`null` rather than `NOASSERTION`. And `lingodotdev/lingo.dev` keeps its licence in **`LICENSE.md`**
+while its root `readme.md` is a **22-byte pointer file** containing the string
+`packages/cli/README.md` — a naive README fetch returns nothing at all.
+
+### Rename ledger addition (sixteenth pass)
+
+| Cited as | Actually | Evidence |
+|---|---|---|
+| `traduora/traduora` | **`ever-co/ever-traduora`** (AGPL-3.0, 2,140★) | search API **422** on the former; the latter resolves, pushed 2026-11-24 |
+
+### Method notes from this pass — three new ways to be wrong
+
+1. **`huggingface.co` is proxy-dead from this session (HTTP 000 on both `/api/models/…` and
+   `/raw/…`).** Any claim about model-weight licensing therefore cannot be byte-proven here. This
+   pass marks the one such claim (NLLB) as secondary-sourced rather than promoting it to a finding.
+   A GitHub-only verification plane **cannot close the weights question** — and the weights are
+   what translate.
+2. **A licence file can be a *multi-licence declaration*.** Byte-reading the first 400 bytes of
+   `LICENSE` is the method the earlier passes established, and on Tolgee it returns `Apache
+   License` — the correct answer is the opposite. When a root licence mentions a **directory**,
+   the probe is not finished until that directory's own licence is read.
+3. **The licence may not be in a file named `LICENSE`.** Two rows this pass: `marian` → `LICENSE.md`,
+   `lingo.dev` → `LICENSE.md`. A 404 on `LICENSE` is not evidence of an unlicensed project.
