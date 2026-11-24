@@ -8,7 +8,47 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — fourteenth pass (latest) — three agents in a layer with a measured zero, and the engine under all of them
+## 2026-11-24 — fifteenth pass (latest) — el límite del consumo: tres agentes reales y un cero medido
+
+> Tema: **el límite del consumo** — lo que el agente **gasta** y lo que hay que **declarar** sobre
+> ese gasto. Medido antes de buscar, sobre los nueve archivos y **en los dos idiomas de la KB**:
+> `carbon` 0 · `kWh` 0 · `emision/emisión` 0 · `CSRD` 0 · `ESRS` 0 · `codecarbon` 0 · `kepler` 0 ·
+> `consumo` 0 · `ambiental` 0 · `eficiencia energética` 0. Cero limpio en los nueve.
+> Contraste que prueba que la capa es nueva y no un sinónimo: `FinOps`, `metering`, `OpenCost` y
+> `SPIFFE` **ya estaban**. FinOps mide dinero; esta capa mide julios, y el obligado a declararlos no
+> es el CFO.
+
+**Nuevo esta semana en la capa de agentes (3 repos, verificados hoy 2026-11-24):**
+
+- **`mlco2/agentic-footprint`** — MIT, **8★**, push **2026-11-23** (un día antes de este pase).
+  Rust. De la organización que mantiene CodeCarbon (1951★, MIT). Huella específica de flujos
+  agénticos: el único de los tres con una organización seria detrás.
+- **`VeiledTee/agent-energy-profiler`** — MIT, **0★**, push **2026-10-24**. Python; perfila energía
+  **por operación** en un flujo multi-paso y **separa explícitamente lo medido de lo estimado**, que
+  es la distinción que hace auditable el número.
+- **`Enterprise-DNA-OS/carbon-accounting-for-claude-code`** — MIT, **0★**, push **2026-10-18**.
+  Contabilidad de carbono de sesiones de agente de código sobre Postgres.
+
+**Se publican con 0★ a propósito.** La alternativa honesta era una sección vacía, y el hueco *es* el
+hallazgo: **la atribución de consumo por tarea de agente no tiene producto maduro.** Un *prompt* se
+expande en N llamadas al modelo, M invocaciones de herramienta y reintentos; ninguna sonda madura
+(Kepler, Scaphandre, CodeCarbon, Zeus) sabe sumar eso a una unidad de negocio. La respuesta de hoy
+es composición, no producto: `compose/patterns.md` **Receta 28**.
+
+**Archivado-pero-recomendado, caso nº 11:** `Breakend/experiment-impact-tracker` — MIT, 293★,
+**`archived=true`**, último push **2024-01-30**, y sigue en listados de herramientas de huella de ML.
+Los once casos de esta KB llegaron por documentación adyacente al proyecto, nunca por el repo.
+
+**Sin licencia, que no es lo mismo que archivado:** `ml-energy/leaderboard` — **`NONE`**, 14★, push
+2026-09-23 — mientras su propio motor `ml-energy/zeus` es **Apache-2.0** (390★). La licencia no se
+hereda dentro de una organización, ni hacia arriba ni hacia abajo.
+
+**Ruta que los roundups citan y no existe:** `lfwa/carbontracker`. El proyecto real es
+**`saintslab/carbontracker`** (MIT, 489★, push 2026-11-05). La llamada por lotes a
+`gh api search/repositories` **descarta en silencio** un `repo:` inválido si quedan válidos — 14
+pedidos, 13 devueltos — así que el descarte silencioso **es** la señal de que una ruta desapareció.
+
+## 2026-11-24 — fourteenth pass — three agents in a layer with a measured zero, and the engine under all of them
 
 > Theme: **the accessibility boundary** — whether the agent's own interface can be used by the
 > people the client is legally obliged to serve, and whether an agent can test that. Measured

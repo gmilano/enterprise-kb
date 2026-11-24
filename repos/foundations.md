@@ -1778,3 +1778,164 @@ in `compose/patterns.md` Receta 24. The only end-to-end permissive path is IBM's
   `alphagov/govuk-frontend` (MIT, Crown Copyright/GDS, npm 6.6.0 of 2026-10-15) is EMEA-origin and
   is the single best-tested accessible component set in the open
   (`verticals/solutions.md`, this pass). A zero is only as good as the layer it is measured in.
+
+## La capa de medición del consumo — el sexto límite (added fifteenth pass, 2026-11-24)
+
+> **Tema del pase: el límite del consumo.** Catorce pases gobernaron lo que el agente puede
+> **leer** (entitlement), **cambiar** (write), **probar** (provenance), **contener** (containment),
+> **olvidar** (erasure) y **quién puede usarlo** (accessibility). Ninguno midió lo que el agente
+> **gasta** ni lo que hay que **declarar** sobre ese gasto.
+>
+> **Medido antes de buscar**, sobre los nueve archivos y en los dos idiomas de la KB:
+> `carbon` 0 · `kWh` 0 · `emision/emisión` 0 · `CSRD` 0 · `ESRS` 0 · `kepler` 0 · `codecarbon` 0 ·
+> `consumo` 0 · `ambiental` 0 · `eficiencia energética` 0. Cero limpio en los nueve archivos, en
+> inglés **y** en español (regla T88: la auditoría de huecos se corre en el idioma de la KB).
+> `FinOps`, `metering`, `OpenCost` y `SPIFFE` **sí** estaban: esta capa no es FinOps con otro
+> nombre — FinOps mide **dinares**, esta mide **julios**, y el obligado a declararlos no es el CFO.
+
+### Motores de medición — qué se mide y dónde se engancha
+
+Licencia, estrellas, último push y `default_branch` leídos de `gh api search/repositories`
+el 2026-11-24; las tres `NOASSERTION` resueltas por lectura byte a byte del `LICENSE`.
+
+| Repo | Licencia | ★ | Último push | Qué mide y dónde se engancha |
+|---|---|---|---|---|
+| [hubblo-org/scaphandre](https://github.com/hubblo-org/scaphandre) | Apache-2.0 | 2018 | 2026-07-19 | Agente host: potencia por proceso vía RAPL. Exporta a Prometheus. La sonda más bajo nivel de la tabla |
+| [sustainable-computing-io/kepler](https://github.com/sustainable-computing-io/kepler) | Apache-2.0 | 1606 | 2026-11-24 | eBPF + RAPL por **pod** de Kubernetes, exporta Prometheus. Es el que atribuye consumo a un workload, no a una máquina |
+| [sustainable-computing-io/kepler-operator](https://github.com/sustainable-computing-io/kepler-operator) | Apache-2.0 | 40 | 2026-11-23 | Operador OpenShift/K8s para desplegar el anterior. Sin él, Kepler es un DaemonSet a mano |
+| [mlco2/codecarbon](https://github.com/mlco2/codecarbon) | MIT | 1951 | 2026-11-22 | Librería Python: envuelve un entrenamiento o una inferencia y emite kWh + gCO₂e estimados por región |
+| [ml-energy/zeus](https://github.com/ml-energy/zeus) | Apache-2.0 | 390 | 2026-11-17 | Medición **y optimización** de energía en GPU para cargas de deep learning; `default_branch=master` |
+| [saintslab/carbontracker](https://github.com/saintslab/carbontracker) | MIT | 489 | 2026-11-05 | Predice la huella de un entrenamiento desde las primeras épocas. **Ojo: la ruta que citan los roundups (`lfwa/carbontracker`) no existe** |
+| [powerapi-ng/powerapi](https://github.com/powerapi-ng/powerapi) | BSD-3-Clause | 255 | 2026-11-24 | Toolkit para construir medidores de potencia por software. Única BSD-3 de la capa |
+| [cloud-carbon-footprint/cloud-carbon-footprint](https://github.com/cloud-carbon-footprint/cloud-carbon-footprint) | Apache-2.0 | 1054 | 2026-04-23 | Estima energía y CO₂e desde las **facturas** de AWS/Azure/GCP. `default_branch=trunk`. Push más antiguo de la tabla — verificar actividad antes de proponerlo como base |
+| [thegreenwebfoundation/co2.js](https://github.com/thegreenwebfoundation/co2.js) | **Apache-2.0** (byte-read; la API dice `NOASSERTION`) | 499 | 2026-11-17 | Convierte bytes y kWh en gCO₂e. **Trae datos ODbL — ver la trampa de licencia abajo** |
+| [thegreenwebfoundation/grid-intensity-go](https://github.com/thegreenwebfoundation/grid-intensity-go) | Apache-2.0 | 84 | 2026-05-11 | Cliente Go de intensidad de red, pensado para decisiones de planificación |
+| [Green-Software-Foundation/if](https://github.com/Green-Software-Foundation/if) | MIT | 184 | 2026-10-24 | *Impact Framework*: declara el cálculo como manifiesto YAML en vez de código. Es el que hace el número **auditable** |
+| [Green-Software-Foundation/carbon-aware-sdk](https://github.com/Green-Software-Foundation/carbon-aware-sdk) | MIT | 600 | 2026-11-04 | API de "¿cuándo y dónde corro esto?". `default_branch=dev`, no `main` |
+| [kube-green/kube-green](https://github.com/kube-green/kube-green) | MIT | 1390 | 2026-09-02 | Apaga workloads no productivos por horario. El ahorro más barato y el menos citado |
+| [mlco2/agentic-footprint](https://github.com/mlco2/agentic-footprint) | MIT | 8 | 2026-11-23 | **Rust, específico de agentes.** 8★ — se cita por existir, no por madurez |
+| [mlco2/ecologits](https://github.com/mlco2/ecologits) | **MPL-2.0** | 364 | 2026-11-23 | Huella de GenAI **por API** (modelo cerrado, sin acceso al host). MPL-2.0: copyleft por archivo, no es permisiva |
+
+**Lo que la tabla no tiene y hace falta decirlo:** ninguno de estos mide un *agente*. Miden un
+proceso, un pod o una llamada. La atribución por **tarea de agente** (plan → N llamadas →
+herramientas → reintentos) no tiene producto maduro: lo único específico son `mlco2/agentic-footprint`
+(8★) y `VeiledTee/agent-energy-profiler` (MIT, 0★, 2026-10-24), ambos de una cifra de estrellas. Se
+declara como hueco de la capa, no se rellena con una fila verosímil.
+
+### La capa de declaración — el número tiene que salir en un formato, no en un PDF
+
+| Repo | Licencia | ★ | Último push | Para qué |
+|---|---|---|---|---|
+| [Arelle/Arelle](https://github.com/Arelle/Arelle) | **Apache-2.0** (byte-read; la API dice `NOASSERTION`) | 261 | 2026-11-24 | Procesador XBRL open source — valida y genera el *tagging* digital con el que se presenta el informe. `default_branch=master`. Copyright **Workiva, Inc.** |
+| [os-climate/physrisk](https://github.com/os-climate/physrisk) | Apache-2.0 | 72 | 2026-11-23 | Riesgo físico climático por activo — el insumo de la parte "riesgos" del informe |
+| [os-climate/osc-transformer-presteps](https://github.com/os-climate/osc-transformer-presteps) | Apache-2.0 | 1 | 2026-11-23 | Extracción previa de informes de sostenibilidad para pipelines NLP. **1★: es infraestructura de un consorcio, no un producto** |
+
+**Por qué Arelle es el hallazgo estructural y no una nota de pie.** Es el mismo patrón que el pase
+ocho encontró con OSCAL: cuando la obligación pasa de "publique un informe" a "publique estos
+campos", **la herramienta que importa es un procesador de esquema de hace una década, no un modelo**.
+Arelle es a ESRS/XBRL lo que `oscal-cli` es a FedRAMP. Y la señal de que la obligación va hacia ahí
+está datada: EFRAG publicó el **borrador de taxonomía XBRL de los ESRS revisados el 17-sep-2026**,
+con consulta pública cerrada el **11-nov-2026** y entrega prevista a ESMA y la Comisión **antes de
+fin de 2026** (nivel snippet, ver más abajo).
+
+### Trampa de licencia del pase, y es de una clase nueva — la licencia de los **datos**
+
+`thegreenwebfoundation/co2.js` aparece como `NOASSERTION` en la API de GitHub. La lectura byte a
+byte de su `LICENSE` (12 678 bytes) explica por qué: **un solo archivo contiene dos licencias para
+dos activos distintos.**
+
+1. **El código** es Apache-2.0 (el texto íntegro está en el archivo).
+2. **Los datos de intensidad de red** que la librería trae empaquetados se republican de
+   **Electricity Maps bajo la Open Database License (ODbL)**, y el propio archivo enumera las
+   obligaciones, en sus palabras: *"Attribute: Credit Electricity Maps as the source"*,
+   *"Share-Alike: Keep derivative works under the same license"*, *"Keep open: Provide unrestricted
+   versions if using DRM"*.
+
+**Clase de licencia nº 13 de esta KB: ODbL — y es la primera que no recae sobre código.** La
+consecuencia comercial es concreta y no la cubre ninguna regla anterior de este repo: el factor de
+intensidad de red es **justamente** lo que convierte kWh en gCO₂e, es decir el dato sin el cual la
+capa de medición no produce la cifra que el informe exige. Quien lo toma por esta vía hereda
+**share-alike sobre la base de datos derivada** — una superficie de riesgo distinta del copyleft de
+código, y que **sobrevive a una librería Apache-2.0**. Dicho al revés, y es la regla:
+
+> **Una librería permisiva puede entregarte una base de datos con copyleft.** El SPDX del repo
+> describe el código; no dice nada de los datos que el repo empaqueta.
+
+El mismo texto, **con su errata incluida** (`"Licening for the CO2.js library"`), reaparece dentro
+del `LICENSE` de `green-coding-solutions/green-metrics-tool` (35 429 bytes): prueba de que ese
+proyecto **vendoriza** co2.js. Y ese archivo es peor todavía — tres licencias en uno:
+
+| Sección del archivo | Lo que el índice promete | Lo que el cuerpo contiene |
+|---|---|---|
+| línea 2 | "1. License for Green Metrics Tool Source Code" | — |
+| línea 3 | "2. License for the bundled Electricity Maps Grid Intensity Data" | — |
+| línea 7 | encabezado: *"1. Licening for the CO2.js library **Apache License**"* | el texto que sigue (líneas 10–652) es la **GNU AFFERO GPL v3**, no Apache |
+| línea 673 | "2. License for Electricity Maps Grid Intensity Data" | **ODbL**, con atribución y share-alike |
+
+Es decir: **el encabezado contradice a su propio cuerpo.** El veredicto real para
+`green-metrics-tool` (260★, push 2026-11-24) es **AGPL-3.0 para el código + ODbL para los datos**, y
+eso lo descarta como base propietaria igual que `Boavizta/boaviztapi` (AGPL-3.0, 102★) y
+`Boavizta/cloud-scanner` (AGPL-3.0, 43★) — tres proyectos de referencia de la capa, los tres AGPL.
+`electricitymaps/electricitymaps-contrib` (AGPL-3.0, 4057★) es la fuente original de los datos y
+tiene la misma forma: **código AGPL, datos ODbL.**
+
+> **Regla de método 14 (nueva).** Antes de importar cualquier proyecto de huella ambiental,
+> responda **dos** preguntas de licencia, no una: *¿qué licencia tiene el código?* y *¿qué licencia
+> tienen los factores de emisión que trae?* En esta capa la segunda respuesta es, casi siempre, ODbL.
+
+### Ejecución carbon-aware — y la única prueba de código del pase
+
+`jobrunr/jobrunr` (3112★, push 2026-11-24) aparece `NOASSERTION`. Resuelto por dos oráculos no
+equivalentes:
+
+- su archivo de licencia **no se llama `LICENSE`** (404 en `LICENSE`, `LICENSE.md`, `LICENSE.txt`,
+  `COPYING`) sino **`License.md`**, y ese archivo dice en su primera línea que el software está
+  **`multi-licensed`**: **LGPL-3.0-or-later** *o* una **licencia comercial** por suscripción, a
+  elección del receptor;
+- el POM de Maven Central (`org/jobrunr/jobrunr/8.0.0`) declara **solo** *"GNU Lesser General Public
+  License v3.0 or later"*, y apunta a `License.md#lgpl-v3-license` — **un ancla**, porque el archivo
+  tiene varias secciones.
+
+> **Regla de método 15 (nueva), y corrige la 12.** El manifiesto puede estar **correcto y ser
+> incompleto**: en una oferta multi-licencia nombra *una* de las opciones. Un manifiesto que dice
+> LGPL no prueba que no exista además una vía comercial, ni al revés. La tabla de desempate del
+> pase 19 de `energy-kb` sigue valiendo, pero su paso (1) deja de ser terminal.
+
+**Y la pregunta que de verdad importaba, contestada leyendo el código y no el blog:** ¿el
+*scheduling* carbon-aware está en el núcleo abierto o en la edición de pago? `gh api search/code`
+sobre `repo:jobrunr/jobrunr carbonaware` devuelve **91 coincidencias**, y las clases están en
+**`core/src/main/java/org/jobrunr/`**:
+
+```
+core/src/main/java/org/jobrunr/scheduling/carbonaware/CarbonAware.java
+core/src/main/java/org/jobrunr/scheduling/carbonaware/CarbonAwarePeriod.java
+core/src/main/java/org/jobrunr/scheduling/carbonaware/CarbonAwareScheduleMargin.java
+core/src/main/java/org/jobrunr/server/carbonaware/CarbonIntensityApiClient.java
+core/src/main/java/org/jobrunr/server/carbonaware/CarbonAwareJobProcessingConfiguration.java
+```
+
+Está en el **módulo `core`, en `main`**, no en un módulo Pro: **es usable bajo LGPL-3.0-or-later**,
+que para enlace dinámico desde una aplicación propietaria es aceptable en la mayoría de los
+*engagements*. Esto es un diferencial real: es el único planificador de esta KB que desplaza trabajo
+diferible a ventanas de red limpia, y el agente enterprise está **lleno** de trabajo diferible
+(reindexado, *batch* de *embeddings*, evaluaciones nocturnas, reentrenos).
+
+**Pero el mismo archivo de configuración trae una dependencia que hay que declararle al cliente,
+leída byte a byte de `CarbonAwareJobProcessingConfiguration.java`:**
+
+```java
+public static final String DEFAULT_CARBON_INTENSITY_API_URL =
+        getCarbonIntensityForecastApiRootUrl("https://api.jobrunr.io");
+public static final Duration DEFAULT_API_CLIENT_CONNECT_TIMEOUT = Duration.ofSeconds(3);
+public static final Duration DEFAULT_API_CLIENT_READ_TIMEOUT   = Duration.ofSeconds(3);
+public static final Integer  DEFAULT_API_CLIENT_RETRIES_ON_EXCEPTION = 3;
+public static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMinutes(5);
+```
+
+Por defecto **llama a la API del proveedor** (`api.jobrunr.io`) cada 5 minutos, con *timeouts* de 3
+segundos y 3 reintentos. El campo `carbonIntensityApiUrl` **es configurable**, junto con `areaCode` y
+`dataProvider`, de modo que se puede apuntar a un endpoint propio. Es exactamente la forma que el
+pase trece documentó con SOM-1.0 —*la cláusula que decide está fuera de la licencia*— pero un nivel
+más abajo: aquí lo que está fuera de la licencia es una **salida de red a un tercero**, activada por
+defecto, en una librería cuya licencia es impecable. En un cliente regulado eso se revisa antes del
+*go-live*, y la mitigación es una línea de configuración.

@@ -787,3 +787,67 @@ declared non-public-domain parts. The resolution is not "permissive" or "restric
 - The assistive technology itself is part of the client's estate and is **not** something you
   deliver: `nvaccess/nvda` is GPL-2.0-or-later, VoiceOver and JAWS are proprietary. You drive them
   in a test job (`repos/foundations.md`, this pass); you never bundle them.
+
+## Dónde se declara el número: ninguna suite abierta trae módulo ESG (added fifteenth pass, 2026-11-24)
+
+> **El informe de sostenibilidad es un entregable de la suite, no de una herramienta aparte** — pero
+> en el open source permisivo ese módulo **no existe**, y eso es precisamente el hueco vendible.
+
+Licencias, estrellas y `default_branch` leídos el 2026-11-24; las dos `NOASSERTION` resueltas por
+lectura byte a byte del `LICENSE`.
+
+| Plataforma | Licencia real | ★ | `default_branch` | Estado del módulo de sostenibilidad |
+|---|---|---|---|---|
+| [odoo/odoo](https://github.com/odoo/odoo) | **LGPL-3.0** (byte-read; la API dice `NOASSERTION`) | 56 065 | **`20.0`** | **No hay módulo ESG nativo.** Lo que se documenta es construirlo con *dashboards* y *spreadsheets* — configuración, no módulo |
+| [frappe/erpnext](https://github.com/frappe/erpnext) | GPL-3.0 | 41 597 | `develop` | Sin módulo de sostenibilidad encontrado |
+| [cortezaproject/corteza](https://github.com/cortezaproject/corteza) | Apache-2.0 | 2 192 | **`2026.9.x`** | Sin módulo. **La única suite Apache-2.0 de la tabla** — y por eso la base preferente cuando hay que extender |
+| [apache/ofbiz-framework](https://github.com/apache/ofbiz-framework) | Apache-2.0 | 1 151 | **`trunk`** | Sin módulo. ERP de la ASF, permisivo |
+
+**Por qué `odoo/odoo` aparecía como `NOASSERTION`:** su `LICENSE` empieza con el preámbulo *"For
+copyright information, please see the COPYRIGHT file"* antes del texto de la LGPLv3, y eso basta
+para que el clasificador de GitHub no emita veredicto. **LGPL-3.0 confirmada por lectura directa**,
+coherente con el modelo Community/Enterprise que esta KB ya tenía registrado.
+
+**Y la observación de método que esta tabla hace sola:** cuatro suites, cuatro `default_branch`
+distintos — `20.0`, `develop`, `2026.9.x`, `trunk` — y **ninguno es `main`**. La regla T86 del pase
+19 de `energy-kb` se confirma fuera de su industria: iterar `main`/`master` a ciegas falla en las
+cuatro, y la rama viene en la **misma** llamada que la licencia.
+
+### La trampa del pase, y es de nombre
+
+`crbnos/carbon` — 2 860★, push 2026-11-24, aparece **arriba** en cualquier búsqueda que combine
+`carbon` con `ERP`. **No es una herramienta de huella de carbono.** Es un **ERP/MES/QMS de
+manufactura** (cotización, MRP, inventario, planta, trazabilidad por lote/serie sobre un esquema
+Postgres, con API REST y servidor MCP). La lectura byte a byte de su `LICENSE` dice, literalmente,
+que *"everything in this repository is licensed under the GNU Affero General Public License, version
+3 **only**"* **salvo** los *Enterprise files*, que van bajo la **Carbon Commercial License**.
+
+Es decir: **AGPL-3.0-only + carve-out comercial**, y además la palabra del nombre no describe el
+dominio. Dos formas de equivocarse en un solo repo. Se registra explícitamente porque es falsable en
+treinta segundos de README — igual que AMIRIS no era un agente LLM en `energy-kb`.
+
+> **Lo interesante es que sí tiene servidor MCP.** Como *vertical agentizable* de manufactura es un
+> candidato legítimo; lo que no es, es la capa de medición ambiental. Dos fichas distintas para un
+> mismo repo.
+
+### El hueco, declarado como tal
+
+Se buscó específicamente un módulo ESG/huella **permisivo** acoplable a una suite abierta y **no se
+encontró**. Lo más cercano es `lxzxl/carbonink` (**MIT, 4★, push 2026-10-09**): contabilidad GHG de
+escritorio, local-first y *offline*, que produce un inventario ISO 14064-1 y expone un servidor MCP
+sobre el inventario. **4★ no es una base para un cliente**, pero la forma —inventario local +
+MCP— es exactamente la que un agente necesita, y por eso se cita.
+
+**Conclusión para un *engagement*:** el módulo de declaración ambiental sobre la suite abierta del
+cliente es **trabajo a construir**, no software a configurar, y el formato de salida ya está
+decidido por el regulador (XBRL vía `Arelle/Arelle`, Apache-2.0 — ver `repos/foundations.md`). Esa es
+la oportunidad, y es de las pocas de esta KB donde el *build* no compite contra un open source
+maduro.
+
+### La pieza LATAM de esta capa, y es real
+
+`EquipoAnaliticaXM/API_XM` — **MIT, 75★, push 2026-11-10, `default_branch=master`**. Librería Python
+de acceso a **SIMEM.co** y **SINERGOX/XM**, los sistemas de información del operador del sistema
+eléctrico **colombiano**. No es contabilidad de carbono: es el **dato de red nacional** con licencia
+permisiva, que es justamente lo que falta para calcular un factor de intensidad local sin heredar
+ODbL de Electricity Maps. Es el hallazgo LATAM del pase y se detalla en `intel/market.md`.

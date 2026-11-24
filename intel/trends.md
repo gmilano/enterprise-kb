@@ -2007,3 +2007,128 @@ change.
 several language localisations** — which is what happened to APAC this pass, where nearly everything
 came from Deque's own country pages — that is **one source, not corroboration**. Say so in the
 subsection rather than letting the page count imply breadth.
+
+## Fifteenth pass, 2026-11-24 — el límite del consumo, y la primera licencia de esta KB que no recae sobre software
+
+> **Nota de numeración, medida.** Los números de tendencia de este archivo **colisionan**: el pase
+> trece llegó hasta `### 30`, y el pase catorce reinició en `### 18`, de modo que hay dos tendencias
+> 18, dos 19, dos 20 y dos 21. Este pase **no agrava la colisión**: continúa desde el máximo global
+> (30) con **31, 32 y 33**. Se deja escrito porque un índice duplicado es un defecto de datos
+> silencioso: el compilador no falla, simplemente produce dos entidades con la misma clave.
+
+### 31. El sexto límite es lo que el agente **gasta**, y a diferencia de los cinco anteriores no lo gobierna quien lo construye
+
+Catorce pases construyeron una secuencia: qué puede **leer** el agente (entitlement), qué puede
+**cambiar** (write), qué puede **probar** (provenance), qué puede **contener** (containment), qué
+tiene que **olvidar** (erasure) y **quién puede usarlo** (accessibility). Los seis se deciden dentro
+del proyecto. **El consumo no.** El que opera el agente gasta los julios; el que tiene que
+declararlos es, según la jurisdicción, el emisor cotizado, el operador del centro de datos o nadie.
+
+Y por eso la capa aparece **ahora**: el multiplicador es el agente. Una fuente de analistas (nivel
+snippet, atribuida y no adoptada) sostiene que la IA agéntica consume **entre 5 y 30 veces más
+*tokens* por tarea** que un intercambio único de chatbot. Cuando la unidad era el chatbot, el
+consumo era un detalle de infraestructura; cuando la unidad es un plan con reintentos, es una línea
+de costo y una obligación de reporte de otra persona.
+
+**La forma técnica del problema, dicha con precisión:** ninguna de las sondas maduras mide agentes.
+Kepler mide **pods**, Scaphandre mide **procesos**, CodeCarbon envuelve **llamadas**. La atribución
+por **tarea de agente** no tiene producto: lo único específico son `mlco2/agentic-footprint` (MIT,
+8★) y `VeiledTee/agent-energy-profiler` (MIT, 0★). **Esta es la cuarta capa consecutiva que esta KB
+encuentra sin agentes dentro** — y las cuatro veces el valor estuvo en descubrir *qué componente*
+ocupa el hueco, no en encontrar un agente.
+
+### 32. Una licencia permisiva puede entregarte una base de datos con copyleft, y el SPDX no lo dice
+
+**Clase de licencia nº 13 de esta KB: ODbL — la primera que no recae sobre código.**
+
+`thegreenwebfoundation/co2.js` figura como `NOASSERTION` en la API de GitHub. Su `LICENSE` —12 678
+bytes, leído byte a byte— contiene **dos licencias para dos activos distintos**: el **código** es
+**Apache-2.0** y los **datos de intensidad de red** empaquetados se republican de **Electricity Maps
+bajo la Open Database License**, con *attribution*, ***share-alike*** y *keep-open* enumerados en el
+propio archivo.
+
+Y muerde exactamente donde importa: **el factor de intensidad de red es lo que convierte kWh en
+gCO₂e**, o sea el dato sin el cual toda la capa de medición no produce la cifra que el informe
+exige. Quien lo toma por esa vía hereda **share-alike sobre su base de datos derivada** — una
+superficie de riesgo **distinta** del copyleft de código, y que **sobrevive a una librería
+Apache-2.0**.
+
+> **La regla, generalizada más allá de esta capa:** el identificador SPDX de un repositorio describe
+> **el código del repositorio**. No dice nada de los **datos** que el repositorio empaqueta, ni de
+> los **pesos** que descarga, ni del **servicio** al que llama. Las tres excepciones ya están
+> documentadas en esta KB y las tres se encontraron en pases distintos: pesos (pase 12), AUP fuera
+> de la licencia (pase 12), SOM-1.0 alcanzando un activo que la herramienta no contiene (pase 13) y
+> ahora **datos** (pase 15). **Cuatro veces el mismo patrón: la obligación que decide está fuera del
+> campo que se consulta.**
+
+**Corolario operativo, y es la regla de método 14:** ante cualquier proyecto de huella ambiental,
+dos preguntas de licencia, no una — *¿qué licencia tiene el código?* y *¿qué licencia tienen los
+factores de emisión que trae?* En esta capa la segunda respuesta es, casi siempre, **ODbL**. Prueba
+de propagación: la **misma errata** (`"Licening for the CO2.js library"`) aparece dentro del
+`LICENSE` de `green-coding-solutions/green-metrics-tool`, cuyo encabezado de sección dice *"Apache
+License"* y cuyo cuerpo es **AGPL-3.0**.
+
+### 33. Dos obligaciones de la misma región se movieron en direcciones opuestas, y el proyecto que se vende depende de cuál se cite
+
+Esto es EMEA en 2026 y es el contraste comercial más limpio que ha producido esta KB:
+
+| | CSRD (Ómnibus I) | Centros de datos (EED) |
+|---|---|---|
+| Instrumento | Directiva (UE) **2026/470** | Reglamento Delegado (UE) **2024/1364** |
+| Movimiento en 2026 | **se encogió**: de ~50 000 a ~5 000 obligados (≈ **90 %** menos) | **intacto** |
+| Umbral | > 1 000 empleados **Y** > 450 M EUR | **≥ 500 kW** de potencia TI instalada |
+| Cadencia | anual, primer ejercicio **en disputa** entre fuentes | anual, **15 de mayo** |
+| Cumplimiento observado | — | **770 centros reportaron ≈ 36 %** de los obligados |
+
+**Quien venda "proyecto CSRD" en EMEA persigue un mandato que acaba de perder nueve de cada diez
+obligados. Quien venda instrumentación EED persigue una obligación vigente, anual y que dos tercios
+de su población incumple.** Misma capa técnica, dos conversaciones comerciales opuestas, y la
+diferencia entre ellas es qué instrumento se cita.
+
+**Y el error de este pase, registrado porque iba a publicarse como noticia:** la hipótesis de
+partida fue que la obligación de eficiencia energética estaba en el **artículo 40 del AI Act**. **No
+lo está** — el art. 40 trata de **normas armonizadas y presunción de conformidad**. El deber vive en
+la EED. **Atribuir una obligación al instrumento equivocado es tan falsable como inventar un repo**,
+y la única defensa barata es citar siempre instrumento + fecha, nunca "el AI Act exige".
+
+### Canal de verificación de este pase — qué se pudo comprobar y qué no
+
+**Asimetría declarada, y es más marcada que en pases anteriores:**
+
+- **Fuerte (byte a byte).** 33 direcciones nuevas. Toda licencia `NOASSERTION` resuelta por lectura
+  directa del archivo: `Arelle/Arelle`→**Apache-2.0**, `thegreenwebfoundation/co2.js`→**Apache-2.0 +
+  ODbL**, `odoo/odoo`→**LGPL-3.0**, `crbnos/carbon`→**AGPL-3.0-only + comercial**,
+  `green-metrics-tool`→**AGPL-3.0 + ODbL**, `jobrunr/jobrunr`→**LGPL-3.0-or-later o comercial**.
+  Licencia, estrellas, push, `archived` y `default_branch` de `gh api search/repositories`.
+- **Más fuerte todavía (lectura de código).** Que el *scheduling* carbon-aware de JobRunr está en el
+  **núcleo abierto** se probó con `gh api search/code` (**91 coincidencias** bajo
+  `core/src/main/java/org/jobrunr/`), y su **salida de red por defecto** a `api.jobrunr.io` leyendo
+  `CarbonAwareJobProcessingConfiguration.java`. **Ni una ni otra se tomaron de un blog.**
+- **Débil (nivel snippet, nunca bibliografía).** **Todo** lo regulatorio y **toda** cifra de
+  mercado. `arxiv.org` y los *hosts* legales, de analistas y de banca multilateral **no resuelven
+  desde esta sesión** — comprobado una vez con WebFetch y no vuelto a sondear, por política. En
+  consecuencia, las dos cifras técnicas más citables del pase **quedan sin verificar en el
+  primario** y se marcan como tales donde aparecen: que un *token* de salida consume ~**850×** la
+  energía de uno de entrada con contexto de 1k en vLLM (HotCarbon'26), y que la energía por *token*
+  de salida **varía hasta 8,3× entre idiomas** — esto último de interés directo para una KB escrita
+  en español, porque implicaría que **el mismo agente cuesta más energía por respuesta en español
+  que en inglés**. **Es una hipótesis con fuente, no un hecho de esta KB.** Open item 15-R1.
+- **Oráculos no equivalentes usados:** `gh api search/repositories`, `gh api search/code`,
+  `raw.githubusercontent.com` con **GET por rango** (`HEAD` está bloqueado por el proxy: devuelve
+  000/403) y el **POM de Maven Central**, que resultó **correcto e incompleto**.
+
+### Nuevas formas registradas de equivocarse en esta capa
+
+1. **Buscar un agente donde hay una sonda.** Cuarta capa consecutiva sin agentes dentro.
+2. **Leer el SPDX y creer que cubre los datos.** No los cubre (tendencia 32).
+3. **Confiar en el manifiesto como oráculo terminal.** Maven declaró LGPL y omitió la vía comercial:
+   **correcto e incompleto** (regla de método 15, que corrige la 12).
+4. **Buscar `LICENSE` y concluir que no hay licencia.** JobRunr lo llama **`License.md`**; 404 en los
+   cuatro nombres habituales.
+5. **Confiar en el nombre.** `crbnos/carbon` (2860★) es un **ERP de manufactura**, no una
+   herramienta de carbono.
+6. **Citar una cifra correcta fuera de su fecha.** El "65 % de empresas brasileñas no preparadas" es
+   de 2024 y **anterior a la derogación** del mandato.
+7. **Atribuir la obligación al instrumento de moda.** No es el art. 40 del AI Act; es la EED.
+8. **Suponer que el `default_branch` es `main`.** Las cuatro suites de este pase: `20.0`, `develop`,
+   `2026.9.x`, `trunk`. **Ninguna.**

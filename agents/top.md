@@ -720,3 +720,55 @@ artifact.** The only way to stay inside the permissive bucket end-to-end is IBM'
   (`repos/foundations.md`, this pass).
 - Do not sell the US deadline that was in every 2026 roundup: **it moved** (see `intel/market.md`,
   North America, this pass).
+
+## La capa del consumo — tres filas reales y un cero medido (added fifteenth pass, 2026-11-24)
+
+> **Tema del pase: el límite del consumo** — lo que el agente **gasta** y lo que hay que
+> **declarar** sobre ese gasto. Medido antes de buscar, en los nueve archivos y en los dos idiomas:
+> `carbon` 0, `kWh` 0, `emisión` 0, `CSRD` 0, `codecarbon` 0, `consumo` 0. Cero limpio.
+
+**Este es el cuarto pase consecutivo que encuentra una capa sin agentes dentro.** Lo que existe son
+**sondas y librerías** (Kepler, Scaphandre, CodeCarbon, Zeus — todas en `repos/foundations.md`), no
+agentes. Lo específicamente *agéntico* es minúsculo y hay que presentarlo como lo que es: tres repos
+de **una cifra de estrellas**, verificados hoy, que se citan porque **existen y están activos**, no
+porque estén maduros.
+
+| Repo | Licencia | ★ | Último push | Qué hace de verdad |
+|---|---|---|---|---|
+| [mlco2/agentic-footprint](https://github.com/mlco2/agentic-footprint) | MIT | 8 | 2026-11-23 | Rust. De la organización que mantiene CodeCarbon (1951★): huella específica de flujos agénticos. El único con una organización seria detrás |
+| [VeiledTee/agent-energy-profiler](https://github.com/VeiledTee/agent-energy-profiler) | MIT | 0 | 2026-10-24 | Python. Perfila energía **por operación** en un flujo multi-paso y —lo valioso— **separa lo medido de lo estimado** |
+| [Enterprise-DNA-OS/carbon-accounting-for-claude-code](https://github.com/Enterprise-DNA-OS/carbon-accounting-for-claude-code) | MIT | 0 | 2026-10-18 | Contabilidad de carbono de sesiones de agente de código sobre Postgres. Interesante como *forma*, no como dependencia |
+
+### Por qué estas filas llevan 0★ y se publican igual
+
+Porque la alternativa honesta era dejar la sección vacía, y el hueco **es** el hallazgo: la
+atribución de consumo **por tarea de agente** no tiene producto. Un agente no es un proceso: un
+*prompt* se expande en N llamadas al modelo, M invocaciones de herramienta y los reintentos, y
+ninguna de las sondas maduras sabe sumar eso a una unidad de negocio. Lo que sí hay, y es lo que se
+le propone a un cliente hoy, es **composición**: Kepler atribuye por *pod*, el *gateway* del plano de
+control (ya en esta KB, `Receta 9`) atribuye *tokens* por clave virtual, y el puente entre ambos se
+construye. Está en `compose/patterns.md`, **Receta 28**.
+
+### El dato que convierte esto en un problema de agentes y no de infraestructura
+
+Una fuente de analistas (nivel snippet, sin acceso al primario desde esta sesión) sostiene que la IA
+agéntica consume **entre 5 y 30 veces más *tokens* por tarea** que un intercambio único de chatbot.
+No se adopta la cifra; se registra con su atribución. Pero fija la dirección: **el agente es el
+multiplicador del consumo**, y por eso este límite aparece *ahora* y no cuando la unidad era el
+chatbot.
+
+### El proyecto de referencia de la capa está **archivado** — décimo primer caso de esta KB
+
+`Breakend/experiment-impact-tracker` — **MIT, 293★, último push 2024-01-30, `archived=true`**. Sigue
+apareciendo en listados de herramientas de huella de ML. Es el **undécimo** proyecto
+archivado-pero-recomendado que registra esta KB, y confirma otra vez el patrón del pase ocho: **los
+once llegaron por documentación adyacente al proyecto, no por el repo**. Comprobar `archived` antes
+de citar sigue siendo barato y sigue pagando.
+
+### Y uno sin licencia, que es distinto de archivado
+
+`ml-energy/leaderboard` — **sin archivo de licencia** (la API devuelve `NONE`), 14★, push
+2026-09-23. Es el *leaderboard* de energía de la gente de `ml-energy/zeus` (Apache-2.0, 390★): el
+**motor es permisivo y el *leaderboard* no declara nada**. Misma lección que el pase catorce dejó con
+el *wrapper* y el motor, en el sentido contrario: **la licencia no se hereda dentro de una
+organización, ni hacia arriba ni hacia abajo.** Use Zeus; no reempaquete el *leaderboard*.

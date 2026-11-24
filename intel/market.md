@@ -528,6 +528,52 @@ with them.
 not appear in any source this pass returned. Not covered — do not assume the Title II dates apply
 to federal procurement.
 
+
+#### El límite del consumo en NA — el mandato se estrechó por vía judicial (added fifteenth pass, 2026-11-24)
+
+> **Aviso de verificación, y vale para las cuatro regiones de este pase.** `arxiv.org` y los *hosts*
+> legales y de analistas **no resuelven desde esta sesión** (comprobado una vez y no se volvió a
+> sondear, por política). Por eso **los hechos de código y licencia de este pase son más fuertes que
+> sus hechos regulatorios**: todo lo normativo y toda cifra de mercado de abajo queda **a nivel de
+> snippet de búsqueda**, nunca como bibliografía. Las licencias y repos de `repos/foundations.md`,
+> en cambio, están leídos byte a byte.
+
+**Lo que está en vigor y lo que no** (fuentes: despachos y consultoras; se contradicen entre sí y se
+registra la contradicción en lugar de resolverla):
+
+- **SB 253 (Alcances 1 y 2): vigente.** La Oficina de Derecho Administrativo aprobó el reglamento
+  inicial de CARB el **12-oct-2026**, y el Noveno Circuito **dejó en pie** la obligación de
+  Alcances 1 y 2. Umbral: ingresos **> 1 000 M USD**.
+- **SB 253 (Alcance 3): frenado.** El Noveno Circuito consideró el Alcance 3 **"probablemente
+  inconstitucional"** por la Primera Enmienda y devolvió al juzgado de instancia la cuestión de si
+  es **separable** del resto de SB 253.
+- **SB 261 (informe de riesgo climático): suspendido.** Medida cautelar desde el **18-nov-2025**
+  mientras se resuelve la apelación. Umbral: **> 500 M USD**. **Las fuentes discrepan** sobre el
+  estado más reciente: un despacho dice que una resolución del **9-nov-2026** mantuvo la suspensión;
+  otro afirma que al **28-jul-2026** no había resolución. Sin acceso al primario, **no se afirma
+  ninguna de las dos**.
+
+**Por qué esto cambia el argumento comercial, y no en la dirección obvia.** El Alcance 3 es
+precisamente donde caerían las emisiones del proveedor de IA **dentro del inventario del cliente**.
+Si el Alcance 3 queda enjuiciado fuera, en California **desaparece el mandato** que obligaba a pedir
+ese dato aguas arriba. Conclusión: en NA **no se vende contra una fecha límite** — se vende contra
+**presión contractual de cliente y de inversor**, que es un argumento más débil y hay que decirlo
+antes de construir una propuesta sobre una obligación que un tribunal acaba de recortar. Es el
+segundo caso que esta red de KBs registra de una norma climática estatal **litigada hasta quedar sin
+efecto** (el primero fue Colorado, en `energy-kb`), y confirma el patrón: **en NA, cite la norma con
+su estado procesal o no la cite.**
+
+**La restricción física, que sí es firme y es la mejor puerta de entrada:** la limitación de la IA
+pasó de **suministro de chips a disponibilidad de energía**; una casa de análisis sitúa el déficit
+de potencia **2026-2028 en 57 GW**, y el *capex* de los mayores operadores de centros de datos
+**ronda los 750 000 M USD en 2026** (BNEF), con **1,5 billones USD** de nueva emisión de deuda
+proyectada a tres años. Cifras de analistas, atribuidas, no adoptadas.
+
+**La oportunidad, en una frase:** el entregable no es un modelo, es **la cañería de medición y el
+expediente**: Kepler por *pod* → atribución por unidad de negocio → `Green-Software-Foundation/if`
+como cálculo auditable → salida en XBRL con `Arelle/Arelle`. Es la **misma forma** que `energy-kb`
+documentó para el expediente tarifario y `legal-kb`/`enterprise-kb` para OSCAL: **el producto es el
+expediente, no el modelo.** Quinta confirmación independiente de esa tesis en esta red.
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1104,6 +1150,69 @@ eighth pass has a second application — and no ready accessibility catalog to a
 **EMEA-origin and MIT**: `alphagov/govuk-frontend`, Crown Copyright/GDS
 (`verticals/solutions.md`, this pass).
 
+
+#### El límite del consumo en EMEA — y una corrección a la hipótesis con la que empezó este pase (added fifteenth pass, 2026-11-24)
+
+> **Corrección, registrada porque es exactamente la clase de error que esta KB documenta.** Este
+> pase empezó buscando la obligación de eficiencia energética en el **artículo 40 del AI Act**. **No
+> está ahí**: el artículo 40 trata de **normas armonizadas y presunción de conformidad** para
+> sistemas de alto riesgo. El deber de reportar energía de centros de datos vive en la **Directiva de
+> Eficiencia Energética (EED)** y su **Reglamento Delegado (UE) 2024/1364**. Se deja escrito el error
+> y su corrección: **atribuir una obligación al instrumento equivocado es tan falsable como inventar
+> un repo**, y aquí se iba a publicar como noticia.
+
+**El deber que de verdad existe, y tiene umbral y fecha** (nivel snippet):
+
+- **Reglamento Delegado (UE) 2024/1364**: reporte a nivel de instalación para centros de datos con
+  **≥ 500 kW** de potencia TI instalada. Los Estados miembros pueden **bajar** el umbral, no subirlo.
+- **Informe anual antes del 15 de mayo** sobre el año natural anterior.
+- **El incumplimiento está medido:** en la primera ronda reportaron **770 centros de datos**,
+  aproximadamente el **36 %** de los que la Comisión estima obligados. **Dos tercios no reportaron.**
+- **PUE**: obligaciones a cumplir **antes del 1-jul-2027**; los centros que **inicien operación el
+  1-jul-2026** cumplen **de inmediato**.
+- El paquete de la Comisión de **septiembre de 2026** incluye un **esquema de calificación** para
+  centros individuales de más de 500 kW.
+- **Las fuentes discrepan** en el número de indicadores (una dice 7 datos de instalación + 18 KPI;
+  otra, 24 KPI). No se adopta ninguna cifra.
+
+**Ese 36 % es el dato comercial más fuerte de la región en este pase.** No describe una obligación
+futura: describe un **incumplimiento presente y cuantificado** sobre una obligación **ya vigente y
+anual**. Es un *engagement* de instrumentación con fecha de entrega recurrente (15 de mayo) y una
+población identificable (≥ 500 kW).
+
+**CSRD después del Ómnibus I — el mandato se encogió ~90 %:**
+
+- **Directiva (UE) 2026/470** publicada en el DOUE el **26-feb-2026**, en vigor el **18-mar-2026**,
+  transposición hasta el **19-mar-2027**.
+- Prueba **única** de alcance: **> 1 000 empleados Y > 450 M EUR** de facturación neta (antes era
+  "dos de tres").
+- Matrices no-UE: **450 M EUR** en la UE más filial o sucursal con **> 200 M EUR**.
+- Alcance estimado: de ~**50 000** a ~**5 000** empresas (≈ **90 %** menos).
+- **Las fuentes discrepan** en el primer ejercicio reportado bajo el nuevo alcance (FY2027 vs 2028).
+  Se registra la discrepancia.
+- **Tope de información en la cadena de valor**: limita lo que un obligado puede exigir a socios
+  menores — **recorta justamente la vía por la que una pyme proveedora recibía la presión de dato**.
+- ESRS revisados **adoptados por la Comisión el 3-jul-2026**; Taxonomía art. 8 **no cambia**.
+
+**Y aquí está la asimetría que hay que llevar a una reunión:** el **CSRD se encogió** mientras el
+**deber EED siguió intacto y con un 64 % de incumplimiento**. Quien venda "proyecto CSRD" en EMEA en
+2026 está persiguiendo un mandato que acaba de perder nueve de cada diez obligados; quien venda
+**instrumentación EED de centro de datos** persigue una obligación vigente, anual y masivamente
+incumplida. **Es la misma capa técnica y dos conversaciones comerciales opuestas.**
+
+**El formato, con fechas:** EFRAG publicó el **borrador de taxonomía XBRL de los ESRS revisados el
+17-sep-2026**, consulta cerrada el **11-nov-2026**, entrega prevista a ESMA y a la Comisión **antes
+de fin de 2026**. **El estado del *tagging* obligatorio está en disputa** entre fuentes: una sostiene
+que aún no es obligatorio y que irá por ESEF, otra que está **suspendido por la Directiva (UE)
+2026/470** a la espera de actualizar el Reglamento Delegado ESEF 2019/815, y una tercera que es
+obligatorio desde 2026. **No se adopta ninguna.** Lo que sí es sólido: el formato de salida será
+XBRL, y el procesador open source permisivo para eso es **`Arelle/Arelle` (Apache-2.0, byte-read)**.
+
+**Soberanía del dato, que en esta capa es un problema de licencia y no de nube:** los factores de
+intensidad de red de la vía más usada (`co2.js` → Electricity Maps) son **ODbL con *share-alike***.
+Para un cliente europeo que quiera el número **sin** heredar obligaciones sobre su base de datos
+derivada, la salida es un factor de fuente propia o de operador nacional. Ver la trampa completa en
+`repos/foundations.md`.
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -1637,6 +1746,51 @@ AA plus EN 301 549**, the strictest and the forward-compatible one, and produce 
 from a single evidence set. That is also the answer for an APAC client selling **into** the EU,
 where the EAA reaches them extraterritorially.
 
+
+#### El límite del consumo en APAC — la región donde el dato se pide por contrato, no por ley (added fifteenth pass, 2026-11-24)
+
+**Convergencia ISSB, con fechas que las fuentes no reconcilian** (nivel snippet):
+
+- Primeros informes alineados con ISSB en **2026**: Australia, Hong Kong, Malasia, Sri Lanka,
+  Pakistán y Singapur. Detrás: Indonesia, Japón, China continental, Filipinas, Tailandia y Corea
+  del Sur.
+- **Japón**: obligatorio para empresas del *Prime Market* de más de **3 billones de yenes** desde el
+  ejercicio que comienza en **abril de 2026**.
+- **Singapur**: una fuente da **FY2025** para obligatoriedad de grandes capitalizaciones. **Esa
+  fecha choca** con la lista anterior, que pone a Singapur en 2026. Se registra el conflicto.
+
+**Infraestructura, que en APAC es donde está la norma dura:**
+
+- **Singapur**: el Parlamento aprobó un **Digital Infrastructure Bill el 7-oct-2026**, con
+  **licenciamiento obligatorio** para centros de datos de **≥ 3 MW** de carga TI crítica.
+  **Fuente única** — se marca como tal y no se afirma sin un segundo testigo.
+- **Tailandia**: **aprobaciones de nuevos centros de datos en pausa** mientras define estándares
+  nacionales.
+- **Malasia**: regulación estricta de **uso de agua** introducida este año, empujada por la escasez
+  asociada a la demanda de nuevos centros de datos. **Es el primer caso en esta red de KBs donde el
+  insumo limitante declarado es agua y no electricidad.**
+- **Australia**: anuncio en **julio de 2026** de la intención de regular centros de datos de IA
+  (*snippet* truncado; se registra el anuncio, no su contenido).
+- **Industria**: la Asia-Pacific Data Centre Association lanzó en **marzo de 2026** el *Sustainable
+  Digital Infrastructure Accord*, con objetivo de **100 % de cobertura con energía libre de carbono
+  y renovable al 31-dic-2030** en operaciones APAC. Es un **compromiso voluntario de industria**, no
+  una norma.
+
+**El hallazgo regional, y es el que define el entregable:** en APAC la obligación que mueve dinero
+hoy **no recae sobre el usuario de IA sino sobre su proveedor de infraestructura** — se espera, de
+forma creciente, que el operador del centro de datos **entregue a sus clientes datos precisos de
+energía y emisiones para que esos clientes cumplan sus propias obligaciones**. O sea: **la demanda
+llega por contrato de suministro, no por regulación de IA.** Eso cambia a quién se le vende: el
+comprador natural en APAC es el **operador** que necesita producir el dato para sus inquilinos, y el
+entregable es un **sistema de atribución multi-inquilino** — que es exactamente la forma de
+`sustainable-computing-io/kepler` (Apache-2.0, 1606★) más la atribución por clave virtual del plano
+de control que esta KB ya tiene en `Receta 9`.
+
+**Sigue sin establecerse** (y es el cuarto pase de esta red que lo declara, aquí para enterprise):
+**ninguna norma de APAC encontrada obliga específicamente a declarar el consumo energético de un
+sistema de IA**. Lo que existe es (a) divulgación financiera de sostenibilidad vía ISSB y (b)
+regulación de la **instalación** física. **El hueco entre ambas es donde cae el agente**, y hoy nadie
+lo cubre por mandato.
 ### LATAM
 
 - **Regulatory shape: fragmented, privacy law is the real gate.** **Peru enacted the
@@ -2279,6 +2433,63 @@ the buyer is any consumer-facing firm whose risk is a **class action**, so the p
 claim arrives, not a remediation sprint after it. Both attach to agent UIs the client is already
 building, which is what makes this sellable without a new budget line.
 
+
+#### El límite del consumo en LATAM — *** BRASIL DEROGÓ SU PROPIO MANDATO ISSB, Y ESO INVIERTE LA VENTA *** (added fifteenth pass, 2026-11-24)
+
+**El hecho, y contradice lo que sigue publicado en todas partes** (nivel snippet; fuentes
+secundarias de despachos y consultoras, con discrepancias que se registran):
+
+- **Resolución CVM 193 (2023)** hizo **obligatorios IFRS S1 e IFRS S2** para compañías abiertas
+  brasileñas **desde el 1-ene-2026**, con **aseguramiento razonable**. Brasil fue citado
+  internacionalmente como **el primer país en obligar al estándar ISSB**.
+- **Resolución CVM 244 (mayo de 2026) modificó la 193 y revocó la obligatoriedad futura**,
+  estableciendo un modelo de **adhesión voluntaria** con requisitos de transparencia tanto para
+  quien divulga como para quien decide no divulgar.
+- **La condición que importa:** la compañía que **opte** por reportar debe aplicar **CBPS Nº 01 y
+  CBPS Nº 02**, obtener **aseguramiento razonable** y **publicar durante al menos tres ejercicios
+  consecutivos**.
+- **Discrepancias registradas, no resueltas:** una fuente fecha la derogación el **29-may-2026** y
+  sitúa un régimen de *comply-or-explain* desde el **1-ene-2027**, y en el mismo texto afirma que el
+  cambio alcanza al ejercicio ya en curso, lo que no encaja con esa fecha. Sin acceso al texto de la
+  CVM, **la fecha efectiva se declara incierta**.
+
+**Dato explícitamente retirado de circulación:** la cifra de que **el 65 % de las empresas
+brasileñas no estaba preparado** para IFRS S1/S2 es de **2024**, **anterior a la reversión**, y se
+sigue citando como actual. **No la use.** Es el mismo fallo que esta red documentó en `energy-kb`
+con un borrador federal citado como ley: **una cifra correcta en su fecha es desinformación fuera de
+ella.**
+
+**Por qué esto invierte el argumento comercial, y es el hallazgo del pase para la región.** La
+lectura perezosa es "se cayó el mandato, se cayó el mercado". Es al revés, y la razón está en la
+letra de la propia resolución: **quien se adhiere voluntariamente queda atado a tres ejercicios
+consecutivos con aseguramiento razonable.** Eso no es una carrera de cumplimiento de un año: es un
+**compromiso plurianual auditado y verificable**, asumido por elección y por lo tanto defendido por
+alguien dentro de la compañía. Comercialmente es **mejor cliente** que el obligado a regañadientes:
+población más pequeña, intención demostrada, horizonte de tres años y una auditoría externa que
+exige trazabilidad del dato — es decir, exige exactamente la cañería de medición de
+`repos/foundations.md` y no un PDF.
+
+**Lo que no hay, medido y no supuesto.** Sonda en **español y portugués** sobre nombre, descripción
+y README de GitHub (`huella de carbono`, `emisiones gases efecto invernadero`, `pegada de carbono`,
+`inventario de emisiones`): los primeros resultados por estrellas son **listas *awesome*, catálogos
+de datos abiertos y proyectos de curso**. **No existe un motor de contabilidad de carbono de origen
+LATAM, mantenido y con licencia permisiva.** Cero **medido**, no silencioso — y el instrumento queda
+registrado para repetirlo.
+
+**Lo que sí hay, y es la pieza aprovechable de la región:** **`EquipoAnaliticaXM/API_XM`** — **MIT,
+75★, push 2026-11-10, `default_branch=master`** — librería Python de acceso a **SIMEM.co** y
+**SINERGOX/XM**, los sistemas de información del operador del sistema eléctrico **colombiano**. No
+es contabilidad de carbono: es **dato de red nacional con licencia permisiva**, y por eso resuelve
+el problema que la trampa ODbL de este pase deja abierto — permite construir un **factor de
+intensidad local** sin heredar *share-alike* sobre la base de datos derivada. Para un cliente andino
+es el punto de partida correcto, y es MIT.
+
+**El techo de la región, heredado de `energy-kb` y aplicable aquí sin cambios:** la capacidad
+instalada de centros de datos en LAC es de aproximadamente **2 340 MW** a comienzos de 2026,
+creciendo **15-20 % anual**, con el crecimiento de IA limitado **más por suministro eléctrico, red e
+inversión que por demanda**. Para esta capa eso significa que **el consumo del agente es un problema
+de costo y de licencia social antes que de reporte regulatorio** — no hay un mandato LATAM de
+declaración energética de IA encontrado en este pase, y se declara como **hueco medido**.
 ## Posicionamiento Globant
 
 - **Assets in hand.** Multi-year **Anthropic alliance (30 Jun 2026)** with Claude-powered

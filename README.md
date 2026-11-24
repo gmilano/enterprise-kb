@@ -27,72 +27,78 @@ enterprise-kb/
 2. **Proponer solución AI**: `agents/top.md` + `compose/patterns.md`
 3. **Mantenerse al día**: correr `ingest/update.sh` semanalmente
 
-## Estado de la KB — medido, no estimado (thirteenth pass, 2026-11-24)
+## Estado de la KB — medido, no estimado (fifteenth pass, 2026-11-24)
 
 | Medida | Valor |
 |---|---|
 | Archivos de contenido | 9 (8 + README) |
-| Direcciones de repositorio distintas | **388** |
-| …en `github.com` | 367 |
+| Direcciones de repositorio distintas | **437** |
+| …en `github.com` | 416 |
 | …en `gitlab.com` | 21 |
 | Nuevas direcciones este pase | **32**, todas con licencia, estrellas y fecha de push medidas |
-| Recetas en `compose/patterns.md` | **26** |
-| Tendencias numeradas en `intel/trends.md` | **30** |
-| Clases de licencia registradas | **12** |
-| Formas registradas de equivocarse (`intel/trends.md`) | **25** |
-| Proyectos archivados-pero-recomendados detectados | **10** |
-| Preguntas registradas como **sin resolver** | 6 |
+| Recetas en `compose/patterns.md` | **29** |
+| Tendencias numeradas en `intel/trends.md` | **33** (con una colisión de numeración registrada) |
+| Clases de licencia registradas | **13** |
+| Formas registradas de equivocarse | **33** |
+| Proyectos archivados-pero-recomendados detectados | **11** |
+| Preguntas registradas como **sin resolver** | 7 |
 
-> **Lea esto antes de prometer un borrado.** Doce pases construyeron cuatro límites — lectura,
-> escritura, procedencia y contención — más la licencia de los **pesos**. Todos gobiernan lo que el
-> agente **puede hacer**. El pase trece añade el quinto: **qué tiene que volver a salir**, y es el
-> primero que no se puede comprar.
+> **Lea esto antes de prometer una cifra de huella.** Catorce pases construyeron seis límites —
+> lectura, escritura, procedencia, contención, borrado y accesibilidad — más la licencia de los
+> **pesos**. Todos gobiernan lo que el agente **puede hacer**. El pase quince añade el séptimo: **lo
+> que el agente gasta**, y es el primero que **no lo decide quien lo construye**. Medido antes de
+> buscar, en los nueve archivos y **en los dos idiomas de la KB**: `carbon` 0, `kWh` 0, `emisión` 0,
+> `CSRD` 0, `codecarbon` 0, `consumo` 0. Cero limpio. `FinOps` y `metering` **sí** estaban: esta capa
+> no es FinOps con otro nombre — **FinOps mide dinero, esta mide julios, y el obligado a declararlos
+> no es el CFO.**
 >
-> **Un borrado no es una operación, es una cascada con siete lugares de reposo** (sistema de
-> registro, stream CDC, snapshot del lakehouse, índice vectorial, fixtures de evaluación, pesos
-> afinados, logs). **Dos no tienen borrado**: el *unlearning* no es tecnología de producción
-> (código de investigación de dos cifras de estrellas; el benchmark de referencia **inactivo 21
-> meses**), y los **logs no deben borrarse** — el AI Act Art. 19 exige conservarlos **≥ 6 meses** y
-> la Regla 8 del DPDP indio **≥ 1 año**. De ahí una única regla de diseño con base legal:
+> **Clase de licencia nº 13 — ODbL, y es la primera que no recae sobre código.**
+> `thegreenwebfoundation/co2.js` figura como `NOASSERTION`; su `LICENSE` (12 678 bytes) contiene
+> **dos licencias para dos activos**: el código es **Apache-2.0** y los **datos de intensidad de
+> red** se republican de Electricity Maps bajo **Open Database License**, con ***share-alike***. Y
+> muerde donde importa, porque **el factor de intensidad de red es justamente lo que convierte kWh
+> en gCO₂e**. De ahí la regla:
 >
-> **los datos personales van en recuperación sobre almacenes borrables, nunca en un fine-tune; y el
-> log lleva un seudónimo, nunca el identificador.**
+> **el SPDX de un repo describe su código; no dice nada de los datos que empaqueta, los pesos que
+> descarga ni el servicio al que llama.** Cuarta vez que esta KB encuentra el mismo patrón —
+> pesos (pase 12), AUP (pase 12), SOM-1.0 (pase 13), **datos (pase 15)**.
 >
-> **El producto de referencia de esta capa está archivado.** `ethyca/fides` (Apache-2.0, 483★,
-> último push 2026-08-06) —el motor DSAR open source que todos los listados de 2026 siguen
-> recomendando— **está archivado**, junto con `fidesops`, `fidesdemo`, `fideslib` y dos más. Los
-> únicos repos activos de esa organización son tres SDK móviles que **no declaran licencia**:
-> primera vez que esta KB registra un archivado **y una regresión de licencia** en el mismo
-> namespace. No se encontró reemplazo permisivo mantenido, y eso se declara como hallazgo en lugar
-> de rellenarse con una fila verosímil.
+> **Prueba de vendorización por la errata.** El mismo texto, con su errata (`"Licening for the
+> CO2.js library"`), está dentro del `LICENSE` de `green-coding-solutions/green-metrics-tool`
+> (35 429 bytes), **tres licencias en un archivo y con el encabezado contradiciendo a su cuerpo**: la
+> sección titulada *"Apache License"* contiene la **AGPL-3.0**. Veredicto real: AGPL-3.0 (código) +
+> ODbL (datos). Los tres proyectos de referencia de la capa son AGPL.
 >
-> **Clase de licencia nº 12 — SOM-1.0.** `vec2text/vec2text` reporta `NOASSERTION`; su `LICENSE` es
-> la *Software for Open Models License 1.0*, cuyo §3(A) obliga a quien use la herramienta *"para
-> crear inferencias con un Modelo, lo publique o no"* a **publicar los pesos de ese modelo**. El
-> pase doce encontró la cláusula decisiva **fuera** de la licencia (en un AUP); este la encontró
-> **dentro de la licencia de una herramienta, alcanzando un activo que la herramienta no
-> contiene**. Use `jina-ai/embedding-inversion-demo` (Apache-2.0) para la misma demostración.
+> **La única prueba de código del pase, y es la que habilita una receta.** El *scheduling*
+> carbon-aware de `jobrunr/jobrunr` está en el **núcleo abierto** —91 coincidencias bajo
+> `core/src/main/java/org/jobrunr/`, no en un módulo Pro— y por tanto es usable bajo
+> **LGPL-3.0-or-later** (su archivo se llama **`License.md`**, y declara el proyecto
+> *multi-licensed*: LGPL **o** comercial). Pero por defecto **llama a `https://api.jobrunr.io`** cada
+> 5 minutos: una salida de red a un tercero, activada por defecto, en una librería de licencia
+> impecable — y `carbonIntensityApiUrl` es configurable, así que la mitigación es una línea.
 >
-> **El borrado de la plataforma no borra — leído del código, no de un blog.** En
-> `SuiteCRM/SuiteCRM`, `data/SugarBean.php:5313`, `mark_deleted()` ejecuta
-> `UPDATE … set deleted=1` y el método `mark_undeleted()` viaja al lado. La misma comprobación
-> **no** se hizo sobre Odoo, ERPNext, Dolibarr ni Axelor: se declara como hueco, no como hallazgo.
+> **Dos obligaciones de EMEA se movieron en direcciones opuestas y deciden qué se vende.** El
+> **CSRD se encogió** (Directiva (UE) **2026/470**: de ~50 000 a ~5 000 obligados, ≈90 % menos)
+> mientras el deber de **centros de datos** de la **EED** (Reglamento Delegado (UE) **2024/1364**,
+> ≥ **500 kW**, informe anual al **15 de mayo**) quedó intacto **y con un incumplimiento medido: 770
+> centros reportaron, ≈36 % de los obligados**. Misma capa técnica, dos conversaciones comerciales
+> opuestas. **Y la hipótesis con la que empezó el pase era falsa:** la obligación **no** está en el
+> art. 40 del AI Act (normas armonizadas), está en la EED.
 >
-> **Instrumento recuperado:** el pase doce no pudo medir estrellas ni fechas de push. Este sí:
-> `gh api search/repositories` con varios `repo:` en un mismo `q` devuelve licencia, estrellas,
-> push, estado de archivado **y `default_branch`** en una sola petición. **Cómo miente:** un
-> `repo:` inválido se descarta **en silencio** si quedan válidos, pero si todos son inválidos
-> devuelve **422** — que es evidencia positiva de que una ruta desapareció.
+> **LATAM: Brasil derogó su propio mandato ISSB.** La **Resolución CVM 244 (mayo 2026)** revocó la
+> obligatoriedad que la **193** había fijado desde el 1-ene-2026, y la dejó **voluntaria** — pero
+> quien se adhiere queda atado a **tres ejercicios consecutivos con aseguramiento razonable**, que es
+> un cliente **mejor**, no peor. **No cite el "65 % de empresas brasileñas no preparadas": es de
+> 2024 y anterior a la reversión.** Pieza LATAM aprovechable y permisiva:
+> `EquipoAnaliticaXM/API_XM` (**MIT**, SIMEM/XM Colombia).
 >
-> **Límite declarado y asimétrico.** Doce hosts legales y de marketplaces (EUR-Lex, el service desk
-> del AI Act, GDPR-info, CPPA/oag.ca.gov, MeitY, PDPC, Planalto, gov.br, apps.odoo.com y tres más)
-> **no resuelven desde esta sesión**. Por eso **los hechos de código de este pase son más fuertes
-> que sus hechos jurídicos**, y cada archivo lo dice en el punto donde aparece: licencias y repos
-> verificados byte a byte, regulación **a nivel de snippet de búsqueda**. Fechas regionales con
-> plazo: **DROP de California** (sondeo cada 45 días desde 1-ago-2026), **consent managers del DPDP
-> indio** (13-nov-2026), **Ley 21.719 de Chile** (1-dic-2026, con un proyecto de postergación que
-> **no es ley**) y **Resolución CD/ANPD nº 30/2025** de Brasil (derechos del titular + IA como
-> prioridades 2026-2027).
-
+> **Límite declarado y asimétrico, más marcado que en pases anteriores.** `arxiv.org` y los *hosts*
+> legales y de analistas **no resuelven desde esta sesión** (comprobado una vez, no vuelto a
+> sondear). Por eso **los hechos de código y licencia de este pase son byte a byte, y todos los
+> regulatorios y de mercado son a nivel de snippet de búsqueda** — cada archivo lo dice donde
+> aparece. Sin verificar en el primario, y marcadas como tales: ~**850×** la energía de un *token* de
+> salida frente a uno de entrada (HotCarbon'26) y hasta **8,3×** de variación entre idiomas — lo
+> segundo implicaría que **el mismo agente cuesta más energía por respuesta en español que en
+> inglés**, y es una **hipótesis con fuente, no un hecho de esta KB** (open item 15-R1).
 ---
 *Red de KBs Globant AI Studios → [globant-kb](../globant-kb/)*

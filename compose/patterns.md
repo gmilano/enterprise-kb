@@ -2365,3 +2365,105 @@ pipeline on partial automated coverage is the deliverable clients later discover
   repo, `w3c/aria-practices`, is under the W3C **Software and** Document License — different thing.)
 - **Citing `NBR 17060`** for Brazil. This pass searched for it and could not confirm it exists in
   the form it is commonly cited.
+
+## Receta 28 — Atribuir el consumo del agente a una unidad de negocio (added fifteenth pass, 2026-11-24)
+
+**Cuándo.** El cliente tiene que responder una de estas tres preguntas y no puede: *¿cuánta energía
+consume nuestra plataforma de agentes?*, *¿cuánto de eso es del equipo X?*, *¿qué ponemos en el
+informe?* Típicamente llega por el área de sostenibilidad o por un inquilino que exige el dato por
+contrato (en APAC, casi siempre por contrato — ver `intel/market.md`).
+
+**El problema real, dicho antes de la arquitectura.** Ninguna herramienta madura mide *agentes*.
+Kepler mide **pods**, Scaphandre mide **procesos**, CodeCarbon envuelve **llamadas**. Un agente es un
+plan que estalla en N llamadas al modelo, M invocaciones de herramienta y reintentos. **No hay
+producto que cierre ese hueco**: lo que hay es composición, y el puente lo construye el *engagement*.
+Decirlo así es parte de la receta — un cliente al que se le promete "medición de agentes de caja"
+descubre el hueco en la semana tres.
+
+**Cableado (cuatro etapas, todas con licencia permisiva):**
+
+1. **Medir el *pod*** — `sustainable-computing-io/kepler` (Apache-2.0, 1606★) como DaemonSet, o
+   `…/kepler-operator` (Apache-2.0) si el cliente está en OpenShift. eBPF + RAPL, exporta a
+   Prometheus. **Esto da julios por pod, que es lo máximo que la infraestructura sabe.**
+2. **Contar el trabajo del agente** — el plano de control que esta KB ya tiene en **Receta 9**: el
+   *gateway* de IA emite *tokens* y llamadas **por clave virtual**, y la clave virtual ya está
+   asociada a equipo, producto o inquilino. **Esto da unidades de trabajo por unidad de negocio.**
+3. **Construir el puente, que es el entregable que no existe comprado** — repartir los julios del
+   paso 1 entre las claves del paso 2, proporcionalmente a una unidad declarada (*tokens* de salida
+   ponderados, o segundos de GPU si el servidor los expone). **Declare la regla de reparto como un
+   supuesto explícito y versionado**; es una estimación, no una medición, y un auditor lo va a
+   preguntar. Si hay GPU dedicada, `ml-energy/zeus` (Apache-2.0, 390★) mide directamente y el
+   reparto se evita.
+4. **Hacer el número auditable** — `Green-Software-Foundation/if` (MIT, 184★): el cálculo se declara
+   como **manifiesto YAML**, no como código. Es lo que convierte "nuestro script lo calculó" en "la
+   metodología es esta, versionada y re-ejecutable". **Esta etapa es la que hace vendible el
+   conjunto**, y es la más barata de las cuatro.
+
+**Para la cifra de carbono, y aquí está la trampa que decide la arquitectura.** Convertir kWh en
+gCO₂e necesita un **factor de intensidad de red**. La vía habitual (`thegreenwebfoundation/co2.js`,
+Apache-2.0) **trae los datos de Electricity Maps bajo ODbL, con *share-alike***, de modo que la base
+de datos derivada del cliente hereda obligaciones. **Tres salidas, en orden de preferencia:**
+
+- **factor del operador nacional** cuando existe con licencia usable — en Colombia,
+  `EquipoAnaliticaXM/API_XM` (**MIT**, 75★, `default_branch=master`) da SIMEM/XM directo;
+- **factor contractual** que el propio proveedor de nube o *colo* entrega al cliente (en APAC es lo
+  que el operador ya está obligado a producir por contrato);
+- **ODbL aceptada a conciencia**, con atribución a Electricity Maps y share-alike sobre la base
+  derivada — que para un informe publicado suele ser tolerable, y para un producto revendido no.
+
+**Qué entregar, y el límite que hay que escribir en la propuesta.** Un *dashboard* de julios y
+gCO₂e por equipo, la regla de reparto versionada, el manifiesto IF y —si el cliente reporta— la
+salida en XBRL con `Arelle/Arelle` (**Apache-2.0** por lectura directa, 261★). **El límite:** los
+pasos 1, 2 y 4 son medición y metodología; **el paso 3 es una estimación**. No se presenta como
+medición y no se firma como tal.
+
+---
+
+## Receta 29 — Mover el trabajo diferible del agente a ventanas de red limpia, bajo LGPL (added fifteenth pass, 2026-11-24)
+
+**Cuándo.** El cliente ya mide (Receta 28) y pregunta lo siguiente, que es lo razonable: *¿y ahora
+cómo bajamos el número?* Es la receta más barata de esta KB porque **no toca el modelo ni el
+agente**: sólo mueve **cuándo** corre el trabajo que no tiene que correr ahora.
+
+**La observación que la hace viable:** una plataforma de agentes enterprise está **llena** de trabajo
+diferible — reindexado de documentos, *batch* de *embeddings*, evaluaciones nocturnas, reentrenos,
+compactación de memoria, barridos de *red teaming*. Nada de eso tiene a un humano esperando. Es
+exactamente la clase de carga que se puede desplazar unas horas sin que nadie lo note.
+
+**Cableado:**
+
+1. **El planificador** — `jobrunr/jobrunr` (3112★). **Verificado leyendo el código, no un blog:**
+   `gh api search/code` sobre `repo:jobrunr/jobrunr carbonaware` devuelve **91 coincidencias** y las
+   clases viven en **`core/src/main/java/org/jobrunr/scheduling/carbonaware/`** y
+   `…/server/carbonaware/` — **módulo `core`, fuente `main`, no un módulo Pro.** Es decir, el
+   *scheduling* carbon-aware **está en el núcleo abierto**.
+2. **La licencia, y la decisión que implica** — `License.md` (no `LICENSE`: 404 en los cuatro
+   nombres habituales) declara el proyecto **`multi-licensed`**: **LGPL-3.0-or-later** *o* comercial
+   por suscripción, **a elección del receptor**. Para enlace dinámico desde una aplicación
+   propietaria la vía LGPL es aceptable en la mayoría de los *engagements*; **si el cliente
+   distribuye un binario modificado, la conversación cambia** y existe la vía comercial. Decidir esto
+   en la semana uno, no en la auditoría.
+3. **La dependencia que hay que declarar antes del *go-live*** — leído de
+   `CarbonAwareJobProcessingConfiguration.java`, por defecto la librería llama a
+   **`https://api.jobrunr.io`** cada **5 minutos**, con *timeouts* de **3 s** y **3 reintentos**.
+   `carbonIntensityApiUrl`, `areaCode` y `dataProvider` **son configurables**: en un cliente regulado
+   se apunta a un endpoint propio y **la mitigación es una línea de configuración**. No es un
+   defecto; es una salida de red activada por defecto en una librería de licencia impecable, y se
+   revisa como tal.
+4. **La alternativa si el *stack* no es JVM** — `Green-Software-Foundation/carbon-aware-sdk` (MIT,
+   600★, `default_branch=**dev**`, no `main`) responde "¿cuándo y dónde corro esto?" por API, y
+   `thegreenwebfoundation/grid-intensity-go` (Apache-2.0, 84★) hace lo mismo desde Go. Con MIT y
+   Apache-2.0 no hay la conversación del punto 2.
+5. **El ahorro que nadie cita y es el más grande** — `kube-green/kube-green` (MIT, 1390★) apaga los
+   *namespaces* no productivos fuera de horario. En una plataforma de agentes con entornos de
+   desarrollo, *staging* y evaluación, **esto suele superar cualquier ganancia por desplazamiento
+   temporal**, y se implementa en días.
+
+**Orden de construcción recomendado:** (5) primero, porque es el más barato y el resultado es
+inmediato y medible con la Receta 28 ya instalada; después (1)+(3) si el cliente es JVM, o (4) si no
+lo es. **(2) se resuelve antes de escribir código.**
+
+**Qué no promete esta receta.** No reduce julios: **reduce gCO₂e** moviendo consumo a horas de red
+más limpia — salvo `kube-green`, que sí reduce julios porque apaga. La diferencia importa cuando el
+cliente paga la electricidad: **el desplazamiento mejora el informe y casi no mueve la factura.**
+Dígalo antes de que lo pregunte el CFO.
