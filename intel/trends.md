@@ -1015,9 +1015,10 @@ reason**: after SWID was dropped, SPDX↔CycloneDX is the only remaining axis of
 
 **Caveat recorded honestly:** the CISA document could **not** be read from primary source in this
 session — `media.defense.gov` and `www.cisa.gov` both fail DNS resolution (outside the session's
-allowed domains). The July-2026 date, the hash/licence change and the SWID removal are **corroborated
-across several independent secondary sources that agree**, and are recorded as **secondary-sourced, not
-primary-verified**. Both hosts should be allowed in the session's network settings if a future pass
+allowed domains). The July-2026 date, the hash/licence change, the SWID removal **and Japan's
+co-signing** are **corroborated across several independent secondary sources that agree**, and are all
+recorded as **secondary-sourced, not primary-verified** — the METI press release was likewise not read
+at source. Both hosts should be allowed in the session's network settings if a future pass
 needs the element list verbatim.
 
 ### A method rule that runs backwards — maintenance status must be read in both directions
