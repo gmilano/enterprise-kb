@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 📡 Tendencias — Enterprise
@@ -948,3 +948,145 @@ expect it from reputable-looking sources.
 | `gh api repos/<owner>/<repo>` | **denied by session scope** | Confirmed again. The default branch cannot be queried, so licence probing iterates `main`/`master`/`develop` blind — `dapr/dapr` and `ComplianceAsCode/content` were both found on `master`. Per `rotation.json`: a "no artefact" result from this endpoint is a permission failure wearing the costume of a finding. |
 | `modelcontextprotocol.io` | **does not resolve** (`ENOTFOUND`, outside the session's allowed domains) | The MCP specification was read instead from `modelcontextprotocol/modelcontextprotocol` on `raw.githubusercontent.com`, which is the same text at its source of truth. **No loss of primary-source quality** — unlike the arXiv gap the energy pass had to declare, this one was fully substituted. The host should be allowed in the session's network settings if a future pass needs the rendered site. |
 | arXiv | **not attempted** | `rotation.json` records arxiv.org as proxy-rejected (403). Two arXiv preprints appeared in this pass's SoD search results and are recorded as **search-listed and unverified**, never as bibliography. |
+
+## Ninth pass, 2026-11-24 — the provenance boundary, and a maintenance rule that runs backwards
+
+### 21. The question moved from "is it safe?" to "can you prove what it is?" — and the reference tooling is retiring
+
+The seventh pass recorded the constraint moving from capability to **entitlement**, the eighth from
+reading to **writing**. This pass records the question underneath both: **identity of the component.**
+
+A scan is an opinion, held by one tool, at one moment. **Provenance is a verifiable claim about
+origin** — signed by an identity, recorded in a log a third party can check, re-checkable later
+without trusting whoever made it. An enterprise asking *"is this MCP server safe?"* wants a scan. An
+enterprise asking *"in two years, can you prove the model and tools behind this decision were the ones
+we approved?"* wants provenance, and **before this pass the KB held nothing that could answer it**:
+`sigstore`, `cosign`, `in-toto`, `SLSA`, `attestation`, `syft`, `grype`, `trivy`, `dependency-track`,
+`guac` and `model card` all scored **zero across nine files**, while `SBOM` scored 24 hits purely as a
+compliance noun.
+
+**The trend has a direction, and it is consolidation onto one vendor's platform.** Both reference SLSA
+tools — [slsa-verifier](https://github.com/slsa-framework/slsa-verifier) (352 ★) and
+[slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator) (610 ★) — now declare
+in their READMEs: *"This project is no longer actively maintained. We are working on guidance and
+simpler tooling to replace it."* Both point users at **GitHub artifact attestations** and
+`gh attestation verify`. Neither is archived; both carry recent tags; both look alive on their repo
+pages.
+
+So the CI-agnostic, open-source provenance path is being retired in favour of **a platform feature of a
+single vendor.** Three consequences to carry into a conversation:
+
+1. **The migration breaks consumers, by the project's own admission:** *"GitHub artifact attestations
+   are verified with `gh attestation verify` rather than with slsa-verifier, so migrating changes how
+   your consumers verify."* Provenance migrations are not internal refactors.
+2. **Non-GitHub estates have no named successor.** This pass searched for a GitLab equivalent and
+   **found none**. For GitLab/Jenkins/self-hosted CI the remaining permissive path is
+   `cosign` + `in-toto`/`witness` + `rekor`, assembled by hand. That is the single largest unserved
+   requirement this pass found, and it is studio work.
+3. **The adoption gap is the proportion check.** 352 stars for the reference verifier against **39,670
+   for `trivy`.** The primitives an auditor asks about are two orders of magnitude less adopted than
+   the scanner the client already runs — so *"we already run Trivy"* is not an answer to *"prove this
+   model is the one you approved."*
+
+### 22. Regulation stopped asking for a list and started asking for fields — and AI is now named in it
+
+The AI-BOM trend (#16) said you cannot govern what you have not inventoried. 2026 moved the goalposts
+from *having* an inventory to **the inventory's contents**, on two independent tracks:
+
+- **A multinational minimum-elements baseline, revised and now covering AI.** CISA published **2026
+  Minimum Elements for an SBOM on 2026-07-29**, replacing the 2021 NTIA baseline — and **Japan's METI
+  co-signed it on 2026-07-30**, which makes this a shared international baseline rather than a US
+  document. Reported changes: **cryptographic hash and licence become minimum elements**, depth
+  requirements dropped in favour of all components including transitive dependencies, and **SWID
+  dropped — leaving only SPDX and CycloneDX.** Secondary reporting says the guidance covers
+  **open-source, AI software and SaaS**. It is **guidance, not law.**
+- **A hard legal deadline with a fine attached.** The EU **Cyber Resilience Act**: Article 14 reporting
+  obligations **in force since 2026-09-11** (including for products already on the market), and the
+  **SBOM generation requirement, conformity assessment, CE marking and vulnerability handling apply
+  from 2027-12-11.** Reported exposure: up to **€15 M or 2.5 % of worldwide annual turnover.**
+
+**The commercially important consequence of "hash and licence are now minimum elements":** both are
+*per-component, machine-checkable* fields. An inventory assembled from prose, vendor questionnaires or
+a spreadsheet **cannot satisfy them** — a hash can only come from the artefact itself. That is what
+converts the AI-BOM engagement from a documentation exercise into a **tooling and pipeline
+engagement**, and it is why the consumption half of this layer (`syft` → `grype`, `cdxgen aibom` →
+Dependency-Track) now matters more than the format debate. **`protobom` matters for exactly one
+reason**: after SWID was dropped, SPDX↔CycloneDX is the only remaining axis of format disagreement.
+
+**Caveat recorded honestly:** the CISA document could **not** be read from primary source in this
+session — `media.defense.gov` and `www.cisa.gov` both fail DNS resolution (outside the session's
+allowed domains). The July-2026 date, the hash/licence change and the SWID removal are **corroborated
+across several independent secondary sources that agree**, and are recorded as **secondary-sourced, not
+primary-verified**. Both hosts should be allowed in the session's network settings if a future pass
+needs the element list verbatim.
+
+### A method rule that runs backwards — maintenance status must be read in both directions
+
+Passes 3–8 found **seven** archived-but-still-starred projects whose READMEs never said so, and the
+eighth pass noted the tell: *all seven were recommended by project-adjacent docs.* The rule that
+produced was **trust the repository metadata over the documentation.**
+
+**SLSA is the exact inverse: the repository metadata says alive, the README says unmaintained.** Not
+archived, recent tags, active-looking pages — and an explicit retirement notice at line 11 of each
+README. Had this pass applied its own rule, it would have shipped two retired tools as current.
+
+**The corrected rule: neither source dominates. Read the repo metadata *and* the README, every pass.**
+Metadata catches the projects that go quiet without telling you; the README catches the projects that
+tell you while still looking busy.
+
+Two sharper corollaries from this pass:
+
+- **A permissive licence does not imply a runnable tool.** `snyk/agent-scan` is Apache-2.0 and will not
+  scan without a vendor token, a network call and a daily quota; `cisco-ai-defense/mcp-scanner` is
+  Apache-2.0 and most of its analyzers need no key at all. **Licence governs redistribution rights; it
+  says nothing about whether the capability is local.** Same shape as the Onyx `ee/` finding
+  (seventh pass) — now a general rule, and the one that decides whether a sovereign client can use a tool.
+- **`pushed_at` is not "last commit on the default branch", and the gap is information.** `bomctl` last
+  pushed 2025-11-20 over a `main` frozen since 2025-09-10. State which measurement you mean — a push to
+  a side branch is how an idle project looks alive.
+
+### An eighth archived-but-recommended project, and the tightest timing yet
+
+[NimbleBrainInc/mpak](https://github.com/NimbleBrainInc/mpak) — MCP package registry with bundle
+signing, GitHub-OIDC provenance and an **L1–L4 trust ladder** ending at "Attested" — was **archived by
+its owner on 2026-11-23**, *the day before this pass*, and a search engine returned it to this pass as a
+live finding. `archived: true` confirmed via `gh api search/repositories`; 163 commits, monorepo, Helm
+chart, CI — and **14 stars**. **Adoption killed it, not quality**, which is trend #11
+(star count has decoupled from enterprise suitability) running in the other direction: *too few* stars
+is a survival risk even for well-built work.
+
+### A refinement to the licence taxonomy — `NOASSERTION` has two distinct causes
+
+The eighth pass established that `NOASSERTION` is the **absence of a verdict**, to be resolved by
+byte-reading the `LICENSE` in **both** directions. This pass found that it resolves to two different
+situations, and they have different consequences:
+
+1. **Permissive behind a preamble.** `in-toto/in-toto` and `in-toto/attestation` both badge
+   `NOASSERTION`; both `LICENSE` files byte-read as Apache-2.0 behind a university copyright line.
+   **Outcome: a single, clean SPDX identifier.** (Checked on `develop`, which is in-toto's **actual
+   default branch** — a read against `main` is a read of a branch the project does not treat as current.)
+2. **Genuinely mixed, mid-transition — and no single identifier exists.**
+   [modelcontextprotocol/registry](https://github.com/modelcontextprotocol/registry) badges
+   `NOASSERTION` because its `LICENSE` *is a transition notice*: new contributions Apache-2.0, but
+   contributions whose authors have not consented to relicensing **remain MIT**. Both permissive, so
+   **not a blocker** — but *"the MCP registry is Apache-2.0"* is false, and so is *"it is MIT"*. The
+   transition is **partial across the organisation**: the same notice sits on
+   `modelcontextprotocol/modelcontextprotocol` and `/servers`, while
+   [`/python-sdk`](https://github.com/modelcontextprotocol/python-sdk) is **still plain MIT**.
+
+**Operational rule: record licences per repository and per date, never per organisation** — and when a
+repository is mid-transition, say so in the cell rather than picking the identifier you prefer.
+
+### Verification channel for this pass — what could and could not be checked
+
+| Channel | Status | Notes |
+|---|---|---|
+| `git ls-remote --symref` | **working, and upgraded** | Existence, HEAD sha **and the real default branch**. This is what caught `slsa-verifier`'s `HEAD` pointing at `refs/heads/Hayden-IO-patch-1` (a personal patch branch, at a different sha from `main`) and `in-toto`'s default of `develop`. Previous passes probed `main`/`master` blind; **`--symref` removes that guesswork** and is the single most useful instrument added this pass. |
+| `raw.githubusercontent.com` | **working** | Every licence in this pass byte-read from the repository's own `LICENSE`. Also the primary-source reads of both SLSA retirement notices, the MCP licensing-transition notice and `snyk/agent-scan`'s DNS-rebinding disclosure. |
+| `git clone --bare --depth 1 --filter=blob:none` + `git log -1` | **working, new this pass** | Authoritative **last commit on the default branch** — the measurement `pushed_at` does not give. Cheap: no blobs, one commit. |
+| `gh api search/repositories` | **working** | Stars, SPDX badge, **`archived`** and `pushed_at`. This is how `mpak`'s same-day archival was confirmed. |
+| `gh api repos/<owner>/<repo>` and raw `api.github.com` | **403 / denied** | Confirmed again, consistent with every prior pass. Use `search/repositories` instead — it carries the `archived` flag, which is the field that matters most. |
+| GitHub Atom feeds (`/commits/<branch>.atom`) via `curl` | **blocked (403 via proxy)** | Attempted as a cheap date source for 24 repositories; all returned nothing. The shallow-clone method replaced it. |
+| `registry.npmjs.org` and `pypi.org/pypi/<pkg>/json` | **working** | **The decisive channel this pass.** Proved PyPI `mcp-scan` is a redirect shim (`requires_dist: ['snyk-agent-scan']`) and that npm `mcp-scan` is a *different owner's* package. **A name collision across package ecosystems is invisible from GitHub alone** — it can only be seen from the registries. Add this to the standing toolkit. |
+| `gh attestation trusted-root` (local execution) | **fails closed, and that is the finding** | `tuf refresh failed: Get "https://tuf-repo-cdn.sigstore.dev/14.root.json": Forbidden`, exit 1, 0 bytes. **Measured, not cited:** the Sigstore trusted root can be *used* offline but not *obtained* offline. |
+| `media.defense.gov`, `www.cisa.gov` | **do not resolve** (`ENOTFOUND`, outside allowed domains) | The CISA 2026 SBOM minimum elements are therefore **secondary-sourced, corroborated across several agreeing sources, and explicitly not primary-verified.** Probing stopped after the second failure per policy rather than trying further mirrors. |

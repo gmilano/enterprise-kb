@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 🏭 Verticales de partida — Enterprise
@@ -428,3 +428,44 @@ integration architects, who do not star repositories.
    controls in **Receta 17** — least of all on the strength of an MCP
    `destructiveHint`, which the specification itself says clients must treat as
    untrusted.
+
+## Supply-chain platforms — the system of record for "what are we running" (added ninth pass, 2026-11-24)
+
+Every other platform in this file is something the *client already runs* that an agent can plug into.
+This section is the exception that proves the rule: **it is the platform a client with an agent estate
+usually does not run yet**, and it is the one that every governance claim in `intel/trends.md` and every
+regulatory deadline in `intel/market.md` silently depends on.
+
+The `repos/foundations.md` AI-BOM section produces inventory documents. **Until this pass the KB had
+nothing that *operates* them.** The difference matters commercially: generating an SBOM is a
+deliverable you hand over once; running the platform that re-evaluates it against tomorrow's
+advisories is **a managed service with a renewal**.
+
+| Platform | Licence (byte-read) | ★ | Last commit | What it is, and why it is the customisable base |
+|---|---|---|---|---|
+| [DependencyTrack/dependency-track](https://github.com/DependencyTrack/dependency-track) | Apache-2.0 | 4.5k | 2026-11-23 | **The Odoo-shaped entry in this layer**: an OWASP flagship "intelligent Component Analysis platform" with a server, UI, API and policy engine that ingests CycloneDX SBOMs and **continuously re-evaluates them as new advisories land**. The AI angle is not a fork: [`cdxgen`](https://github.com/CycloneDX/cdxgen) emits an **AI-BOM** (prompt files, AI services, **MCP configs**, model metadata) and **submits it directly to a Dependency-Track server**, so the client's existing component-analysis platform becomes the AI inventory with no new system. Caveat read from its own page: the repo page does **not** advertise ML-BOM/AI-BOM support — the AI capability lives in the *generator*, so **validate the round-trip before quoting it**. |
+| [guacsec/guac](https://github.com/guacsec/guac) | Apache-2.0 | 1.6k | 2026-11-24 | The graph layer above it: SBOMs **and attestations** (CycloneDX, SPDX, in-toto ITE6, DSSE, SLSA, CSAF/OpenVEX) normalised into one queryable graph. Use it for the questions Dependency-Track cannot answer because they span systems — *"which deployed agents contain this component?"* Its own page states identifiers are often absent and linking is **heuristic**, so ingestion errors occur: a graph for investigation, not an authoritative register. |
+| [stacklok/toolhive](https://github.com/stacklok/toolhive) | Apache-2.0 | 2.4k | 2026-11-23 | "Enterprise-grade platform for running and managing MCP servers." The **runtime enforcement point** — the place a server that failed admission can actually be refused rather than merely flagged. |
+| [agentic-community/mcp-gateway-registry](https://github.com/agentic-community/mcp-gateway-registry) | Apache-2.0 | 1.1k | 2026-11-23 | Gateway **and** registry with OAuth and **security scanning at registration**, holding unsafe servers, agents and skills for review. AWS-oriented (EKS/ECS/EC2, Bedrock). **The architecture to copy is admission control at registration time**, not inspection at runtime — by runtime the credential has already been handed over. |
+
+### The retired entry, kept deliberately
+
+[NimbleBrainInc/mpak](https://github.com/NimbleBrainInc/mpak) (Apache-2.0) was an MCP package registry
+with bundle signing, GitHub-OIDC provenance and an **L1–L4 trust ladder** ("Basic / Standard /
+Verified / Attested"). It was **archived by its owner on 2026-11-23** — the day before this pass — with
+`registry.mpak.dev` to be shut down and its servers moved to a vendor catalogue. It is listed here, in
+a platforms file, **because its trust ladder is the best articulation of this layer's maturity model
+that this pass found, and it is now a design reference rather than a dependency.** Do not build on it.
+Do borrow the ladder when a client asks what "trusted MCP server" should mean contractually.
+
+### What to check before quoting any of this
+
+1. **Dependency-Track is a platform, so it has platform costs** — a database, an upgrade path, an owner.
+   It is not a CLI you add to CI. Scope it as a system, or the engagement under-runs on effort.
+2. **The AI-BOM round-trip is the thing to pilot in week one**: `cdxgen aibom` → Dependency-Track
+   ingest → policy violation on an unapproved model or MCP server. If that loop closes on the client's
+   real repositories, the rest of the governance story is credible. If it does not, say so early —
+   `cdxgen`'s own page warns `--component-type` alone does **not** enable model discovery.
+3. **None of these prove authorship.** They operate inventories and graphs. Publisher identity for MCP
+   servers comes from the registry's namespace verification (DNS/OIDC) and artefact identity comes from
+   `cosign` — see `repos/foundations.md` and `compose/patterns.md` Receta 18.

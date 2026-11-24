@@ -1,14 +1,87 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 📈 Repos trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-21 — eighth pass (latest) — the write channel and the evidence trail
+## 2026-11-24 — ninth pass (latest) — the provenance boundary
+
+> Theme: the seventh pass asked what the agent may **read**, the eighth what it may **change**
+> and what **proves** it. This one asks the question both of those assume an answer to —
+> **are the components what they claim to be, and who signs for them?** The layer was
+> measurably empty: `sigstore`, `cosign`, `in-toto`, `SLSA`, `attestation`, `syft`, `grype`,
+> `trivy`, `dependency-track`, `guac` and `model card` all scored **zero across all nine files**,
+> while `SBOM` scored 24 hits purely as a compliance noun. Full tables and the method notes are
+> in `repos/foundations.md`. Verified 2026-11-24: `git ls-remote --symref` for existence and
+> **real default branch**, licence **byte-read** from each `LICENSE`, last-commit date from a
+> shallow bare clone, and stars/`archived`/SPDX from `gh api search/repositories` — which works here
+> even though `gh api repos/<owner>/<repo>` and `api.github.com` are both **403**.
+
+### The headline is a die-off, and it inverts this KB's own detection rule
+
+Both reference SLSA tools now say in their own READMEs, at line 11: *"This project is **no longer
+actively maintained**."* Neither is archived; both carry recent release tags and look alive on their
+repo pages.
+
+| Repo | Measured state | Successor the README names |
+|---|---|---|
+| [slsa-framework/slsa-verifier](https://github.com/slsa-framework/slsa-verifier) | Apache-2.0, **352 ★**, `main` last commit **2026-08-06** — that commit being *"docs: Add maintenance status"*. Tags to `v2.7.1`. **`HEAD` resolves to `refs/heads/Hayden-IO-patch-1`**, a personal patch branch at a different sha from `main`. | `gh attestation verify` |
+| [slsa-framework/slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator) | Apache-2.0, **610 ★**, `main` last commit **2026-08-06**. README: last release **v2.1.0, Feb 2025**; existing provenance stays valid and workflows keep working, but will not be updated **"including for GitHub Actions runtime deprecations."** | GitHub artifact attestations |
+
+**Five prior passes learned "trust the repo page over the docs" from seven archived-but-silent
+projects. This is the exact inverse. Read both directions, every pass.** And the strategic point:
+the CI-agnostic open-source provenance path has been retired in favour of **a single vendor's
+platform feature**. A GitLab/Jenkins/self-hosted estate has no successor named by the project —
+this pass searched and **found none** (recorded as an open gap).
+
+### New rows — signing, and the one that signs a model
+
+| Repo | Licence (byte-read) | ★ | Last commit | Why it is new here |
+|---|---|---|---|---|
+| [sigstore/cosign](https://github.com/sigstore/cosign) | Apache-2.0 | 6.5k | 2026-11-22 | Keyless container/blob signing — the substitute for the retired SLSA generator on non-GitHub CI. |
+| [sigstore/model-transparency](https://github.com/sigstore/model-transparency) | Apache-2.0 | **250** | 2026-11-09 | **Signs model weights.** Sigstore bundle → DSSE → in-toto statement listing every file as `(path, digest)`; verify recomputes hashes. Keyless OIDC, keys, or **PKCS#11 hardware**. The only permissive model-signing tool located, and this KB had nothing in the slot. |
+| [in-toto/witness](https://github.com/in-toto/witness) | Apache-2.0 | 622 | 2026-09-21 | Per-step attestations with keyless signing via **Sigstore *and SPIFFE/SPIRE*** and an **embedded OPA Rego** engine — two components this KB already holds, each gaining a second job. |
+| [guacsec/guac](https://github.com/guacsec/guac) | Apache-2.0 | 1.6k | 2026-11-24 | SBOMs **and** attestations into one graph (CycloneDX, SPDX, in-toto ITE6, DSSE, SLSA, CSAF/OpenVEX). Its own page warns identifiers are often missing and linking is **heuristic**. |
+| [DependencyTrack/dependency-track](https://github.com/DependencyTrack/dependency-track) | Apache-2.0 | 4.5k | 2026-11-23 | The consumption half the AI-BOM section lacked: continuous re-evaluation and drift alerting. |
+| [CycloneDX/cdxgen](https://github.com/CycloneDX/cdxgen) | Apache-2.0 | 1.1k | 2026-11-24 | `aibom` command over **prompt files, AI services, MCP configs and model metadata**, Hugging Face purls and `.gguf`; submits straight to Dependency-Track. Gotcha: `--component-type` alone does not enable model discovery. |
+
+### Measured, not cited: "offline verification" has an online bootstrap
+
+```
+$ gh attestation trusted-root
+tuf refresh failed: Get "https://tuf-repo-cdn.sigstore.dev/14.root.json": Forbidden
+exit=1, 0 bytes
+```
+
+`gh` 2.89.0 is present and the documented air-gap path is *fetch the root once, verify offline with
+`--custom-trusted-root`*. In this session's restricted network the fetch **fails closed**. So the
+trusted root can be **used** offline but not **obtained** offline: allowlist
+`tuf-repo-cdn.sigstore.dev` from one permitted host, pin the root, ship it inward as a controlled
+artefact, and give its refresh an owner — a forgotten refresh is an outage, because verification
+correctly fails closed.
+
+### Archived yesterday, recommended to this pass today
+
+[NimbleBrainInc/mpak](https://github.com/NimbleBrainInc/mpak) (Apache-2.0, 14 ★) — MCP package
+registry with bundle signing, GitHub-OIDC provenance and an **L1–L4 trust ladder** topping out at
+"Attested" — was **archived by its owner 2026-11-23**, one day before this pass, `registry.mpak.dev`
+to be shut down. A search engine returned it as a live finding. **Eighth archived-but-recommended
+project in nine passes.** 163 commits, monorepo, Helm chart, CI — and 14 stars. Adoption killed it,
+not quality.
+
+### Idle rows recorded so nobody rediscovers them as new
+
+| Repo | Licence | Last commit | Verdict |
+|---|---|---|---|
+| [bomctl/bomctl](https://github.com/bomctl/bomctl) | Apache-2.0 | **2025-09-10** | 14 months idle. Use [protobom/protobom](https://github.com/protobom/protobom) (Apache-2.0, 339 ★, 2026-11-23) for the same job. |
+| [mcpshield/mcpshield](https://github.com/mcpshield/mcpshield) | MIT | 2026-02-18 | 9 months idle. Presents as "Snyk for MCP servers"; not maintained at this layer's cadence. |
+| [in-toto/in-toto](https://github.com/in-toto/in-toto) | Apache-2.0 | 2026-08-27 | **Default branch is `develop`.** Spec reference implementation — read as stability, not abandonment. |
+
+## 2026-11-21 — eighth pass — the write channel and the evidence trail
 
 > Two layers this KB did not have at all, found by asking what happens *after* the
 > agent decides to act: the **integration runtime that carries the write into the

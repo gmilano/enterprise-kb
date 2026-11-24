@@ -1,14 +1,72 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 📈 Agentes trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-21 — eighth pass (latest) — the write boundary
+## 2026-11-24 — ninth pass (latest) — the agent's own security tool changed hands
+
+> Theme: **provenance** — not what the agent may read or change, but **what the agent is made of
+> and who signs for it.** For the fourth consecutive pass **no agent row changed**, and for the
+> fourth consecutive pass the news is one layer below the agent. The full provenance layer is in
+> `repos/foundations.md` and `repos/trending.md`; what belongs *here* is that a tool this KB
+> already recommends has changed owner, name, install path and business model at once.
+
+### `mcp-scan` → `snyk/agent-scan`: a rename that is also an acquisition and a meter
+
+| Cited as | Canonical 2026-11-24 | Evidence |
+|---|---|---|
+| `invariantlabs-ai/mcp-scan` | [snyk/agent-scan](https://github.com/snyk/agent-scan) | Both paths return the **identical HEAD sha `a8561271`** under `git ls-remote` — GitHub serves the old address as an alias, which is exactly why no roundup notices. Apache-2.0, 3,300 ★, last commit 2026-11-23. Now scans "AI agents, MCP servers **and agent skills**". |
+| `mcp-scan` on PyPI | `snyk-agent-scan` | PyPI `mcp-scan` 0.4.3 is a **redirect shim** — summary says so and `requires_dist: ['snyk-agent-scan']`. Target is at 0.7.0, Apache-2.0, 46 releases. |
+| `mcp-scan` on npm | **Unrelated project** | npm `mcp-scan` 2.3.0, MIT, maintainer `rodolfboctor`, repo [Abanoub-Rodolf/mcp-scan](https://github.com/Abanoub-Rodolf/mcp-scan). `snyk/agent-scan`'s README: **"there is no npm package."** |
+
+**`uvx mcp-scan` and `npx mcp-scan` install different vendors' software.** Name the registry and pin
+the version in every deliverable: `uvx snyk-agent-scan@<version>`.
+
+### Two properties to quote before recommending it
+
+1. **Permissive licence, metered capability.** `SNYK_TOKEN` must be exported *before* any scan; the
+   free tier stops at a **daily usage limit**; v0.5.x drives a dated analysis API (`2025-09-02`) that
+   is **planned for deprecation**. The analysis is **not local** — so for the egress-restricted or
+   sovereign estate in `intel/market.md`, assume it does not run until proven otherwise.
+   **Licence governs redistribution; it says nothing about whether the capability is local.**
+2. **Scanning untrusted MCP config is a privileged act.** To read tool descriptions it **executes the
+   commands in the config** and calls remote MCP URLs **with their configured headers** — the client's
+   own credentials. It refuses link-local and cloud-metadata targets (`169.254.0.0/16`, `fe80::/10`,
+   `fd00:ec2::254`, `100.100.100.200`), does not follow redirects, validates DNS per request, and then
+   states plainly that re-resolution at connect time leaves a **DNS-rebinding window**. Sandbox it;
+   never pass `--dangerously-run-mcp-servers` outside a disposable environment. *A tool that documents
+   its own residual vulnerability is behaving better than one that does not — quote both halves.*
+
+### The locally-runnable alternative, which is the commercially useful finding
+
+[cisco-ai-defense/mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) (Apache-2.0, 1.1k ★,
+2026-11-19): per its README the Cisco API key is required **only for the API analyzer** — YARA,
+readiness, prompt-defense, static-JSON and vulnerable-package scans need **no key**, and the LLM
+analyzer accepts **a local endpoint such as Ollama** with a placeholder key. For a client who cannot
+send MCP configuration to a vendor endpoint, this is the candidate to pilot. Test it; do not assume it.
+
+### Publisher identity for MCP servers — preview, but the primitive is real
+
+[modelcontextprotocol/registry](https://github.com/modelcontextprotocol/registry) (7.5k ★, 2026-11-23)
+validates **namespace ownership at publish time** via GitHub OAuth, GitHub OIDC, **DNS** and HTTP
+verification. DNS verification — proving control of a domain and its subdomains — is the difference
+between "a server named `acme-crm`" and "a server published by whoever controls `acme.com`". It is
+**still a preview release, not GA**, with the API frozen at v0.1 pending v1.
+
+**Licence note, and it is a new class for this KB.** Its `LICENSE` byte-reads as a *licensing
+transition*: new contributions Apache-2.0, but contributions whose authors have not consented to
+relicensing **remain MIT**. The repo is a **per-contribution MIT/Apache-2.0 mixture** — both
+permissive, so not a blocker, but *"the MCP registry is Apache-2.0"* is false and so is *"it is MIT"*.
+The transition is **partial across the org**: same notice on `modelcontextprotocol/modelcontextprotocol`
+and `/servers`, while [`/python-sdk`](https://github.com/modelcontextprotocol/python-sdk) is **still
+plain MIT**. Record licences per repository and per date, never per organisation.
+
+## 2026-11-21 — eighth pass — the write boundary
 
 > Theme: the seventh pass asked *what may the agent read*. This one asks **what may the
 > agent change**, and **what proves afterwards that it was allowed to**. Every row

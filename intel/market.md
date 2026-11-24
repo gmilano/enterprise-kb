@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 🗺️ Mapa de mercado — Enterprise
@@ -66,7 +66,6 @@ and recoverable enough to go to production."
 | Cognizant | SI competitor | **Launched EMEA AI unit 28 Jul 2026** | Direct competitor on exactly the pilots-to-production pitch. |
 | UiPath / Automation Anywhere | RPA incumbents | Installed automation base | Agentic transition is their existential risk and a migration opportunity. |
 | **Linux Foundation / AAIF** | Neutral steward, not a vendor | Stewards **MCP**, **goose**, **AGENTS.md** and — new this pass — **[Agent Router](https://github.com/theagentrouter/agent-router)** (Apache-2.0), the control plane formerly called Envoy AI Gateway | **Not a competitor — the answer to an objection.** It is what lets Globant say the layer holding a client's model credentials is governed by a foundation, not a vendor. Directly mitigates the NVIDIA concentration risk in the row above. |
-
 | **CopilotKit** | Interface-layer vendor (new category) | Authors **AG-UI** (MIT, 20,766 ★), the agent↔user protocol; $27M Series A May 2026; reported support from Google, Microsoft, Amazon and Oracle; named users include Deutsche Telekom, Docusign, Cisco, S&P Global | **The one layer with no neutral steward.** The protocol is MIT and free to implement; the money is in the enterprise product above it. For Globant that is favourable: the standard costs nothing and the integration into a client's own screens is exactly the billable work. Risk to name: a venture-funded company controls the de facto standard, so keep the renderer behind an adapter. |
 | **Google (A2UI)** | Protocol publisher | [a2ui-project/a2ui](https://github.com/a2ui-project/a2ui) (Apache-2.0, 17,690 ★), announced 15 Dec 2025, 1.0 shipped; UI as data against a client-held catalog of approved components; Gemini support; ByteDance Lynx renderer (Jun 2026) | A second, Apache-2.0 answer to the same problem — and the stronger *security* story, which is what a regulated client will respond to. Google states it was built with partners including the AG-UI/CopilotKit team, so do not frame these as a two-horse race. |
 
@@ -297,6 +296,38 @@ positioned as *audit-readiness that survives regulatory churn* rather than as
 compliance with any one state's statute.
 
 ---
+
+#### The provenance boundary — North America, added ninth pass 2026-11-24
+
+**North America sets the *format*, and this year it revised it.** The eighth pass recorded OSCAL as a
+North American artefact with no EMEA equivalent. The same holds one layer down: the authority on *what
+an SBOM must contain* is a US agency document.
+
+- **CISA published 2026 Minimum Elements for an SBOM on 2026-07-29**, replacing the 2021 NTIA baseline.
+  Reported changes: **cryptographic hash and licence become minimum elements**; depth requirements
+  dropped in favour of all components including transitive dependencies; **SWID dropped, leaving only
+  SPDX and CycloneDX**. Secondary reporting says it covers open-source, **AI software** and SaaS.
+- **It is guidance, not law** — which is exactly why it functions as a procurement clause rather than a
+  compliance deadline. US federal software attestation and SSDF (NIST SP 800-218) are the binding
+  instruments it feeds; **this pass's searches did not return current material on either**, so their
+  2026 status is **an open question, not a settled fact**.
+- **The verification tooling consolidated onto a US vendor platform in the same year.** The reference
+  SLSA tools retired in favour of GitHub artifact attestations and `gh attestation verify`
+  (see `repos/foundations.md`). For a North American client already on GitHub Enterprise this is a
+  *simplification* — the cheapest provenance story available anywhere, and it is the one region where
+  "just use the platform feature" is usually the right advice.
+
+**Opportunity — the OSCAL/SBOM join, which nobody is selling as one thing.** North America is the only
+region where both halves exist: machine-readable **control** evidence (OSCAL, eighth pass) and a
+revised machine-readable **component** baseline (CISA 2026). A control narrative that cites an SBOM by
+hash, inside an OSCAL assessment document, is buildable **today, only here**, and it is the highest-value
+governance deliverable this KB can currently assemble. Lead with the hash requirement: it is the field
+that proves an inventory came from artefacts rather than from a questionnaire.
+
+**Second opportunity — the fragmentation that Dentons measured.** With state legislatures as the primary
+architects of US AI regulation and few organisations running an integrated, auditable AI management
+system, the sellable unit is **one evidence pipeline that satisfies several regimes** rather than a
+per-state compliance project.
 
 ### EMEA
 
@@ -577,6 +608,58 @@ self-hostable `block/buzz` matter more in this region than their star counts sug
 
 ---
 
+#### The provenance boundary — EMEA, added ninth pass 2026-11-24
+
+**EMEA is the only region where this layer has a statutory deadline and a fine, and it is the region
+where the consolidation described above does the most damage.**
+
+- **The Cyber Resilience Act is in force and biting in two stages.** Article 14 **reporting obligations
+  have applied since 2026-09-11** — covering actively exploited vulnerabilities and severe incidents,
+  **including for products already on the market before that date**. The **SBOM generation requirement**,
+  conformity assessment, CE marking, secure-by-design requirements and vulnerability handling apply from
+  **2027-12-11**. Reported exposure for reporting breaches: up to **€15 M or 2.5 % of worldwide annual
+  turnover**, whichever is higher.
+- **Two honest caveats to quote.** Article 14 **never mentions SBOM** — the "you need an SBOM by
+  September 2026" claim circulating in vendor content is a *practical readiness argument* about the
+  24-hour early-warning window, **not a legal requirement**; the legal SBOM date is December 2027. And
+  the Commission's **Single Reporting Platform** was reported as still not publicly addressable three
+  days before the obligation took effect, per a Cloud Security Alliance note; this pass **could not
+  confirm** whether it went live on schedule.
+- **Thirteen months is the whole message.** CRA SBOM obligations land 2027-12-11. A client who has not
+  started has one budget cycle, and the *hash* requirement means the work is pipeline engineering, not
+  documentation.
+
+**Opportunity 1 — the non-GitHub verification gap, which is sharper in EMEA than anywhere.** The
+retirement of `slsa-verifier` points every user at **`gh attestation verify`**. European public-sector
+and regulated estates are disproportionately **self-hosted GitLab and on-premises CI**, and this pass
+searched for a GitLab-native equivalent and **found none**. So the cheapest compliant path in North
+America is **unavailable to a large share of EMEA buyers**, who need `cosign` + `in-toto`/`witness` +
+`rekor` assembled and operated. **That is a build, it is defensible, and no vendor is offering it as a
+product.** It is the single most specific provenance opportunity this pass identified.
+
+**Opportunity 2 — sovereignty makes tool selection a billable decision, not a download.** Veeam's
+survey reports **88 % of organisations already operating AI agents while only 7 % believe they are
+prepared to manage them**, alongside reporting that EMEA firms are **sacrificing data sovereignty to
+deploy AI faster**; IDC puts only **9 % of EMEA organisations** achieving measurable outcomes from most
+AI projects. Against that backdrop, two measured facts from this pass are directly monetisable:
+
+1. **`snyk/agent-scan` is Apache-2.0 and still sends MCP configuration to a vendor analysis API, with a
+   token and a daily quota.** For a sovereignty-constrained client it is likely **disqualified on
+   architecture, not on licence** — and `cisco-ai-defense/mcp-scanner`, whose YARA/static/readiness
+   analyzers need **no key** and whose LLM analyzer accepts a **local Ollama endpoint**, is the
+   candidate to pilot instead.
+2. **The Sigstore trusted root cannot be fetched from an air-gapped network.** Measured here:
+   `gh attestation trusted-root` fails closed against `tuf-repo-cdn.sigstore.dev`. Allowlisting that
+   host once, pinning the root, shipping it inward as a controlled artefact and **owning its refresh**
+   is a concrete work package — and a forgotten refresh is an outage, because verification correctly
+   fails closed.
+
+**Still-open gap, carried forward from the eighth pass and unchanged:** the EU AI Act's Annex IV
+technical documentation has **no machine-readable format**, so the OSCAL-style evidence story available
+in North America has **no EMEA statutory counterpart.** CycloneDX plus CRA's SBOM requirement is the
+nearest available substrate — propose it as the Annex IV carrier, and be explicit that this is
+Globant's construction, not a regulator's instruction.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -847,6 +930,47 @@ plane and the integration inventory; land the write boundary second, on JVM-nati
 components where the core is JVM-native.
 
 ---
+
+#### The provenance boundary — APAC, added ninth pass 2026-11-24
+
+**APAC's position in this layer is the one most likely to be misread: it is a co-author of the global
+baseline while having almost no domestic mandate.**
+
+- **Japan co-signed the baseline, one day after CISA published it.** METI and Japan's National
+  Cybersecurity Office signed the **2026 Minimum Elements for an SBOM on 2026-07-30** (CISA published
+  2026-07-29). That makes the document **a shared international baseline, not a US one** — the single
+  most useful fact in this subsection, because it removes the "that's an American rule" objection from
+  an APAC procurement conversation. The guidance is reported to cover open-source, **AI software** and
+  SaaS, and to cite **Japan's SBOM Introduction Guide v2.0** as a national example.
+- **Singapore's CSA co-signed the earlier "Shared Vision of SBOM for Cybersecurity" (September 2025)**,
+  and is reported to have issued an advisory with OWASP on SBOMs and real-time vulnerability monitoring
+  for open-source and third-party dependencies. **This pass found no primary CSA 2026 SBOM document** —
+  recorded as a gap in the evidence, not as absence of activity.
+- **South Korea:** KISA is reported to have **expanded SBOM-based supply-chain support in 2026**.
+- **No mandate anywhere in the region, on this pass's evidence.** Japan's METI guide is **voluntary**;
+  the FSA lists SBOMs for in-house software as a **recommended** measure for financial institutions.
+  Treat SBOM in APAC as **procurement advantage, not legal exposure.**
+
+**Opportunity 1 — the export argument, which is the strongest provenance pitch in the region and is
+cross-regional.** The EU **CRA applies to products placed on the EU market regardless of where they
+were built.** An APAC manufacturer, device maker or software exporter selling into Europe inherits the
+**2027-12-11 SBOM obligation and the €15 M / 2.5 % exposure** without any domestic law changing. So the
+sale in APAC is not compliance — it is **market access**, and it has a date on it. This reframing applies
+to LATAM exporters identically, and it is the most portable insight this pass produced.
+
+**Opportunity 2 — sovereign deployment is already the regional default, which suits this layer.**
+Forrester predicts sovereignty will shape AI infrastructure choices for **half of firms**; Lenovo's CIO
+Playbook reports **96 % of APAC organisations planning to increase AI investment, averaging +15 % in
+2026**; IDC frames unified AI governance as moving **from optional to mandatory**. Provenance tooling is
+unusually well-suited here because **`cosign`, `syft`, `grype`, `in-toto` and Dependency-Track all run
+entirely on-premises** — unlike the metered cloud scanner in `agents/top.md`. Lead with the fact that
+**the whole stack can be self-hosted**; it is the regional buying criterion.
+
+**Caveat on maturity, carried from earlier passes:** regional AI-governance maturity is uneven (the ADB
+AI Preparedness Index shows a wide gap between advanced and developing APAC economies), and AlphaSense
+reports **security concerns as the region's top adoption barrier.** Security-as-the-barrier is the
+*reason* a provenance engagement sells here — it answers the stated objection directly rather than
+arguing past it.
 
 ### LATAM
 
@@ -1180,6 +1304,63 @@ is the reason to express the controls once, in a machine-readable catalogue, and
 profile them per country.
 
 ---
+
+#### The provenance boundary — LATAM, added ninth pass 2026-11-24
+
+**Measured result first, because the honest zero is the finding.** This pass searched for LATAM
+software-supply-chain mandates in **Spanish and then in Portuguese** — the short native-language
+instrument this KB adopted after the eighth pass, precisely because long English queries do not
+discriminate.
+
+- **No SBOM or software-supply-chain mandate located in Brazil, Mexico or Chile.** The Spanish query
+  returned fintech, crypto, open-finance, ESG and gaming regulation — **adjacent regulatory noise, not
+  software supply chain.** The Portuguese query returned Brazilian commentary that **states there is no
+  specific Brazilian regulation requiring SBOMs**, with LGPD creating only *indirect* liability via
+  breach accountability for an unknown component. That LGPD reasoning is **a blog argument, not a norm**,
+  and is recorded as such.
+- **One real sectoral anchor, and it is the useful find.** **ANBIMA** — Brazil's capital-markets
+  association — publishes secure-application-development guidance that **recommends maintaining an
+  up-to-date inventory of all dependencies (SBOM).** That is **industry good practice in the financial
+  sector, not law**, and it is the only LATAM instrument this pass located that names the artefact.
+  It matters because LATAM's AI lighthouse deployments are concentrated in financial services.
+- **Unverified lead, flagged not promoted.** A vendor page attributes software-component control
+  requirements to **BACEN Resolution 4.893** and related cyber circulars. **Not confirmed against the
+  Banco Central primary text** — do not cite it to a client until someone reads the resolution.
+- **LATAM-origin repositories in this layer: zero, and measured.** No LATAM-origin provenance,
+  signing, SBOM or attestation project appeared in any search this pass. This is now consistent with
+  eight prior passes: **LATAM supply is localisation and data-quality work** (`oca/l10n-*`,
+  `latam-gpt/*`), **not infrastructure runtimes.**
+- **Regional governance context, unchanged and relevant:** fewer than **one in five** LATAM
+  organisations report a formal AI governance framework, while **~40 % are implementing AI and 68 % of
+  adopters plan to scale within 12 months** (RSM, 400+ leaders). Baker McKenzie: **no LATAM country has
+  a fully mature, harmonised AI regime.** Uruguay remains the first regional signatory to the Council of
+  Europe AI treaty; Peru's Law 31814 regulation was published September 2025.
+
+**Opportunity 1 — the export and nearshore argument, which is the whole LATAM case for this layer.**
+Since no domestic mandate exists, provenance is **not** a compliance sale in LATAM. It is two other
+things, both stronger:
+
+1. **CRA exposure through export.** A LATAM software or device exporter selling into the EU inherits
+   the **2027-12-11 SBOM obligation** and the **€15 M / 2.5 %** exposure with no local law changing.
+2. **Nearshore supplier credibility.** LATAM's growth position is as a **trusted nearshore partner** to
+   North American buyers. Those buyers are being handed **CISA's 2026 minimum elements** as procurement
+   language — **hash and licence per component**. A nearshore supplier that ships signed artefacts and a
+   conformant SBOM *by default* clears a gate its competitors argue about. **This is Globant's own
+   delivery pipeline as a differentiator**, which makes it unusually cheap to prove: build it once
+   internally, then sell the evidence.
+
+**Opportunity 2 — governance scaffolding for a region that is scaling without it.** 68 % of adopters
+scaling against <20 % with a governance framework is the clearest arbitrage in any region on this page.
+The cheapest credible entry remains the AI inventory (`compose/patterns.md` Receta 13); **what this pass
+adds is the field that makes it defensible — the component hash** — and the warning that an inventory
+built from questionnaires cannot produce one.
+
+**What was NOT found, stated so a later pass does not mistake silence for coverage:** no LATAM national
+CERT or regulator document on SBOM; no Mexican or Chilean instrument of any kind; no LATAM equivalent of
+OSCAL or of the CRA. Searched 2026-11-24 in Spanish and Portuguese. **Recommended instrument for the
+next pass:** query the national agencies directly (`gov.br/anpd`, CERT.br, Chile's CSIRT, Mexico's
+agencies) rather than the open web, because this pass's evidence suggests the open-web layer here is
+commentary rather than regulation.
 
 ## Posicionamiento Globant
 

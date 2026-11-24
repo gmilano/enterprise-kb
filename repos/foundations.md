@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 🏗️ Repos fundacionales — Enterprise
@@ -871,3 +871,214 @@ pattern the fourth pass recorded for other projects.
 |---|---|---|
 | `princeton-nlp/SWE-agent` | [SWE-agent/SWE-agent](https://github.com/SWE-agent/SWE-agent) | 20,845 ★, MIT (1,146 B byte-read), pushed 2026-11-16. The old path redirects, which is why every 2026 roundup still prints the stale owner. Sibling [SWE-agent/mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent), 9,925 ★, MIT. |
 | `complytime/complyscribe` (as "the CI tool") | [complytime/complyctl](https://github.com/complytime/complyctl) + [complytime/complytime-providers](https://github.com/complytime/complytime-providers) | complyscribe archived 2026-05-11; providers were "formerly plugins". |
+
+## The provenance boundary — proving what the agent is made of (added ninth pass, 2026-11-24)
+
+The seventh pass asked *what may the agent read*. The eighth asked *what may it change, and what
+proves it was allowed to*. Both answers assume something this KB had never established: **that the
+components doing the reading and writing are what they claim to be.**
+
+**The layer was measurably empty.** Before this pass, across all nine files:
+`sigstore` 0, `cosign` 0, `in-toto` 0, `SLSA` 0, `attestation` 0, `syft` 0, `grype` 0, `trivy` 0,
+`dependency-track` 0, `guac` 0, `model card` 0. `SBOM` scored 24 hits — **entirely as a compliance
+noun in the AI-BOM section above, with no tool that produces, signs or consumes one.**
+
+**The distinction that organises this section, and it is the sales argument too:**
+
+- An **inventory** is a list you asserted. (`CycloneDX`, `sbom-tools`, `Trusera/ai-bom` — already above.)
+- A **scan** is an opinion, at one moment, by one tool. (`SkillSpector`, `snyk/agent-scan` — already above.)
+- **Provenance is a verifiable claim about origin**, signed by an identity, recorded in a log a third
+  party can check, and **re-checkable later without trusting the party who made it.**
+
+A client asking "is this MCP server safe?" is asking for a scan. A client asking "can you prove in
+two years' time that the model and tools in this decision were the ones we approved?" is asking for
+provenance, and **nothing above this line could answer it.**
+
+### Signing, attestation and transparency — the primitives
+
+Every row verified 2026-11-24: existence and HEAD sha via `git ls-remote`, licence **byte-read from
+the repository's own `LICENSE`** over `raw.githubusercontent.com`, last-commit date from a shallow
+bare clone. **Stars, the `archived` flag and the SPDX badge come from `gh api search/repositories`,
+which works in this session** — unlike `gh api repos/<owner>/<repo>` and raw `api.github.com`, both of
+which return **403**. One repository, `CycloneDX/cdxgen`, is **absent from that search index** (HTTP
+422, the same blind spot the eighth pass hit on `ossf/gemara`): its figures are page-read and its
+licence byte-read, and **a repository missing from the index is not a repository that does not exist** —
+`git ls-remote` says it is live.
+
+| Repo | Licence (byte-read) | ★ | Last commit | Role in an agent estate |
+|---|---|---|---|---|
+| [sigstore/cosign](https://github.com/sigstore/cosign) | Apache-2.0 | 6,468 | 2026-11-23 | Keyless signing and verification for containers and blobs. The default way to sign the image an agent runs in without operating a key management ceremony. |
+| [sigstore/rekor](https://github.com/sigstore/rekor) | Apache-2.0 | 1,238 | 2026-11-22 | The append-only transparency log. This is the component that makes a signature *re-checkable by a third party later*, which is the whole difference from a scan. |
+| [sigstore/model-transparency](https://github.com/sigstore/model-transparency) | Apache-2.0 | 250 | 2026-11-23 | **Signs model weights, not code.** Signs a whole model directory, emitting a Sigstore bundle containing a DSSE envelope wrapping an **in-toto statement** that lists every file as a `(path, digest)` pair; verification recomputes the hashes. Supports keyless OIDC, traditional keys, and **PKCS#11 hardware**. 250 ★ — the *only* permissive tool located that signs a model, and the KB had nothing here. |
+| [in-toto/in-toto](https://github.com/in-toto/in-toto) | Apache-2.0 (badge says `NOASSERTION`) | 1,056 | **2026-08-27** | The supply-chain integrity framework the attestation format comes from. **Default branch is `develop`, not `main`** — a shallow clone of HEAD gets `develop`. Three months since last commit; it is a specification reference implementation, so read that as stability, not abandonment. |
+| [in-toto/witness](https://github.com/in-toto/witness) | Apache-2.0 | 622 | 2026-11-23 (push); `main` commit 2026-09-21 | **The bridge to two layers this KB already holds.** Records an attestation at each pipeline step, with **keyless signing via Sigstore *and SPIFFE/SPIRE*** (see "Workload identity for agents" above) and an **embedded OPA Rego policy engine** (see "Identity, policy & isolation"). Also RFC3161 timestamping. Two components already in this KB gain a second job here. |
+| [in-toto/attestation](https://github.com/in-toto/attestation) | Apache-2.0 (badge says `NOASSERTION`) | 396 | 2026-11-23 | The attestation *spec* and predicate types. Cite it rather than inventing a payload shape. |
+
+### SBOM production → consumption — and the half this KB was missing
+
+The AI-BOM section above produces documents. **Nothing consumed them.** An SBOM that is generated and
+filed is a compliance artefact; an SBOM that is continuously matched against a vulnerability feed is a
+control. These are the consumption half.
+
+| Repo | Licence (byte-read) | ★ | Last commit | Role |
+|---|---|---|---|---|
+| [anchore/syft](https://github.com/anchore/syft) | Apache-2.0 | 9,957 | 2026-11-23 | SBOM **generation** from container images and filesystems. The de-facto producer; CycloneDX and SPDX output. |
+| [anchore/grype](https://github.com/anchore/grype) | Apache-2.0 | 13,339 | 2026-11-20 | Vulnerability scanner that **takes an SBOM as input**. Syft → Grype is the minimal produce-then-consume pair, and it runs offline against a cached DB. |
+| [aquasecurity/trivy](https://github.com/aquasecurity/trivy) | Apache-2.0 | 39,670 | 2026-11-24 | The largest tool in this layer by a wide margin: vulnerabilities, misconfiguration, secrets **and SBOM** across containers, Kubernetes, repos and clouds. If a client already runs one thing here, it is this. |
+| [DependencyTrack/dependency-track](https://github.com/DependencyTrack/dependency-track) | Apache-2.0 | 4,513 | 2026-11-23 | **The continuous-monitoring platform**, and the piece that converts a one-off inventory into a standing control: ingest SBOMs, re-evaluate against new advisories, alert on drift. OWASP flagship. See `verticals/solutions.md`. |
+| [guacsec/guac](https://github.com/guacsec/guac) | Apache-2.0 | 1,581 | 2026-11-24 | Aggregates SBOMs **and attestations** into one queryable graph: CycloneDX, SPDX, **in-toto ITE6, DSSE, SLSA**, and VEX in both CSAF and OpenVEX. The only tool located that answers cross-cutting questions ("which deployed agents contain this component?"). **Caveat from its own page: identifiers are often absent, so it links metadata with heuristics and ingestion errors occur.** |
+| [google/osv-scanner](https://github.com/google/osv-scanner) | Apache-2.0 | 11,612 | 2026-11-23 | Scans lockfiles and images against OSV.dev. Note honestly: **its page does not claim SBOM ingestion** — do not assume the SBOM path without testing it. |
+| [CycloneDX/cdxgen](https://github.com/CycloneDX/cdxgen) | Apache-2.0 (byte-read) | 1.1k (page-read — **absent from the GitHub search index**, see below) | 2026-11-24 | **The wire between this section and the AI-BOM section above.** Dedicated `aibom` command covering *prompt files, AI services, MCP configs and model metadata*, accepting Hugging Face purls and direct `Modelfile`/`.gguf` inputs — and it **submits directly to a Dependency-Track server.** Gotcha from its own page: `--component-type` does **not** by itself enable model discovery. |
+
+### Format translation and VEX — the unglamorous pieces that decide whether any of it composes
+
+| Repo | Licence (byte-read) | ★ | Last commit | Note |
+|---|---|---|---|---|
+| [protobom/protobom](https://github.com/protobom/protobom) | Apache-2.0 | 339 | 2026-11-23 | Neutral protobuf representation that converts **SPDX 2.2/2.3/3.0.1 ↔ CycloneDX 1.2–1.7**. The answer when the client's scanner emits one format and their auditor demands the other — which, after CISA 2026 dropped SWID, is the only remaining axis of disagreement. |
+| [openvex/vexctl](https://github.com/openvex/vexctl) | Apache-2.0 | 222 | 2026-11-23 | Produces VEX statements: *"this CVE is present but not exploitable here."* The tool that stops a 4,000-finding SBOM report from being politically unusable. |
+| [openvex/spec](https://github.com/openvex/spec) | **CC0-1.0** | 203 | 2026-10-30 | The spec, public-domain dedicated. **CC0 is not "better than Apache-2.0"** — same caveat as the OSCAL section: no patent grant, no warranty disclaimer. |
+| [bomctl/bomctl](https://github.com/bomctl/bomctl) | Apache-2.0 | 159 | **`main` commit 2025-09-10; last push 2025-11-20** | Format-agnostic SBOM manipulation. **Default branch untouched for fourteen months, no push for twelve.** Listed so nobody rediscovers it as new; `protobom` is the maintained path for the same job. |
+
+### The SLSA tooling has declared itself unmaintained — read the README, not the repo page
+
+This is the pass's second headline, it is primary-source, and **it inverts this KB's own detection
+heuristic.**
+
+Five prior passes recorded archived-but-still-starred projects whose READMEs *failed to say so*. The
+rule that produced was: trust the repo metadata over the docs. **Here the opposite holds.** Both
+reference SLSA tools are **not archived**, carry recent release tags (`v2.7.1`, `v2.1.0`) and look
+alive on their repo pages — and both READMEs say, at line 11:
+
+> *"This project is **no longer actively maintained**. We are working on guidance and simpler tooling to replace it."*
+
+| Repo | State as measured 2026-11-24 | What the README instructs instead |
+|---|---|---|
+| [slsa-framework/slsa-verifier](https://github.com/slsa-framework/slsa-verifier) | Apache-2.0, **352 ★**. `main` last commit **2026-08-06**, and that commit is literally *"docs: Add maintenance status for slsa-verifier (#898)"*. Tags up to `v2.7.1`. **Default branch (`HEAD`) resolves to `refs/heads/Hayden-IO-patch-1`**, a personal patch branch at a *different* sha from `main` — so a plain `git clone` does not get `main`. | Verify GitHub-generated attestations with **`gh attestation verify`**. |
+| [slsa-framework/slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator) | Apache-2.0, **610 ★**. `main` last commit **2026-08-06**. README: most recent release **v2.1.0, February 2025**; existing provenance **remains valid** and the reusable workflows **continue to work**, but *"should not be assumed to receive updates, including for GitHub Actions runtime deprecations."* | Generate provenance with **GitHub artifact attestations**. |
+
+**The sentence to carry into an engagement**, quoted from the generator's own README because it is the
+migration risk in one line: *"GitHub artifact attestations are verified with `gh attestation verify`
+rather than with slsa-verifier, so **migrating changes how your consumers verify**."* A provenance
+migration is not an internal refactor — it breaks every downstream verifier at once.
+
+**And the strategic reading, which is the part a client should hear from Globant and not from a vendor:**
+the open-source, CI-agnostic SLSA verification path has been retired in favour of **a platform feature of
+a single vendor.** `gh attestation` is genuinely good — but it is GitHub's. An estate on GitLab,
+Bitbucket, Jenkins or self-hosted CI has **no drop-in successor named by the project itself**, and this
+pass searched for a GitLab equivalent and **did not find one** (see "Gaps measured" below). For those
+clients the remaining permissive path is `cosign` + `in-toto`/`witness` + `rekor` assembled by hand —
+which is studio work, not a product purchase.
+
+**One number puts this layer in proportion before anyone quotes a budget.** The reference SLSA
+verifier has **352 stars**; the generator has **610**. `trivy`, in the same supply-chain family, has
+**39,670**. The provenance *primitives* an auditor will ask about are two orders of magnitude less
+adopted than the scanner a client has probably already installed — which is precisely why this is
+delivery work rather than a procurement line, and why **"we already run Trivy" is not an answer to
+"can you prove this model is the one you approved".**
+
+### Measured in this environment: "offline verification" has an online bootstrap
+
+`gh` 2.89.0 is present here and exposes `gh attestation verify`, `download` and `trusted-root`. The
+documented air-gap story is: fetch `trusted_root.jsonl` once, then verify offline with
+`--custom-trusted-root`. **Run in this session's restricted network, the fetch fails closed:**
+
+```
+$ gh attestation trusted-root
+Failed to verify the TUF repository: failed to create TUF client: failed to load metadata:
+tuf refresh failed: Get "https://tuf-repo-cdn.sigstore.dev/14.root.json": Forbidden
+exit=1, 0 bytes written
+```
+
+**So the trusted root cannot be *obtained* offline — only *used* offline once obtained.** For an
+air-gapped or egress-filtered estate this is a concrete, costed prerequisite, not a footnote:
+`tuf-repo-cdn.sigstore.dev` must be reachable from *some* permitted host at least once, the resulting
+root must be pinned and shipped inward as a controlled artefact, and its refresh must be owned by
+someone. Verification **fails closed**, which is the correct behaviour and also means a forgotten root
+refresh is an outage. This was measured, not cited.
+
+### MCP server provenance — the registry layer, and what it does and does not prove
+
+The "Agent skill supply chain" section above covers *scanning* a server. This covers **establishing who
+published it.**
+
+| Repo | Licence | ★ | Last commit | What it establishes |
+|---|---|---|---|---|
+| [modelcontextprotocol/registry](https://github.com/modelcontextprotocol/registry) | **Mixed — see below** (badge says `NOASSERTION`) | 7,496 | 2026-11-24 | The community registry, run by a Registry Working Group. **It validates namespace ownership at publish time: GitHub OAuth, GitHub OIDC, DNS verification and HTTP verification.** DNS verification proving control of a domain and its subdomains is the real provenance primitive here — it is the difference between "a server called `acme-crm`" and "a server published by whoever controls `acme.com`". **Still a preview release, not GA** — its own page says so, with an API freeze at v0.1 pending v1. |
+| [stacklok/toolhive](https://github.com/stacklok/toolhive) | Apache-2.0 | 2,355 | 2026-11-23 | Runs and manages MCP servers as an enterprise platform — the enforcement point that can refuse an unverified server. See `verticals/solutions.md`. |
+| [agentic-community/mcp-gateway-registry](https://github.com/agentic-community/mcp-gateway-registry) | Apache-2.0 | 1,057 | 2026-11-24 | Gateway **and** registry with OAuth, and **security scanning at registration** — unsafe servers, agents and skills are held for review. AWS-oriented deployment (EKS/ECS/EC2, Bedrock). This is the shape to copy: admission control at registration, not at runtime. |
+| [cisco-ai-defense/mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) | Apache-2.0 | 1,125 | 2026-11-23 (push); `main` commit 2026-11-19 | **The locally-runnable alternative to `snyk/agent-scan`, and that is why it matters.** Per its README the Cisco AI Defense API key is needed **only for the API analyzer**; YARA, readiness, prompt-defense, static-JSON and vulnerable-package scans need **no key at all**, and the LLM analyzer accepts a **local endpoint such as Ollama** with a placeholder key. For the sovereignty-constrained client that cannot use a metered cloud scanner, this is the candidate — test it, do not assume it. |
+
+**The licence on the MCP registry is not a single SPDX identifier, and this is a new licence class for
+this KB.** Byte-read from its `LICENSE`:
+
+> *"The MCP project is undergoing a licensing transition from the MIT License to the Apache License,
+> Version 2.0… Contributions made by authors who originally licensed their work under the MIT License
+> and who have not yet granted explicit permission to relicense **remain licensed under the MIT
+> License**. No rights beyond those granted by the applicable original license are conveyed."*
+
+So the repository is a **per-contribution mixture of MIT and Apache-2.0**, mid-migration. Both are
+permissive and Globant can build on either, so this is *not* a blocker — but **"modelcontextprotocol/registry
+is Apache-2.0" is a false statement**, and so is "it is MIT". The transition is also **partial across the
+org**: the same notice is on `modelcontextprotocol/modelcontextprotocol` and `modelcontextprotocol/servers`,
+while [`modelcontextprotocol/python-sdk`](https://github.com/modelcontextprotocol/python-sdk) is **still plain
+MIT**. Record the licence per repository and per date, never per organisation.
+
+### Traps found this pass
+
+1. **Archived yesterday, recommended today.** [NimbleBrainInc/mpak](https://github.com/NimbleBrainInc/mpak)
+   (Apache-2.0, 14 ★) — an MCP package registry with bundle signing, GitHub-OIDC provenance and an
+   **L1–L4 trust-score ladder** topping out at "Attested" — was **archived by its owner on 2026-11-23**,
+   *the day before this pass*, with `registry.mpak.dev` to be shut down and servers moved to a
+   vendor catalogue. A search engine offered it to this pass as a live finding. **This is the eighth
+   archived-but-recommended project in nine passes, and the freshest possible demonstration of why
+   every row in this KB is verified on the day it is written.** Structurally it was a real project —
+   163 commits, monorepo, Helm chart, CI — and 14 stars. Adoption, not quality, is what killed it.
+2. **Cross-ecosystem name collision in security tooling.** `uvx mcp-scan` and `npx mcp-scan` are
+   different vendors' software. Full evidence in `agents/top.md`.
+3. **A default branch that is somebody's patch branch.** `slsa-verifier`'s `HEAD` → `Hayden-IO-patch-1`.
+   For a tool whose purpose is verifying provenance, clone-time ambiguity is the wrong failure to have.
+   Always `git clone --branch main` for this repo, or install the released binary.
+4. **`develop`, not `main`.** `in-toto/in-toto` defaults to `develop`. A licence or source read against
+   `main` is reading a branch the project does not treat as current.
+5. **Idle-but-shiny.** `bomctl` (14 months), `mcpshield/mcpshield` (MIT, last commit 2026-02-18, 9 months)
+   both present well and are not maintained at the cadence this layer needs.
+
+### Method notes — two new ways to be wrong, and one new instrument
+
+- **Check maintenance status in *both* directions.** Passes 3–8 learned "the repo page knows better than
+  the docs" from seven archived projects whose READMEs were silent. SLSA is the inverse: **repo page
+  says alive, README says unmaintained.** Neither source dominates. Read both, every time.
+- **A permissive licence does not imply a runnable tool.** `snyk/agent-scan` is Apache-2.0 and cannot
+  scan without a vendor token and a network call; `cisco-ai-defense/mcp-scanner` is Apache-2.0 and most
+  of it runs with no key. **Licence describes redistribution rights; it says nothing about whether the
+  capability is local.** This is the same shape as the seventh pass's Onyx `ee/` finding and the sixth
+  pass's gated-feature findings — now stated as a general rule.
+- **New instrument, reusable by the whole fleet.** `api.github.com` is 403 here and `github.com`/Atom
+  feeds are proxy-blocked to `curl`, but three channels work and together replace the API:
+  (1) `git ls-remote --symref <url> HEAD` → existence, HEAD sha **and the real default branch**;
+  (2) `raw.githubusercontent.com/<repo>/<branch>/LICENSE` → licence **bytes**;
+  (3) `git clone --bare --depth 1 --filter=blob:none` then `git log -1 --format=%cI` → authoritative
+  last-commit date. **Stars, `archived` and the SPDX badge come from `gh api search/repositories`,
+  which works even though `gh api repos/<owner>/<repo>` and `api.github.com` are both 403** — that is
+  the channel that caught `mpak`. `git ls-remote --tags` gives the release ladder, which is what
+  distinguishes "idle" from "stable and released".
+- **`pushed_at` and "last commit on the default branch" are different measurements, and the gap is
+  information.** `bomctl` last pushed 2025-11-20 but its `main` has not moved since 2025-09-10;
+  `in-toto/witness` shows a 2026-11-23 push over a `main` whose last commit is 2026-09-21. Quote which
+  one you mean, because "pushed yesterday" over a frozen default branch is how an idle project looks alive.
+
+### Gaps measured this pass — stated, not left silent
+
+- **No GitLab/non-GitHub provenance successor located.** Searched for a GitLab equivalent to GitHub
+  artifact attestations and for non-GitHub offline verification paths; results returned `gh`-specific
+  material and third-party *offline verifiers of GitHub attestations*
+  ([combinatrix-ai/attestation-verify](https://github.com/combinatrix-ai/attestation-verify),
+  [torstei/apt-attest](https://github.com/torstei/apt-attest) — **existence confirmed by `git ls-remote`
+  on 2026-11-24; licences not byte-read, maintenance and quality not assessed. Leads to evaluate, not
+  recommendations**, and note that both verify *GitHub's* attestations rather than replacing them). **Recorded as an open gap, not as an absence of need** — it is
+  the single largest unserved requirement in this layer.
+- **No dedicated open-source MCP *signing* tool located.** The registry proves *namespace ownership*;
+  nothing located signs the server artefact itself. A 2026 systematisation-of-knowledge paper argues
+  the need exists. `cosign` on the server's container image is the available substitute and is what
+  Receta 18 uses.
+- **LATAM-origin repositories in this layer: zero, measured.** See `intel/market.md`.

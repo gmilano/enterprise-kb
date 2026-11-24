@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 🧩 Patrones de composición — Enterprise
@@ -1175,6 +1175,185 @@ fourteen.
   that needs re-approval when the business changes. Build the tier as configuration with
   its own approval workflow, not as a constant in code.
 
+## Receta 18 — The provenance boundary: prove the agent's components are the ones that were approved
+
+**The ask, in client words.** *"If a regulator or our board asks in two years' time, can you prove the
+model, the tools and the MCP servers behind this decision were the ones we approved — and that nobody
+swapped one afterwards?"*
+
+**Why the previous seventeen recipes cannot answer it.** Receta 13 builds an inventory (what we think we
+run). Receta 7 scans skills (one tool's opinion, at one moment). Receta 16 proves *who the agent acted
+for*; Receta 17 proves *that the action was authorised*. **None of them proves the component is what it
+claims to be**, because an inventory is an assertion and a scan is not re-checkable by a third party
+later. Provenance is: **signed by an identity, recorded in a log someone else can verify, re-checkable
+without trusting whoever made the claim.**
+
+**Precondition — pick the fork honestly in week one, because it determines the whole build.**
+
+| If the client's CI is… | Use | Effort |
+|---|---|---|
+| GitHub (cloud or Enterprise) | **GitHub artifact attestations** + `gh attestation verify` | Low. This is the cheapest provenance story available anywhere. Do not build what the platform gives away. |
+| GitLab, Jenkins, Bitbucket, self-hosted | **`cosign` + `in-toto`/`witness` + `rekor`, assembled** | Real engineering. There is **no drop-in successor named by the SLSA project** — this pass searched and found none. Scope it as a build, and see the EMEA subsection of `intel/market.md`: this is the gap worth selling. |
+
+**Do not plan around `slsa-verifier` or `slsa-github-generator`.** Both READMEs declare, at line 11,
+*"This project is no longer actively maintained."* Existing provenance stays valid and the reusable
+workflows keep working, but they will not be updated — including for GitHub Actions runtime
+deprecations. And quote the migration risk from the generator's own README, because it is the part that
+surprises people: **"GitHub artifact attestations are verified with `gh attestation verify` rather than
+with slsa-verifier, so migrating changes how your consumers verify."**
+
+### Steps
+
+1. **Sign the model, not just the image.** [`sigstore/model-transparency`](https://github.com/sigstore/model-transparency)
+   (Apache-2.0, 250 ★) signs a whole model directory, emitting a Sigstore bundle → DSSE envelope →
+   **in-toto statement listing every file as a `(path, digest)` pair**; verification recomputes the
+   hashes, so any post-signing edit fails. Keyless OIDC by default; traditional keys and **PKCS#11
+   hardware** supported where an HSM is mandated. **This is the only permissive model-signing tool this
+   KB has located** — if the client's "AI governance" programme does not cover weights, this step is
+   the gap nobody has filled.
+2. **Sign the runtime and the tools.** [`cosign`](https://github.com/sigstore/cosign) (Apache-2.0,
+   6,468 ★) over the agent's container image and over each MCP server image. **There is no dedicated
+   open-source MCP *signing* tool** — the registry proves *namespace ownership*, not artefact
+   integrity — so signing the server's image is the available substitute. Say that plainly rather than
+   implying a maturity that is not there.
+3. **Attest the pipeline steps, reusing two components this KB already holds.**
+   [`in-toto/witness`](https://github.com/in-toto/witness) (Apache-2.0, 622 ★) records an attestation
+   per build step, signs it **keylessly via Sigstore *or via SPIFFE/SPIRE*** — the workload-identity
+   layer already in `repos/foundations.md` — and evaluates an **embedded OPA Rego policy**, the engine
+   already used in Recetas 9 and 16 for authorization. **Two existing stack components, each gaining a
+   second job.** Add RFC3161 timestamping where an auditor wants wall-clock proof.
+4. **Record in a transparency log.** [`rekor`](https://github.com/sigstore/rekor) (Apache-2.0, 1,238 ★)
+   is the append-only log that makes a signature checkable by a party who does not trust the signer.
+   **This is the step that distinguishes Receta 18 from Receta 7** — without it you have a signature,
+   not provenance.
+5. **Generate the AI-BOM from artefacts, not from a questionnaire.**
+   [`cdxgen`](https://github.com/CycloneDX/cdxgen)'s **`aibom`** command covers **prompt files, AI
+   services, MCP configs and model metadata**, accepts Hugging Face purls and direct `Modelfile`/`.gguf`
+   inputs — and **submits straight to a Dependency-Track server**. Gotcha from its own page:
+   **`--component-type` alone does not enable model discovery.** Pair with
+   [`syft`](https://github.com/anchore/syft) (9,957 ★) for the conventional software SBOM.
+6. **Close the loop — this is the step that makes it a control rather than a document.**
+   [`Dependency-Track`](https://github.com/DependencyTrack/dependency-track) (Apache-2.0, 4,513 ★)
+   ingests the BOMs and **re-evaluates them continuously as new advisories land**, raising a policy
+   violation on an unapproved model or MCP server. Add [`grype`](https://github.com/anchore/grype)
+   (13,339 ★) in CI for the fast fail, and [`vexctl`](https://github.com/openvex/vexctl) (222 ★) to mark
+   present-but-not-exploitable findings — **without VEX a 4,000-finding report is politically unusable
+   and gets switched off**, which is how these programmes actually die.
+7. **Add the cross-system graph only when a question demands it.**
+   [`guac`](https://github.com/guacsec/guac) (Apache-2.0, 1,581 ★) ingests SBOMs **and** attestations
+   (CycloneDX, SPDX, in-toto ITE6, DSSE, SLSA, CSAF/OpenVEX) into one queryable graph — the only tool
+   located that answers *"which deployed agents contain this component?"* **Scope it as investigative,
+   not authoritative:** its own page states identifiers are often absent, so linking is **heuristic**
+   and ingestion errors occur.
+8. **Translate formats at the boundary, not throughout.**
+   [`protobom`](https://github.com/protobom/protobom) (Apache-2.0, 339 ★) converts **SPDX 2.2/2.3/3.0.1
+   ↔ CycloneDX 1.2–1.7**. Since CISA's 2026 elements dropped SWID, SPDX↔CycloneDX is **the only
+   remaining axis of format disagreement** — one converter at the auditor-facing edge, not a
+   format debate in every pipeline. (`bomctl` does the same job and its `main` has not moved since
+   2025-09-10 — do not pick it.)
+
+### The air-gap work package, measured rather than assumed
+
+For a sovereign, air-gapped or egress-filtered estate — the EMEA and APAC case — **budget this
+explicitly**:
+
+```
+$ gh attestation trusted-root
+tuf refresh failed: Get "https://tuf-repo-cdn.sigstore.dev/14.root.json": Forbidden
+exit=1, 0 bytes written
+```
+
+The documented offline path is *fetch `trusted_root.jsonl` once, then verify with
+`--custom-trusted-root`*. **The root can be used offline but not obtained offline.** So:
+allowlist `tuf-repo-cdn.sigstore.dev` from one permitted host, pin the root, ship it inward as a
+controlled artefact, and **give its refresh an owner** — verification fails closed, which is correct
+behaviour and means a forgotten refresh is an outage, not a warning. Keyless OIDC signing has the same
+shape: it needs an identity provider reachable at signing time, so in a fully disconnected enclave fall
+back to `model-transparency`'s **PKCS#11** path with a local HSM.
+
+### Deliverables and the sentence that sells it
+
+A signed model and image per release; a per-step attestation chain; an AI-BOM in the client's existing
+component-analysis platform; a standing policy that fails a deploy when an unapproved model or MCP
+server appears; and a one-page runbook for *"prove this artefact was approved"* that a non-engineer can
+execute.
+
+**The sentence:** *CISA's 2026 minimum elements make the component **hash** a required field. A hash can
+only come from the artefact itself — so an inventory assembled from spreadsheets and vendor
+questionnaires cannot produce one, no matter how complete it looks.* That single field is what turns an
+AI-BOM from a documentation exercise into a pipeline engagement, and it is the honest reason this work
+cannot be done cheaply by someone else.
+
+---
+
+## Receta 19 — Admission control for MCP servers: decide what may join the estate, before it holds a credential
+
+**The ask.** *"Our developers are adding MCP servers weekly. How do we stop an unvetted one from
+reaching production data — without becoming the team that says no to everything?"*
+
+**The design principle, and it is the whole recipe.** The `agents/top.md` skill-supply-chain layer
+scans servers **at runtime or on a developer's machine**. That is too late: **by the time a server runs,
+it has already been handed a credential.** Copy the shape of
+[`agentic-community/mcp-gateway-registry`](https://github.com/agentic-community/mcp-gateway-registry)
+(Apache-2.0, 1,057 ★), which scans **at registration** and holds unsafe servers, agents and skills for
+review. **Admission control, not inspection.**
+
+### Steps
+
+1. **Establish publisher identity.** Run a registry with **namespace-ownership verification**.
+   [`modelcontextprotocol/registry`](https://github.com/modelcontextprotocol/registry) (7,496 ★)
+   validates via **GitHub OAuth, GitHub OIDC, DNS and HTTP verification**. **DNS verification is the
+   real primitive**: it is the difference between "a server named `acme-crm`" and "a server published by
+   whoever controls `acme.com`". Two caveats to state up front: it is **a preview release, not GA**
+   (API frozen at v0.1 pending v1), and its licence is a **per-contribution MIT/Apache-2.0 mixture**
+   mid-transition — both permissive, so buildable, but never describe it as simply "Apache-2.0".
+2. **Mirror internally; never allow direct pulls.** Same rule this KB already applies to `clawhub`.
+   The registry entry a developer installs from must be one the enterprise admitted.
+3. **Scan at registration, and choose the scanner on *architecture*, not licence.** This is where the
+   recipe earns its money:
+   - [`cisco-ai-defense/mcp-scanner`](https://github.com/cisco-ai-defense/mcp-scanner) (Apache-2.0,
+     1,125 ★) — **YARA, readiness, prompt-defense, static-JSON and vulnerable-package analyzers need no
+     API key**, and the LLM analyzer accepts a **local endpoint such as Ollama**. The Cisco key is
+     needed only for the API analyzer. **The option that works for a sovereign client.**
+   - [`snyk/agent-scan`](https://github.com/snyk/agent-scan) (Apache-2.0, 3,276 ★) — broader coverage
+     (agents, MCP servers **and skills**), but **requires `SNYK_TOKEN` before any scan**, the free tier
+     has a **daily usage limit**, and the analysis runs **vendor-side**. Formerly
+     `invariantlabs-ai/mcp-scan`; both paths still resolve to the identical HEAD sha.
+   - **Pin by registry and version in the pipeline definition**: `uvx snyk-agent-scan@<version>`.
+     `uvx mcp-scan` resolves through a redirect shim and **`npx mcp-scan` is a different owner's
+     package entirely** — the project's own README says there is no npm package.
+4. **Sandbox the scan itself — the step most teams miss.** Reading an MCP server's tool descriptions
+   means **executing the commands in its config** and calling remote URLs **with their configured
+   headers**, i.e. the client's own credentials. `snyk/agent-scan` blocks link-local and cloud-metadata
+   destinations (`169.254.0.0/16`, `fe80::/10`, `fd00:ec2::254`, `100.100.100.200`), refuses redirects,
+   validates DNS per request — and **declares a residual DNS-rebinding window**. So: run registration
+   scans in a **disposable container with no production credentials and egress limited to what the
+   candidate server legitimately needs**, and never pass `--dangerously-run-mcp-servers` outside it.
+   *Treat the registration scanner as a workload that handles untrusted input, because it is one.*
+5. **Enforce at runtime.** [`stacklok/toolhive`](https://github.com/stacklok/toolhive) (Apache-2.0,
+   2,355 ★) runs and manages MCP servers — the point where a server that failed admission is actually
+   **refused** rather than merely flagged. Wire the agent's per-call middleware
+   (`NeMo-Relay` in `repos/foundations.md`) so an OPA/Cerbos decision is **enforced per tool call**,
+   not logged after it.
+6. **Record the admission decision as evidence, reusing Receta 17's machinery.** Emit each decision as
+   an attestation via `witness` (step 3 of Receta 18) and feed the resulting component into
+   Dependency-Track. **This is what makes the registry auditable instead of merely restrictive**, and
+   it is why Recetas 18 and 19 are sold together.
+
+### The contractual deliverable worth borrowing from a dead project
+
+[`NimbleBrainInc/mpak`](https://github.com/NimbleBrainInc/mpak) was **archived by its owner on
+2026-11-23**, the day before this pass, and must not be built on. But its **L1–L4 trust ladder —
+Basic / Standard / Verified / Attested**, each level a fixed set of controls with the score being the
+share that pass — is the clearest articulation of this layer's maturity model found anywhere, and it is
+**exactly what a client needs when they ask what "trusted MCP server" should mean in a contract.**
+Borrow the ladder as a design reference; implement it on the live components above.
+
+**Define the tiers in the client's own words, then attach controls:** L1 identified, L2 scanned,
+L3 publisher-verified (DNS/OIDC), L4 signed and attested with a verifiable chain. **Only L4 answers
+Receta 18's question**, and most estates can reach L3 in a quarter — which makes it a credible roadmap
+rather than a counsel of perfection.
+
 ## Anti-patterns — each one observed in this pass's evidence
 
 - **Forking the base platform.** Converts a client integration into a copyleft obligation
@@ -1282,3 +1461,38 @@ fourteen.
   MCP component "camel-mcp"; the tree contains `camel-mcp-server`. The same manifest read
   revealed `camel-a2a`, which no blog mentioned at all. Read the build file, not the
   announcement. (Eighth pass.)
+- **Specifying an install by bare tool name.** `uvx mcp-scan` and `npx mcp-scan` install
+  **different vendors' software**: PyPI `mcp-scan` is a redirect shim to `snyk-agent-scan`, while
+  npm `mcp-scan` is an unrelated owner's MIT package, and the official project's README states there
+  is no npm package. Name the registry and pin the version — `uvx snyk-agent-scan@<version>`.
+  (Ninth pass.)
+- **Reading maintenance status from the repository page alone.** `slsa-verifier` and
+  `slsa-github-generator` are **not archived**, carry recent tags and look active — and both READMEs
+  say at line 11 *"no longer actively maintained."* Seven earlier passes learned the opposite failure
+  (archived, README silent). **Read both sources, every time.** (Ninth pass.)
+- **Cloning a provenance tool without naming the branch.** `slsa-verifier`'s default `HEAD` resolves
+  to `refs/heads/Hayden-IO-patch-1`, a personal patch branch at a different sha from `main`;
+  `in-toto/in-toto` defaults to `develop`. Use `git ls-remote --symref` to learn the real default, then
+  clone `--branch` explicitly or install the released binary. (Ninth pass.)
+- **Reading "Apache-2.0" as "we can run it ourselves."** `snyk/agent-scan` is Apache-2.0 and will not
+  scan without a vendor token, a network call and a daily quota. **Licence governs redistribution;
+  it says nothing about whether the capability is local.** For a sovereign client, check the
+  architecture before the licence. (Ninth pass.)
+- **Promising air-gapped verification without costing the trust root.** `gh attestation trusted-root`
+  fails closed in an egress-filtered network (`tuf-repo-cdn.sigstore.dev`, Forbidden, exit 1). The
+  Sigstore root can be *used* offline but not *obtained* offline — allowlist it once, pin it, and give
+  its refresh an owner. (Ninth pass.)
+- **Running a registration scan with production credentials.** Reading an MCP server's tool
+  descriptions **executes the commands in its config** and calls remote URLs **with their configured
+  headers**. Even the best tool in this layer documents a residual DNS-rebinding window. Scan in a
+  disposable container with no production secrets. (Ninth pass.)
+- **Claiming one SPDX licence for a whole GitHub organisation.** `modelcontextprotocol/registry`,
+  `/modelcontextprotocol` and `/servers` carry a MIT→Apache-2.0 **transition** notice under which
+  non-consenting contributions **stay MIT**, while `/python-sdk` is still plain MIT. Record licences
+  per repository and per date. (Ninth pass.)
+- **Shipping an SBOM assembled from questionnaires.** CISA's 2026 minimum elements make the
+  **component hash** a required field, and a hash can only come from the artefact. A complete-looking
+  inventory built from spreadsheets cannot satisfy it. (Ninth pass.)
+- **Turning on a scanner without VEX.** A 4,000-finding SBOM report with no way to mark
+  present-but-not-exploitable gets switched off within a month. Budget `vexctl` as part of the
+  rollout, not as a later improvement. (Ninth pass.)

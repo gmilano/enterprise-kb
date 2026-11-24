@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-21
+updated: 2026-11-24
 ---
 
 # 🎯 Agentes AI — Enterprise
@@ -72,6 +72,29 @@ updated: 2026-11-21
 > **three passes in a row have now found their headline one layer below the agent.** Taken
 > together the message to an engagement lead is unchanged and stronger: *the agent is the least
 > consequential choice on the page.*
+
+> **Ninth pass, 2026-11-24 (latest): no agent rows changed — for the fourth pass running — and the
+> headline is that the *best-known tool in this file's own security perimeter changed owner, name and
+> business model, and every roundup still cites the old one.*** This pass searched by **provenance**:
+> not *what may the agent read* (seventh pass) or *what may it change* (eighth), but **what is the
+> agent made of, and who signs for it.** The layer was empty — `sigstore`, `cosign`, `in-toto`,
+> `SLSA`, `syft`, `grype`, `trivy`, `attestation`, `dependency-track`, `guac` and `model card` all
+> returned **zero matches across all nine files** before this pass, while `SBOM` appeared only as a
+> compliance noun with no tool behind it. The KB could *produce* an inventory and *scan* a skill; it
+> could not **prove where anything came from**. Full tables in `repos/foundations.md`; builds in
+> `compose/patterns.md` **Recetas 18–19**.
+>
+> **Three findings that change what is already written in this file.** (1) The MCP scanner this KB's
+> adjacent layer depends on, `invariantlabs-ai/mcp-scan`, **is now [`snyk/agent-scan`](https://github.com/snyk/agent-scan)**
+> (Apache-2.0, 3,300 ★) — vendor-owned, **requires a `SNYK_TOKEN` before any scan**, and the free tier
+> has a **daily usage limit**. The code is permissive; the analysis is a metered service. (2) The PyPI
+> name `mcp-scan` is now a **redirect shim** (`requires_dist: ['snyk-agent-scan']`) while the **npm name
+> `mcp-scan` is a different tool by a different owner** — so `uvx mcp-scan` and `npx mcp-scan` install
+> *unrelated software from unrelated vendors*, and `snyk/agent-scan`'s own README states **there is no npm
+> package**. (3) The scanner is itself an attack surface: to read tool descriptions it **executes the
+> commands in your MCP config** and connects to remote servers **with your configured headers**, and its
+> README declares a **residual DNS-rebinding window**. Table below.
+
 
 ## Tier 0 — The harness layer (new category this pass, all MIT)
 
@@ -385,3 +408,42 @@ remain the localisation and data-quality layers — `oca/l10n-argentina`,
 (APAC, for contrast) and the `latam-gpt/*` data-preparation tools. **That is the shape
 of LATAM supply: regulatory and linguistic fitness, not agent runtimes.** Sell it that
 way — it is a real and defensible differentiator, and it is not a framework.
+
+## Rename, re-owner and namespace collision — the agent security scanner (added ninth pass, 2026-11-24)
+
+The eighth pass opened a rename ledger because roundups keep citing dead owners. This pass found a
+worse case in the same shape: not just a move, but **a change of owner, licence posture and business
+model at once**, on the tool that the "agent skill supply chain" section above tells a client to run.
+
+| Cited as | Canonical today | Evidence (verified 2026-11-24) |
+|---|---|---|
+| `invariantlabs-ai/mcp-scan` | [snyk/agent-scan](https://github.com/snyk/agent-scan) | Both paths return the **identical HEAD sha `a8561271`** via `git ls-remote`, so GitHub serves the old address as an alias of the moved repo — the old URL is not broken, it is just no longer the name. 3,300 ★, Apache-2.0, last commit 2026-11-23. Description is now "Security scanner for AI agents, MCP servers **and agent skills**". |
+| `mcp-scan` on PyPI | [`snyk-agent-scan`](https://pypi.org/project/snyk-agent-scan/) | PyPI `mcp-scan` 0.4.3 summary: *"This package has been renamed to snyk-agent-scan. This is a redirect package…"*, `requires_dist: ['snyk-agent-scan']`. `snyk-agent-scan` is at 0.7.0, Apache-2.0, 46 releases. |
+| `mcp-scan` on npm | **A different project entirely** | npm `mcp-scan` 2.3.0 is MIT, maintainer `rodolfboctor`, repo [Abanoub-Rodolf/mcp-scan](https://github.com/Abanoub-Rodolf/mcp-scan) — unrelated to Snyk/Invariant. `snyk/agent-scan`'s README states **"there is no npm package."** |
+
+### Why this belongs in the agents file and not only in the repos file
+
+**The same five-character command name resolves to two unrelated vendors' software depending on which
+package manager a developer types it into.** `uvx mcp-scan` lands on Snyk's Apache-2.0 tool through a
+redirect; `npx mcp-scan` lands on an individual's MIT tool. Neither is malicious on the evidence here,
+and the npm project is a real project — but a KB that recommends "run mcp-scan" without naming the
+ecosystem is **specifying an install by a string that two registries disagree about.** Name the
+registry and pin the version in every deliverable: `uvx snyk-agent-scan@<version>`.
+
+### Two properties to quote before a client adopts it
+
+1. **It is permissively licensed and still metered.** `SNYK_TOKEN` must be exported *before* either
+   install path will scan; v0.5.x drives a dated analysis API (`2025-09-02`) and is **planned for
+   deprecation**. Free-tier scans stop at a daily limit. For an air-gapped or egress-restricted
+   estate — which is the EMEA sovereignty case in `intel/market.md` — assume this tool **does not run**
+   until proven otherwise, because the analysis is not local.
+2. **Scanning untrusted MCP config is itself a privileged act.** From the README: to retrieve tool
+   descriptions it **starts stdio MCP servers by executing the commands in the config** and connects to
+   remote MCP URLs **with their configured headers** (i.e. the client's own credentials). It refuses
+   link-local and cloud-metadata destinations (`169.254.0.0/16`, `fe80::/10`, `fd00:ec2::254`,
+   `100.100.100.200`), does not follow redirects, validates DNS before each request — and then says
+   plainly that **re-resolution at connection time leaves a DNS-rebinding window.** Run it in a
+   disposable sandbox, and never pass `--dangerously-run-mcp-servers` outside one.
+
+**The credit belongs to the project**: a security tool that documents its own residual
+vulnerability is behaving better than one that does not. Quote the mitigation *and* the gap.
