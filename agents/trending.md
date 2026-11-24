@@ -8,7 +8,42 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimoprimer pase (latest) — el límite de la voz: el agente que habla, y la licencia que ningún listado de 2026 menciona
+## 2026-11-24 — vigesimosegundo pase (latest) — el límite de la tenencia: una capa entera sin un solo agente dentro
+
+> Tema: **de quién es la respuesta.** Diez términos medidos en cero (o casi) antes de empezar:
+> `tenancy` = 0, `BYOK` = 0, `tenant_id` = 0, `row level security` = 0, `Kafka` = 0,
+> `nats-io` = 0, `automq` = 0, `redpanda` = 0, `multi-tenant` = 1, `pulsar` = 1 — **sobre 21
+> pases previos de esta KB**. La novedad de la semana en esta capa **no es un agente nuevo**:
+> es que la capa no tiene agentes. Diez repos verificados el 2026-11-24, **cero son agentes**.
+>
+> **Lo que sí se mueve esta semana, y es de licencias, no de código:**
+> - **`p2-inc/keycloak-orgs` (546 ★) es Elastic License 2.0**, leído byte a byte de su `COPYING`.
+>   Su propio README: *«We've changed the license of our core extensions from the AGPL v3 to the
+>   Elastic License v2»* — **AGPL-3.0 → ELv2**, sin pasar por permisiva, mientras sigue hablando
+>   de *«making its core extensions open source»*. **Octava trampa «recomendado por documentación
+>   adyacente al proyecto»** de esta rotación.
+> - **`weaviate/weaviate` (17,0k ★) partió su licencia dentro del repo el 26 de agosto de 2026**
+>   (fecha leída de `wl/LICENSE-WEAVIATE`): BSD-3-Clause fuera de `wl/`, *all rights reserved* +
+>   clave de licencia dentro. GitHub sigue mostrando la insignia **«BSD-3-Clause»** a secas.
+>   **Medido, no supuesto:** `wl/` son **29 ficheros** y el límite entre inquilinos **no** está
+>   ahí — 84 ficheros con `tenant` en la ruta y 147 con `namespace` están **fuera**, incluido
+>   `adapters/handlers/mcp/read/tenants.go`. Lo de pago es **operar** muchos inquilinos
+>   (suspender, rebalancear, deduplicar backups, auto-recuperar, expirar credenciales).
+> - **`redpanda-data/redpanda` (12,7k ★) tiene tres nombres de licencia y ninguno es permisivo**:
+>   `licenses/bsl.md` (BSL 1.1) + `licenses/rcl.md` (Redpanda Community License) en la rama `dev`,
+>   y un README que nombra una *«Redpanda Community Edition License»* **cuyo texto no está en el
+>   repositorio**. Sin `LICENSE` en la raíz → **sin insignia en GitHub**.
+> - **El sustituto permisivo existe y está verificado: `AutoMQ/automq` (10,9k ★, Apache-2.0** leído
+>   byte a byte en `LICENSE` **y** `NOTICE`, cero menciones a BSL), API de Kafka sobre S3.
+>   `NOTICE`: *Copyright 2023-2025, AutoMQ HK Limited* → **origen APAC verificado por licencia.**
+>
+> **Incidente de la ventana (fuente secundaria, página no verificable en esta sesión):** se
+> reporta que **155 respuestas** del modelo GLM-5.3 en **Cloudflare Workers AI** contenían
+> información de *otros* clientes entre el **2026-08-27 y el 2026-09-09**, investigado por
+> Knostic. Un episodio atribuido a la API de Claude el 2026-06-05 aparece en una sola fuente y
+> **está explícitamente sin confirmar**; se registra como no confirmado, no como hecho.
+
+## 2026-11-24 — vigesimoprimer pase — el límite de la voz: el agente que habla, y la licencia que ningún listado de 2026 menciona
 
 > Tema: **cuando el agente atiende el teléfono.** Veintiocho términos medidos en cero antes de
 > empezar (`livekit`, `pipecat`, `asterisk`, `freeswitch`, `jambonz`, `vocode`, `whisper`, `piper`,

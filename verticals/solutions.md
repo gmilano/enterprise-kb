@@ -1220,3 +1220,44 @@ ya tiene Asterisk o FreeSWITCH — y lo habitual es que sí — la arquitectura 
 conmutador: es **puentear una troncal SIP** hacia el agente permisivo y dejar el conmutador intacto.
 Eso también es el argumento comercial más fácil de defender en la sala, porque no pide tocar el
 sistema del que depende el negocio hoy.
+
+## La plataforma vista desde la tenencia — qué significa «multi-empresa» en el ERP que el cliente ya tiene (added twenty-second pass, 2026-11-24)
+
+**Por qué este apartado existe:** en todos los pases anteriores las plataformas de este fichero se
+describieron por *funcionalidad* (ERP, CRM, ITSM, IdM). Ninguno preguntó la cosa que decide si el
+agente puede servir a dos clientes del cliente: **¿la plataforma aísla por inquilino, y dónde vive
+ese límite?** Es la diferencia entre un despliegue y N despliegues, y por tanto entre un margen y
+otro.
+
+**La distinción que hay que hacerle decir al cliente en la primera reunión**, porque los ERP la
+confunden sistemáticamente:
+
+- **Multi-empresa (multi-company)** = varias entidades legales **dentro de un mismo inquilino**,
+  con plan de cuentas y consolidación compartidos. Los usuarios de A **pueden** ser configurados
+  para ver B. Es contabilidad, no aislamiento.
+- **Multi-inquilino (multi-tenant)** = clientes **mutuamente invisibles**, idealmente sin un
+  camino de configuración que los una.
+
+**Casi todo el ERP open source del mercado es lo primero y se vende como lo segundo.** Odoo,
+ERPNext y Dolibarr (todos ya catalogados en este fichero en pases anteriores, con sus licencias
+allí registradas) implementan **multi-empresa**; el aislamiento duro entre clientes se obtiene
+**por base de datos o por instancia**, no por una casilla. Para un agente eso tiene una
+consecuencia concreta y medible: **si el aislamiento es por instancia, el agente necesita una
+credencial, un índice y un presupuesto por instancia** — y ahí es donde entran las piezas que
+este pase verificó (`customer_hierarchy` de LiteLLM para el presupuesto, cuotas de Kafka para el
+vecino ruidoso, `partition_key`/`is_tenant` para el índice).
+
+**La capa de identidad es la que sí resuelve esto de forma permisiva, y está en el core:**
+
+| Plataforma | Licencia (verificada este pase) | Dónde vive el límite entre inquilinos |
+|---|---|---|
+| [keycloak/keycloak](https://github.com/keycloak/keycloak) | Apache-2.0 (`LICENSE.txt` byte a byte), 38,0k ★ | **Dos modelos, y hay que elegir a conciencia:** *realm por inquilino* (aislamiento máximo, IdP y federación propios por cliente, pero degrada con cientos de realms) u **Organizations dentro de un realm** — `server-spi/.../OrganizationModel.java`, **en el core**. Organizations es lo que escala a miles; realm-por-inquilino es lo que exige un cliente regulado que quiere su propio IdP. |
+| [apache/pulsar](https://github.com/apache/pulsar) | Apache-2.0, 15,4k ★ | **La plataforma de mensajería con tenencia nativa**: el inquilino es parte del espacio de nombres del *topic*, con API de administración propia (`Tenants.java`). Si el cliente ya tiene Pulsar, **ya tiene inquilinos**. |
+| [nats-io/nats-server](https://github.com/nats-io/nats-server) | Apache-2.0, 21,1k ★, CNCF | La **`Account`**: aislamiento por defecto, y `exports`/`imports` explícitos para cruzarlo. Es el modelo más estricto de los tres, y el único donde compartir **obliga** a declarar qué se comparte. |
+| [apache/kafka](https://github.com/apache/kafka) | Apache-2.0, 34,3k ★ | **No tiene inquilinos**: tiene ACLs, *topics* con prefijo y **cuotas por principal** (`ClientQuotaManager`). La tenencia se *construye* encima por convención — y conviene decirlo así en una propuesta, porque es trabajo facturable que el cliente cree que viene de fábrica. |
+
+> **Lo que no se encontró, dicho explícitamente:** **ninguna plataforma vertical open source
+> (ERP/CRM/ITSM) de las catalogadas en este fichero documenta aislamiento por inquilino a nivel
+> de fila con RLS forzada.** Se buscó y no está. Quien lo necesite lo construye en Postgres
+> (`FORCE ROW LEVEL SECURITY` + `tenant_id` por transacción, ver `repos/foundations.md`), y eso
+> es exactamente el entregable de la **Receta 44**.

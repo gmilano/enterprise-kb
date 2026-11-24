@@ -3106,3 +3106,140 @@ NIST, ahora en la capa de pesos).
   encadene diarización + Presidio + silenciado por marca de tiempo.** Lo que hay es un prototipo
   académico (OST, 2026) y ejemplos de proveedor atados a una nube. **Es un hueco de producto real**,
   y la receta 42 de `compose/patterns.md` lo construye con piezas que sí existen y están verificadas.
+
+## Vigesimosegundo pase — 2026-11-24 — el límite de la tenencia: de quién es la respuesta cuando un despliegue sirve a muchos clientes
+
+> Tema: **el agente multi-inquilino.** El pase 7 resolvió *qué puede leer este empleado*
+> (autorización por persona). Este pase resuelve la pregunta de la capa de arriba, que no es la
+> misma: **¿de quién es el dato que el agente acaba de recuperar?** Es la pregunta que aparece en
+> cuanto el cliente de Globant no es el usuario final, sino un ISV, un banco con filiales o un
+> grupo retail con operaciones por país.
+>
+> **Hueco medido antes de empezar (la razón por la que 21 pases lo saltaron):** sobre los 8
+> ficheros de esta KB, `tenancy` = **0 apariciones**, `BYOK` = **0**, `multi-tenant` = **1**,
+> `tenant_id` = **0**, `row level security` = **0**, `Kafka` = **0**, `nats-io` = **0**,
+> `automq` = **0**, `redpanda` = **0**, `pulsar` = **1**. La KB tenía Qdrant, Weaviate, Milvus,
+> pgvector, Keycloak y LiteLLM desde hacía pases — **pero ninguno descrito como primitiva de
+> aislamiento por inquilino.** No faltaban los componentes: faltaba la propiedad por la que se
+> eligen.
+>
+> **Instrumentos de este pase** (los tres que funcionan en esta sesión): `git ls-remote` para
+> existencia y rama por defecto; `raw.githubusercontent.com` para **leer `LICENSE` byte a byte**;
+> y **nuevo y reutilizable por toda la flota: `gh api -X GET search/code -f q='…'`**, que prueba a
+> nivel de fichero que una *feature* está dentro del repo permisivo y no en un `ee/` de pago.
+> `api.github.com/repos` está **denegado** por el alcance de la sesión y el HTML de `github.com`
+> devuelve **403** por `curl` — pero `WebFetch` sobre ese mismo HTML **sí** da estrellas y
+> licencia. Tres canales, tres tipos de evidencia distintos.
+
+### El backbone de eventos — la capa que no existía, con Debezium ya dentro 22 veces
+
+**El hallazgo de inventario de este pase, y es vergonzoso en el buen sentido:** la KB citaba
+**Debezium 22 veces** — que es un **plugin de Kafka Connect** — y la palabra `Kafka` aparecía
+**cero veces**. Se había adoptado el conector sin nombrar nunca el bus al que conecta. Es
+exactamente la clase de punto ciego del pase 16: *un vocabulario de consultas por problema tiene
+un agujero con la forma de un producto*.
+
+| Repo | Licencia (cómo se verificó) | ★ | Primitiva de tenencia, probada a nivel de fichero |
+|---|---|---|---|
+| [apache/kafka](https://github.com/apache/kafka) | Apache-2.0 — `LICENSE` leído byte a byte en `master` (11.358 B) | 34,3k | **Cuotas por principal** en el core: `server/src/main/java/org/apache/kafka/server/quota/ClientQuotaManager.java` + `QuotaFactory.java` (21 coincidencias). El control del vecino ruidoso **no** es de pago. |
+| [apache/pulsar](https://github.com/apache/pulsar) | Apache-2.0 — byte a byte en `master` (13.300 B) | 15,4k | **`tenant` es entidad de primera clase**, no una convención: `pulsar-broker/.../admin/v2/Tenants.java`, `pulsar-client-tools/.../CmdTenants.java`, `pulsar-client-admin-api/.../Tenants.java`. El README lista «Multi-tenant» en *Main features*. |
+| [nats-io/nats-server](https://github.com/nats-io/nats-server) | Apache-2.0 — byte a byte en `main` | 21,1k | **La `Account` es la unidad de aislamiento:** `server/accounts.go`, **5.055 líneas**, con `type Account struct` y `exports`/`imports` (15/25 coincidencias) como **única** forma de cruzar el límite. Proyecto de la **CNCF** (leído del README). |
+| [AutoMQ/automq](https://github.com/AutoMQ/automq) | **Apache-2.0** — byte a byte; `LICENSE` **y** `NOTICE` con **cero** menciones a «Business Source»/«BSL» | 10,9k | «Diskless Kafka® on S3». API de Kafka **con licencia permisiva**. `NOTICE`: *Copyright 2023-2025, **AutoMQ HK Limited*** → **origen APAC**, y el `NOTICE` incluye el de Apache Kafka. |
+| [qdrant/qdrant](https://github.com/qdrant/qdrant) | Apache-2.0 — byte a byte en `master` | 35,7k | `is_tenant` = **25 coincidencias** de código, incluidas `lib/segment/src/types.rs` y `lib/edge/src/builders/{uuid,keyword}_index_params.rs`. El índice consciente del inquilino está **dentro** del repo permisivo. |
+| [milvus-io/milvus](https://github.com/milvus-io/milvus) | Apache-2.0 — byte a byte en `master` | 46,7k | `partition_key` = **81 coincidencias** (`internal/util/exprutil/expr_checker.go`, `pkg/proto/index_cgo_msg.proto`…). La clave de partición es el límite. |
+| [pgvector/pgvector](https://github.com/pgvector/pgvector) | **Licencia PostgreSQL** (permisiva, estilo BSD) — byte a byte: *«Portions Copyright (c) 1996-2026, PostgreSQL Global Development Group»*. **GitHub no muestra insignia de licencia** | 23,8k | No aporta tenencia por sí mismo: la aporta **Postgres** debajo (ver la regla de `FORCE` más abajo). Esa es la frase que hay que decirle al cliente. |
+| [keycloak/keycloak](https://github.com/keycloak/keycloak) | Apache-2.0 — `LICENSE.txt` byte a byte | 38,0k | **Organizations está en el core**: `server-spi/src/main/java/org/keycloak/models/OrganizationModel.java` existe en el repo Apache-2.0. **No hace falta la extensión de pago** (ver trampa). |
+| [openbao/openbao](https://github.com/openbao/openbao) | **MPL-2.0** — byte a byte | 9,2k | Claves por inquilino / *transit*. **MPL no es permisiva**: es copyleft débil por fichero. Usable, pero **no** es la misma conversación legal que Apache-2.0. |
+| [BerriAI/litellm](https://github.com/BerriAI/litellm) *(ya en la KB desde el pase 3, con una propiedad nueva)* | MIT | — | **Dato nuevo:** existe una **jerarquía de cliente** explícita — `litellm/types/proxy/auth/customer_hierarchy.py`, `litellm/proxy/auth/customer_hierarchy_auth.py`, `litellm/proxy/management_helpers/customer_hierarchy.py` (**95 coincidencias**) — y un **gateway en Rust** (`litellm/rust/crates/gateway/src/host/auth/mod.rs`). El presupuesto por inquilino ya está construido; esta KB lo tenía como «control plane» sin más. |
+
+**Diez filas, diez repos reales, diez licencias leídas byte a byte.** Ninguna fila de ejemplo,
+ningún encabezado como dato.
+
+### Las dos trampas de licencia de este pase — y las dos se venden como «open source»
+
+**1. `p2-inc/keycloak-orgs` es Elastic License 2.0, no Apache-2.0.** Es la extensión de
+multi-tenencia para Keycloak que recomiendan los blogs del sector y el propio proveedor
+(546 ★, *«Single realm, multi-tenancy for SaaS apps»*). Su fichero **`COPYING`, leído byte a
+byte, es la Elastic License 2.0** (3.860 B), y su README lo dice con sus palabras: *«We've
+changed the license of our core extensions from the AGPL v3 to the Elastic License v2»*. O sea:
+**AGPL-3.0 → ELv2**, un camino que **nunca** pasa por permisivo, mientras el README sigue
+hablando de *«making its core extensions open source»*. **Y no hace falta**: `OrganizationModel.java`
+está en el core Apache-2.0 de Keycloak. La trampa no es sólo la licencia — es pagar un peaje
+legal por algo que el upstream ya regala.
+
+**2. `redpanda-data/redpanda` tiene tres nombres de licencia y ninguno es permisivo.** La rama
+por defecto es **`dev`** (no `main` ni `master`), **no hay `LICENSE` en la raíz** y por eso
+**GitHub no muestra ninguna insignia**. Lo que sí ship-ea el repo: `licenses/bsl.md` =
+*«Redpanda Business Source License 1.1»* y `licenses/rcl.md` = *«Redpanda Community License
+Agreement»*. Y el README apunta a un **tercer** nombre: *«Redpanda Community Edition is now
+licensed under the Redpanda Community Edition License»* — **cuyo texto no está en el
+repositorio**, sino en una página legal del sitio del proveedor. 12,7k ★ de motor compatible con
+la API de Kafka que **Globant no puede tomar como base**. El contraste operativo es directo:
+**AutoMQ da la API de Kafka bajo Apache-2.0 verificado**.
+
+> **Regla de método 14 (nueva, y vale para toda la flota):** `grep -i` de un **acrónimo** fabrica
+> cobertura inexistente. Buscando `RLS` sin límites de palabra salieron **13 coincidencias** en
+> esta KB; con `grep -oE '\bRLS\b'` salen **0**. Las 13 eran **«URLs»**. Un hueco medido con un
+> acrónimo hay que volver a medirlo con `\b…\b` antes de declararlo cubierto *o* vacío.
+
+### Weaviate: una licencia partida dentro de un repo — y la parte de pago **no** es el aislamiento
+
+Weaviate merece su propio apartado porque es el caso que el pase 7 habría leído mal. Su
+`LICENSE` (789 B, leído byte a byte) dice literalmente que el código está *«variously licensed
+under the BSD-3-Clause License, or the Weaviate License»*, y que **la licencia de cada fichero se
+identifica por su ubicación**: todo lo que está **fuera** del directorio `wl/` es BSD-3-Clause;
+todo lo que está **dentro** es *«Copyright Weaviate BV 2026-present, all rights reserved»*,
+habilitado **por clave de licencia**, y *«The BSD license does not grant the right to use these
+features or circumvent any license key»*. `wl/LICENSE-WEAVIATE` lleva fecha **«Date posted:
+August 26, 2026»**: el corte es **reciente**. GitHub, entretanto, muestra la insignia
+**«BSD-3-Clause»** a secas, y el README vende *«built-in multi-tenancy, replication, RBAC
+authorization»* como ventaja de producción.
+
+**Así que había que medirlo, no suponerlo.** Clonado el repo (`--depth 1 --filter=blob:none`) y
+listado el árbol:
+
+- **`wl/` tiene 29 ficheros** en cinco subdirectorios: `backupdedupe/` (planificador de
+  deduplicación de backups), `dbusers/` (**expiración** de usuarios de BD), `namespaces/`
+  (`handlers/`, `qualifier.go`, **`suspendsweep/`**), `rebalance/` (planificador de rebalanceo de
+  shards) y `selfrecovery/` (orquestador de auto-recuperación).
+- **Fuera de `wl/`: 84 ficheros con `tenant` en la ruta** — entre ellos
+  `adapters/handlers/rest/operations/schema/tenants_create.go`, `tenant_exists.go`,
+  `adapters/handlers/grpc/v1/tenants.go` y, llamativamente,
+  **`adapters/handlers/mcp/read/tenants.go`** — y **147 con `namespace`**, incluidos los guardas
+  de autorización `adapters/handlers/rest/authz/handlers_authz_namespaced_*`.
+
+**La conclusión, dicha como decisión de arquitectura:** en Weaviate **el límite entre inquilinos
+es BSD-3-Clause** — crear, comprobar y autorizar inquilinos, por REST, gRPC **y MCP**, es
+gratis y permisivo. Lo que está detrás de la clave es **operar muchos inquilinos a escala**:
+suspender los inactivos, rebalancear shards, deduplicar backups, auto-recuperarse y expirar
+credenciales. **Es el inverso exacto del hallazgo de Onyx del pase 7**, donde lo cerrado *era* el
+límite. Y para un presupuesto cambia todo: el aislamiento no se compra, **la operación sí** —
+o se construye.
+
+### La tenencia en SQL: `ENABLE` no alcanza, `FORCE` sí
+
+El hueco más barato de cerrar de toda esta capa, y el que esta KB tenía literalmente en cero
+(`row level security` = 0, `tenant_id` = 0). Con `pgvector` sobre Postgres, el aislamiento no lo
+da la extensión: lo da el motor, y **sólo si se configura contra el propio dueño de la tabla**.
+Las reglas que salieron repetidas en fuentes independientes (documentación de EDB/Supabase/AWS y
+práctica publicada; **páginas no verificables en esta sesión**, ver la nota de canal):
+
+1. **`FORCE ROW LEVEL SECURITY`, no sólo `ENABLE`** — `ENABLE` no aplica al dueño de la tabla, que
+   suele ser el mismo usuario con el que se conecta la aplicación.
+2. **El inquilino se fija por transacción**, no por conexión: `set_config('app.tenant_id', …, true)`
+   y la política comparando contra eso. Si falta, **no hay fila que coincida: falla cerrado.**
+3. **El pool de runtime corre con un rol restringido**, nunca con el de migraciones ni el admin, y
+   **nunca con `BYPASSRLS`**.
+4. **Lo que se salta RLS por diseño**: funciones `SECURITY DEFINER`, `TRUNCATE`, las
+   `REFERENCES` de claves ajenas y `pg_dump` (que fuerza `row_security = off`, por lo que el rol
+   de backup necesita `BYPASSRLS` — y ahí vuelve el riesgo por la puerta de atrás).
+5. **RLS corrige la corrección, no el rendimiento**: en un índice ANN compartido, los *embeddings*
+   de los inquilinos pequeños quedan dispersos entre los nodos del inquilino dominante, y la
+   latencia y el *recall* varían por inquilino. La respuesta es **particionar por `tenant_id`** con
+   índices por partición, o índices parciales.
+
+> **La frase para la semana 1 de una venta, y es de Gravitee, no nuestra:** *«control planes
+> frequently leak data through analytics rather than core CRUD paths»*. Las trazas, las métricas y
+> los logs del agente **también** son datos del inquilino. Un pase anterior metió OpenTelemetry en
+> esta KB como observabilidad; este pase dice que **el pipeline de telemetría es superficie de
+> tenencia** y se aísla o se filtra por ahí.

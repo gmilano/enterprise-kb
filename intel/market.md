@@ -889,6 +889,38 @@ como propiedad del pipeline de TTS (no del guion), consentimiento de grabación 
 **diarización sin persistir el embedding** para no crear una plantilla biométrica que no se pidió.
 Las tres son decisiones de la semana 1 y ninguna es configurable después.
 
+**Vigesimosegundo pase (2026-11-24) — el límite de la tenencia.** Norteamérica es donde este pase
+encontró **el incidente** y donde vive **la ambigüedad de responsabilidad** que lo convierte en
+dinero.
+
+- **El fallo entre inquilinos de 2026 ya ocurrió, y no fue en la red.** Se reporta que **155
+  respuestas** del modelo GLM-5.3 en **Cloudflare Workers AI** contenían información de *otros*
+  clientes entre el **2026-08-27 y el 2026-09-09**, con investigación independiente atribuida a
+  **Knostic**, y con el detalle que importa: **los controles de acceso no lo impidieron**, porque
+  el cruce ocurrió por debajo de ellos (capa de servicio del modelo / caché compartida). *Fuente
+  secundaria de prensa: `www.eweek.com` no resuelve en esta sesión y la página no se pudo leer.*
+  Un episodio atribuido a la API de Claude el **2026-06-05** aparece en una sola fuente que dice
+  **expresamente que no está confirmado**: se registra como **no confirmado**.
+- **La capa permisiva de esta tenencia es, en su mayoría, de gobernanza norteamericana o de
+  fundación**: Kafka y Pulsar en la **ASF**, NATS en la **CNCF** (leído del README del propio
+  servidor). Para un cliente estadounidense eso elimina la objeción de procedencia antes de que
+  se formule.
+- **El vacío regulatorio es, en la práctica, un vacío contractual.** No hay regla federal: los
+  **estados** son los arquitectos principales y no están alineados; el **America's AI Action
+  Plan** (julio de 2025) es de orientación pro-innovación. Una encuesta de **Dentons** señala que
+  los huecos persisten justo en **uso de datos de terceros, asignación de responsabilidad y
+  propiedad intelectual** — que son, palabra por palabra, **las tres preguntas que hay que
+  responder cuando el inquilino A ve datos del B**. *Cifras de fuente secundaria.*
+- **Tamaño del comprador:** Norteamérica es el mayor mercado regional (**38,5%** de cuota,
+  fuente secundaria), y el perfil que paga esta arquitectura es el **ISV/SaaS** — el que vende
+  software a su vez, no el usuario final.
+
+**La oportunidad, dicha como se vende:** en Norteamérica el entregable **no es el agente
+multi-inquilino**: es **la batería de dos inquilinos** (Receta 44, paso final) entregada como
+artefacto de CI, porque convierte una afirmación de aislamiento en **evidencia reproducible** —
+exactamente lo que el equipo legal necesita cuando el contrato tiene que repartir
+responsabilidad y el incidente de Cloudflare ya está en la conversación.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1836,6 +1868,46 @@ trabajo de ingeniería que todavía nadie ha empaquetado.
 en esta sesión (fuera de los dominios de red permitidos), así que el texto del Art. 50 no se leyó de
 primera mano y no se cita como tal.*
 
+**Vigesimosegundo pase (2026-11-24) — el límite de la tenencia.** EMEA es la región donde este
+pase encontró **el proyecto** — y donde el cambio de licencia de ese proyecto es, en sí mismo,
+una noticia de soberanía.
+
+- **El motor vectorial que acaba de partir su licencia es de origen EMEA, y está verificado por
+  licencia, no por suposición:** el `LICENSE` de **Weaviate** dice *«Copyright **Weaviate BV**
+  2026-present»* — forma societaria neerlandesa. El **26-ago-2026** (fecha leída de
+  `wl/LICENSE-WEAVIATE`) separó, **dentro del mismo repositorio**, BSD-3-Clause fuera de `wl/` de
+  *all rights reserved* + clave de licencia dentro. **Medido:** el límite entre inquilinos sigue
+  en la parte BSD; lo que pasó a ser de pago es **operar** muchos inquilinos. Para un comprador
+  europeo que eligió Weaviate *por* ser europeo, la pregunta de 2027 no es la soberanía del dato:
+  es **la soberanía de la hoja de ruta**.
+- **La brecha de preparación es la oportunidad, y está cuantificada (fuente secundaria):** se
+  reporta que empresas de EMEA **ya operan agentes** y sólo un **7%** se considera plenamente
+  preparada para gobernarlos (investigación de Veeam), mientras **IDC** sitúa en un **9%** las
+  organizaciones de la región que obtuvieron resultados medibles de la mayoría de sus proyectos
+  de IA en dos años. El diagnóstico de IDC — *«el bloqueo casi nunca es la ambición; es la
+  capacidad de ejecutar»* — describe exactamente un trabajo de plataforma.
+- **La residencia por inquilino es el requisito nativo de la región**, y el mercado ya lo compra
+  así: se cita a **HSBC** desplegando IA empresarial con **Mistral AI** con *«full data
+  ownership»*. Multi-país en EMEA significa **un inquilino por jurisdicción**, no un inquilino
+  por cliente.
+- **Discrepancia registrada, no reconciliada:** las fuentes de prensa de este pase siguen
+  diciendo que las obligaciones de alto riesgo de la **AI Act** aplican desde **agosto de 2026**
+  (con sanciones de hasta **35 M€ / 7%**), mientras **esta misma KB ya registró su diferimiento**
+  por el **Digital Omnibus, Reglamento (UE) 2026/1744** (ver más arriba en esta subsección). Para
+  una propuesta: **la obligación de aislamiento no depende de esa fecha** — la responsabilidad
+  civil por exposición entre clientes aplica igual.
+- **Hueco declarado (consistente con el pase 16):** no se encontró **ningún formato
+  legible por máquina** para declarar residencia o aislamiento por inquilino — ni en la AI Act ni
+  en los proyectos de esta capa. Donde Norteamérica tiene **OSCAL** para controles, EMEA **no
+  tiene equivalente para tenencia**. Es un hueco de producto, medido y no cubierto.
+
+**La oportunidad, dicha como se vende:** en EMEA el **informe de licencias** es parte del
+entregable, no un anexo. Las dos trampas de este pase (**ELv2** en `keycloak-orgs`, **BSL 1.1 +
+Community License** en Redpanda) son exactamente lo que una revisión formal de compras europea
+rechaza **en la semana 8**, cuando ya se construyó encima. Entregar la alternativa permisiva
+verificada desde el día 1 — **Keycloak core + AutoMQ o Pulsar** — es un diferenciador que se
+puede demostrar con un `LICENSE` en la mano.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2703,6 +2775,38 @@ EMEA. Un componente, dos mercados.
 *Todas las citas normativas de esta subsección son **secundarias**: `www.chinalawtranslate.com` no
 resuelve en esta sesión (fuera de los dominios de red permitidos), así que ni el texto de las
 Medidas ni el GB 45438-2025 se leyeron de primera mano.*
+
+**Vigesimosegundo pase (2026-11-24) — el límite de la tenencia.** APAC es la región que **aporta
+la pieza permisiva** de esta capa, y está verificada por licencia.
+
+- **La alternativa permisiva a Redpanda es de origen APAC:** el `NOTICE` de
+  **[AutoMQ/automq](https://github.com/AutoMQ/automq)** dice *«Copyright 2023-2025, **AutoMQ HK
+  Limited**»* y su `LICENSE` es **Apache-2.0 leído byte a byte**, con **cero** menciones a
+  «Business Source» en `LICENSE` ni en `NOTICE` (10,9k ★, API de Kafka con almacenamiento sobre
+  S3). Es un dato con consecuencia directa: **la opción compatible con Kafka que Globant *puede*
+  tomar como base viene de Hong Kong; la que no puede (Redpanda, BSL 1.1) viene de EE. UU.** —
+  el inverso del prejuicio habitual en una revisión de procedencia.
+- **La demanda está financiada:** se reporta que el **96%** de las organizaciones de APAC
+  aumentará su inversión en IA en 2026, con un alza media del **15%** (Lenovo CIO Playbook), y
+  **Forrester** sitúa a **Singapur, Australia, Nueva Zelanda y Corea del Sur** por delante de la
+  mayoría de países de Norteamérica y Europa en adopción empresarial. *Fuentes secundarias;
+  `itbrief.com.au` no resuelve en esta sesión.*
+- **La soberanía es el driver de arquitectura, no el cumplimiento:** se cita que la soberanía
+  condicionará las decisiones de infraestructura de IA de **la mitad** de las empresas de la
+  región (Forrester), y aparece explícitamente el patrón **«RAG soberano»**. En APAC, por tanto,
+  **el inquilino tiende a ser el país**, y la unidad de despliegue el *data center* nacional.
+- **El panorama regulatorio es desigual y hay señales en los dos sentidos:** el programa
+  **«AI Plus»** de China combina objetivos de adopción con gobernanza extensa; **Singapur** ha
+  consultado sobre el uso de IA en instituciones financieras (transparencia, responsabilidad,
+  supervisión del riesgo); y **BSA** advierte de aumento de costes y desincentivo a la inversión
+  en **India** y **Vietnam**. *Todo de fuente secundaria.*
+
+**La oportunidad, dicha como se vende:** en APAC el **plano 4 de la Receta 44 es el entregable
+principal**, no un detalle de infraestructura. Si el inquilino es el país, lo que decide el
+proyecto es **dónde está el bus y cómo se cruza su límite**: la **`Account`** de NATS con
+`exports`/`imports` **declarados** es el modelo más defendible ante un regulador, porque la
+declaración de qué se comparte **es** la evidencia de auditoría. Y el *stack* entero puede ser
+permisivo con una pieza de origen regional.
 
 ### LATAM
 
@@ -3760,6 +3864,48 @@ registro** (Não Me Perturbe) antes de llamar, y el **prefijo `0303`** hace que 
 **identificable como telemarketing antes de que la contesten** — lo que cambia el modelo de
 conversión de cualquier agente de voz saliente en Brasil y debe estar en el caso de negocio desde el
 primer día, no en el post-mortem.
+
+**Vigesimosegundo pase (2026-11-24) — el límite de la tenencia.** LATAM es donde esta
+arquitectura coincide con la **forma real del cliente**, y donde este pase midió un cero.
+
+- **Cero medido, no silencio.** Se ejecutó el instrumento corto en español
+  (*«aislamiento multi-tenant agentes IA SaaS LATAM 2026 residencia de datos open source»*) y
+  **no apareció ningún proyecto open source de origen latinoamericano** en la capa de tenencia ni
+  en la de backbone de eventos. Lo que apareció fueron **blogs de proveedor** (Activepieces,
+  Gravitee), **una guía prescriptiva de AWS** sobre agentes multi-inquilino —  válida como patrón,
+  pero **cerrada y específica de AWS** — y un artículo regional sobre operadores de agentes. **La
+  consecuencia práctica no es negativa:** significa que en esta capa el diferenciador de un
+  proyecto LATAM **no puede ser el componente** (no hay uno regional que exhibir) sino **la
+  arquitectura y la prueba**, que es precisamente lo que Globant vende.
+- **La estructura del cliente ya es multi-inquilino, aunque no lo llame así.** El grupo con
+  operaciones en varios países es el caso por defecto de la región, y ahí el inquilino es **el
+  país**: residencia y trazabilidad exigidas por regímenes de tipo **Habeas Data**, con entornos
+  **híbridos u on-premise** como norma. *Fuente secundaria regional.* Esto hace que la
+  **Receta 45** (convertir «multi-empresa» en multi-inquilino sin forkear el ERP) sea **la
+  conversación LATAM por excelencia**: el ERP del grupo ya tiene varias entidades legales y el
+  cliente cree que eso es multi-tenencia.
+- **La brecha de gobernanza es el riesgo de tenencia, y está cuantificada:** se reporta que
+  alrededor del **40%** de las organizaciones de la región ya está implementando IA y que el
+  **68%** de quienes la adoptaron planea escalar en 12 meses, mientras **menos de una de cada
+  cinco** tiene un marco formal de gobernanza de IA (RSM, 400+ líderes). *Fuente secundaria.*
+  Escalar sin gobernanza, en una arquitectura multi-inquilino, **es exactamente el camino al
+  incidente norteamericano de esta misma sección.**
+- **Marco regulatorio: ver lo ya registrado en esta subsección** (Perú con su reglamento, Uruguay
+  y el convenio del Consejo de Europa, y el volumen de instrumentos regionales anotado en el pase
+  16). Este pase **no** añade fechas nuevas: las fuentes consultadas repiten las mismas sin
+  aportar texto normativo verificable, y el canal para leerlo no estaba disponible.
+- **Discrepancia registrada, no reconciliada:** **CEPAL** sitúa a la región en torno al
+  **15-20%** del mercado global de *aplicaciones* de IA, mientras **Thomson Reuters** cita
+  **1,12%** del *gasto* mundial en IA (2025). **Miden cosas distintas** (uso de aplicaciones
+  frente a gasto) y no son comparables; se dejan las dos. La estimación de valor de
+  **WEF/McKinsey** para la región es de **US$1,1-1,7 billones** anuales.
+
+**La oportunidad, dicha como se vende:** en LATAM el entregable es la frase de la **semana 1** de
+la Receta 45 — **«si el aislamiento real es por instancia, el presupuesto es N credenciales, N
+índices y N presupuestos, con una sola capa de agente»**. Dicha en la semana 1 es una propuesta
+rentable; descubierta en la semana 10 es una renegociación. Y como no hay componente regional que
+poner en la tabla, **la batería de dos inquilinos es el activo diferencial**: se construye una vez
+y se reutiliza en cada engagement de la región.
 
 ## Posicionamiento Globant
 

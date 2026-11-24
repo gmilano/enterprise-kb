@@ -8,7 +8,61 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimoprimer pase (latest) — la capa de voz: 39 direcciones verificadas, 39 nuevas, y la cadena de seis eslabones con seis licencias
+## 2026-11-24 — vigesimosegundo pase (latest) — el backbone de eventos: 22 citas a Debezium y cero a Kafka
+
+> Tema: **la tenencia y el bus que la transporta.** **13 direcciones verificadas el 2026-11-24**
+> (10 repos nuevos para esta KB + 3 ya presentes con una propiedad nueva probada a nivel de
+> fichero). Instrumentos: `git ls-remote` (existencia + rama por defecto),
+> `raw.githubusercontent.com` (**`LICENSE` byte a byte**) y — **nuevo para toda la flota** —
+> `gh api -X GET search/code -f q='…'`, que demuestra que una *feature* vive dentro del repo
+> permisivo y no en un directorio de pago.
+>
+> **El hallazgo de inventario, y es el más simple de todos los pases:** esta KB citaba
+> **Debezium 22 veces** — que es un **plugin de Kafka Connect** — y la palabra **`Kafka`
+> aparecía 0 veces**. Se había adoptado el conector sin nombrar nunca el bus. `pulsar` = 1,
+> `nats-io`/`automq`/`redpanda` = 0.
+>
+> Nuevos, con la primitiva de tenencia probada por búsqueda de código:
+> - **[apache/kafka](https://github.com/apache/kafka)** — Apache-2.0, 34,3k ★ — cuotas por
+>   principal **en el core**: `server/.../quota/ClientQuotaManager.java` + `QuotaFactory.java`.
+> - **[apache/pulsar](https://github.com/apache/pulsar)** — Apache-2.0, 15,4k ★ — **`tenant` es
+>   entidad de primera clase**: `admin/v2/Tenants.java`, `CmdTenants.java`, `client-admin-api`.
+> - **[nats-io/nats-server](https://github.com/nats-io/nats-server)** — Apache-2.0, 21,1k ★,
+>   CNCF — `server/accounts.go` = **5.055 líneas**; la `Account` aísla y `exports`/`imports` son
+>   la única forma de cruzar. **El README no menciona «accounts» ni multi-tenencia:** la
+>   primitiva es invisible desde la portada.
+> - **[AutoMQ/automq](https://github.com/AutoMQ/automq)** — **Apache-2.0 verificado**, 10,9k ★ —
+>   la API de Kafka sin BSL. Origen **APAC** (AutoMQ HK Limited, leído del `NOTICE`).
+> - **[openbao/openbao](https://github.com/openbao/openbao)** — **MPL-2.0**, 9,2k ★ — claves por
+>   inquilino. MPL **no** es permisiva: copyleft débil por fichero.
+> - **[pgvector/pgvector](https://github.com/pgvector/pgvector)** — **licencia PostgreSQL**
+>   (byte a byte: *«Portions Copyright (c) 1996-2026, PostgreSQL Global Development Group»*),
+>   23,8k ★, **sin insignia en GitHub**. Segundo recordatorio de la rotación: **ausencia de
+>   insignia no es ausencia de licencia.**
+>
+> Ya presentes, con propiedad nueva probada:
+> - **qdrant/qdrant** (Apache-2.0, 35,7k ★) — `is_tenant` = **25** coincidencias, incl.
+>   `lib/segment/src/types.rs`: el índice por inquilino está **dentro** del repo permisivo.
+> - **milvus-io/milvus** (Apache-2.0, 46,7k ★) — `partition_key` = **81** coincidencias.
+> - **keycloak/keycloak** (Apache-2.0, 38,0k ★) — **Organizations en el core**:
+>   `server-spi/.../OrganizationModel.java`. La extensión ELv2 de terceros **es innecesaria**.
+> - **BerriAI/litellm** (MIT) — `customer_hierarchy` = **95** coincidencias en `types/proxy/auth`,
+>   `proxy/auth` y `management_helpers`, más un **gateway en Rust**
+>   (`litellm/rust/crates/gateway/src/host/auth/mod.rs`).
+>
+> **Descartado por licencia, con el texto en la mano:** `redpanda-data/redpanda` (BSL 1.1 +
+> Redpanda Community License en `dev`, más un tercer nombre sólo en el README) y
+> `p2-inc/keycloak-orgs` (**Elastic License 2.0** en `COPYING`).
+>
+> **Canal de verificación — lo que no se pudo comprobar:** `api.github.com/repos` está denegado
+> por el alcance de la sesión; el HTML de `github.com` da 403 por `curl` (pero sí responde a
+> `WebFetch`); y **`weaviate.io`, `qdrant.tech`, `docs.nats.io`, `www.eweek.com` e
+> `itbrief.com.au` no resuelven** en esta sesión. Por eso **toda la documentación de proveedor y
+> toda la prensa de este pase quedan listadas-sin-verificar a nivel de página**, mientras **todo
+> lo de repositorio está verificado byte a byte**. La asimetría es deliberada y es el motivo por
+> el que las primitivas se probaron leyendo *código*, no documentación.
+
+## 2026-11-24 — vigesimoprimer pase — la capa de voz: 39 direcciones verificadas, 39 nuevas, y la cadena de seis eslabones con seis licencias
 
 > Tema: **el canal hablado.** **39 direcciones verificadas el 2026-11-24, las 39 nuevas para esta
 > KB** — el porcentaje de novedad más alto de cualquier pase (100%), porque la capa entera faltaba.

@@ -1242,3 +1242,25 @@ propio seguido del aviso corto. Esta regla es **la inversa complementaria** de l
 *permisivas*; aquí la ausencia de veredicto esconde una *restrictiva*). Juntas: **la ausencia de un
 nombre SPDX no es información sobre la permisividad en ninguna dirección — obliga a leer, y hay que
 leer en ambos sentidos.**
+
+> **Vigesimosegundo pase, 2026-11-24 — ninguna fila de agente cambia, y esta vez el motivo es
+> estructural, no una casualidad.** Este pase buscó por **de quién es el dato** (el agente
+> multi-inquilino: el cliente de Globant no es el usuario final, sino un ISV, un banco con
+> filiales o un grupo con operaciones por país) y encontró **una capa entera sin un solo agente
+> dentro**: Kafka, Pulsar, NATS, AutoMQ, las claves de partición de Qdrant/Milvus, las
+> Organizations de Keycloak y la RLS de Postgres. Diez repos verificados, cero agentes.
+> **El aislamiento por inquilino no es una propiedad del agente: es una propiedad de todo lo que
+> hay debajo de él** — y por eso ningún listado de «mejores agentes 2026» lo menciona.
+> Un dato nuevo sí toca este fichero de lado: **LiteLLM** (MIT, ya en Tier 1) tiene una
+> **jerarquía de cliente** explícita (`litellm/proxy/auth/customer_hierarchy_auth.py` y dos
+> módulos más, 95 coincidencias de código) y un **gateway en Rust**, es decir, el presupuesto y la
+> autenticación **por inquilino** ya están construidos en una pieza que esta KB tenía catalogada
+> sólo como *control plane*.
+> Tablas en `repos/foundations.md`; construcción en `compose/patterns.md` **Receta 44**.
+> **Dos trampas de licencia de este pase que afectan a quien elija por marketing:**
+> `p2-inc/keycloak-orgs` (la extensión de multi-tenencia de Keycloak más recomendada) es
+> **Elastic License 2.0** — vino de AGPL-3.0, nunca pasó por permisiva — cuando el core
+> Apache-2.0 de Keycloak **ya trae `OrganizationModel.java`**; y `redpanda-data/redpanda`
+> (12,7k ★, API de Kafka) ship-ea **BSL 1.1 + Redpanda Community License** y su README nombra una
+> **tercera** licencia cuyo texto no está en el repo. El sustituto permisivo verificado es
+> **AutoMQ** (Apache-2.0 leído byte a byte, API de Kafka).

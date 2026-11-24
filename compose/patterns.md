@@ -3445,3 +3445,124 @@ comercial**. Conclusión operativa: **la medición es una línea facturable, con
 **La frase que cierra la venta:** las dos métricas que deciden si el agente sobrevive al primer mes
 —WER en el acento real y tasa de interrupción— **no se pueden citar de ningún ranking**, y por eso
 medirlas es trabajo, es defendible ante un comité técnico y casi nadie lo está cotizando.
+
+## Receta 44 — El agente multi-inquilino: un despliegue, N clientes del cliente, y una prueba de que no se ven entre sí (added twenty-second pass, 2026-11-24)
+
+**Cuándo se vende:** el cliente de Globant es un **ISV, un banco con filiales, una aseguradora
+con corredurías o un grupo retail por país**, y quiere un agente para *sus* clientes sin pagar N
+despliegues. Es la forma más común de la pregunta «¿cuánto cuesta escalar esto?».
+
+**La decisión de arquitectura, en una línea:** el aislamiento se pone en **cuatro planos** y los
+cuatro tienen que fallar cerrado. Si falta uno, el sistema parece correcto hasta el día en que no.
+
+**Plano 1 — Identidad (el inquilino nace aquí, no en el código de la app).**
+[keycloak/keycloak](https://github.com/keycloak/keycloak) (Apache-2.0, 38,0k ★). Dos opciones y
+hay que elegir explícitamente:
+- **Organizations dentro de un realm** (`server-spi/.../OrganizationModel.java`, en el core) —
+  escala a miles de inquilinos, un solo realm que operar.
+- **Realm por inquilino** — para el cliente regulado que exige su **propio IdP** o su propia
+  federación; degrada en operación a partir de cientos de realms.
+**No usar `p2-inc/keycloak-orgs`**: es **Elastic License 2.0** (`COPYING`, leído byte a byte) y
+resuelve lo que el core ya resuelve. Del token sale un `tenant_id`, y **de ningún otro sitio**.
+
+**Plano 2 — Datos (la RLS forzada, que es el plano más barato y el que casi nadie pone).**
+Postgres + [pgvector/pgvector](https://github.com/pgvector/pgvector) (licencia PostgreSQL, 23,8k ★):
+1. `ALTER TABLE … ENABLE ROW LEVEL SECURITY` **y `FORCE ROW LEVEL SECURITY`** — sin `FORCE`, el
+   dueño de la tabla (normalmente el usuario de la app) **se la salta**.
+2. Política contra una variable de **transacción**: `set_config('app.tenant_id', $1, true)`. Si no
+   se fija, ninguna fila coincide → **falla cerrado**, que es la propiedad que se quiere.
+3. El pool de runtime con **rol restringido**, nunca el de migraciones, **nunca `BYPASSRLS`**.
+4. Auditar los cuatro bypass de diseño: funciones `SECURITY DEFINER`, `TRUNCATE`, `REFERENCES` de
+   FK y **`pg_dump`** (fuerza `row_security = off`; el rol de backup necesita `BYPASSRLS` → ese rol
+   es superficie de riesgo y se trata como tal).
+5. **Particionar `embeddings` por `tenant_id`** con índice por partición (o índices parciales):
+   sin esto el *recall* y la latencia del inquilino pequeño quedan a merced del grande, porque sus
+   vectores viven dispersos en el grafo ANN del dominante. **RLS arregla la corrección, no el
+   rendimiento.**
+
+Si el volumen exige un motor vectorial dedicado, la primitiva está **dentro** del repo permisivo
+en los tres casos: **Qdrant** `is_tenant` (`lib/segment/src/types.rs`), **Milvus**
+`partition_key`, **Weaviate** inquilinos/*namespaces* en la parte **BSD-3-Clause** (fuera de
+`wl/`) — con la advertencia presupuestaria de que en Weaviate **operar** muchos inquilinos
+(suspensión de inactivos, rebalanceo, dedupe de backups, auto-recuperación) está **detrás de
+clave de licencia** desde el 26-ago-2026.
+
+**Plano 3 — Consumo (el vecino ruidoso y la factura).**
+[BerriAI/litellm](https://github.com/BerriAI/litellm) (MIT) ya trae **jerarquía de cliente**:
+`litellm/proxy/auth/customer_hierarchy_auth.py`, `types/proxy/auth/customer_hierarchy.py`,
+`management_helpers/customer_hierarchy.py` (95 coincidencias) + un **gateway en Rust**. Presupuesto
+y clave **por inquilino**, de modo que un cliente no pueda agotar la cuota de otro ni aparecer en
+su factura. En el bus, el equivalente es **cuotas por principal de Kafka**
+(`server/.../quota/ClientQuotaManager.java`, en el core Apache-2.0).
+
+**Plano 4 — Eventos (el plano que esta KB no tenía).** Según lo que el cliente ya opere:
+- **[apache/pulsar](https://github.com/apache/pulsar)** (Apache-2.0) si se empieza de cero y la
+  multi-tenencia es el requisito: **el inquilino es entidad de primera clase** (`Tenants.java`),
+  no una convención de nombres.
+- **[nats-io/nats-server](https://github.com/nats-io/nats-server)** (Apache-2.0, CNCF) si se
+  quiere el modelo más estricto: la **`Account`** aísla por defecto y **compartir obliga a
+  declarar** `exports`/`imports`. Para una auditoría, esa declaración explícita **es** la
+  evidencia.
+- **[apache/kafka](https://github.com/apache/kafka)** (Apache-2.0) si ya está desplegado: ACLs +
+  *topics* con prefijo + cuotas. **Decirlo en la propuesta tal cual: Kafka no tiene inquilinos, se
+  construyen encima.** Es trabajo real y el cliente suele creer que viene de fábrica.
+- **[AutoMQ/automq](https://github.com/AutoMQ/automq)** (**Apache-2.0** verificado byte a byte,
+  origen AutoMQ HK Limited) cuando se quiere la API de Kafka con coste de almacenamiento sobre S3.
+  **Sustituye a Redpanda**, que es **BSL 1.1 + Redpanda Community License** y por tanto no es base
+  para Globant.
+- **Debezium** (ya en esta KB desde pases anteriores) es el conector que alimenta todo lo anterior
+  — y ahora, por fin, el bus al que conecta está **nombrado** en esta KB.
+
+**El entregable que cierra la receta, y es el que diferencia la propuesta: la batería de dos
+inquilinos.** En CI, no en un documento:
+1. Provisionar **inquilino A** y **inquilino B** desde cero.
+2. Sembrar en cada uno un **canario único** (una cadena improbable en un documento, un registro y
+   un nombre de campo).
+3. Consultar **como A** — por el canario de B, por *embedding* semánticamente cercano al de B, y
+   con el `tenant_id` **ausente** (debe fallar cerrado, no devolver todo).
+4. Repetir **contra la caché** y **contra la telemetría**: buscar el canario de B en trazas,
+   métricas, *prompts* registrados y logs del gateway. *«Control planes frequently leak data
+   through analytics rather than core CRUD paths»* — este paso es el que encuentra eso.
+5. Fallar el build si cualquier canario cruza. **Esta batería es el artefacto que se le entrega al
+   equipo de seguridad del cliente**, y es lo único de toda la receta que prueba algo.
+
+---
+
+## Receta 45 — Convertir «multi-empresa» en multi-inquilino sin forkear el ERP (added twenty-second pass, 2026-11-24)
+
+**El problema, que aparece en la primera reunión y casi siempre mal nombrado:** el cliente dice
+«nuestro ERP ya es multi-tenant» y lo que tiene es **multi-empresa** — varias entidades legales
+dentro de un mismo inquilino, con plan de cuentas compartido y usuarios que *pueden* configurarse
+para ver otra entidad. Para contabilidad consolidada está bien. **Para servir a clientes que no
+deben verse, no lo es.**
+
+**El guion de la conversación, en dos preguntas que no se pueden responder con un diagrama:**
+1. *¿Existe alguna ruta de configuración por la que un usuario de la empresa A pueda ver datos de
+   la B?* Si la respuesta es «sí, pero no la usamos», es **multi-empresa**.
+2. *¿El aislamiento es por base de datos, por esquema o por fila?* Si es por fila **sin RLS
+   forzada**, el aislamiento vive en el código de la aplicación — y el agente es código nuevo que
+   no pasó por esas comprobaciones.
+
+**El patrón, sin tocar el ERP** (sigue la regla de la Receta 1: *agent-enable, no forkear*):
+
+1. **El ERP no se modifica.** Se le pone delante la capa de identidad del plano 1 de la Receta 44,
+   y el `tenant_id` sale **del token**.
+2. **Un índice por inquilino, no un índice filtrado.** La recuperación se hace sobre partición
+   propia (`partition_key` / `is_tenant` / *namespace*), porque un filtro olvidado en un endpoint
+   nuevo **no se nota**: devuelve resultados plausibles. Es el fallo más caro de encontrar en
+   producción, porque no hay excepción ni log.
+3. **Una credencial del ERP por inquilino**, custodiada en [openbao/openbao](https://github.com/openbao/openbao)
+   (**MPL-2.0** — copyleft débil, por fichero: usable, pero si se modifica OpenBao hay que
+   publicar ese fichero; **conviene decírselo al cliente antes**, no después). El agente **nunca**
+   tiene una credencial que alcance a dos inquilinos.
+4. **Si el aislamiento real es por instancia** (lo normal en Odoo/ERPNext/Dolibarr para clientes
+   mutuamente invisibles), entonces el presupuesto debe decir **N credenciales, N índices, N
+   presupuestos** y **una sola** capa de agente. Esa frase, dicha en la semana 1, es la diferencia
+   entre un proyecto rentable y uno que descubre la multiplicación en la semana 10.
+5. **La batería de dos inquilinos de la Receta 44 es el criterio de aceptación**, no un extra.
+
+**Anti-patrón de este pase, observado en la evidencia:** elegir la extensión de multi-tenencia más
+recomendada del ecosistema (`p2-inc/keycloak-orgs`) sin leer su `COPYING` — es **ELv2**, viene de
+**AGPL-3.0** y duplica algo que el core **Apache-2.0** de Keycloak ya trae
+(`OrganizationModel.java`). **Octavo caso de esta rotación en el que la trampa venía recomendada
+por documentación adyacente al propio proyecto.**

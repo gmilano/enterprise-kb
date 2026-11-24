@@ -2741,3 +2741,93 @@ dispersión es de definición, no de medición, y hay que etiquetar siempre cuá
 Gartner de **US$80.000 millones de ahorro en costes de agentes de contact centre en 2026** circula
 en todas partes y **es de 2022**: es una previsión vieja, no una medición actual.
 
+
+## Vigesimosegundo pase — 2026-11-24 — el límite de la tenencia: 2026 es el año en que el aislamiento entre clientes dejó de ser un problema de infraestructura y pasó a ser un problema de recuperación semántica
+
+### 21. El fallo multi-inquilino de 2026 no ocurre en la red: ocurre en el índice y en la caché
+
+Los tres vectores reportados este año **no son fallos de red ni de IAM**, que es donde la
+arquitectura clásica pone las defensas. Son fallos de **la capa que el agente usa para acordarse
+de las cosas**:
+
+1. **El índice compartido.** Un *vector store* sin aislamiento por inquilino devuelve por
+   **similitud**, y la similitud no sabe de propiedad. La frase que hay que repetir en cada
+   revisión de arquitectura: **la relevancia no es autorización**.
+2. **La caché compartida.** Se reporta una caché KV multi-inquilino compartida en la capa de
+   servicio del modelo como causa de exposición entre clientes — un sitio donde **ningún control
+   de acceso mira**.
+3. **La telemetría compartida.** *«Control planes frequently leak data through analytics rather
+   than core CRUD paths»* (Gravitee). Trazas, métricas y *prompts* registrados son datos del
+   inquilino y casi nunca están particionados.
+
+**Evidencia de la ventana, con su grado de confianza explícito:** se reporta que **155 respuestas**
+del modelo GLM-5.3 en **Cloudflare Workers AI** contenían información de otros clientes entre el
+**2026-08-27 y el 2026-09-09**, con investigación independiente atribuida a Knostic, y el detalle
+de que **los controles de acceso no lo impidieron** porque el cruce ocurrió por debajo de ellos.
+*Fuente secundaria (prensa); `www.eweek.com` no resuelve en esta sesión, así que la página no se
+pudo leer.* Un episodio atribuido a la API de Claude el **2026-06-05** aparece en una sola fuente
+que **dice expresamente que no está confirmado**: se registra **como no confirmado**. Una revisión
+de código de «200+ herramientas self-hosted» que afirma 78 con fuga entre inquilinos es
+**autopublicada y no verificable**: se cita como señal, no como dato.
+
+**Lo que esto cambia en una propuesta:** la prueba de aislamiento deja de ser un diagrama y pasa a
+ser un test. **Dos inquilinos, datos canario únicos en cada uno, y una batería que consulta desde
+A buscando el canario de B** — en el índice, en la caché y **en los logs**. Es barato, es
+automatizable en CI y hoy casi nadie lo pide.
+
+### 22. El aislamiento es permisivo; *operar* el aislamiento es lo que se licencia
+
+El patrón más útil de este pase, y es nuevo porque contradice al del pase 7. Medido en tres
+proyectos:
+
+- **Weaviate** partió su licencia **dentro de un mismo repositorio** el **26-ago-2026**: BSD-3-Clause
+  fuera de `wl/`, *all rights reserved* + clave de licencia dentro. **Pero el límite entre
+  inquilinos está en la parte BSD** (84 ficheros con `tenant` en la ruta, 147 con `namespace`,
+  incluidos los guardas de autorización y un handler **MCP**), y lo de pago son las **29**
+  ficheros de `wl/`: suspender inquilinos inactivos, rebalancear shards, deduplicar backups,
+  auto-recuperación y expiración de credenciales.
+- **Qdrant** (`is_tenant`, 25 coincidencias) y **Milvus** (`partition_key`, 81) tienen la
+  primitiva **dentro** del repo Apache-2.0.
+- **Keycloak** tiene **Organizations en el core** Apache-2.0, mientras la extensión de terceros
+  más recomendada para lo mismo es **ELv2**.
+
+> **La regla, y generaliza a toda la rotación:** en 2026 los proyectos ya no cierran *la
+> capacidad*, cierran **la operación de esa capacidad a escala**. El pase 7 encontró lo contrario
+> en Onyx (la sincronización de permisos vivía sólo en `ee/`), así que **las dos formas existen y
+> la única manera de saber cuál es cuál es leer el árbol de ficheros**. Para un presupuesto:
+> *«el aislamiento no se compra; la operación, o se compra o se construye»* — y construirla es
+> trabajo de plataforma perfectamente facturable.
+
+### 23. «Open source» dejó de ser un dato verificable en el README, y el camino AGPL → fuente-disponible ya no es raro
+
+Tercer pase consecutivo con una trampa de licencia, y ahora hay patrón suficiente para enunciarlo:
+`p2-inc/keycloak-orgs` cambió **AGPL-3.0 → Elastic License 2.0** y describe el resultado como
+*«making its core extensions open source»*; `redpanda-data/redpanda` ship-ea **BSL 1.1 + Redpanda
+Community License** y su README nombra una **tercera** licencia cuyo texto **no está en el repo**;
+y la ausencia de insignia SPDX en GitHub significó cosas opuestas en el mismo pase (**Redpanda**:
+sin insignia porque la licencia no es reconocible → **no permisiva**; **pgvector**: sin insignia
+con **licencia PostgreSQL** → **permisiva**).
+
+> **Regla operativa, ya con tres pases de evidencia:** la licencia es el **fichero**, nunca la
+> insignia, nunca el README, nunca el blog. Y cuando el repo trae **más de un** fichero de
+> licencia, hay que leer **dónde** dice que se aplica cada uno — Weaviate lo resuelve por
+> **ubicación en el árbol**, que es una forma que ningún parser de SPDX detecta.
+
+### Canal de verificación de este pase — lo que se pudo y lo que no
+
+**Verificado byte a byte (13 repositorios):** existencia y rama por defecto con `git ls-remote`;
+texto de licencia leído con `raw.githubusercontent.com`; **y, nuevo, la prueba de que una
+*feature* está en el repo permisivo con `gh api -X GET search/code`** — el instrumento más útil
+incorporado en varios pases, porque distingue «el proyecto dice que lo tiene» de «el código está
+aquí, en esta ruta».
+
+**No verificado, y por eso marcado en cada sitio donde se usa:** `api.github.com/repos` está
+denegado por el alcance de la sesión, y **`weaviate.io`, `qdrant.tech`, `docs.nats.io`,
+`www.eweek.com` e `itbrief.com.au` no resuelven**. En consecuencia **toda la documentación de
+proveedor y toda la prensa de este pase están listadas-sin-verificar a nivel de página**. Dos
+afirmaciones que se dejan explícitamente sin elevar: la de Qdrant de ser *«el primer motor de
+búsqueda vectorial que ofrece aislamiento de inquilino y búsqueda global en la misma colección»*
+(nota de prensa del proveedor, 19-nov-2025) y la aplicabilidad de las obligaciones de alto riesgo
+de la **AI Act en agosto de 2026** — que **esta misma KB ya registró como diferida** por el
+Digital Omnibus, Reglamento (UE) 2026/1744. **Las fuentes de prensa de este pase siguen repitiendo
+la fecha vieja**; se deja anotado como discrepancia, no reconciliado.
