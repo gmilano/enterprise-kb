@@ -469,3 +469,53 @@ Do borrow the ladder when a client asks what "trusted MCP server" should mean co
 3. **None of these prove authorship.** They operate inventories and graphs. Publisher identity for MCP
    servers comes from the registry's namespace verification (DNS/OIDC) and artefact identity comes from
    `cosign` — see `repos/foundations.md` and `compose/patterns.md` Receta 18.
+
+---
+
+## The platform the containment layer plugs into — the client's existing Kubernetes, not a new product (added tenth pass, 2026-11-24)
+
+Every other section of this file names a *system of record* an agent can be put on top of — an ERP,
+a CRM, an ITSM, a BPM engine, a collaboration suite. This section names the platform the agent
+itself **runs on**, because the tenth pass established that containment is not a product you install
+beside those systems: it is a set of controls you attach to a cluster the client already operates.
+
+**The commercial consequence is unusually favourable.** There is nothing to license, nothing to
+procure and no new vendor to onboard — which also means there is no product budget to raise. The
+engagement is funded as platform engineering, and the artefacts are CRDs, policies and rulesets in
+the client's own GitOps repository.
+
+### What the client already has, and what has to be true for this to be a short engagement
+
+| Prerequisite | Why it decides the estimate | How to check before quoting |
+|---|---|---|
+| A Kubernetes estate the client controls nodes on | Isolation runtimes are installed per node and surfaced as a `RuntimeClass`. On a fully managed platform where node configuration is closed, `gVisor` may be the only option available — it needs **no hardware virtualisation** — and Kata/Firecracker may be off the table | Ask which `RuntimeClass` values exist today; if the answer is none, add a node-pool work package |
+| A CNI that can express egress policy | Default-deny egress is the control that makes every other one load-bearing. Cilium supplies an **egress gateway** and therefore a fixed, allowlistable exit IP; a CNI without egress-gateway support changes the design | `kubectl get pods -n kube-system` and ask which CNI; confirm whether `CiliumEgressGatewayPolicy` or an equivalent exists |
+| An admission controller already in the cluster | Kyverno or Gatekeeper is what makes "no agent pod without a `RuntimeClass` and a default-deny policy" mechanically unskippable rather than a runbook step | If one is present, this work package is policy authoring only — days, not weeks |
+| Gateway API v1.5.0 CRDs | `kubernetes-sigs/agent-sandbox` requires the full Gateway API v1.5.0 CRD bundle for gateway-based client connections | `kubectl get crd \| grep gateway.networking.k8s.io` and check the bundle version |
+
+### The one platform question worth asking before anything else
+
+**Is there a supported downstream build?** Red Hat is reported (developers.redhat.com, July 2026) to
+publish a **downstream build of the upstream `kubernetes-sigs/agent-sandbox` project**. **This is
+secondary-sourced — the host could not be fetched in this session — and it should be verified for
+any OpenShift engagement, because it changes the conversation completely.** A supported downstream
+build means the client's platform vendor carries the support burden for the sandbox layer, and the
+engagement becomes configuration against a supported product rather than integration of an upstream
+subproject. On AKS, `Azure/kars` documents **Kata with AMD SEV-SNP** as an option, which is the
+confidential-computing answer where the client's requirement is that the *operator* cannot read the
+sandbox's memory.
+
+### Where this sits relative to everything else in this file
+
+The agent reaches the systems in the sections above **through** this layer, which means the order of
+work is fixed and worth stating to a client who wants to start with the visible thing:
+
+1. **Containment** (this section) — the cluster the agent runs in, with its four controls.
+2. **Entitlement** (the enterprise-search carve-out section) — who the agent is acting for.
+3. **The write channel** (the integration-platform section) — how its action reaches the ERP, CRM or
+   ITSM named in this file.
+4. **The surface** (the collaboration-platform and generative-UI sections) — where the employee
+   meets it.
+
+Steps 2, 3 and 4 are all demonstrable without step 1, and that is exactly why pilots stall at the
+security review. **Containment is the step with no demo and the shortest critical path.**

@@ -1082,3 +1082,154 @@ MIT**. Record the licence per repository and per date, never per organisation.
   the need exists. `cosign` on the server's container image is the available substitute and is what
   Receta 18 uses.
 - **LATAM-origin repositories in this layer: zero, measured.** See `intel/market.md`.
+
+---
+
+## The containment boundary — what the agent may *reach*, and what *stops* it (added tenth pass, 2026-11-24)
+
+> **This layer was measurably empty before this pass.** `cilium`, `istio`, `linkerd`, `kyverno`,
+> `gatekeeper`, `falco`, `tetragon`, `gVisor`, `Firecracker`, `Kata`, `eBPF`, `mTLS`,
+> `NetworkPolicy`, `service mesh`, `Agent Sandbox` and `Prempti` all scored **zero hits across all
+> nine files**. `egress` scored eight hits, every one of them prose — the word was used as an
+> *adjective describing this session's own proxy* ("egress-restricted estate"), never as a control
+> anyone builds. The KB could say an estate was egress-restricted; it could not say with what.
+>
+> **Verified 2026-11-24** by four channels: existence and real default branch via
+> `git ls-remote --symref`; licence **byte-read** from each `LICENSE` over
+> `raw.githubusercontent.com`; stars, SPDX, `archived` and last-push via
+> `gh api -X GET search/repositories -f q=repo:<owner>/<name>`; and README claims read from
+> `raw.githubusercontent.com` rather than from the repo page. `api.github.com/repos/<o>/<r>` is
+> **403** in this session for every repository not attached to it, and `github.com` HTML is **403**
+> to `curl` while readable to the fetch tool — so the four channels are not redundancy, they are
+> the only complete path.
+
+### Why this is a separate layer and not a restatement of the sandbox entries already held
+
+This KB already held **agent sandbox products** — `e2b-dev/e2b`, `daytonaio/daytona`,
+`opensandbox-group/opensandbox`, `nvidia/openshell`. What it did not hold is the **isolation
+primitive underneath them** or the **network control beside them**. That distinction is the whole
+finding of this pass, and it is stated most plainly by the people who build the primitives:
+
+| Source | Statement | What it rules out |
+|---|---|---|
+| [falcosecurity/prempti](https://github.com/falcosecurity/prempti) README | It is *"not a sandbox, OS-level security, or a substitute for least-privilege environments"*, and it covers *"the commands the agent requests, not the side effects those commands produce at runtime"* | Hook-level interception alone |
+| Vercel's gVisor-vs-microVM comparison | Neither gVisor nor a microVM *"automatically denies outbound network access or enforces business permissions"* | Kernel isolation alone |
+| Cloud Security Alliance review (Oct 2026) of a July 2026 incident | *No sandbox was technically broken*; an agent **wrote a file that a trusted, unsandboxed component later executed** | Both of the above, together |
+
+**Containment is therefore four controls, not one:** intercept the request, isolate the kernel,
+restrict the egress, detect at runtime. **No single project below provides all four.** One repo
+attempts all four and it has 46 stars (`Azure/kars`, last row of the third table). That asymmetry —
+a complete architecture at 46 stars, incomplete ones at 25,000 — is this pass's commercial finding
+and is written up as trend 23 in `intel/trends.md`.
+
+### Sandbox orchestration and the isolation primitives underneath it
+
+| Repo | Licence | ★ | Last push | What it is, and the property that matters |
+|---|---|---|---|---|
+| [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) | Apache-2.0 | 4,703 | 2026-11-23 | **Kubernetes SIG Apps subproject — the emerging standard.** Its README states the scope exactly: *"Agent Sandbox is a sandbox orchestrator. It delegates low-level container isolation to secure 'Sandbox Runtimes' (like gVisor or Kata Containers) by managing Pods configured to use these runtimes (via `RuntimeClass`)."* CRDs `Sandbox`/`SandboxTemplate`/`SandboxClaim`/`SandboxWarmPool` on `agents.x-k8s.io/v1beta1`. **Past 1.0** — its README pins `v1.0.2` as the recommended production/GitOps version. Needs the Gateway API v1.5.0 CRD bundle for gateway-based client connections |
+| [google/gvisor](https://github.com/google/gvisor) | Apache-2.0 (byte-read; LICENSE is 14,111 B — Apache plus appendices) | ~20.1k (page figure; see caveat) | — | **"Application Kernel for Containers."** A userspace kernel that intercepts syscalls; needs **no hardware virtualisation on the host**, which is what makes it the default choice on nodes you do not control. Trade-off is syscall-compatibility coverage |
+| [firecracker-microvm/firecracker](https://github.com/firecracker-microvm/firecracker) | Apache-2.0 | 38,192 | 2026-11-23 | **"Secure and fast microVMs."** Each sandbox gets its **own guest kernel** — the stronger boundary, and the right answer when the agent's toolchain changes under you |
+| [kata-containers/kata-containers](https://github.com/kata-containers/kata-containers) | Apache-2.0 | 9,208 | 2026-11-24 | Lightweight VMs that behave like containers; the other `RuntimeClass` target Agent Sandbox names. Pairs with confidential-computing hardware where the client requires it (`Azure/kars` uses Kata with AMD SEV-SNP as an option) |
+| [dagger/container-use](https://github.com/dagger/container-use) | Apache-2.0 | 4,105 | 2026-11-14 | An MCP server **and** CLI (`cu`) that gives each coding agent a fresh container **on its own git branch**, logs its commands, and lets a human `git checkout` the agent's work to review it. Carries an **Experimental** badge and says it is *"in early development"* |
+
+> **gvisor caveat, stated rather than hidden:** `gh api search/repositories -f q=repo:google/gvisor`
+> returns **HTTP 422** (*"the listed users and repositories cannot be searched"*) in this session,
+> so its star count is the **repo-page figure (~20.1k), not an API figure**, and its last-push date
+> could not be established on this channel. Licence and existence **are** byte-read and confirmed.
+> Treat the star count as approximate; treat the licence as solid.
+
+### Network containment — the control the isolation primitives explicitly do not provide
+
+| Repo | Licence | ★ | Last push | What it is, and the property that matters |
+|---|---|---|---|---|
+| [cilium/cilium](https://github.com/cilium/cilium) | **Split: Apache-2.0 user space; BPF templates dual GPL-2.0-only / BSD-2-Clause "at your option"** — see the licence note below | 25,896 | 2026-11-24 | **CNCF Graduated.** eBPF networking, security and observability. For this layer the feature that matters is the **egress gateway**: outbound traffic is steered through a designated gateway node, which is what produces a **fixed, allowlistable exit IP** for an agent workload. Identity-based policy, so rules survive pod IP churn |
+| [cilium/tetragon](https://github.com/cilium/tetragon) | Apache-2.0 | 5,206 | 2026-11-24 | *"eBPF-based Security Observability and **Runtime Enforcement**"* — the enforcement half is the point: it can act on a security-significant event, not only record it. Same split-licence shape as Cilium (BSD-2-Clause/GPL badges on the BPF code) |
+| [istio/istio](https://github.com/istio/istio) | Apache-2.0 | 38,533 | 2026-11-24 | Service mesh; supplies **workload-identity-based mTLS** between agent and tool. **Ambient mode** (`ztunnel`, Rust) gives this **without a sidecar per pod**, which is what makes it affordable on a warm pool of short-lived sandboxes |
+| [linkerd/linkerd2](https://github.com/linkerd/linkerd2) | Apache-2.0 | 11,544 | 2026-11-24 | *"Ultralight, security-first service mesh."* The smaller-footprint alternative where Istio's surface is more than the engagement needs |
+| [envoyproxy/gateway](https://github.com/envoyproxy/gateway) | Apache-2.0 | 3,162 | 2026-11-24 | Manages Envoy as a Gateway-API application gateway — the generic enforcement point the KB's AI-gateway row already assumed but never named |
+| [mitmproxy/mitmproxy](https://github.com/mitmproxy/mitmproxy) | MIT | 47,161 | 2026-11-23 | *"Interactive TLS-capable intercepting HTTP proxy."* Not a production control — the **lab instrument**. It is how you answer "what does this agent actually send, and to where" **before** you write the allowlist that the other five rows enforce |
+
+> **Licence note — a ninth licence class, and the first one that is split by *component* rather than
+> by time, version or revenue.** Cilium's GitHub badge says `Apache-2.0` and the badge is correct;
+> it is also incomplete. The repository's own `README.rst` says, byte-read on 2026-11-24:
+> *"The Cilium user space components are licensed under the Apache License, Version 2.0. The BPF code
+> templates are dual-licensed under the General Public License, Version 2.0 (only) and the 2-Clause
+> BSD License (you can use the terms of either license, at your option)."* `bpf/COPYING` returns 200;
+> top-level `LICENSE.BSD-2-Clause` returns 404, because the files live under `bpf/`.
+> **This resolves in Globant's favour** — the *"at your option"* clause means the BSD-2-Clause branch
+> may be taken, so nothing GPL need enter a client deliverable. But the resolution has to be
+> *performed and documented*, because the artefact you ship is not licensed by the badge on the page
+> that describes the repository. Record the elected option in the client's SBOM.
+
+### Runtime detection, admission control, and the one component that sits inside the agent's loop
+
+| Repo | Licence | ★ | Last push | What it is, and the property that matters |
+|---|---|---|---|---|
+| [falcosecurity/falco](https://github.com/falcosecurity/falco) | Apache-2.0 | 9,609 | 2026-11-23 | **CNCF Graduated.** *"Cloud Native Runtime Security"* — the syscall-level detection engine, and the base the next row extends |
+| [falcosecurity/prempti](https://github.com/falcosecurity/prempti) | Apache-2.0 | **234** | **2026-09-21** | **The only verified repo in this pass that runs *inside* the agent's decision loop.** Falco-powered policy and visibility for AI **coding agents**: it registers on the agent's **hook API**, so a hook fires *before* each tool call, passes the event over a Unix socket to an embedded broker in a Falco plugin, and returns **allow / deny / ask**. Default mode is `guardrails` (verdicts enforced); `monitor` mode only logs. Supports **Claude Code** (Linux/macOS/Windows) and **Codex** (experimental, Linux only). **Two caveats to quote, both from its own README: "Experimental Preview", and last push 2026-09-21 — roughly two months idle at the date of this pass.** Treat as a pattern to implement, not a dependency to ship |
+| [kyverno/kyverno](https://github.com/kyverno/kyverno) | Apache-2.0 | 8,375 | 2026-11-24 | *"Unified Policy as Code."* The admission gate: it is where "no sandbox pod may run without a `RuntimeClass` and a default-deny egress policy" becomes **mechanically unskippable** rather than a runbook step. **CNCF Incubating** — see the correction below |
+| [open-policy-agent/gatekeeper](https://github.com/open-policy-agent/gatekeeper) | Apache-2.0 | 4,302 | 2026-11-21 | The OPA-family admission controller. This KB has held `open-policy-agent/opa` since early passes **as a policy engine** and never once named the component that applies it at admission — so OPA is now, like `complyctl`, one component doing two jobs |
+| [aquasecurity/tracee](https://github.com/aquasecurity/tracee) | Apache-2.0 | 4,683 | 2026-11-01 | *"Linux Runtime Security and Forensics using eBPF."* The forensics angle is the one that matters after an incident, when the question is what the agent did, not what policy said it could do |
+
+> **Correction, resolved against the primary source.** A 2026 comparison blog states that Kyverno
+> **graduated** within CNCF in March 2026; another lists it as **Incubating**. Kyverno's **own README**
+> says *"Cloud Native Computing Foundation (CNCF) Incubating project"*. **The repository wins.**
+> Falco's and Cilium's READMEs both carry *graduated* badges, so the distinction is real and not an
+> artefact of inconsistent self-description. This matters commercially only because CNCF maturity is
+> quoted in procurement documents — quote it from the README, not from a roundup.
+
+### Reference architectures — repos that compose the four controls instead of supplying one
+
+| Repo | Licence | ★ | Last push | What it is, and the property that matters |
+|---|---|---|---|---|
+| [microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit) | MIT | 6,600 | 2026-11-23 | *"Policy enforcement, zero-trust identity, execution sandboxing, and reliability engineering for autonomous AI agents."* Ships a policy engine, a trust/identity layer, a **privilege-ring execution runtime**, SRE primitives (kill switches, SLOs), an MCP security gateway, shadow-AI discovery and an "Agent Mesh". Publishes to PyPI, npm, NuGet **and** crates.io. Claims full **OWASP Agentic Top 10** coverage — a claim worth testing rather than repeating |
+| [agentgateway/agentgateway](https://github.com/agentgateway/agentgateway) | Apache-2.0 | 6,394 | 2026-11-24 | *"Next Generation Agentic Proxy for AI Agents and MCP servers"* — LLM gateway, MCP gateway, A2A gateway, inference routing, guardrails, auth/RBAC in one proxy. **A Linux Foundation project**, per its own page: this is the fifth independent confirmation of trend 5 (protocol surfaces moving from vendor control to foundation governance) and the first in the *enforcement* plane rather than the spec plane |
+| [Azure/kars](https://github.com/Azure/kars) | MIT | **46** | 2026-11-24 | **"Agent Reference Stack for Kubernetes" — the most complete verified architecture for this layer, and the smallest.** It is the only repo found that implements all four controls: **hardened per-agent sandboxes** (agent UID 1000, router UID 1001, NetworkPolicy, seccomp; Kata + AMD SEV-SNP optional on AKS), **governed egress** (L7 allowlist/blocklist in an inference router, plus an `egress-guard` **iptables init container as a safety net**), **tool governance** (a `ToolPolicy` CRD for per-tool gates and an MCP gateway with per-tool allowlists) and **audit** (every router decision written to a **SHA-256 hash-chained** log). Composes components this KB already holds: **OpenClaw** and **Hermes** are 2 of its 8 supported agent runtimes, alongside OpenAI Agents SDK, Microsoft Agent Framework, LangGraph, Claude Agent SDK and Pydantic-AI; signing is **sigstore/cosign**. **Read the two disqualifiers in the same breath: its README says "Not an officially supported Microsoft product", an "open-source reference implementation" with no SLA, and its CRDs are at `v1alpha1`.** It says it *aims to align* with `kubernetes-sigs/agent-sandbox` and `agentgateway` and that **no formal integration exists yet** |
+
+### Where this layer sits relative to what the KB already held
+
+The containment layer does not replace anything in this file; it closes a circuit between four
+sections that were previously unconnected.
+
+- The **AI gateway** section (`litellm`, `bifrost`, `portkey`, `kong`, `helicone`) was already the
+  place where an agent's model traffic is inspected. It was never stated that a gateway is only an
+  enforcement point **if the sandbox cannot route around it**. Cilium's egress gateway, or kars's
+  `egress-guard` iptables container, is what makes the AI gateway non-optional.
+- The **entitlement boundary** (pass 7: OpenFGA, SpiceDB, Casbin, Keto) decides what a *user* may
+  see. Containment decides what the *process* may reach. A correct OpenFGA model and an open egress
+  path is still an exfiltration route, because the agent need not read a document it is forbidden
+  to read if it can post the one it is allowed to read to an arbitrary host.
+- The **write boundary** (pass 8: Camel, Dapr, Conductor) carries the agent's action into the system
+  of record. Admission control (Kyverno/Gatekeeper) is what stops a workload reaching that channel
+  without the controls attached.
+- The **provenance boundary** (pass 9: cosign, in-toto, syft, OSCAL) proves what the agent is made
+  of. Containment is the layer that makes provenance load-bearing: a signed image with unrestricted
+  egress is a verified component doing unverifiable things.
+
+### Gaps measured this pass — stated, not left silent
+
+- **No agent-specific egress-inspection project located.** Every egress control found is a
+  *generic* network control (Cilium, iptables, mesh) or a *generic* intercepting proxy (mitmproxy).
+  The agent-aware inspection happens one layer up, in the AI/MCP gateway, which means **destination
+  control and payload control are enforced by two different components with two different policy
+  languages**. Nothing located unifies them. This is the clearest build-vs-buy gap in the layer.
+- **`litsandbox` (Lightning AI) could not be verified.** Named by an InfoQ piece as an Agent Sandbox
+  alternative; `git ls-remote` found **no repository** at `Lightning-AI/litsandbox` or
+  `lightning-ai/litsandbox`. **Recorded as an unverified lead, deliberately not written as a finding.**
+- **Red Hat is reported to publish a downstream build of `kubernetes-sigs/agent-sandbox`**
+  (developers.redhat.com, July 2026). **Secondary-sourced** — the article was surfaced by search but
+  the host could not be fetched in this session. Worth confirming for any OpenShift engagement,
+  because a supported downstream build changes the support conversation entirely.
+- **Agent Sandbox's network defaults are secondary-sourced and could not be confirmed.** A SIG Apps
+  announcement is reported to say that from v0.4.3 sandboxes **default to strict network isolation,
+  blocking internal cluster IPs and node metadata endpoints unless explicitly managed in the
+  `SandboxTemplate`**. If true this is the single most important default in the layer — the node
+  metadata endpoint is how a sandboxed process reaches cloud credentials. **It is not in the README
+  that was byte-read**, and the two hosts that would settle it — `kubernetes.io` and
+  `agent-sandbox.sigs.k8s.io` — **do not resolve in this session's network policy**. Verify against
+  the `SandboxTemplate` CRD before quoting it to a client.
+- **CNCF status of Agent Sandbox: not yet a CNCF project.** Google's announcement describes
+  *"building Agent Sandbox as a CNCF project"* — future tense. It is a Kubernetes SIG Apps
+  subproject today. Do not call it CNCF in a deliverable.
+- **LATAM-origin repositories in this layer: zero, measured** with a Spanish-language instrument.
+  See `intel/market.md`.

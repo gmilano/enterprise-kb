@@ -8,7 +8,114 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — ninth pass (latest) — the provenance boundary
+## 2026-11-24 — tenth pass (latest) — the containment boundary
+
+> Theme: pass 7 asked what the agent may **read**, pass 8 what it may **change**, pass 9 whether its
+> components **are what they claim to be**. This pass asks the question all three leave open —
+> **what can the agent reach, and what physically stops it?** The layer scored a true zero:
+> `cilium`, `istio`, `linkerd`, `kyverno`, `gatekeeper`, `falco`, `tetragon`, `gVisor`,
+> `Firecracker`, `Kata`, `eBPF`, `mTLS`, `NetworkPolicy`, `service mesh`, `Agent Sandbox` and
+> `Prempti` → **0 hits across all nine files**. `egress` → 8 hits, **all prose, none a tool**.
+> Full tables in `repos/foundations.md`; the build is Receta 20.
+
+### The headline is an asymmetry: the most complete architecture in this layer has 46 stars
+
+| Repo | ★ | Controls implemented | Status |
+|---|---|---|---|
+| [Azure/kars](https://github.com/Azure/kars) (MIT) | **46** | **All four** — sandbox, governed egress, tool policy, hash-chained audit | `v1alpha1`, *"Not an officially supported Microsoft product"* |
+| [cilium/cilium](https://github.com/cilium/cilium) | 25,896 | One (egress/network) | CNCF **Graduated** |
+| [firecracker-microvm/firecracker](https://github.com/firecracker-microvm/firecracker) | 38,192 | One (kernel isolation) | Production, AWS-operated |
+| [falcosecurity/prempti](https://github.com/falcosecurity/prempti) | 234 | One (request interception) | **Experimental Preview**, idle since 2026-09-21 |
+
+This is **trend 11 running in reverse**. That trend said star count has decoupled from enterprise
+suitability, and every prior instance was *popular but unsuitable*. `Azure/kars` is the first
+instance of the opposite: **architecturally complete and commercially unusable as a dependency**.
+The correct use of a 46-star reference implementation is to **read it and reproduce its shape** on
+components that are graduated — which is exactly what Receta 20 does.
+
+### Three independent sources say the same thing, and none of them is marketing
+
+Each of these is a project or body explaining the limits of *its own* control:
+
+- [falcosecurity/prempti](https://github.com/falcosecurity/prempti)'s README: it is *"not a sandbox,
+  OS-level security, or a substitute for least-privilege environments"*, and it governs *"the
+  commands the agent requests, not the side effects those commands produce at runtime."*
+- Vercel's gVisor-vs-microVM comparison: neither *"automatically denies outbound network access or
+  enforces business permissions."*
+- Cloud Security Alliance, Oct 2026, reviewing a July 2026 incident: **no sandbox was technically
+  broken** — an agent **wrote a file that a trusted, unsandboxed component later executed.**
+
+**That third one is the write-then-execute confused deputy, and it is the same shape as pass 7's
+permission-sync finding and pass 8's write-boundary finding.** Three passes, three layers, one
+failure mode: the boundary held and the thing *across* the boundary did the work. State it to a
+client that way, because it is the argument for buying the whole sequence rather than one control.
+
+### New this pass — the standard arrived while nobody in this KB was looking
+
+[kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) (Apache-2.0,
+4,703 ★, pushed 2026-11-23) is a **Kubernetes SIG Apps subproject** that is already **past 1.0** —
+its README pins `v1.0.2` for production/GitOps. It is a *sandbox orchestrator*: it delegates
+isolation to gVisor or Kata via `RuntimeClass` and adds `Sandbox`, `SandboxTemplate`,
+`SandboxClaim` and `SandboxWarmPool` on `agents.x-k8s.io/v1beta1`. The warm-pool claim is the part
+with commercial consequence — it is what makes per-task sandboxes affordable instead of theoretical.
+
+**It is not a CNCF project yet.** Google's announcement says *"building Agent Sandbox as a CNCF
+project"*, future tense. Do not write "CNCF" next to it in a deliverable.
+
+### Trap — a 0-star personal fork that the search channel cannot warn you about
+
+A web search for the project returned [grosser/agent-sandbox](https://github.com/grosser/agent-sandbox)
+**in the same result list** as the real one. It is a fork: 0 stars, 0 forks, 0 watchers, an
+Apache-2.0 badge, and a README whose **first line is byte-identical to upstream's**.
+
+**Two things make this worse than the owner/owner collisions already recorded** (`complytime/complytime`
+vs `complytime/complyctl`):
+
+1. **README text cannot identify the canonical repo.** A fork inherits the description, the badge and
+   the prose. The *only* reliable signal on the page is the **"forked from"** line.
+2. **`gh api search/repositories` cannot see it at all** — forks are excluded from the search index,
+   so the API channel this KB trusts most returns **nothing** for `repo:grosser/agent-sandbox` and
+   therefore raises no flag. The channel that *surfaced* the risk (web search) is the channel that
+   cannot verify, and the channel that verifies is blind to the risk.
+
+**Method rule 14:** for any repo that arrived via web search, check the **"forked from"** line before
+the licence. Existence, licence and even a plausible star count can all be inherited from a parent.
+
+### Licence finding — a ninth class, and the first that is split by component
+
+[cilium/cilium](https://github.com/cilium/cilium)'s badge says `Apache-2.0` and is **correct but
+incomplete**. Its own `README.rst`, byte-read: *"The Cilium user space components are licensed under
+the Apache License, Version 2.0. The BPF code templates are dual-licensed under the General Public
+License, Version 2.0 (only) and the 2-Clause BSD License (you can use the terms of either license,
+at your option)."* `bpf/COPYING` → 200; top-level `LICENSE.BSD-2-Clause` → 404.
+
+**This one resolves in Globant's favour** — take the BSD-2-Clause option and no GPL enters the
+deliverable — but the election must be **performed and recorded in the SBOM**, because the licence of
+the artefact you ship is not the licence on the page describing the repository. Same shape in
+`cilium/tetragon`.
+
+### Correction resolved against a primary source — CNCF maturity
+
+A 2026 comparison blog says Kyverno **graduated** in March 2026; another lists it **Incubating**.
+[kyverno/kyverno](https://github.com/kyverno/kyverno)'s own README says *"CNCF Incubating project"*.
+**The repository wins.** Falco and Cilium both carry *graduated* badges in their own READMEs, so the
+difference is real self-description, not inconsistency. Quote maturity from the README — procurement
+documents cite it.
+
+### Verification channel for this pass — what worked and what is 403
+
+| Channel | Result |
+|---|---|
+| `git ls-remote --symref` | **Works** — existence + real default branch |
+| `raw.githubusercontent.com/<r>/<br>/LICENSE` | **Works** — the byte-read licence, and the only way the Cilium split was found |
+| `gh api -X GET search/repositories -f q=repo:<o>/<n>` | **Works** — exact stars, SPDX, `archived`, last push. **Blind to forks.** Returned **HTTP 422** for `google/gvisor` specifically |
+| `api.github.com/repos/<o>/<n>` | **403** for every repo not attached to this session, authenticated or not |
+| `github.com` HTML via `curl` | **403**; the same URL via the fetch tool **works** |
+| `kubernetes.io`, `agent-sandbox.sigs.k8s.io` | **Do not resolve** — outside this session's network policy. Cost one unverifiable finding, recorded as such |
+
+---
+
+## 2026-11-24 — ninth pass — the provenance boundary
 
 > Theme: the seventh pass asked what the agent may **read**, the eighth what it may **change**
 > and what **proves** it. This one asks the question both of those assume an answer to —

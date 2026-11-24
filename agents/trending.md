@@ -8,7 +8,81 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — ninth pass (latest) — the agent's own security tool changed hands
+## 2026-11-24 — tenth pass (latest) — a guardrail that runs inside the agent's own hook loop
+
+> Theme: **containment** — what the agent may *reach*, and what stops it. For the **fifth
+> consecutive pass no agent row changed**, and for the fifth consecutive pass the news is one layer
+> below the agent. What belongs *here* is the one component found this pass that is not beside the
+> agent but **inside it**: it runs on the agent's own hook API and answers every tool call before it
+> executes. Full tables in `repos/foundations.md`; the build is Receta 20.
+
+### `falcosecurity/prempti` — Falco moved into the agent's tool-call lifecycle
+
+| Property | Value (verified 2026-11-24) |
+|---|---|
+| Repo | [falcosecurity/prempti](https://github.com/falcosecurity/prempti) |
+| Licence | Apache-2.0 (byte-read from `LICENSE`) |
+| Stars | **234** |
+| Last push | **2026-09-21** — roughly two months idle |
+| Status | **"Experimental Preview"**, stated in its own README |
+| Owner | `falcosecurity` — the **CNCF-graduated** Falco project's own organisation, not a vendor fork |
+
+**How it works, and why the mechanism is the interesting part:** a hook fires **before** each tool
+call; the interceptor passes the event over a **Unix socket** to a broker embedded in a **Falco
+plugin**; Falco's rule engine evaluates it and returns **allow / deny / ask**; the interceptor
+delivers that verdict back to the agent. Default mode is `guardrails` (verdicts enforced);
+`monitor` mode observes and logs only. Supported agents: **Claude Code** (Linux/macOS/Windows) and
+**Codex** (experimental, Linux only).
+
+**This is the first component in this KB that enforces policy at the agent's decision point rather
+than at a network, API or admission boundary.** Everything else the KB holds sits *outside* the
+agent and sees a request that has already been formed. Prempti sees the intent.
+
+### The sentence from its README that should be in the deliverable, not buried
+
+> *"not a sandbox, OS-level security, or a substitute for least-privilege environments"* — and it
+> governs *"the commands the agent requests, **not the side effects those commands produce at
+> runtime**."*
+
+A project disclosing the exact shape of its own blind spot is rare enough to be worth quoting
+directly to a client. It also **completes an argument this KB has been assembling for three
+passes**: hook interception sees the request but not the effect; kernel isolation stops host escape
+but not network egress (Vercel, on gVisor and microVMs); and the July 2026 incident class reviewed
+by the Cloud Security Alliance in October bypassed both — **no sandbox was broken, an agent wrote a
+file that a trusted unsandboxed component later executed.**
+
+**Four controls, not one: intercept the request, isolate the kernel, restrict the egress, detect at
+runtime.** No single project provides all four. Sell the set.
+
+### How to position it despite "Experimental Preview" and two months idle
+
+Do **not** put a 234-star experimental preview on a client's critical path. Do use it as the
+**pattern**, because the pattern is portable and the pattern is the billable insight:
+
+- The agent's **hook API is a policy enforcement point** — on Claude Code it exists, is documented,
+  and fires before tool execution. That is true whether or not Prempti is the thing attached to it.
+- The **rules can be Falco rules**, which means the detection content a client already owns for
+  their Kubernetes estate becomes reusable against agent tool calls. Sysdig's commercial Falco Feeds
+  are reported to ship agent-specific rules mapped to **MITRE ATLAS** (MCP tool poisoning, prompt-
+  injection exfiltration, coding-agent credential theft) — **a paid layer on the open engine; priced
+  separately, and that should be said out loud in an estimate.**
+- `monitor` mode first, `guardrails` second. The same two-phase rollout the KB already recommends
+  for Tetragon enforcement and for OPA: **observe, build the allowlist from what you observed, then
+  enforce.** Enforcing a policy you have not first measured takes down legitimate work.
+
+### Also new, and it names agents this KB already holds
+
+[Azure/kars](https://github.com/Azure/kars) (MIT, 46 ★) is a Microsoft **reference implementation**
+for running agents safely on Kubernetes, and its supported-runtime list is a useful external check
+on this KB's Tier 0/Tier 1: **OpenClaw** and **Hermes** (Nous Research) are 2 of its 8, beside
+OpenAI Agents SDK, Microsoft Agent Framework, LangGraph, Claude Agent SDK and Pydantic-AI. **Every
+one of those eight is already in `agents/top.md`** — the first time an external architecture has
+independently reproduced this KB's agent inventory rather than adding to it. Its disqualifiers
+(`v1alpha1`, *"Not an officially supported Microsoft product"*) are in `repos/foundations.md`.
+
+---
+
+## 2026-11-24 — ninth pass — the agent's own security tool changed hands
 
 > Theme: **provenance** — not what the agent may read or change, but **what the agent is made of
 > and who signs for it.** For the fourth consecutive pass **no agent row changed**, and for the

@@ -447,3 +447,49 @@ registry and pin the version in every deliverable: `uvx snyk-agent-scan@<version
 
 **The credit belongs to the project**: a security tool that documents its own residual
 vulnerability is behaving better than one that does not. Quote the mitigation *and* the gap.
+
+---
+
+## The containment layer — no agents in it, and one component *inside* the agent (added tenth pass, 2026-11-24)
+
+**For the fifth consecutive pass, no agent row above changed, and that remains the finding.** This
+pass searched by the question a client's platform team asks after the security team is satisfied —
+*what can this thing reach, and what stops it?* — and the sixteen repositories it verified are
+**fifteen infrastructure components and one agent-resident guardrail.** Tables are in
+`repos/foundations.md`; the build is Receta 20; the trend is 23.
+
+### The one row that belongs in this file
+
+| Agent-resident component | Licence | ★ | Last push | What it does at the agent's decision point |
+|---|---|---|---|---|
+| [falcosecurity/prempti](https://github.com/falcosecurity/prempti) | Apache-2.0 | 234 | 2026-09-21 | Registers on the agent's **hook API**; a hook fires **before** each tool call, the event crosses a Unix socket to a broker embedded in a **Falco plugin**, and the rule engine returns **allow / deny / ask** to the agent. `guardrails` mode enforces, `monitor` mode logs. **Claude Code** (Linux/macOS/Windows), **Codex** (experimental, Linux only). **"Experimental Preview" per its own README, and ~2 months idle — a pattern to implement, not a dependency to ship** |
+
+Everything else this KB holds enforces policy on a request the agent has **already formed** — at a
+gateway, an admission controller, an authz engine or a network boundary. This is the first verified
+component that sees the **intent**, and it is the reason the layer earns a row here at all.
+
+### Why the other fifteen are not agents, stated so nobody looks for them here
+
+The containment layer is kernels, proxies, policy engines and CRDs: `kubernetes-sigs/agent-sandbox`
+(the SIG Apps **orchestrator**, Apache-2.0, 4,703 ★, past `v1.0.2`), `google/gvisor`,
+`firecracker-microvm/firecracker`, `kata-containers/kata-containers`, `dagger/container-use`,
+`cilium/cilium`, `cilium/tetragon`, `istio/istio`, `linkerd/linkerd2`, `envoyproxy/gateway`,
+`mitmproxy/mitmproxy`, `falcosecurity/falco`, `kyverno/kyverno`,
+`open-policy-agent/gatekeeper`, `aquasecurity/tracee` — plus three reference architectures
+(`microsoft/agent-governance-toolkit`, `agentgateway/agentgateway`, `Azure/kars`).
+
+### External confirmation of this file's inventory — the first of its kind
+
+[Azure/kars](https://github.com/Azure/kars) (MIT, 46 ★) lists **eight supported agent runtimes**:
+**OpenClaw**, **Hermes** (Nous Research), OpenAI Agents SDK, Microsoft Agent Framework, LangGraph,
+Claude Agent SDK and Pydantic-AI. **All eight are already in the tiers above.** Nine passes have
+added to this inventory; this is the first time an independent architecture has *reproduced* it and
+added nothing. Read that as a maturity signal for Tier 0/Tier 1 — and as a reason to spend the next
+pass's effort anywhere but here.
+
+### What to tell an engagement lead
+
+The agent choice above is settled enough that an outside team reaches the same shortlist. **The
+unsettled, billable, client-specific decision is which four containment controls wrap it** — and
+the one repo that implements all four has 46 stars and `v1alpha1` CRDs. Quote the architecture, not
+the repository.

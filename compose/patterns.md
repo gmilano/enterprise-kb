@@ -1496,3 +1496,198 @@ rather than a counsel of perfection.
 - **Turning on a scanner without VEX.** A 4,000-finding SBOM report with no way to mark
   present-but-not-exploitable gets switched off within a month. Budget `vexctl` as part of the
   rollout, not as a later improvement. (Ninth pass.)
+
+---
+
+## Receta 20 — The containment boundary: an agent that cannot reach what it was not allowed to reach, and a log that proves it
+
+**The engagement this closes.** The client has a working agent pilot (Receta 2, 4 or 12) that has
+passed functional review and is stuck at the platform/security gate. The question that stopped it is
+not *can it answer* or *may this user see this document* — those are Recetas 2 and 16. It is
+**"what can this process reach, and what stops it?"** This recipe is the four controls that answer
+it, built on components that are CNCF-graduated rather than on the one repository that already
+composes them.
+
+### The failure mode, stated plainly so it can be sold
+
+Three sources, each describing the limit of its own control:
+
+- A **hook-level guardrail** governs *"the commands the agent requests, not the side effects those
+  commands produce at runtime"* — [falcosecurity/prempti](https://github.com/falcosecurity/prempti)'s
+  own README, which also states it is *"not a sandbox, OS-level security, or a substitute for
+  least-privilege environments."*
+- **Kernel isolation** — gVisor, a microVM — does not *"automatically deny outbound network access
+  or enforce business permissions"* (Vercel's comparison).
+- The **July 2026 incident class** reviewed by the Cloud Security Alliance in October 2026: **no
+  sandbox was technically broken.** An agent **wrote a file that a trusted, unsandboxed component
+  later executed.**
+
+**So the design question is not "is it sandboxed?" but "what reads what the agent writes, and is
+that reader inside the boundary?"** A sandbox whose output directory is consumed by an unsandboxed
+CI runner, indexer or deploy hook has its boundary in the wrong place. Ask for the list of consumers
+of the agent's output in the first workshop; it is usually the finding that justifies the project.
+
+### The architecture to copy, and the repository not to depend on
+
+[Azure/kars](https://github.com/Azure/kars) (MIT, 46 ★) is the only verified repo implementing all
+four controls: hardened per-agent sandboxes, **governed egress** (L7 allow/blocklist plus an
+`egress-guard` **iptables init container** as a safety net), **tool governance** (a `ToolPolicy` CRD
+and an MCP gateway with per-tool allowlists) and **audit** (every router decision in a **SHA-256
+hash-chained** log). It also names **OpenClaw** and **Hermes** among its eight supported runtimes,
+so it already speaks this KB's agent inventory.
+
+**Read it; do not ship it.** Its README says *"Not an officially supported Microsoft product"*, an
+*"open-source reference implementation"* with no SLA, and its CRDs are at **`v1alpha1`**. It states
+it *aims to align* with `kubernetes-sigs/agent-sandbox` and `agentgateway` and that **no formal
+integration exists yet**. The four shapes below are its shapes, rebuilt on graduated components.
+
+### Wiring
+
+```
+                      ┌──────────────── Kyverno / Gatekeeper (admission) ────────────────┐
+                      │  no agent pod admitted without: RuntimeClass + default-deny      │
+                      │  egress policy + required labels + signed image (cosign)         │
+                      └──────────────────────────────┬──────────────────────────────────┘
+                                                     │ (3) ADMIT
+   ┌─────────────────────────────────────────────────▼─────────────────────────────────────┐
+   │  kubernetes-sigs/agent-sandbox   Sandbox / SandboxTemplate / SandboxClaim             │
+   │                                  SandboxWarmPool   (agents.x-k8s.io/v1beta1, v1.0.2)  │
+   │  ┌──────────────────────────────────────────────────────────────────────────────────┐ │
+   │  │ RuntimeClass → google/gvisor  (no hardware virt needed)                          │ │
+   │  │              or kata-containers / firecracker  (own guest kernel)                │ │
+   │  │                                                                                  │ │
+   │  │   agent runtime (OpenClaw / LangGraph / Claude Agent SDK / MAF / ADK …)          │ │
+   │  │        │                                                                         │ │
+   │  │        │ (1) hook fires BEFORE each tool call                                    │ │
+   │  │        ▼                                                                         │ │
+   │  │   prempti interceptor ──unix socket──► Falco plugin ──► allow / deny / ask       │ │
+   │  └────────┬─────────────────────────────────────────────────────────────────────────┘ │
+   │           │ all egress                                                                │
+   └───────────┼───────────────────────────────────────────────────────────────────────────┘
+               │ (2) cilium default-deny + CiliumEgressGatewayPolicy  → fixed exit IP
+               │     + egress-guard iptables init container (belt and braces)
+               ▼
+   ┌──────────────────────────────────────────────────────────────────────────────────────┐
+   │  agentgateway / litellm / bifrost  — the ONLY reachable destination                   │
+   │  LLM + MCP + A2A gateway: per-tool allowlist, guardrails, auth/RBAC, cost attribution │
+   └───────────────────────────┬──────────────────────────────────────────────────────────┘
+                               │ model APIs, MCP servers, tools (each explicitly allowlisted)
+                               ▼
+   ┌──────────────────────────────────────────────────────────────────────────────────────┐
+   │  (4) falco + tetragon (syscall/eBPF detection & enforcement) · tracee (forensics)     │
+   │      → hash-chained decision log → OSCAL evidence via complyctl  (NA engagements)     │
+   └──────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**The load-bearing idea:** the AI gateway has been in this KB since early passes as the place where
+agent traffic is inspected. **It is only an enforcement point if the sandbox cannot route around
+it.** Control (2) is what converts the gateway from a convention into a boundary. Without it, the
+gateway is a well-instrumented suggestion.
+
+### Build order — and the order is the deliverable
+
+1. **Measure before you restrict (days 1–5).** Run the existing pilot agent with
+   [mitmproxy/mitmproxy](https://github.com/mitmproxy/mitmproxy) (MIT) in front of it and
+   `falco`/`tetragon` in **observe-only** mode. Produce two lists: **every destination it actually
+   reached** and **every tool call it actually made**. Enforcing a policy you have not measured
+   takes down legitimate work — this is the same two-phase rule the KB already applies to OPA and
+   Tetragon, and it is non-negotiable here because an agent's destination set is emergent.
+2. **Isolate (days 5–10).** Install a `RuntimeClass`. Use **gVisor** unless the client controls
+   nodes and needs a separate guest kernel, then **Kata** or **Firecracker**. Wrap the agent in a
+   `Sandbox` from [kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox),
+   pinned to **`v1.0.2`** as its README recommends for GitOps. Add a `SandboxWarmPool` **in this
+   step, not later** — it is what makes per-task isolation affordable, and retrofitting it changes
+   the `SandboxClaim` flow.
+3. **Contain the network (days 10–18).** Default-deny egress. Allow exactly the destinations from
+   step 1, and route them through a **Cilium egress gateway** so the estate has a **fixed exit IP**
+   that upstream systems can allowlist in turn. Add the **`egress-guard` iptables init container**
+   pattern from `Azure/kars` as a second layer — belt and braces is appropriate here because a CNI
+   policy misapplied is an open path, silently. **Verify the two destinations that matter most are
+   blocked: the cloud node metadata endpoint and internal cluster IPs.** Do not assume a default
+   does this (see the unverified note in `repos/foundations.md`); prove it with a probe from inside
+   the sandbox and keep the probe as a regression test.
+4. **Intercept the intent (days 18–24).** Attach a hook-level guardrail on the agent's hook API,
+   in `monitor` mode, with rules built from step 1's tool-call list; then switch to `guardrails`.
+   Implement the **pattern** from [falcosecurity/prempti](https://github.com/falcosecurity/prempti)
+   rather than shipping it — it is an **"Experimental Preview"** at 234 ★ and was last pushed
+   **2026-09-21**. The reusable asset is that **Falco rules** work here, so the client's existing
+   Kubernetes detection content applies to agent tool calls.
+5. **Admit nothing uncontrolled (days 24–30).** Kyverno (or Gatekeeper, if the client already runs
+   OPA — and they probably do; it has been in this KB for passes as a policy engine) enforcing:
+   no agent pod without a `RuntimeClass`, without a default-deny egress policy, without required
+   labels, and — composing pass 9 — without a **cosign**-verified image. This step is what stops the
+   whole build decaying the first time someone is in a hurry.
+6. **Prove it (days 30–35).** Emit a **hash-chained log of every policy decision**, and for North
+   American engagements map each control to SP 800-53 and emit **OSCAL** via `complyctl` from
+   pass 8. For EMEA, map the same controls to the Cloud and AI Development Act's four assurance
+   levels (`intel/market.md`). For Brazil, the hash-chained log **is** the deliverable — it is
+   defensible against regulation still in drafting.
+
+### Licence posture
+
+| Component | Licence | Note for the client's SBOM |
+|---|---|---|
+| `kubernetes-sigs/agent-sandbox` | Apache-2.0 (byte-read) | Kubernetes SIG Apps subproject. **Not CNCF** — do not write CNCF next to it |
+| `google/gvisor` | Apache-2.0 (byte-read) | Star count is a page figure only; the search API returns 422 for this repo |
+| `firecracker-microvm/firecracker`, `kata-containers/kata-containers` | Apache-2.0 | — |
+| `cilium/cilium`, `cilium/tetragon` | **Apache-2.0 user space; BPF templates dual GPL-2.0-only / BSD-2-Clause "at your option"** | **Elect BSD-2-Clause and record the election.** The badge says Apache-2.0 and is correct but incomplete; the artefact you ship is not licensed by the repository page |
+| `kyverno/kyverno` | Apache-2.0 | **CNCF Incubating** per its own README, not graduated — a 2026 blog says otherwise and is wrong |
+| `falcosecurity/falco`, `open-policy-agent/gatekeeper`, `aquasecurity/tracee`, `agentgateway/agentgateway`, `envoyproxy/gateway` | Apache-2.0 | Falco and Cilium are CNCF **Graduated**; agentgateway is a **Linux Foundation** project |
+| `falcosecurity/prempti` | Apache-2.0 | **Experimental Preview**, 234 ★, idle since 2026-09-21 — pattern, not dependency |
+| `mitmproxy/mitmproxy` | MIT | Lab instrument for step 1; **remove it from the estate before go-live** |
+| `Azure/kars`, `microsoft/agent-governance-toolkit` | MIT | kars is `v1alpha1` and explicitly **not a supported product** — architecture reference only |
+
+**Nothing in this recipe is copyleft in the shipped artefact, and nothing is source-available.** The
+one place that needed resolving (Cilium's BPF templates) resolves permissively *by election*.
+
+### Sizing and the milestone to fix
+
+**Six to seven weeks** for a single agent workload on an existing cluster with a capable CNI; **ten
+to twelve** if a node pool has to be added for a `RuntimeClass`, or the CNI cannot express egress
+policy and has to be changed — **and a CNI migration is its own project, so quote it separately or
+not at all.**
+
+**Fix the milestone at the end of step 3, not at the end of the build.** The deliverable that proves
+the engagement is a **two-page before/after**: the destination list the agent reached when
+unrestricted (step 1), the destination list it can reach now, and a **failed probe to the node
+metadata endpoint**. That artefact passes a security review on its own and is worth more to the
+client than the remaining three steps combined — which is exactly why it should be billed before
+them.
+
+### What to tell the client the limits are
+
+- **This stops exfiltration to places you did not allow. It does not stop exfiltration to places
+  you did.** If the agent may reach the model API, the model API is an egress path, and the control
+  for *that* is payload inspection at the gateway (`presidio` from pass 4), not network policy.
+  **Destination control and payload control are two components with two policy languages, and
+  nothing found unifies them** — that is a stated gap, not an oversight.
+- **Hook-level interception sees requests, not effects.** It cannot see what a command does once it
+  runs; that is what `falco`/`tetragon` are for, and even they see syscalls rather than intent.
+- **The write-then-execute path is the one that actually bit people in July 2026.** Enumerate the
+  consumers of the agent's output and bring them inside the boundary, or accept the risk explicitly
+  in writing. No control in this recipe addresses a trusted reader outside the boundary.
+- **`SandboxWarmPool` reduces cold start; it does not make isolation free.** gVisor's Sentry and
+  Kata's guest kernel both add measurable memory and CPU overhead per sandbox. Size the node pool
+  with real numbers from step 2, and for APAC engagements quote **cost per sandboxed task** rather
+  than controls implemented — only 28% of APAC enterprises report AI is value-positive today.
+- **Falco and Tetragon are detection engineering, not installs.** One practitioner estimate puts a
+  realistic rollout at **two to three FTE of detection engineering**, and Falco's overhead scales
+  with syscall volume. If the client will not staff rule maintenance, deliver step 4 in `monitor`
+  mode and say so, rather than handing over an enforcement posture nobody will tune.
+
+### Anti-patterns — each observed in this pass's evidence
+
+- **Quoting `Azure/kars` as the solution.** It is MIT, complete and 46 stars with `v1alpha1` CRDs and
+  no support. Copy the architecture; name graduated components in the proposal.
+- **Writing "CNCF" next to Agent Sandbox.** Google's own announcement is future tense: *"building
+  Agent Sandbox as a CNCF project."* It is a SIG Apps subproject.
+- **Writing "graduated" next to Kyverno** because a 2026 roundup said so. Its README says Incubating.
+- **Taking a repo from a web search without reading the "forked from" line.**
+  `grosser/agent-sandbox` has 0 stars, an Apache-2.0 badge and a README whose first line is
+  byte-identical to upstream's — and the search API cannot warn you, because it excludes forks.
+- **Enforcing before measuring.** A default-deny egress policy written from an architecture diagram
+  rather than from observed traffic will break the pilot and burn the mandate.
+- **Treating the AI gateway as a boundary without egress control.** It is a boundary only when the
+  sandbox cannot route around it.
+- **Assuming a secure default.** The claim that sandboxes block node metadata and internal cluster
+  IPs by default is **secondary-sourced and unverified in this session**. Probe it; keep the probe.

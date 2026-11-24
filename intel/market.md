@@ -329,6 +329,43 @@ architects of US AI regulation and few organisations running an integrated, audi
 system, the sellable unit is **one evidence pipeline that satisfies several regimes** rather than a
 per-state compliance project.
 
+
+#### Tenth pass, 2026-11-24 — the containment boundary: this region builds it, and is the only one that can audit it
+
+**The layer is overwhelmingly North American in origin, and that is a procurement fact, not a
+compliment.** The stewards of every control verified this pass: **Google** (`gvisor`, and the
+initiator of `kubernetes-sigs/agent-sandbox`), **AWS** (`firecracker`), **Microsoft**
+(`Azure/kars`, `microsoft/agent-governance-toolkit`), **Sysdig** (`falco`, `prempti`), the
+**Cilium** project under CNCF, **Nirmata** (`kyverno`), the **Linux Foundation**
+(`agentgateway/agentgateway`). *Corporate headquarters were not verified this pass — `aquasecurity/tracee`
+in particular has a non-US corporate parent and is counted here only by repository stewardship.*
+
+**The commercial consequence is sequencing, and it only works in this region today.** Pass 8 put
+machine-readable control evidence in this KB (OSCAL, `complyctl`, `compliance-trestle`), and noted
+that OSCAL is a North American artefact with no EMEA equivalent. This pass closes the circuit:
+
+- NIST's **AI Agent Standards Initiative** (CAISI, started February 2026) is reported to be
+  developing **SP 800-53 control overlays for agentic systems**, with an **AI Agent
+  Interoperability Profile** planned for **Q4 2026**; NCCoE published a **concept paper on software
+  and AI agent identity and authorization** in February 2026.
+- OSCAL encodes SP 800-53. **An agentic overlay on SP 800-53 is therefore the mechanism that turns
+  the four containment controls into machine-readable, auditable evidence** — `Sandbox` CRD,
+  NetworkPolicy, Kyverno admission policy and Falco ruleset each mapped to a named control and
+  emitted as OSCAL by `complyctl`.
+- **North America is the only region where that chain exists end to end.** The controls are
+  portable everywhere; the *evidence format that a regulator or auditor already accepts* is not.
+
+**Sell:** a four-to-six-week "containment control set + OSCAL overlay mapping" engagement, pitched
+at the FedRAMP-adjacent and financial-services buyers that already consume OSCAL. The deliverable is
+not the sandbox — it is the **control-to-evidence mapping** that makes the sandbox defensible in an
+audit, which is work the client cannot buy as a product.
+
+**Caveats to carry.** The NIST items above are **secondary-sourced** (CSA research notes and a
+certification-body summary surfaced by search; `nist.gov` was not fetched in this session) and are
+**forward-looking** — one source states plainly that **no enforceable, agent-specific security
+controls exist today** and that first substantive deliverables are not expected before late 2026.
+Quote the direction, never a date, and never an obligation.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -660,6 +697,57 @@ in North America has **no EMEA statutory counterpart.** CycloneDX plus CRA's SBO
 nearest available substrate — propose it as the Annex IV carrier, and be explicit that this is
 Globant's construction, not a regulator's instruction.
 
+
+#### Tenth pass, 2026-11-24 — the containment boundary: sovereignty is an *operational* property, and the licence is what delivers it
+
+**New regulatory instrument, not previously in this KB.** The European Commission proposed a
+**Cloud and AI Development Act on 3 June 2026**, giving cloud sovereignty a **four-level assurance
+framework — localisation, independence, EU control, no interference**. It is a **proposal**, with
+adoption targeted **around 2027**. Treat it as a direction of travel that is already shaping
+procurement language, not as law.
+
+**The four levels map almost one-to-one onto what this pass's controls technically enforce** — and
+that mapping is a deliverable in itself:
+
+| Assurance level | The containment control that evidences it |
+|---|---|
+| **Localisation** | Node placement + `SandboxTemplate` scheduling constraints; where the sandbox actually runs |
+| **Independence** | Self-hosted control plane: Kyverno/Gatekeeper admission, Falco rules and the mesh CA are all operated by the client, not called out to |
+| **EU control** | Workload identity and mTLS issued by a CA the client holds (Istio ambient / SPIFFE), not by a vendor tenant |
+| **No interference** | **Default-deny egress** (Cilium egress gateway or an `egress-guard` iptables container) — the control that demonstrably prevents an outbound path to a non-EU endpoint |
+
+**This is the answer to the region's hardest buying objection, and it is a licence argument.**
+Deloitte's 2026 survey is reported to find **83%** of organisations describe sovereign AI as at
+least moderately important and **77% factor a solution's country of origin into vendor selection**.
+Every control verified this pass is **Apache-2.0 or MIT and self-hostable**. You cannot change where
+Cilium or gVisor was written — but under those licences you can change **who operates them, on whose
+hardware, under whose CA, with egress to whose endpoints.** **For this layer, sovereignty is an
+operational property, not an origin property, and the permissive licence is precisely what converts
+one into the other.** That sentence sells an integration engagement to a buyer whose stated filter
+would otherwise disqualify the entire stack.
+
+The corollary is the honest limit: **this argument works for the control plane, not for the model.**
+A sovereign containment layer around a non-EU model API is a real and defensible posture — it is
+also exactly the hybrid shape the region's own guidance describes (non-sensitive scale on global
+clouds, "crown jewel" logic on sovereign infrastructure). Say which half you are making sovereign.
+
+**Exposure, and the date that is contested.** Administrative fines reach **€35M or 7% of worldwide
+annual turnover** for the gravest breaches. On the AI Act's high-risk obligations, sources
+**disagree**: one says they take **full effect 2 August 2026**, another that obligations **may slip
+to 2027**. This KB already recorded the deadline moving; this pass adds a second instance of the
+ambiguity **and does not resolve it**. In any EMEA deliverable, state the date as contested and
+defer to the client's counsel.
+
+**Still true, and still a gap worth naming:** there is no EMEA equivalent of OSCAL. Annex IV has no
+machine-readable format. So in this region the containment controls are demonstrable but the
+evidence is a document, not a data structure — which is more consulting work, not less, and should
+be priced that way.
+
+*Sourcing note: the Deloitte percentages, the sovereign-cloud market figure and the named sovereign
+GPU providers were all relayed through vendor and consultancy blogs surfaced by search. The
+legislative instrument and its four levels were reported consistently across several such sources
+but no primary EU text was fetched in this session. Verify before quoting a number to a client.*
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -974,6 +1062,53 @@ AI Preparedness Index shows a wide gap between advanced and developing APAC econ
 reports **security concerns as the region's top adoption barrier.** Security-as-the-barrier is the
 *reason* a provenance engagement sells here — it answers the stated objection directly rather than
 arguing past it.
+
+
+#### Tenth pass, 2026-11-24 — the containment boundary: the only framework that names delegation chains, and a 28% that dictates how to sell
+
+**Singapore remains the region's agent-specific regulator, and it is the one jurisdiction whose
+framework matches this KB's layer model.** IMDA's **Model AI Governance Framework for Agentic AI**
+(published January 2026, reported **updated to v1.5 in May 2026** adding multi-agent systems,
+third-party risk and automation bias) addresses **delegation chains** — which is pass 7's
+entitlement boundary — alongside multi-agent coordination. **No other framework found names
+delegation as a governed object.** It is **best-practice guidance, not law**; separately, MAS
+guidance on AI in finance is reported to require effectively the same controls a binding law would,
+which is why Singapore financial-services buyers behave like regulated buyers regardless.
+
+**Japan stays on the soft-law track:** AI Promotion Act (in force 2025), **AI Basic Plan**
+(December 2025), **AI Guidelines for Business v1.2** (March 2026), with companies expected to build
+internal AI governance voluntarily. One source (Bloomberg) reports **voluntary adoption of aligned
+standards from April 2026 (FY2026) with mandatory reporting phased in from 2027** — **single-sourced,
+flagged as such**, consistent with this KB's existing practice of marking Japanese policy claims
+that rest on one relay.
+
+**India is principles-based and non-statutory**, with financial regulators signalling expectations
+on explainability, governance and human oversight of AI-driven decisions rather than legislating.
+Gartner is reported to forecast India IT spending above **$176B in 2026** — the region's volume
+argument.
+
+**The number that should change how this layer is pitched in APAC: 28%.** A Cloudera survey is
+reported to find **58% of APAC enterprises increased AI investment but only 28% say AI currently
+generates more value than it costs**, while **73%** cite governance and compliance as a scaling
+constraint. Read those together and the usual containment pitch is wrong here: a buyer who is not
+yet value-positive will not fund a security layer presented as additional cost.
+
+**Pitch containment as the thing that makes isolation affordable, not as the thing that makes it
+safe.** The lever is concrete and verified: `SandboxWarmPool` in
+[kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) provides
+**pre-warmed sandboxes with low-latency claims**, and **gVisor needs no hardware virtualisation**,
+so per-task isolation stops requiring a bare-metal or nested-virt node estate. Per-task isolation
+was always the correct posture and was always priced out by cold start; these two features are what
+change the arithmetic. Tie the proposal to the KB's existing FinOps trend (12) and quote cost per
+sandboxed task, not controls implemented.
+
+This is consistent with, and sharpens, the guidance already recorded for this region — workflow
+maturity around 30% means **sell the data plane first**. Containment is the second sale, and in APAC
+it is a **cost** conversation that happens to produce a **control**.
+
+*Sourcing note: all survey percentages and the Japanese timeline above are relayed through
+consultancy, vendor or press summaries surfaced by search; no primary IMDA, METI, MAS or Gartner
+document was fetched in this session.*
 
 ### LATAM
 
@@ -1364,6 +1499,66 @@ OSCAL or of the CRA. Searched 2026-11-24 in Spanish and Portuguese. **Recommende
 next pass:** query the national agencies directly (`gov.br/anpd`, CERT.br, Chile's CSIRT, Mexico's
 agencies) rather than the open web, because this pass's evidence suggests the open-web layer here is
 commentary rather than regulation.
+
+
+#### Tenth pass, 2026-11-24 — the containment boundary: a second measured zero, and why it is an argument rather than an absence
+
+**Measured, with the instrument stated.** A Spanish-language query aimed directly at this pass's
+layer — *"aislamiento de agentes IA contenedores egress Kubernetes código abierto LATAM Brasil
+2026"* — returned **zero LATAM-origin projects, zero LATAM case studies and zero Spanish- or
+Portuguese-language primary documents.** Every result was English and global: Microsoft's
+`Azure/kars`, Google's and Kubernetes' own announcements, a Red Hat downstream build, an InfoQ
+round-up. **This is the second consecutive pass in which the short Spanish instrument returns a
+measured zero for the layer under study** (pass 8 measured the same for agent repositories).
+
+**A measured zero and a silence are different data, and this one is an argument Globant can use.**
+The containment layer is **import-and-integrate in every region, including North America** — nobody
+buys this as a product anywhere, because no product composes the four controls. So the absence of
+LATAM-origin tooling costs a LATAM engagement **nothing**: the billable work is integration against
+the client's own Kubernetes estate, network topology and audit requirements, and integration is
+irreducibly regional. **For this one layer, LATAM starts level with EMEA and only modestly behind
+North America** — the gap is the evidence format (OSCAL), not the controls.
+
+**Regulatory picture, with the disagreement recorded rather than resolved.**
+
+- **Brazil** is the region's most advanced file and the sources conflict. **PL 2338/2023** was
+  approved by the **Senate in December 2024**; one analysis says it **remains pending a vote in the
+  Chamber of Deputies**, a second describes it as **in final approval**, and a third describes the
+  law as **already in an implementation phase with ANPD as the enforcement authority**. **Detailed
+  regulation is expected in Q4 2026.** These cannot all be true; **do not pick one in a client
+  document.** State that the instrument is PL 2338/2023, that ANPD is the named authority in the
+  sources that go furthest, and that detailed rules are expected imminently.
+- **Mexico** has **no specific AI law** — two accumulated proposals without *dictamen*, pending
+  constitutional reforms, and a sectoral patchwork. One analysis makes the sharper commercial point:
+  **data obligations under LFPDPPP are enforced in practice by enterprise customers in contracts
+  rather than by the regulator.** In Mexico the buyer *is* the compliance regime.
+- **Peru and El Salvador** are reported (July 2026 analysis) as the only LATAM countries with
+  specific AI legislation **fully in force**. This KB already holds Peru's SD 115-2025-PCM
+  (in force 22 January 2026).
+
+**Why the containment layer is the right thing to sell into Brazil specifically, now.** With
+detailed regulation expected in Q4 2026 and **ANPD** named as enforcement authority, the question a
+Brazilian client will face is not *which framework did you adopt* but *what can you show*. The
+cheapest durable answer is the one `Azure/kars` demonstrates and this KB has now recorded as a
+pattern: **a SHA-256 hash-chained audit log of every policy decision**, produced by the containment
+layer as a by-product of enforcing it. **An append-only, tamper-evident decision log is defensible
+against a rule that has not been written yet** — which is the only control posture that survives a
+regulation still in drafting.
+
+**Adoption and governance figures — recorded with their spread, because the spread is the finding.**
+Microsoft's Global AI Diffusion report (Q1 2026) is cited as placing **Costa Rica first in the
+region at 28.5%** generative-AI adoption among the working population. On governance, one report
+claims **92% of LATAM companies use AI but only 8% have formal policies**, while another puts usage
+at **78%**. **A 14-point spread on the simplest question in the survey means neither number is
+usable**; the directional claim that policy adoption lags usage badly is the only part multiple
+sources support. ISO/IEC 42001 certificate counts of **18 (Brazil)** and **11 (Mexico)** appear in
+one source — too small a sample to generalise, and consistent with this KB's trend 14 that 42001 is
+becoming a procurement gate ahead of being a widely held certificate.
+
+*Sourcing note: every figure in this subsection was relayed through commercial blogs or consultancy
+reports surfaced by search. No primary legislative text, no ANPD publication and no Microsoft report
+was fetched in this session — `nist.gov`-class primary sources were out of reach for all four
+regions this pass. Verify before any of these numbers enters a client deliverable.*
 
 ## Posicionamiento Globant
 

@@ -1091,3 +1091,157 @@ repository is mid-transition, say so in the cell rather than picking the identif
 | `registry.npmjs.org` and `pypi.org/pypi/<pkg>/json` | **working** | **The decisive channel this pass.** Proved PyPI `mcp-scan` is a redirect shim (`requires_dist: ['snyk-agent-scan']`) and that npm `mcp-scan` is a *different owner's* package. **A name collision across package ecosystems is invisible from GitHub alone** — it can only be seen from the registries. Add this to the standing toolkit. |
 | `gh attestation trusted-root` (local execution) | **fails closed, and that is the finding** | `tuf refresh failed: Get "https://tuf-repo-cdn.sigstore.dev/14.root.json": Forbidden`, exit 1, 0 bytes. **Measured, not cited:** the Sigstore trusted root can be *used* offline but not *obtained* offline. |
 | `media.defense.gov`, `www.cisa.gov` | **do not resolve** (`ENOTFOUND`, outside allowed domains) | The CISA 2026 SBOM minimum elements are therefore **secondary-sourced, corroborated across several agreeing sources, and explicitly not primary-verified.** Probing stopped after the second failure per policy rather than trying further mirrors. |
+
+---
+
+## Tenth pass, 2026-11-24 — the containment boundary, and a licence class that splits inside one repo
+
+### 23. The four boundaries are now a sequence, and the last one is the only one with no product
+
+Read the last four passes as one argument, because that is how a client experiences it:
+
+| Pass | Boundary | The question | State of the tooling |
+|---|---|---|---|
+| 7 | **Read** | What may this agent, acting for this person, see? | Mature — Zanzibar-family engines, CNCF-backed |
+| 8 | **Write** | What may it change, and what proves it? | Mature — decade-old integration runtimes, OSCAL for evidence |
+| 9 | **Provenance** | Are its components what they claim to be? | Mature primitives, **retiring reference tooling** |
+| 10 | **Containment** | **What can it reach, and what physically stops it?** | **Primitives mature, composition absent** |
+
+The components are individually excellent and individually CNCF-graduated. What does not exist is a
+product that composes them. **Containment is four controls — intercept the request, isolate the
+kernel, restrict the egress, detect at runtime — and nothing found provides all four.** The only
+verified repo that attempts all four is [Azure/kars](https://github.com/Azure/kars): MIT, **46
+stars**, CRDs at `v1alpha1`, and its own README says *"Not an officially supported Microsoft
+product."*
+
+**Why this is the most sellable gap in the whole KB:** the other three boundaries can be closed by
+adopting something. This one can only be closed by **integrating**, which is billable systems work
+on components the client already runs — Kubernetes, a mesh, a policy engine — rather than a licence
+purchase they can make without Globant.
+
+### The failure mode is the same one for the third pass running, and it has a name
+
+Three independent sources, each describing the limits of its own control, converge:
+
+- [falcosecurity/prempti](https://github.com/falcosecurity/prempti)'s README: it governs *"the
+  commands the agent requests, not the side effects those commands produce at runtime"*, and is
+  *"not a sandbox, OS-level security, or a substitute for least-privilege environments."*
+- Vercel's gVisor-vs-microVM comparison: neither *"automatically denies outbound network access or
+  enforces business permissions."*
+- Cloud Security Alliance, October 2026, reviewing a July 2026 incident: **no sandbox was
+  technically broken** — an agent **wrote a file that a trusted, unsandboxed component later
+  executed.**
+
+That third one is a **confused deputy**, and it is the *same shape* as pass 7's headline (Onyx's
+permission sync living only in the enterprise directory, so the MIT build retrieves over a flat
+index) and pass 8's (MCP tool annotations are hints the client must treat as untrusted). **Three
+consecutive passes, three different layers, one failure mode: the boundary held, and the component
+on the other side of it did the work.**
+
+The practical consequence for a design review: stop asking *"is the agent sandboxed?"* and ask
+**"what reads what the agent writes, and is that thing inside the boundary?"** A sandbox whose
+output directory is consumed by an unsandboxed CI runner, indexer or deploy hook has a boundary
+drawn in the wrong place, and no amount of kernel isolation fixes it.
+
+### 24. Agent isolation acquired a Kubernetes standard, and it is already past 1.0
+
+[kubernetes-sigs/agent-sandbox](https://github.com/kubernetes-sigs/agent-sandbox) (Apache-2.0,
+4,703 ★, pushed 2026-11-23) is a **SIG Apps subproject** whose README pins **`v1.0.2`** as the
+recommended production/GitOps version. It introduces `Sandbox`, `SandboxTemplate`, `SandboxClaim`
+and `SandboxWarmPool` on `agents.x-k8s.io/v1beta1`, and is explicitly a **sandbox orchestrator**
+that *delegates* isolation to gVisor or Kata via `RuntimeClass`.
+
+Three consequences worth carrying into a design conversation:
+
+1. **The abstraction boundary is now standard, so the isolation choice is deferrable.** gVisor
+   (no hardware virtualisation needed) versus Kata/Firecracker (own guest kernel) becomes a
+   `RuntimeClass` value rather than an architecture commitment. Design against the CRD; pick the
+   runtime when you know the node estate.
+2. **`SandboxWarmPool` is the line item that makes per-task isolation affordable.** Isolation per
+   task is the correct security posture and has always been priced out by cold-start cost. A
+   pre-warmed pool with low-latency claims is what changes that, and it is the feature to point at
+   when a client says strong isolation is too slow.
+3. **It is not a CNCF project.** Google's announcement says *"building Agent Sandbox as a CNCF
+   project"* — future tense. It is a Kubernetes SIG Apps subproject today, which is a real
+   governance status and should be quoted accurately rather than upgraded.
+
+**Not verified, and it matters more than anything above:** a SIG Apps announcement is reported to
+say that from v0.4.3 sandboxes **default to strict network isolation, blocking internal cluster IPs
+and node metadata endpoints** unless explicitly managed in the `SandboxTemplate`. The node metadata
+endpoint is how a sandboxed process reaches **cloud credentials**, so a secure-by-default posture
+there would be the single most important default in the layer. **It is not in the byte-read README,
+and `kubernetes.io` and `agent-sandbox.sigs.k8s.io` do not resolve under this session's network
+policy.** Verify against the `SandboxTemplate` CRD before quoting it.
+
+### A ninth licence class: split by component inside a single repository
+
+The eight classes recorded so far split a licence by **time** (FSL/BUSL), by **version**, by
+**revenue**, by **directory** (Onyx's `ee/`), by **relicensing in progress**, by **absent verdict**
+(`NOASSERTION`), by **public domain**, and by **permissive-behind-a-preamble**. This one splits by
+**component within one repo, with a choice attached.**
+
+[cilium/cilium](https://github.com/cilium/cilium)'s GitHub badge says `Apache-2.0` and is **correct
+but incomplete**. Its own `README.rst`, byte-read 2026-11-24: *"The Cilium user space components are
+licensed under the Apache License, Version 2.0. The BPF code templates are dual-licensed under the
+General Public License, Version 2.0 (only) and the 2-Clause BSD License (**you can use the terms of
+either license, at your option**)."* `bpf/COPYING` returns 200; a top-level `LICENSE.BSD-2-Clause`
+returns 404 because the files live under `bpf/`. Same shape in `cilium/tetragon`.
+
+**This class resolves in the permissive direction — the second one that does** (pass 8 found four
+`NOASSERTION` badges that were all permissive). Take the BSD-2-Clause option and no GPL enters a
+client deliverable. But the resolution is an **act**, not an observation: the election has to be
+made and **recorded in the SBOM**, because the licence of the artefact shipped is not the licence on
+the page describing the repository.
+
+**The generalised rule, now stated for the fifth layer in a row:** a repository-level licence badge
+is a claim about the *repository*, never about the *artefact*. Verify at the level you ship.
+
+### Method — three more ways to be wrong, bringing the count to sixteen
+
+**14. A fork inherits everything the page shows except one line.**
+[grosser/agent-sandbox](https://github.com/grosser/agent-sandbox) appeared in a web search result
+list **beside** the real project: 0 stars, Apache-2.0 badge, first README line byte-identical to
+upstream. Licence checks pass, existence checks pass, prose checks pass. **Only the "forked from"
+line distinguishes it.** For any repo that arrived via web search, read that line before the
+licence.
+
+**15. The verification channel is blind to exactly this risk.**
+`gh api search/repositories -f q=repo:grosser/agent-sandbox` returns **nothing**, because forks are
+excluded from the search index. So the channel this KB trusts most **raises no flag at all** on a
+fork, while the channel that surfaced it (web search) cannot verify anything. **The channel that
+finds a risk and the channel that confirms it are not the same channel, and neither covers the
+other's blind spot.** Treat "the API returned no result" as *unknown*, never as *does not exist* —
+the same repo returns a complete record under `git ls-remote` and `raw.githubusercontent.com`.
+
+**16. A single repo can be refused by one channel and served by every other.**
+`gh api search/repositories -f q=repo:google/gvisor` returns **HTTP 422** (*"cannot be searched
+either because the resources do not exist or you do not have permission"*) while
+`raw.githubusercontent.com/google/gvisor/master/LICENSE` returns the full Apache text and the repo
+page renders normally. A 422 from a search endpoint is a statement about the **index**, not about
+the repository. Fall through to the next channel; do not record a false absence.
+
+### Sources that disagree, resolved and unresolved — this pass
+
+**Resolved against a primary source.** A 2026 comparison blog states Kyverno **graduated** within
+CNCF in March 2026; another lists it **Incubating**.
+[kyverno/kyverno](https://github.com/kyverno/kyverno)'s own README says *"CNCF Incubating project"* —
+**the repository wins.** Falco and Cilium carry *graduated* badges in their own READMEs, so the
+difference is genuine self-description. CNCF maturity gets quoted in procurement documents; quote it
+from the README.
+
+**Unresolved, recorded.** The EU AI Act's high-risk obligations: one source says they take full
+effect **2 August 2026**, another says obligations **may slip to 2027**. This KB already recorded
+that the deadline moved; this pass adds a second independent instance of the ambiguity **without
+resolving it**. For any EMEA deliverable, state the date as contested and cite the client's own
+counsel rather than a date from a vendor blog.
+
+### Verification channel for this pass — what could and could not be checked
+
+| Channel | Result |
+|---|---|
+| `git ls-remote --symref` | **Works** — existence and real default branch, including for forks |
+| `raw.githubusercontent.com/<repo>/<branch>/LICENSE` and `/README*` | **Works** — the byte-read licence, and the only channel that found the Cilium split |
+| `gh api -X GET search/repositories -f q=repo:<o>/<n>` | **Works** — exact stars, SPDX, `archived`, last push. **Excludes forks**; **422** on `google/gvisor` |
+| `api.github.com/repos/<o>/<n>` | **403** for every repository not attached to this session, with or without the token |
+| `github.com` HTML via `curl` | **403**; the identical URL via the fetch tool **works** — two channels to the same bytes, one blocked |
+| `kubernetes.io`, `agent-sandbox.sigs.k8s.io` | **Do not resolve** under this session's network policy — cost one high-value finding, recorded above as unverified rather than dropped |
