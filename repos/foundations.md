@@ -2752,3 +2752,224 @@ nadie empaquete el servidor en un producto que se entregue.**
   funciona** y es la única vía de lectura byte a byte de licencias. `HEAD` está bloqueado
   (000/403): usar GET. Probar siempre `main` y `master`: che4z y superbol viven en
   `master`.
+
+## Vigésimo pase — 2026-11-24 — el límite del ciclo de vida: la identidad del agente se crea, hereda, queda huérfana y hay que darla de baja — y el estado que deja atrás tiene su propio RPO
+
+> Tema: **qué pasa con el agente cuando la persona que lo creó se va de la empresa, y qué
+> pasa con lo que el agente recordaba.** Los pases 7 y 8 cubrieron *para quién* actúa el
+> agente (authz: OpenFGA, Casbin, SpiceDB) y *qué puede cambiar* (el canal de escritura).
+> Ninguno de los diecinueve pases anteriores buscó con el vocabulario del **alta y baja**.
+> Medido antes de empezar, sobre los 8 archivos de esta KB:
+>
+> | Término | Apariciones previas en la KB |
+> |---|---|
+> | `SCIM` | **0** |
+> | `IGA` | **0** |
+> | `non-human identity` / `NHI` | **0** |
+> | `offboarding` / `decommission` / `provisioning` | **0** |
+> | `RPO` / `RTO` (como palabra) | **0** |
+> | `backup` / `disaster recovery` | **0** |
+> | `velero` / `restic` / `kopia` / `pgBackRest` | **0** |
+> | `SailPoint` / `Saviynt` / `Active Directory` | **0** |
+>
+> Trece ceros en una fila. Esta capa no estaba infrarrepresentada: **no estaba.** Y es la
+> primera pregunta del equipo de IAM del cliente, no la última.
+>
+> **Verificación de este pase.** Las estrellas y `pushed_at` vienen de
+> `gh api -X GET search/repositories -f q='repo:<owner>/<name>'`. **Cada licencia de abajo
+> se leyó byte a byte** por `raw.githubusercontent.com`, y en este pase eso cambió el
+> veredicto **cuatro veces** (ver *Reglas de método* al final). `api.github.com/repos/...`
+> y el HTML de `github.com` devuelven **403** por el proxy de esta sesión; `git ls-remote`,
+> el clon `--bare --depth 1 --filter=blob:none` y `raw.githubusercontent.com` **sí** funcionan.
+
+### A. Enumerar — no se puede dar de baja lo que no está en una lista
+
+El primer paso del ciclo de vida no es la baja: es el **inventario**. El README del
+componente de Microsoft lo dice en una línea que conviene citar tal cual en una propuesta:
+*"The Agent Governance Toolkit governs agents that register with it — but **you can't
+govern what you can't see.**"*
+
+| Repo | Licencia (leída byte a byte) | ★ | pushed | Qué es / por qué está aquí |
+|---|---|---|---|---|
+| [microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit) | MIT | 6,603 | 2026-11-24 | **La KB ya tenía este repo desde el pase 8 y nunca nombró el componente que importa.** El escáner de *shadow agents* vive en `agent-governance-python/agent-discovery/` (`src/agent_discovery/{inventory,reconciler,models}.py` + CLI). Escáneres: procesos, config y **organización de GitHub**. Salida JSON para CI. Reconcilia lo descubierto contra el registro de gobierno |
+| [Defend-AI-Tech-Inc/agent-discover-scanner](https://github.com/Defend-AI-Tech-Inc/agent-discover-scanner) | MIT | 23 | 2026-07-28 | Escáner de identidad/inventario agéntico, 5 capas (análisis estático, red, eBPF/Kubernetes). **Se autodescribe "the industry-standard"** con 23 estrellas y **4 meses sin commits**: el marketing va muy por delante de la adopción. Útil como referencia de técnica (eBPF), no como dependencia |
+| [cartography-cncf/cartography](https://github.com/cartography-cncf/cartography) | Apache-2.0 | 4,201 | 2026-11-24 | Vuelca activos de infraestructura **y sus relaciones** a un grafo Neo4j. Es la herramienta que responde "¿qué alcanza esta credencial?" en una consulta, no en una auditoría manual. **Nombre canónico: `cartography-cncf`, no `lyft/cartography`** (ver *Reglas de método*) |
+| [prowler-cloud/prowler](https://github.com/prowler-cloud/prowler) | Apache-2.0 | 15,321 | 2026-11-24 | Evaluación de postura multi-cloud; es el que encuentra credenciales sin uso y claves de acceso viejas — el hallazgo **NHI1** de OWASP, automatizado |
+| [cloud-custodian/cloud-custodian](https://github.com/cloud-custodian/cloud-custodian) | Apache-2.0 | 6,118 | 2026-11-24 | Motor de reglas en YAML sobre recursos cloud: expresa "toda identidad de máquina sin uso en 90 días se desactiva" como **política ejecutable**, no como procedimiento escrito. **Canónico: `cloud-custodian/`, no `capitalone/`** |
+
+### B. Aprovisionar y desaprovisionar: SCIM e IGA
+
+| Repo | Licencia (leída byte a byte) | ★ | pushed | Qué es / por qué está aquí |
+|---|---|---|---|---|
+| [apache/syncope](https://github.com/apache/syncope) | Apache-2.0 | 349 | 2026-11-24 | Gestión de identidades digitales de la ASF: aprovisionamiento, sincronización de directorios, conectores. **349 estrellas y un commit hoy**: en esta capa las estrellas no son la señal — la gobernanza ASF y la licencia sí |
+| [Evolveum/midpoint](https://github.com/Evolveum/midpoint) | **EUPL-1.2 o posterior** (badge: `NOASSERTION`) — **docs en CC BY-NC-ND 4.0** | 556 | 2026-11-24 | La plataforma IGA completa (gobierno + certificación + aprovisionamiento), versión 4.12.0 en desarrollo. **No es Apache-2.0**, aunque el catálogo Joinup de la propia Comisión Europea lo liste así. Ver la advertencia de abajo antes de meterla en una propuesta |
+| [goauthentik/authentik](https://github.com/goauthentik/authentik) | **MIT excepto `authentik/enterprise/`** (badge: `NOASSERTION`) | 26,448 | 2026-11-24 | IdP completo. El **proveedor SCIM de salida** (`authentik/providers/scim/`, incluido el comando `scim_sync`) y la **fuente SCIM de entrada** (`authentik/sources/scim/`, 41 archivos) están en la parte MIT. El modelo `Agent` y la caducidad por inactividad **no** |
+| [python-scim/scim2-models](https://github.com/python-scim/scim2-models) | Apache-2.0 | 30 | 2026-11-23 | Serialización y validación de recursos SCIM con Pydantic |
+| [python-scim/scim2-client](https://github.com/python-scim/scim2-client) | Apache-2.0 | 19 | 2026-11-23 | Construye peticiones SCIM y parsea respuestas |
+| [python-scim/scim2-cli](https://github.com/python-scim/scim2-cli) | Apache-2.0 | 9 | 2026-11-23 | CLI para desarrollo contra un servidor SCIM |
+| [python-scim/scim2-tester](https://github.com/python-scim/scim2-tester) | Apache-2.0 | 10 | 2026-11-23 | **Comprobador de conformidad de un servidor con los RFC de SCIM.** 10 estrellas y es la pieza que evita entregar un endpoint SCIM que el IdP del cliente rechaza en producción. **Organización canónica `python-scim`, no `yaal-coop`** |
+| [elimity-com/scim](https://github.com/elimity-com/scim) | MIT | 255 | 2026-11-13 | Implementación en Go de la especificación SCIM v2: sirve para **exponer** un endpoint SCIM desde un servicio propio, el lado que casi nadie construye |
+
+**Excluido, con el motivo medido:**
+
+| Repo | Licencia | ★ | pushed | Por qué NO |
+|---|---|---|---|---|
+| [Captain-P-Goldfish/scim-for-keycloak](https://github.com/Captain-P-Goldfish/scim-for-keycloak) | BSD-3-Clause | 210 | **2024-03-10** | La respuesta obvia a "¿cómo le pongo SCIM a Keycloak?" está **muerta**: la primera línea de su README es `# End of Life` y redirige a un sitio comercial. **GitHub NO lo marca como archivado** y los metadatos de la API no lo delatan. Octavo proyecto recomendado-pero-muerto de esta KB, y el primero cuyo único indicador es el README |
+
+> ⚠️ **midPoint: la licencia del código no es el problema; la de la documentación sí.**
+> Su `LICENSE` (5 líneas, leído hoy) dice: *"MidPoint code and associated work is licensed
+> under European Union Public License, Version 1.2 or later"*, y el `NOTICE` lo confirma:
+> *"Licensed under the EUPL-1.2 or later."* La EUPL-1.2 es **copyleft con reciprocidad**,
+> no permisiva. Y el mismo archivo añade: *"The documentation is licensed under the terms of
+> Creative Commons Attribution-**NonCommercial-NoDerivatives** 4.0."* Para una consultora
+> cuyo entregable es, muy a menudo, **documentación adaptada**, la licencia de los docs es
+> más restrictiva que la del código: **CC BY-NC-ND prohíbe el uso comercial y las obras
+> derivadas.** No se puede reempaquetar la documentación de midPoint en un entregable de
+> cliente. El código se puede usar leyendo la EUPL con legal; los docs, no.
+
+### C. Credenciales que caducan solas
+
+| Repo | Licencia (leída byte a byte) | ★ | pushed | Qué es / por qué está aquí |
+|---|---|---|---|---|
+| [external-secrets/external-secrets](https://github.com/external-secrets/external-secrets) | Apache-2.0 | 6,961 | 2026-11-24 | Operador que lee de un almacén externo y materializa Secrets de Kubernetes: la credencial del agente deja de estar en el manifiesto y pasa a tener un emisor con rotación |
+| [cert-manager/cert-manager](https://github.com/cert-manager/cert-manager) | Apache-2.0 | 14,173 | 2026-11-24 | Certificados TLS con renovación automática. Es la vía práctica a la identidad **de corta duración** que piden los tenets del NIST, y encaja con SPIFFE/SPIRE que la KB ya tiene |
+| [Infisical/infisical](https://github.com/Infisical/infisical) | **MIT ("MIT Expat") excepto los directorios `ee/`** (badge: `NOASSERTION`) | 30,732 | 2026-11-24 | Plataforma de secretos, certificados y acceso — su propia descripción ya dice "and AI Agents". **Hallazgo medido: el ciclo de vida de las identidades de máquina está FUERA de `ee/`**, en la parte MIT (ver abajo) |
+
+> ✅ **Infisical rompe el patrón de open-core de esta KB, y hay que decirlo.** El pase 7
+> encontró que en `onyx-dot-app/onyx` el *permission sync* vivía solo en `ee/`. Este pase
+> encuentra que en `authentik` el modelo `Agent` vive solo en `enterprise/`. La predicción
+> obvia era que Infisical carvearía lo mismo. **No lo hace.** Listado hoy con
+> `git ls-tree -r HEAD --name-only`, sus `ee/` contienen `clients`, `data-access`, `models`,
+> `routes`, `services`, `testing` y `external-kms-module.ts` — y el ciclo de vida de las
+> identidades de máquina **no está ahí**. Las pruebas e2e que lo demuestran, todas en la
+> parte MIT:
+>
+> - `backend/e2e-test/remove-orphaned-identity-group-memberships-migration.spec.ts` → limpieza de pertenencias **huérfanas**
+> - `backend/e2e-test/routes/v1/alert-identity-cleanup.spec.ts` → alerta de limpieza de identidades
+> - `backend/e2e-test/routes/v1/identity-credential-expiry-alert.spec.ts` → alerta de **caducidad de credencial**
+> - `backend/e2e-test/routes/v1/identity-org-membership-deactivation.spec.ts` → **desactivación** de pertenencia
+> - `backend/e2e-test/routes/v1/identity-lockout-keystore.spec.ts`, `identity-auth-boundary.spec.ts`, `identity-tls-cert-auth.spec.ts`
+>
+> **La lección no es "la función siempre está carveada": es que la línea del carve-out
+> cambia en cada producto, y se mide en un comando.** Tres productos, tres líneas distintas.
+> El activo reutilizable es el procedimiento, no la predicción.
+
+### D. El estado del agente tiene un RPO, y casi nadie lo ha fijado
+
+La memoria del agente suele vivir en Postgres con pgvector — que esta KB ya tiene. Lo que no
+tenía es la consecuencia: **su RPO es un problema de Postgres**, y tiene respuestas abiertas.
+
+| Repo | Licencia (leída byte a byte) | ★ | pushed | Qué es / por qué está aquí |
+|---|---|---|---|---|
+| [cloudnative-pg/cloudnative-pg](https://github.com/cloudnative-pg/cloudnative-pg) | Apache-2.0 | 9,657 | 2026-11-24 | El operador de Postgres en Kubernetes: archivado de WAL y **PITR** para la base donde vive la memoria del agente. Leer las cuatro advertencias de abajo **antes** de prometer un RPO |
+| [pgbackrest/pgbackrest](https://github.com/pgbackrest/pgbackrest) | **MIT** (badge: `NOASSERTION`) | 4,510 | 2026-11-23 | Backup y restore de Postgres, con repositorio, verificación y restore paralelo. Permisiva, y el badge no lo decía |
+| [velero-io/velero](https://github.com/velero-io/velero) | Apache-2.0 | 10,386 | 2026-11-24 | Backup/restore y migración de aplicaciones Kubernetes **y sus volúmenes**. **Nombre canónico `velero-io/velero`: `vmware-tanzu/velero` es un redirect** — aunque los *plugins* (`vmware-tanzu/velero-plugin-for-csi`, `-for-vsphere`) siguen canónicamente en `vmware-tanzu`. El núcleo se movió y los plugins no |
+| [restic/restic](https://github.com/restic/restic) | **BSD-2-Clause** | 37,429 | 2026-11-22 | Backup rápido, cifrado y deduplicado a almacenamiento de objetos. El más estrellado de toda esta capa |
+| [kopia/kopia](https://github.com/kopia/kopia) | Apache-2.0 | 14,809 | 2026-11-23 | Backup incremental multiplataforma con cifrado en cliente; alternativa a restic con licencia Apache |
+
+**Excluido, con el motivo:**
+
+| Repo | Licencia | ★ | pushed | Por qué NO |
+|---|---|---|---|---|
+| [EnterpriseDB/barman](https://github.com/EnterpriseDB/barman) | **GPL-3.0** | 3,282 | 2026-11-18 | Vivo, mantenido y competente — pero **GPL-3.0**: no entra en algo que Globant distribuya. Para la misma función hay dos permisivas arriba (pgBackRest MIT, CloudNativePG Apache-2.0). Se registra para que nadie lo descubra a mitad de una entrega |
+
+#### Las cuatro advertencias de CloudNativePG, leídas de sus propios docs (`docs/src/recovery.md`, hoy)
+
+1. *"A valid WAL archive is required to perform PITR."* **Sin archivado de WAL no hay PITR**, solo
+   restauración del backup completo. Un RPO prometido sin comprobar esto es ficción.
+2. *"In CloudNativePG, recovery is **not performed in-place**... Instead, it is used to
+   **bootstrap a new cluster**."* El RTO no es "restaurar la base": es **restaurar y conmutar**.
+   Cualquier plan que asuma restauración en sitio está mal por diseño del operador.
+3. *"If you added or removed a tablespace in your cluster since the last base backup, replaying
+   the WAL will fail."* Un cambio de tablespace **invalida** el camino de recuperación hasta el
+   siguiente base backup.
+4. **La que importa para un agente, y es contraintuitiva:** *"PostgreSQL recovery will stop when
+   it encounters the first transaction that occurs after the specified time. **If no such
+   transaction exists after the target time, the recovery process will fail.**"* Es decir:
+   **recuperar a un instante dentro de una ventana en la que el agente estuvo inactivo falla
+   precisamente porque estuvo inactivo.** La identidad dormida y el dato dormido fallan por la
+   misma razón, y esa frase une las dos mitades de este pase.
+
+   (Y una quinta operativa: los timestamps deben llevar zona explícita — `2023-07-06T08:00:39Z` —
+   porque `2023-07-06 08:00:39` es ambiguo; además, al crear réplicas tras recuperar de un
+   `VolumeSnapshot`, el operador *"may fall back to using `pg_basebackup`"*, que en bases grandes
+   es **mucho** más lento: eso es RTO, no una nota al pie.)
+
+#### Las tres trampas de los hooks de Velero, leídas de `site/content/docs/main/backup-hooks.md`
+
+1. *"Note that hooks are **not** executed within a shell on the containers."* Un hook escrito
+   como one-liner de shell (`pg_dump ... > /backup/x`) **no se ejecuta**: hay que invocar
+   `/bin/sh -c` explícitamente y pasar los argumentos como array JSON.
+2. `pre.hook.backup.velero.io/timeout` **vale 30 s por defecto**, y `on-error` vale **`Fail`**.
+   Un *quiesce* o un flush de un almacén vectorial grande pasa de 30 s: el resultado por defecto
+   no es un backup inconsistente, es un **backup fallido**. Es el default correcto y aun así
+   sorprende a todo el mundo la primera vez.
+3. Desde Velero 1.15 los ítems que deben respaldarse juntos se agrupan en **ItemBlocks**: si un
+   ItemBlock tiene varios pods (caso típico de un volumen RWX montado por varios workers del
+   agente), se ejecutan **todos** los pre-hooks, luego el backup, luego **todos** los post-hooks.
+   Un hook escrito asumiendo un pod por invocación se ejecuta N veces.
+
+### Reglas de método nuevas de este pase (14 a 19)
+
+Este pase trabajó con el plano de la API de repos **cerrado**, y eso produjo reglas que sirven
+para toda la flota, no solo para enterprise.
+
+**Regla 14 — `api.github.com/repos/<owner>/<name>` y el HTML de `github.com` devuelven 403 por
+este proxy; `gh api -X GET search/repositories -f q='repo:<owner>/<name>'` **sí** funciona.**
+Esa es la vía para estrellas, forks, `pushed_at`, `archived` y `fork`. Las otras tres vías
+abiertas son `git ls-remote`, el clon `--bare --depth 1 --filter=blob:none` (que da la fecha del
+último commit con `git log -1 --format=%cI` **y el árbol completo de archivos sin descargar un
+solo blob**) y `raw.githubusercontent.com`. `img.shields.io` y `ungh.cc` siguen vacíos.
+
+**Regla 15 — `search/repositories` es el detector de renombres.** El índice de búsqueda solo
+conoce el nombre **canónico**: un `repo:viejo/nombre` que devuelve `total_count: 0` mientras
+`git ls-remote` y `raw` sobre ese mismo nombre devuelven 200 **es exactamente la firma de un
+redirect**. `git` y `raw` siguen los renombres en silencio y por eso no sirven para esto. Con esa
+prueba, tres nombres de esta KB y de la prensa quedaron corregidos hoy:
+`lyft/cartography` → **`cartography-cncf/cartography`**; `capitalone/cloud-custodian` →
+**`cloud-custodian/cloud-custodian`**; `vmware-tanzu/velero` → **`velero-io/velero`** (con el
+matiz de que los plugins de Velero **sí** siguen en `vmware-tanzu`, así que la regla "nunca
+compongas owner/owner" se cumple aquí al revés: el núcleo migró y los plugins no). Confirmado por
+una segunda vía independiente: las URL que el propio README se autorreferencia.
+
+**Regla 16 — `NOASSERTION` se resolvió cuatro veces en este pase y dio cuatro respuestas
+distintas.** El pase 8 dejó escrito que `NOASSERTION` es *la ausencia de un veredicto* y hay que
+resolverlo leyendo bytes **en los dos sentidos**. Este pase es la demostración más limpia:
+>
+> | Repo | Badge | Realidad leída byte a byte | Dirección |
+> |---|---|---|---|
+> | `pgbackrest/pgbackrest` | NOASSERTION | **MIT** | más permisiva de lo que parecía |
+> | `goauthentik/authentik` | NOASSERTION | **MIT con carve-out `enterprise/`** | permisiva **con condición** |
+> | `OWASP/www-project-non-human-identities-top-10` | NOASSERTION | **CC-BY-SA-4.0** | licencia de **contenido**, no de código |
+> | `Evolveum/midpoint` | NOASSERTION | **EUPL-1.2-or-later** + docs **CC BY-NC-ND** | **menos** permisiva: copyleft |
+>
+> Cuatro `NOASSERTION`, cuatro veredictos: permisiva, permisiva-con-carve-out, de contenido y
+> copyleft. La regla no es "NOASSERTION suele ser permisiva" (pase 8) ni lo contrario: es que
+> **el badge no contiene información** y el byte sí.
+
+**Regla 17 — sondear nombres de archivo de licencia en minúscula, o mejor, listar el árbol
+primero.** `Captain-P-Goldfish/scim-for-keycloak` dio un falso "sin licencia" en el primer
+sondeo porque su archivo se llama **`license.txt` en minúscula**. La lista de candidatos
+(`LICENSE`, `LICENSE.txt`, `LICENSE.md`, `COPYING`, `LICENCE`…) nunca es completa: con el clon
+blobless ya se tiene `git ls-tree -r HEAD --name-only | grep -iE 'licen|copying'`, que es exacto.
+
+**Regla 18 — el flag `archived` no es la señal de fin de vida; la primera línea del README sí.**
+`scim-for-keycloak` está **vivo** para GitHub (no archivado, 210 estrellas, BSD-3-Clause) y
+**muerto** para su autor: `# End of Life` es el primer encabezado de su README. Es el octavo
+proyecto recomendado-pero-muerto de esta KB y el primero que ningún metadato delata. Añadir al
+procedimiento: leer las **primeras 5 líneas del README** de todo repo cuyo `pushed_at` esté a más
+de 12 meses.
+
+**Regla 19 — la URL de repositorio que declara un índice de paquetes puede estar mal, y hay que
+verificar la ruta, no solo el repo.** El paquete `agentmesh-discovery` 5.0.0 de PyPI declara
+`Documentation: https://github.com/microsoft/agent-governance-toolkit/tree/main/agent-discovery`.
+Ese directorio **no existe** en la raíz del repo. La ruta real es
+`agent-governance-python/agent-discovery/`: le falta un segmento. El paquete es legítimo, MIT y
+de Microsoft — pero su puntero publicado da 404, y eso es lo que hace que un ingeniero desconfíe
+de un paquete real o confíe en uno falso. Es la **segunda** aparición de la regla del pase 8
+("`camel-mcp-server`, no `camel-mcp` como dice el blog de Apache"), ahora desde un índice de
+paquetes en vez de un blog: **el puntero publicado por el propio proyecto es una fuente
+secundaria.** Y el mismo sondeo mostró el riesgo gemelo: buscar `scim2-models in:name` devuelve,
+además del canónico, dos espejos automáticos con nombres mutilados
+(`Eternity-gaga/python-scim__scim2-models.55bb0a4b`, `autocode07/…`), 0 estrellas y la misma
+licencia. **Buscar por nombre devuelve señuelos; `repo:` devuelve el canónico.**

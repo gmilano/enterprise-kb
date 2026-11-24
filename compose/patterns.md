@@ -3066,3 +3066,209 @@ camino donde no necesite poder**.
 **Trampa de composición ya verificada:** no componer `clean-core/abap-cleaner`. Es un
 **fork** (README idéntico byte a byte, incluido el badge REUSE que apunta al upstream de
 SAP). El upstream es `SAP/abap-cleaner`.
+
+## Receta 38 — Dar de baja un agente y poder demostrarlo: inventario → dueño → SCIM de salida → evidencia (added twentieth pass, 2026-11-24)
+
+> **Problema que resuelve.** Un cliente tiene agentes en producción creados por pipelines y por
+> autoservicio. Nadie tiene la lista. Cuando una persona se va, sus agentes siguen corriendo con
+> el acceso que tenían. Es **OWASP NHI1:2025**, el riesgo número uno de las identidades no humanas
+> (*Detectability: Hard*), y el **51 %** de las organizaciones no tiene ningún proceso formal
+> para esto. Todas las piezas de abajo son permisivas y autoalojables.
+
+**Stack, con licencia verificada byte a byte el 2026-11-24:**
+
+| Paso | Componente | Repo | Licencia |
+|---|---|---|---|
+| 1. Enumerar agentes | `agent-discovery` | [microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit) → `agent-governance-python/agent-discovery/` | MIT |
+| 1b. Enumerar el alcance | Cartography | [cartography-cncf/cartography](https://github.com/cartography-cncf/cartography) | Apache-2.0 |
+| 1c. Credenciales sin uso | Prowler | [prowler-cloud/prowler](https://github.com/prowler-cloud/prowler) | Apache-2.0 |
+| 2. Dueño e identidad | authentik (`Actor`, parte MIT) | [goauthentik/authentik](https://github.com/goauthentik/authentik) | MIT (⚠️ el modelo `Agent` está en `enterprise/`) |
+| 3. Política de inactividad | Cloud Custodian | [cloud-custodian/cloud-custodian](https://github.com/cloud-custodian/cloud-custodian) | Apache-2.0 |
+| 4. Propagar la baja | Proveedor SCIM de authentik `authentik/providers/scim/` | ídem | MIT |
+| 4b. Probar el endpoint | `scim2-tester` | [python-scim/scim2-tester](https://github.com/python-scim/scim2-tester) | Apache-2.0 |
+| 5. Credenciales efímeras | External Secrets + cert-manager | [external-secrets](https://github.com/external-secrets/external-secrets) · [cert-manager](https://github.com/cert-manager/cert-manager) | Apache-2.0 |
+| 5b. Huérfanas y caducidad | Infisical (**fuera de `ee/`**) | [Infisical/infisical](https://github.com/Infisical/infisical) | MIT |
+| 6. Evidencia | OSCAL + Trestle *(ya en la KB, pase 8)* | usnistgov/OSCAL · oscal-compass/compliance-trestle | Public Domain · Apache-2.0 |
+| 7. Aprovisionamiento base (alternativa sin asteriscos) | Apache Syncope | [apache/syncope](https://github.com/apache/syncope) | Apache-2.0 |
+
+### Paso 1 — Inventariar, porque no se puede dar de baja lo que no está en una lista
+
+```bash
+pip install 'agentmesh-discovery[all]'      # ⚠️ el paquete es MIT y real; su URL de docs en PyPI
+                                            #    apunta a .../tree/main/agent-discovery, que NO existe.
+                                            #    La ruta real es agent-governance-python/agent-discovery/
+agent-discovery scan                                    # procesos + sistema de archivos
+agent-discovery scan -s config -p /srv/deploy -p /srv/k8s
+agent-discovery scan -s github --github-org <org-cliente>   # el que encuentra los de pipeline
+agent-discovery scan -o json > inventario-agentes.json      # para CI
+```
+
+El valor está en el último paso del propio componente: **reconcilia lo descubierto contra el
+registro de gobierno y devuelve los agentes que operan fuera de él** — los *shadow agents*. En
+paralelo, `cartography` carga activos **y relaciones** en Neo4j, de modo que "¿qué alcanza esta
+credencial?" se contesta con una consulta Cypher, y `prowler` lista credenciales de máquina sin uso
+(es NHI1 automatizado). **Entregable del paso 1:** la lista, con dueño declarado o con el hueco
+marcado. En casi todos los clientes, este solo paso ya justifica el engagement.
+
+### Paso 2 — Un humano responsable por agente, y la decisión que hay que escribir en un ADR
+
+Modelar el agente como **cuenta de servicio con padre**, igual que authentik en
+`authentik/enterprise/agents/models.py`: `type=SERVICE_ACCOUNT`, sin contraseña, autenticación por
+token, `expiring`/`expires` puestos. Las primitivas (`Actor`, `ActorPolicyInheritance`) están en
+`authentik/core/models.py`, que **es MIT**; el modelo `Agent` que las usa, no.
+
+**La decisión, con sus tres consecuencias medidas (ver `agents/top.md`):**
+
+```
+MIRROR → el agente nunca excede al humano, pero los ciclos de vida quedan ACOPLADOS
+COPY   → separa, y falla en dos direcciones: no copia el acceso por GRUPOS (día 1)
+          y CONGELA las asignaciones directas (día 100, cuando al humano ya se le revocó)
+NONE   → nada implícito; se construye toda la autorización a mano
+```
+
+Y el hecho que obliga a tener un paso 3, en la parte MIT:
+`parent = ForeignKey(User, on_delete=models.SET_DEFAULT, default=None)` — **borrar al humano pone
+el vínculo a NULL y deja viva la fila del agente.** Borrar al que se va **no** da de baja a sus
+agentes. Nunca.
+
+### Paso 3 — La inactividad como política ejecutable, no como procedimiento escrito
+
+La caducidad por inactividad de authentik vive en `authentik/enterprise/lifecycle/expiration/`:
+**licencia EE**. La vía permisiva es expresar la regla en Cloud Custodian y ejecutarla en cron:
+
+```yaml
+policies:
+  - name: agentes-sin-uso-90d
+    resource: aws.iam-user                 # el mismo patrón aplica a gcp.* y azure.*
+    filters:
+      - type: credential
+        key: access_keys.last_used_date
+        value_type: age
+        value: 90
+        op: greater-than
+      - "tag:agent-owner": absent          # sin dueño declarado = huérfana por definición
+    actions:
+      - type: remove-keys
+        disable: true                      # desactivar primero; borrar en una segunda pasada
+      - type: notify
+        to: [iam-governance@cliente]
+```
+
+Dos decisiones deliberadas: **desactivar antes de borrar** (una baja mal medida que borra es un
+incidente, no un control) y tratar **"sin dueño" como filtro de primera clase**, porque es el modo
+*orphaned* de la ficha NHI1.
+
+### Paso 4 — Propagar la baja aguas abajo con SCIM, y probar el endpoint antes de confiar en él
+
+El comando `scim_sync` del proveedor SCIM de salida de authentik (`authentik/providers/scim/`,
+MIT) empuja altas, cambios y **bajas** a cada aplicación conectada. Dos trampas:
+
+- **`exclude_users_service_account` existe y por defecto vale `False`** (migración
+  `0005_scimprovider_exclude_users_service_account_and_more.py`, leída hoy). **El default es
+  seguro**: las cuentas de servicio **sí** se aprovisionan. Pero si alguien activa esa casilla —
+  y es tentadora, porque "limpia" el listado de usuarios aguas abajo — **los agentes dejan de
+  llegar a las aplicaciones destino, y con ellos dejan de llegar sus bajas.** Verificarla en cada
+  provider, por nombre, y dejarlo asentado en el runbook.
+- **El endpoint SCIM del cliente casi nunca cumple el RFC.** Antes de construir encima:
+
+```bash
+pip install scim2-tester scim2-cli
+scim2-tester --url https://app-cliente/scim/v2 --token "$TOKEN"   # conformidad con los RFC
+scim2-cli --url https://app-cliente/scim/v2 --token "$TOKEN" delete User <id>  # la operación que importa
+```
+
+`scim2-tester` tiene **10 estrellas** y es la pieza que evita entregar una integración que el IdP
+del cliente rechaza en producción. En esta capa las estrellas no son la señal.
+
+Para **exponer** SCIM desde un servicio propio (el lado que casi nadie construye), está
+[elimity-com/scim](https://github.com/elimity-com/scim) (Go, MIT). Y si el cliente no tiene IdP
+con el que empezar, la base permisiva sin asteriscos es **Apache Syncope**.
+
+### Paso 5 — Que la credencial caduque sola, para que la baja no dependa de que alguien se acuerde
+
+External Secrets materializa el secreto desde el almacén (OpenBao ya está en esta KB) y
+cert-manager renueva certificados: es la vía práctica al material **de corta duración** que piden
+los tenets del NIST, y encaja con SPIFFE/SPIRE que esta KB tiene desde el pase 7. Infisical aporta,
+**en su parte MIT**, lo que ningún otro componente de esta receta trae de fábrica —y sus propias
+pruebas e2e lo demuestran: `remove-orphaned-identity-group-memberships-migration.spec.ts`,
+`alert-identity-cleanup.spec.ts`, `identity-credential-expiry-alert.spec.ts`,
+`identity-org-membership-deactivation.spec.ts`.
+
+### Paso 6 — La evidencia, que es lo que se factura
+
+Una baja sin evidencia no pasa una auditoría. La lista de control viene literal de la sección
+*How to Prevent* de la ficha NHI1 de OWASP, y se mapea 1:1 contra lo de arriba:
+
+| Lo que pide OWASP NHI1 | Paso |
+|---|---|
+| Revisar todas las NHI asociadas a quien se va; decidir si se decomisan o se traspasan **rotando** la credencial | 2 + 5 |
+| Automatizar integrando RRHH con las herramientas IAM | 4 (el disparador de RRHH al IGA) |
+| **Recertificar periódicamente** las NHI: que sigan en uso, sean necesarias y **tengan dueño** | 1 + 3 |
+| Auditar las NHI activas para detectar uso indebido | 1b + 1c |
+
+Cada ciclo de recertificación produce exactamente el artefacto que **OSCAL** representa
+(`assessment-results`), así que el paso 6 no es un informe en Word: es un documento OSCAL generado
+por el pipeline, versionado, que el auditor consume. Esa es la diferencia entre entregar un
+servicio y entregar un activo.
+
+> **Anti-patrones de esta receta, todos medidos en este pase:**
+> - Adoptar `Captain-P-Goldfish/scim-for-keycloak`: la primera línea de su README es
+>   `# End of Life` y **GitHub no lo marca como archivado**.
+> - Meter **midPoint** sin pasar por legal (**EUPL-1.2**, copyleft) y, sobre todo, **reutilizar su
+>   documentación** en un entregable: está en **CC BY-NC-ND** — ni comercial ni derivadas.
+> - Presupuestar el modelo `Agent` o la caducidad por inactividad de authentik como si fueran
+>   abiertos: son **EE**, y su licencia **asigna al proveedor las modificaciones que escribas**.
+> - Instalar `agentmesh-discovery` confiando en el enlace de documentación de PyPI (da 404).
+> - Confiar en `archived` para decidir si un proyecto está vivo.
+
+## Receta 39 — Fijar el RPO de lo que el agente recuerda (y descubrir la trampa de la ventana dormida antes del incidente) (added twentieth pass, 2026-11-24)
+
+> **Problema que resuelve.** "¿Cuánta memoria del agente podemos permitirnos perder, y en cuánto
+> tiempo vuelve?" no tiene respuesta en ningún engagement de esta KB hasta ahora: `RPO` y `RTO` no
+> aparecían ni una vez como palabras. La memoria del agente vive en Postgres con pgvector, así que
+> la respuesta es de Postgres y es abierta.
+
+**Stack:** [cloudnative-pg](https://github.com/cloudnative-pg/cloudnative-pg) (Apache-2.0) ·
+[pgbackrest](https://github.com/pgbackrest/pgbackrest) (**MIT**, el badge decía `NOASSERTION`) ·
+[velero-io/velero](https://github.com/velero-io/velero) (Apache-2.0) ·
+[restic](https://github.com/restic/restic) (BSD-2-Clause) · [kopia](https://github.com/kopia/kopia)
+(Apache-2.0). **No** `EnterpriseDB/barman`: vivo y competente, pero **GPL-3.0**.
+
+**Cableado, en orden, con la razón de cada paso:**
+
+1. **Archivar WAL desde el día uno.** Sin eso **no hay PITR**, solo restauración del backup
+   completo — y por tanto no hay RPO que prometer: *"A valid WAL archive is required to perform
+   PITR."*
+2. **Declarar el RTO como "restaurar **y conmutar**".** CloudNativePG no recupera en sitio:
+   *"recovery is **not performed in-place**... it is used to **bootstrap a new cluster**"*. El
+   runbook tiene que incluir el cambio de Service/DNS y la reconexión del agente, y hay que
+   cronometrarlo.
+3. **Probar la recuperación dentro de una ventana de inactividad.** Es el ensayo que descubre la
+   trampa: *"PostgreSQL recovery will stop when it encounters the first transaction that occurs
+   after the specified time. **If no such transaction exists after the target time, the recovery
+   process will fail.**"* Un agente por lotes (cierre mensual, trimestral, fiscal) vive casi
+   siempre en esa ventana. **Mitigación concreta: un *heartbeat* transaccional** — una escritura
+   trivial periódica en una tabla propia — que garantiza que siempre exista una transacción después
+   de cualquier objetivo de recuperación plausible. Cuesta una fila por minuto y convierte un
+   restore imposible en uno trivial.
+4. **Timestamps con zona explícita, siempre:** `2026-11-24T08:00:39Z`, nunca
+   `2026-11-24 08:00:39`. Lo dice el doc y es la clase de error que solo aparece en el incidente.
+5. **Cuidado con el camino de las réplicas tras recuperar de un `VolumeSnapshot`:** el operador
+   *"may fall back to using `pg_basebackup`"*, que en bases grandes es mucho más lento. Eso es RTO,
+   no una nota al pie.
+6. **Un cambio de tablespace invalida el camino de WAL** hasta el siguiente base backup: si se
+   toca, tomar base backup inmediatamente.
+7. **Velero para el resto del namespace**, con tres trampas de sus propios docs: los hooks **no
+   corren en una shell** (hay que invocar `/bin/sh -c` y pasar arrays JSON), el timeout de pre-hook
+   son **30 s** por defecto con `on-error: Fail` (un flush grande no produce un backup
+   inconsistente: produce un **backup fallido**), y desde Velero 1.15 los **ItemBlocks** agrupan
+   pods que comparten un volumen RWX, así que un pre-hook escrito para un pod se ejecuta N veces.
+8. **restic o kopia** para la copia a almacenamiento de objetos con cifrado en cliente, y así la
+   evidencia de la Receta 38 tiene su propia copia — incluida, si hace falta, **dentro de la
+   región** (ver la subsección de APAC en `intel/market.md`).
+
+> **El cierre que une las dos recetas:** la identidad dormida (Receta 38) y el dato dormido
+> (Receta 39) fallan **por la misma razón** — nada los tocó y nada los vigila. Un agente que
+> estuvo inactivo es, al mismo tiempo, el más fácil de olvidar en el inventario y el más difícil
+> de recuperar a un punto en el tiempo. Si hay que elegir un solo agente del estate del cliente
+> por donde empezar, **empezar por el que corre una vez al mes.**

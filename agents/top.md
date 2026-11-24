@@ -1076,3 +1076,90 @@ An informed gap is information; silence looks like coverage.
    integración.** `fr0ster/mcp-abap-adt` expone CRUD sobre objetos ABAP. El octavo pase
    ya estableció por qué los `ToolAnnotations` de MCP no sirven como control (son hints,
    y los defaults son destructive/non-idempotent). Aplica aquí sin descuento.
+
+## El límite del ciclo de vida — cero filas de agente nuevas, y la primera clase `Agent` que esta KB encuentra dentro de un IdP (added twentieth pass, 2026-11-24)
+
+> **Ninguna fila de Tier 0 ni Tier 1 cambió en este pase, y por quinta vez eso *es* el
+> hallazgo.** Este pase buscó con el vocabulario del **alta y la baja** — SCIM, IGA,
+> aprovisionamiento, identidades no humanas, huérfanas, RPO — y de los 24 repos verificados
+> hoy **ninguno es un agente**. Son la capa que decide si el agente puede ser dado de baja.
+> Tablas completas en `repos/foundations.md`; el build en `compose/patterns.md` Receta 38.
+>
+> Pero este pase sí trae algo que pertenece a *este* archivo y no a `foundations.md`: **la
+> primera definición de "agente" que esta KB encuentra escrita dentro de un proveedor de
+> identidad**, en código, con semántica de herencia de permisos. No es un framework de
+> agentes. Es el modelo de datos con el que un IdP decide qué *es* un agente — y eso cambia
+> lo que se puede prometer en un SOW.
+
+### La clase `Agent` de authentik: qué dice el código (leído hoy de `main`)
+
+`authentik/enterprise/agents/models.py`, licencia **EE** (no MIT):
+
+```python
+class Agent(Actor):
+    @classmethod
+    def create_for_user(cls, user, name="", expiring=False, expires=None,
+                        policy_behavior=ActorPolicyInheritance.MIRROR) -> Agent:
+        # An agent is a machine identity, not a login user: mark it as a service account
+        # and disable password auth. It authenticates through its issued API token. By default
+        # it MIRRORs its parent, so it can never exceed the access of the user it acts for.
+```
+
+Cuatro decisiones de diseño que conviene copiar, con licencia o sin ella:
+
+1. **El agente es una cuenta de servicio, no un usuario que inicia sesión** —
+   `type=UserTypes.SERVICE_ACCOUNT`, autenticación por token de API, contraseña deshabilitada.
+2. **Todo agente tiene un humano padre** (`parent`), es decir un responsable nombrado. Es
+   exactamente lo que piden tanto OWASP NHI1 como los tenets del NIST.
+3. **Tiene caducidad de origen**: `expiring` / `expires` heredados de `ExpiringModel`.
+4. **Hay un permiso de autoservicio** (`add_agent_self_service`): la organización puede dejar
+   que cada persona cree sus propios agentes — que es precisamente cómo aparecen los agentes
+   en la sombra, y por eso el inventario del punto A de `foundations.md` no es opcional.
+
+### El triángulo de la herencia: MIRROR, COPY y NONE — y ninguno es gratis
+
+`ActorPolicyInheritance` vive en `authentik/core/models.py`, que **sí es MIT**, con tres valores:
+
+| Valor | Qué hace | Qué falla |
+|---|---|---|
+| `MIRROR` | Defiere al padre **en vivo**: el agente nunca excede el acceso del humano | Acopla los ciclos de vida. Si se revoca al humano, el agente se queda sin nada en el mismo instante — correcto para contención, **contrario** al tenet del NIST que pide ciclos de vida *separados* |
+| `COPY` | **Instantánea** de las asignaciones directas del padre en el momento de la creación | Es el mecanismo de la huérfana. Y falla en **dos direcciones opuestas** (ver abajo) |
+| `NONE` | No hereda nada | Hay que construir la autorización a mano; nada es implícito |
+
+El docstring de `copy_parent_policy_bindings()` — también en la parte MIT — dice literalmente
+por qué `COPY` falla dos veces:
+
+> *"Unlike MIRROR (which defers to the parent live), COPY takes an independent snapshot at
+> creation: the actor holds its own PolicyBindings, so later changes to the parent don't affect
+> it. Only bindings that reference the parent as a \*user\* are copied — access the parent derives
+> from group membership is not."*
+
+- **Día 1, infra-aprovisionamiento silencioso:** el acceso que el humano tiene *por pertenencia a
+  grupos* **no se copia**. El agente arranca sin permisos que su dueño sí tiene y nadie sabe por qué.
+- **Día 100, sobre-aprovisionamiento silencioso:** las asignaciones directas quedan **congeladas**.
+  Al humano se le revoca un acceso y **el agente lo conserva**.
+
+**Y la línea que lo cierra, en `authentik/core/models.py` (MIT):**
+
+```python
+parent = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True, ...)
+```
+
+`on_delete=SET_DEFAULT, default=None`: **al borrar al humano, el vínculo se pone a NULL y la fila
+del agente sobrevive.** La identidad huérfana no es un descuido operativo — está en el esquema.
+Borrar al que se va del IdP **no** borra sus agentes. Eso es OWASP **NHI1** demostrado en una
+línea de un archivo con licencia MIT.
+
+### Las dos herramientas de este pase que sí son "de agentes" (y no son agentes)
+
+| Herramienta | Repo | Licencia | ★ | pushed | Qué hace |
+|---|---|---|---|---|---|
+| **Agent Discovery** | [microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit) → `agent-governance-python/agent-discovery/` | MIT | 6,603 | 2026-11-24 | Descubre agentes en la sombra por procesos, config y organización de GitHub; los inventaría con deduplicación y los **reconcilia contra el registro de gobierno**. CLI `agent-discovery scan -o json` |
+| **Agent Discover Scanner** | [Defend-AI-Tech-Inc/agent-discover-scanner](https://github.com/Defend-AI-Tech-Inc/agent-discover-scanner) | MIT | 23 | 2026-07-28 | Detección en 5 capas (estático, red, eBPF/Kubernetes). **Dormido 4 meses y se autodescribe "industry-standard" con 23 estrellas**: tomar la técnica, no la dependencia |
+
+> **Lo que esto le dice a un lead de engagement:** el agente sigue siendo la decisión más
+> pequeña de la página (pases 3, 4, 5, 8). Lo nuevo es que ahora hay **una decisión de
+> arquitectura con nombre** que hay que tomar en la semana 1 y escribir en un ADR:
+> `MIRROR`, `COPY` o `NONE`. No es un detalle de configuración: decide si la baja del
+> empleado da de baja al agente. Y la función que lo gestiona en authentik está detrás de una
+> licencia cuyos términos **asignan al proveedor las modificaciones que escribas**.

@@ -8,7 +8,45 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimonoveno pase (latest) — el límite del sistema heredado: la reachability la decide una API vieja, no la edad del sistema
+## 2026-11-24 — vigésimo pase (latest) — el límite del ciclo de vida: la identidad huérfana está en el esquema, no en el descuido
+
+> Tema: **qué pasa con el agente cuando la persona que lo creó se va.** Trece términos
+> medidos en cero antes de empezar (`SCIM`, `IGA`, `non-human identity`, `offboarding`,
+> `decommission`, `provisioning`, `RPO`, `RTO`, `backup`, `disaster recovery`, `velero`,
+> `restic`, `SailPoint`). No era una capa infrarrepresentada: **no estaba**. 24 repos
+> verificados hoy, **ninguno es un agente** — quinta vez que el hallazgo es que las filas de
+> agente no se mueven.
+
+**Lo que sí pertenece a este archivo: la primera clase `Agent` que esta KB encuentra dentro de
+un proveedor de identidad.** `authentik/enterprise/agents/models.py` (licencia **EE**, no MIT)
+define al agente como cuenta de servicio con humano padre, token de API, contraseña
+deshabilitada y caducidad propia. Y la decisión que hay que tomar en la semana 1 de un
+engagement tiene tres valores y un nombre, `ActorPolicyInheritance`, en la parte **MIT**:
+
+- `MIRROR` — defiere al padre en vivo, el agente **nunca excede** al humano; a cambio **acopla**
+  los ciclos de vida, que es lo contrario de lo que piden los tenets del NIST.
+- `COPY` — instantánea al crear. Falla en **dos direcciones**: el acceso que el humano tiene por
+  **grupos no se copia** (infra-aprovisionamiento el día 1) y las asignaciones directas quedan
+  **congeladas** (sobre-aprovisionamiento el día 100, cuando al humano ya se le revocó).
+- `NONE` — no hereda; todo a mano.
+
+**Y la línea que lo explica todo**, en `authentik/core/models.py`, MIT:
+`parent = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, ...)`. Al borrar al
+humano, **el vínculo se pone a NULL y el agente sobrevive**. La identidad huérfana está en el
+esquema. Es OWASP **NHI1** demostrado en una línea.
+
+**Confirmado en fuente primaria (el repo de OWASP, no un blog):** el árbol de
+`OWASP/www-project-non-human-identities-top-10` tiene `2025/docs/1-improper-offboarding.md` …
+`10-human-use-of-nhi.md`. **Improper Offboarding es el NHI1**, con *Detectability: Hard*. Y solo
+existe el directorio `2025/` (último commit 2026-07-27): **no hay edición 2026**.
+
+**Dos herramientas de inventario, ambas MIT:** el componente `agent-discovery` de
+`microsoft/agent-governance-toolkit` (un repo que esta KB tenía desde el pase 8 **sin nombrar
+nunca este componente**) y `Defend-AI-Tech-Inc/agent-discover-scanner` (23 estrellas, dormido
+desde julio, se autodescribe "industry-standard"). Su README deja la frase que va en la
+propuesta: *"you can't govern what you can't see."*
+
+## 2026-11-24 — decimonoveno pase — el límite del sistema heredado: la reachability la decide una API vieja, no la edad del sistema
 
 > Tema: **el sistema de registro que el cliente ya tiene corriendo.** Los dieciocho pases
 > anteriores buscaron con vocabulario de cosas nuevas (frameworks, gateways, authz, OSCAL,
@@ -229,7 +267,7 @@ declaration: everything under **`ee/`** is **"Tolgee EE License version 1" — n
 no hosted service, no circumventing the licence key. The **onyx pattern**, second occurrence.
 
 
-## 2026-11-24 — fifteenth pass (latest) — el límite del consumo: tres agentes reales y un cero medido
+## 2026-11-24 — fifteenth pass — el límite del consumo: tres agentes reales y un cero medido
 
 > Tema: **el límite del consumo** — lo que el agente **gasta** y lo que hay que **declarar** sobre
 > ese gasto. Medido antes de buscar, sobre los nueve archivos y **en los dos idiomas de la KB**:

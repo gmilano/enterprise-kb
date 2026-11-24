@@ -749,6 +749,95 @@ software y nombra como ejemplos prohibidos a **Amazon Q Code Transformer** y **B
 Advisor** — es decir, a competidores directos en este mismo mercado. **Revisión de Legales antes de
 incluir esas recetas en un statement of work.**
 
+
+#### Vigésimo pase (2026-11-24) — el ciclo de vida de la identidad del agente: NIST pone los tenets y OWASP pone el número
+
+**Fuente primaria, leída del repo (no de un blog): el OWASP Non-Human Identities Top 10.**
+El árbol de [`OWASP/www-project-non-human-identities-top-10`](https://github.com/OWASP/www-project-non-human-identities-top-10)
+(CC-BY-SA-4.0, 63★, último commit 2026-07-27) ordena los diez riesgos así:
+
+| # | Riesgo |
+|---|---|
+| **NHI1** | **Improper Offboarding** |
+| NHI2 | Secret Leakage |
+| NHI3 | Vulnerable Third-Party NHI |
+| NHI4 | Insecure Authentication |
+| NHI5 | Overprivileged NHI |
+| NHI6 | Insecure Cloud Deployment Configurations |
+| NHI7 | Long-Lived Secrets |
+| NHI8 | Environment Isolation |
+| NHI9 | NHI Reuse |
+| NHI10 | Human Use of NHI |
+
+El riesgo **número uno** de las identidades no humanas es que no se dan de baja. Su ficha
+puntúa *Exploitability: **Easy***, *Prevalence: **Widespread***, *Detectability: **Hard***,
+*Technical impact: **Severe***, y nombra tres modos de fallo que conviene usar como vocabulario
+en un assessment: **stale/dormant** (el servicio se apagó y la identidad sigue), **orphaned**
+(el dueño se fue y nadie heredó) y **partially offboarded employee** (un administrador que no
+era el dueño vio la credencial y se fue sin que se rotara).
+
+**Los números de la propia ficha, citando el informe NHI de la Cloud Security Alliance:**
+
+- **51 % de las organizaciones no tienen ningún proceso formal** para dar de baja o revocar
+  claves de API de larga vida.
+- **32 % de los incidentes de seguridad relacionados con NHI** tuvieron como causa identidades
+  **huérfanas**.
+- 31 % sitúa el offboarding insuficiente de NHI entre sus tres amenazas más preocupantes.
+- Solo 15 % señala el aprovisionamiento/desaprovisionamiento automático como la capacidad más
+  importante de una herramienta de NHI — es decir: **el problema está reconocido y la solución
+  todavía no está priorizada.** Ese hueco es el encargo.
+
+**Y un dato de alcance temporal:** el repo solo contiene el directorio `2025/`. **No hay edición
+2026** publicada a fecha del último commit (2026-07-27). Al citarlo, citarlo como `NHI1:2025`.
+
+**NIST — 10 tenets de diseño para la gestión de identidad de agentes (finales de octubre de
+2026).** ⚠️ **Fuente secundaria, declarado:** `www.nist.gov` está **fuera de los dominios de red
+permitidos en esta sesión**, así que esto proviene de coberturas (Okta, Industrial Cyber, ID Tech,
+SecureWorld, notas de investigación de la CSA) y **no** se pudo leer del original; las fuentes
+discrepan incluso en la fecha (27 vs 30 de octubre). Lo que coincide en todas:
+
+- Publicado en el blog *Cybersecurity Insights* del NIST como **conjunto inicial y voluntario**,
+  guía para demostraciones del **NCCoE**; el propio NIST advierte que no todos los tenets son
+  satisfacibles con el estado actual de estándares y tecnología.
+- **Tenet 1:** cada agente con **identidad verificable propia**, y con un ciclo de vida de
+  credencial y acceso **separado del de las personas y del de las cuentas de servicio**; una
+  identidad lógica persistente a la que se vinculan verificablemente las identidades por
+  despliegue. El motivo declarado: sin eso, una transacción de alto impacto **no se puede
+  atribuir a un responsable**.
+- La autoridad debe **estrecharse** al delegar en subagentes o servicios aguas abajo.
+- Umbrales de riesgo que enrutan acciones a revisores humanos, con atención explícita a la
+  **fatiga de consentimiento**.
+- Registros de identidad, intención delegada y acciones **a prueba de manipulación e
+  independientes del agente**.
+- La aplicación de política debe vivir **fuera de la lógica de razonamiento**: *"guardrails alone
+  are insufficient"*.
+- Antecedente: el concept paper del NCCoE de **febrero de 2026**, que propone aplicar a los
+  agentes estándares que ya existen — **OAuth 2.0, OpenID Connect y SPIFFE/SPIRE**, los tres ya
+  en esta KB desde los pases 6 y 7.
+
+> 🎯 **La tensión que hay que vender, porque es una decisión y no una buena práctica.** NIST pide
+> que el ciclo de vida del agente sea **separado** del humano pero **verificablemente vinculado**
+> a un responsable. El único modelo de agente en producto que este pase encontró — la clase
+> `Agent` de authentik — ofrece tres opciones y **ninguna cumple las dos cosas**: `MIRROR` vincula
+> pero **acopla** (revocas al humano y el agente muere en el mismo instante), `COPY` **separa**
+> pero deja huérfanas, `NONE` separa y no vincula nada. No hay opción gratis, así que hay que
+> elegir y documentarlo. **Un ADR de tres párrafos en la semana 1 de un engagement de NA es
+> entregable facturable**, porque es el papel que el auditor va a pedir en el mes 9.
+
+**Contexto de adopción (secundario, consultoras).** Deloitte *State of AI* 2026 (más de 3.200
+líderes): dos tercios reportan mejoras de eficiencia y **solo uno de cada cinco** ve aumento de
+ingresos. Gartner (empresas de más de 50 M USD de ingresos): **22 %** dice haber escalado IA a
+varias unidades de negocio. Lectura para esta capa: la mayoría de los clientes de NA están en el
+punto exacto en el que ya tienen agentes en producción y todavía no tienen el proceso de baja —
+que es el momento en que esta oferta se vende sola y el único momento en que es barata.
+
+**Oportunidad concreta en NA:** empaquetar la **recertificación de identidades no humanas** como
+producto de evidencia. El material ya está todo en esta KB: inventario con el componente
+`agent-discovery` (MIT) y `cartography-cncf`/`prowler`, política ejecutable con
+`cloud-custodian`, y **OSCAL** (desde el pase 8) para representar el control y su evidencia en
+formato legible por máquina. Es la única región donde el formato de evidencia ya está
+estandarizado y financiado, así que el entregable es reutilizable entre clientes.
+
 ### EMEA
 
 - **Regulatory shape: one regime, and the deadline moved.** The **Digital Omnibus on AI,
@@ -1593,6 +1682,66 @@ QA; y **la única escritura la hace una persona con `abapGit pull`**. El argumen
 del fabricante no es sustituirlo: es que **esta puerta es MIT, corre en el CI del cliente y produce
 el rastro de evidencia** que el AI Act pide para un sistema que toca código de producción.
 
+
+#### Vigésimo pase (2026-11-24) — el ciclo de vida de la identidad del agente: la IGA europea es copyleft y el catálogo de la propia UE lo dice mal
+
+**El dato que resume este pase en una frase, y lo publica un proveedor de backup.** Un estudio
+de **Veeam** sobre EMEA reporta que **88 % de las organizaciones ya operan agentes de IA** y que
+**solo 7 % se considera plenamente preparado para gestionarlos** (secundario, vía eWeek). Que la
+medición venga de una empresa de **copia de seguridad** y no de una de identidad es exactamente
+la tesis de este pase: la brecha no está en construir el agente, está en **gestionar su ciclo de
+vida y su estado**. La misma cobertura titula que las empresas de EMEA *sacrifican soberanía de
+datos en la carrera por desplegar IA* — es decir, el riesgo que ya se asume es el del dato, no el
+de la identidad, y el de la identidad está sin asignar.
+
+**Gobernanza y resultados (IDC, secundario).** Solo **9 %** de las organizaciones de EMEA logró
+resultados de negocio medibles en la mayoría de sus proyectos de IA en los últimos dos años
+(marzo 2026), y solo **12 %** tiene estructuras de gobierno dedicadas. La OCDE, citada en
+cobertura de mayo de 2026, sitúa la **falta de competencias** como barrera principal para la
+mitad de las pymes encuestadas. IDC sostiene además que la regulación en EMEA funciona también
+como **catalizador** de adopción confiable, no solo como freno.
+
+**Regulación.** Las obligaciones de alto riesgo del **EU AI Act** aplican desde **agosto de
+2026**, con sanciones citadas de hasta **35 M EUR o 7 % de la facturación global** (secundario).
+Para esta capa lo relevante es el régimen de **registro y conservación**: la trazabilidad de
+quién hizo qué exige que la identidad del agente sea atribuible a un responsable **y que ese
+vínculo sobreviva a la baja del empleado** — que es precisamente lo que el esquema de authentik
+(`on_delete=SET_DEFAULT`) **no** garantiza por defecto.
+
+> ⚠️ **Hueco declarado, sin resolver desde el pase 8:** **no existe formato legible por máquina
+> para el Anexo IV** del EU AI Act. En NA, OSCAL cubre ese papel para controles; en EMEA el
+> equivalente sigue siendo prosa. Se vuelve a registrar explícitamente para que el silencio no
+> se confunda con cobertura.
+
+**La trampa de licencia con sabor europeo, medida hoy.** La única plataforma **IGA completa** de
+código abierto es [**Evolveum midPoint**](https://github.com/Evolveum/midpoint) — origen EMEA
+(Evolveum, Eslovaquia), uso declarado en sector público europeo, v4.12.0 en desarrollo, 556★ y un
+commit hoy. Y:
+
+- Su `LICENSE` (5 líneas, leído byte a byte) dice **EUPL-1.2 o posterior**, y su `NOTICE` lo
+  confirma. **Es copyleft con reciprocidad, no permisiva.**
+- El badge de GitHub dice `NOASSERTION`, que no dice nada.
+- **El catálogo Joinup de la propia Comisión Europea lo lista como "Apache License 2.0 y EUPL".**
+  Es la fuente que un cliente del sector público europeo citaría, y contradice al repositorio.
+- Y lo que más afecta a una consultora: **su documentación está en CC BY-**NC-ND** 4.0** — ni uso
+  comercial ni obras derivadas. **La documentación de midPoint no se puede adaptar dentro de un
+  entregable de cliente**, aunque el código sí se pueda usar leyendo la EUPL con legal.
+
+**La alternativa permisiva, para que el hallazgo sea accionable y no solo una advertencia:**
+[**apache/syncope**](https://github.com/apache/syncope) (Apache-2.0, gobernanza ASF, commit hoy)
+cubre aprovisionamiento, sincronización de directorios y conectores sin asteriscos; midPoint
+añade certificación y recertificación de accesos, que es lo que Syncope no trae. **Ese es el
+trade-off real de un engagement EMEA: certificación de accesos con copyleft, o permisiva sin
+certificación y construyéndola.** Decidirlo antes de la propuesta, no durante la entrega.
+
+**Oportunidad concreta en EMEA:** el producto es el **expediente de conformidad del ciclo de
+vida**. Un cliente con obligaciones de alto riesgo desde agosto de 2026 necesita demostrar, por
+cada agente, quién responde, qué podía hacer, cuándo se le quitó y qué evidencia queda — y el 12 %
+de estructuras de gobierno dedicadas dice que casi nadie puede. Con Syncope (permisiva) como base
+de aprovisionamiento, `scim2-tester` para probar que los endpoints cumplen los RFC, y la
+soberanía resuelta con despliegue propio, el entregable es defendible ante un regulador europeo
+sin arrastrar copyleft al código del cliente.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -2364,6 +2513,58 @@ equipo del cliente pueda mantener sin un experto COBOL. En India, donde la madur
 la más alta de la región, el siguiente tramo vendible es la conversión verificada con golden master
 contra GnuCOBOL — pero **advirtiendo que el framework abierto de unit testing de COBOL está
 archivado** y que construir el arnés de pruebas es parte del alcance, no un supuesto.
+
+
+#### Vigésimo pase (2026-11-24) — el ciclo de vida de la identidad del agente: el caso canónico de baja mal hecha es de Singapur, y lo cita OWASP
+
+**El incidente de referencia de esta capa está en APAC, y no lo elige esta KB: lo elige OWASP.**
+La ficha **NHI1:2025 Improper Offboarding** del repositorio de OWASP incluye en su lista de
+referencias el caso de un **ex-empleado de NCS (Singapur) que accedió al sistema de su antigua
+empresa y eliminó servidores virtuales** (cobertura de Channel NewsAsia). Es el caso canónico de
+"el humano se fue y el acceso de máquina no", citado por la fuente primaria del riesgo número uno.
+Para un engagement en APAC, es el ejemplo que abre la conversación sin tener que inventar un
+escenario — y es local.
+
+**Adopción: la región que más ha avanzado es la que más expuesta está.** Forrester sitúa a
+**Singapur, Australia, Nueva Zelanda y Corea del Sur por delante de la mayoría de los países de
+Norteamérica y Europa** en adopción de IA empresarial (secundario). El *CIO Playbook 2026* de
+Lenovo reporta que **96 % de las organizaciones planea aumentar su inversión en IA**, en torno a
+**+15 %** de media. IDC describe el gobierno unificado de IA pasando **de opcional a obligatorio**.
+La consecuencia para esta capa es directa y no es la de LATAM: **aquí los agentes ya están en
+producción**, así que la oferta no es "prepárense", es **"inventaríen y den de baja lo que ya
+tienen corriendo"** — remediación, no planificación.
+
+**Soberanía como restricción de arquitectura, no como preferencia.** Forrester prevé que la
+soberanía condicionará las decisiones de infraestructura de IA de la mitad de las empresas, y la
+cobertura regional insiste en que el dato debe almacenarse, procesarse o ser accesible según
+reglas locales. Para el ciclo de vida eso tiene una consecuencia concreta y poco obvia: **el
+registro de evidencia de la baja** (quién revocó qué y cuándo) es un dato de auditoría que, en
+varias jurisdicciones de APAC, **no puede salir del país**. Diseñar el almacén de evidencia como
+regional desde el principio; moverlo después es un proyecto.
+
+**Regulación desigual, con dos señales nuevas (secundarias).** La BSA ha señalado desarrollos en
+**Vietnam** (riesgo de costes mayores y de desincentivar inversión) y en **India** (riesgo de
+frenar adopción). Singapur sigue consultando sobre uso de IA en instituciones financieras con foco
+en transparencia, responsabilidad y supervisión de riesgo; el programa nacional **"AI Plus"** de
+China combina objetivos de adopción con medidas de gobernanza extensas. Japón aparece descrito
+como el mercado más cauto. Vietnam (ley en vigor desde el 1-mar-2026 y Decreto 142/2026) y la
+excepción de TDM rechazada en Corea ya estaban en esta KB desde el pase 8.
+
+**Un cero medido, con el instrumento declarado.** El repositorio de OWASP contiene **una única
+traducción**: coreano (`2025/docs/kr/`), y **solo del índice y de la ficha NHI1** — ninguna de las
+otras nueve. Es un indicador útil y pequeño: el único mercado de APAC donde este vocabulario
+existe en lengua local es Corea, y solo para el riesgo nº 1. **En japonés, chino simplificado,
+tailandés, bahasa o vietnamita no hay nada en el repo.** Para una propuesta en Japón o Indonesia,
+la traducción del marco es trabajo que hay que presupuestar, no material que se descarga.
+
+**Oportunidad concreta en APAC:** un servicio de **remediación de identidades no humanas** con
+almacén de evidencia regional. El cliente típico ya lidera en adopción, ya tiene agentes creados
+por pipelines sin pasar por gobierno, y tiene una restricción de residencia de datos que descarta
+los SaaS de NHI del mercado. Todo el stack necesario es permisivo y autoalojable:
+`agent-discovery` (MIT) + `cartography-cncf` + `prowler` para enumerar, `cloud-custodian` para
+expresar "sin uso en 90 días → desactivar" como política ejecutable, `apache/syncope` (Apache-2.0)
+para el aprovisionamiento, y `velero-io/velero` + `restic` para que el propio almacén de evidencia
+tenga su copia dentro de la región.
 
 ### LATAM
 
@@ -3295,6 +3496,72 @@ descargable que la atienda.**
 3. **Y la pieza que casi nadie cotiza**: `openmainframeproject/tersedecompress` (Apache-2.0) para
    abrir los transfers TERSE/AMATERSE del cliente. Es el paso que bloquea el día 1 de un proyecto y
    el que demuestra, en la primera reunión técnica, que se conoce la plataforma de verdad.
+
+
+#### Vigésimo pase (2026-11-24) — el ciclo de vida de la identidad del agente: la brecha entre adopción y gobierno **es** la oferta
+
+**El número que convierte esto en una venta, no en una advertencia.** El informe *AI Readiness in
+Latin America 2026* de **RSM** (más de 400 líderes empresariales de la región, secundario) reporta:
+
+- **~40 %** de las organizaciones ya está implementando IA.
+- **68 % de quienes ya la adoptaron planea escalarla en 12 meses.**
+- La **eficiencia** es la motivación principal para el **67 %**.
+- Y **menos de una de cada cinco tiene marcos formales de gobierno de IA.**
+
+Esa última línea, puesta junto a la segunda, es el encargo entero: **dos tercios de los adoptantes
+van a escalar dentro de un año y cuatro de cada cinco no tienen gobierno con el que escalar.** El
+ciclo de vida de la identidad del agente es el trozo más concreto, más medible y más barato de ese
+gobierno, y es el primero que falla cuando se pasa de un piloto a cincuenta agentes.
+
+**La escala del problema, en cifras de la región (secundario, y con una limitación declarada).**
+Cobertura de Computer Weekly en español sitúa en **50 a 1** la proporción de identidades **no
+humanas** frente a usuarios humanos en las empresas de América Latina; KPMG eleva la ratio a
+**82 a 1** en plataformas y ecosistemas digitales en expansión. ⚠️ `www.computerweekly.com` está
+**fuera de los dominios de red permitidos en esta sesión**, así que la cifra no se pudo verificar
+en el original: queda registrada **como secundaria** y con el número de la fuente, no redondeado.
+
+**Material regional que sí existe, nombrado:**
+
+- **KPMG Argentina y KPMG Venezuela**, *"Acceso invisible, riesgo visible"* (enero y marzo de
+  2026): recomiendan **automatizar el desaprovisionamiento** para eliminar identidades obsoletas o
+  comprometidas, y **distinguir las acciones propias de un agente de las que realiza en nombre de
+  alguien** mediante autoridad delegada. Es, en castellano y para esta región, exactamente la
+  distinción que el modelo `Actor`/`parent` de authentik implementa en código.
+- **KPMG Brasil** (noviembre de 2026, en portugués): identidades no humanas como superficie a
+  proteger — la señal más reciente y en el mercado más grande de la región.
+- **BID / IDB** (junio de 2026), *"De asistentes a agentes: una nueva capa operativa en el gobierno
+  digital"*: plantea que la IA agéntica exige nuevos marcos de gobernanza y más capacidad
+  institucional en el sector público.
+- Ya en esta KB desde el pase 8: **Uruguay** firmó el convenio marco del Consejo de Europa (2025) y
+  **Perú** publicó el reglamento de su Ley 31814 (SD 115-2025-PCM, en vigor desde el 22-ene-2026).
+
+> 🔍 **Cero medido, con el instrumento declarado — no silencio.** Instrumento: búsqueda corta en
+> español (`identidades no humanas agentes IA desaprovisionamiento gobierno LATAM 2026`), la misma
+> familia de consulta que el pase 8. Resultado: **ninguna norma latinoamericana vigente exige
+> específicamente el desaprovisionamiento de identidades de agentes de IA o de identidades no
+> humanas.** Lo que existe es (a) guía de consultoras (KPMG), (b) encuadre de sector público (BID)
+> y (c) regímenes generales de IA y de protección de datos que no bajan a este control. Para una
+> propuesta: **en LATAM este control no se vende por cumplimiento, se vende por riesgo operativo**
+> — y el caso de NCS en Singapur que cita OWASP sirve igual de bien aquí, porque el modo de fallo
+> no depende de la jurisdicción.
+>
+> **Segundo cero, también medido:** de los 24 repositorios verificados en este pase, **ninguno es
+> de origen LATAM**. Esta capa (IGA, SCIM, backup de Postgres, inventario cloud) está construida
+> en NA y EMEA. No hay nada que contribuir "desde la región" en el nivel de infraestructura; lo que
+> sí hay es el **conector y el proceso**, que es donde está el margen de una consultora.
+
+**Oportunidad concreta en LATAM, y por qué es distinta de las otras tres regiones:** en NA el
+producto es la **evidencia** (OSCAL ya existe), en EMEA es el **expediente de conformidad** (el AI
+Act obliga), en APAC es la **remediación** (ya tienen los agentes corriendo). **En LATAM el
+producto es el proceso que todavía no existe**: diseñar e implantar el alta y la baja de agentes
+*antes* de que el 68 % escale. Es el único de los cuatro encargos que se puede vender como
+*greenfield* en lugar de como arreglo, y es más barato de entregar por eso. Stack íntegramente
+permisivo y autoalojable, que además responde a la restricción de costes de la región:
+`apache/syncope` (Apache-2.0) para aprovisionar, la familia `python-scim` (Apache-2.0) para
+construir y **probar** los endpoints SCIM, `cloud-custodian` para la política de inactividad, y
+`cloudnative-pg` + `pgbackrest` (MIT) para que la memoria del agente tenga un RPO declarado desde
+el día uno. **Nada de ese stack tiene coste de licencia, y eso es un argumento de venta regional,
+no un detalle técnico.**
 
 ## Posicionamiento Globant
 

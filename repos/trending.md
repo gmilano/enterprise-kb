@@ -8,7 +8,77 @@ updated: 2026-11-24
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — decimonoveno pase (latest) — la capa heredada: 30 direcciones verificadas, 29 nuevas, y una licencia que contradice a la prensa
+## 2026-11-24 — vigésimo pase (latest) — la capa del ciclo de vida: 24 direcciones verificadas, 23 nuevas, y cuatro `NOASSERTION` con cuatro veredictos distintos
+
+> Tema: **el alta y la baja de la identidad del agente, y el RPO del estado que deja atrás.**
+> 24 direcciones verificadas el **2026-11-24**. **23 de las 24 eran nuevas** para esta KB (la
+> única que ya estaba, `microsoft/agent-governance-toolkit`, llevaba 12 pases sin que nadie
+> nombrara el componente que importa). Trece términos de esta capa estaban medidos en **cero**.
+>
+> **El plano de verificación cambió y hay que registrarlo.** `api.github.com/repos/...` y el
+> HTML de `github.com` dan **403** por el proxy de esta sesión. Lo que **sí** funciona:
+> `gh api -X GET search/repositories -f q='repo:<o>/<n>'` (estrellas, forks, `pushed_at`,
+> `archived`), `git ls-remote`, el clon `--bare --depth 1 --filter=blob:none` (fecha del último
+> commit **y el árbol completo de archivos sin bajar un blob**) y `raw.githubusercontent.com`
+> para leer licencias byte a byte.
+
+**Enumerar (5):** [cartography-cncf/cartography](https://github.com/cartography-cncf/cartography)
+(Apache-2.0, 4,201★), [prowler-cloud/prowler](https://github.com/prowler-cloud/prowler)
+(Apache-2.0, 15,321★),
+[cloud-custodian/cloud-custodian](https://github.com/cloud-custodian/cloud-custodian)
+(Apache-2.0, 6,118★), el componente `agent-governance-python/agent-discovery/` de
+[microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit)
+(MIT, 6,603★) y
+[Defend-AI-Tech-Inc/agent-discover-scanner](https://github.com/Defend-AI-Tech-Inc/agent-discover-scanner)
+(MIT, 23★, dormido desde 2026-07-28).
+
+**Aprovisionar y desaprovisionar (8):** [apache/syncope](https://github.com/apache/syncope)
+(Apache-2.0, **349★ y un commit hoy** — en esta capa las estrellas no son la señal),
+[Evolveum/midpoint](https://github.com/Evolveum/midpoint) (**EUPL-1.2-or-later**, 556★),
+[goauthentik/authentik](https://github.com/goauthentik/authentik) (**MIT excepto
+`authentik/enterprise/`**, 26,448★), la familia canónica **`python-scim`**
+([scim2-models](https://github.com/python-scim/scim2-models) 30★,
+[scim2-client](https://github.com/python-scim/scim2-client) 19★,
+[scim2-cli](https://github.com/python-scim/scim2-cli) 9★,
+[scim2-tester](https://github.com/python-scim/scim2-tester) 10★ — todas Apache-2.0) y
+[elimity-com/scim](https://github.com/elimity-com/scim) (MIT, 255★).
+
+**Credenciales (3):**
+[external-secrets/external-secrets](https://github.com/external-secrets/external-secrets)
+(Apache-2.0, 6,961★), [cert-manager/cert-manager](https://github.com/cert-manager/cert-manager)
+(Apache-2.0, 14,173★) e [Infisical/infisical](https://github.com/Infisical/infisical)
+(**MIT excepto `ee/`**, 30,732★).
+
+**El RPO del estado (5):**
+[cloudnative-pg/cloudnative-pg](https://github.com/cloudnative-pg/cloudnative-pg)
+(Apache-2.0, 9,657★), [pgbackrest/pgbackrest](https://github.com/pgbackrest/pgbackrest)
+(**MIT**, 4,510★), [velero-io/velero](https://github.com/velero-io/velero) (Apache-2.0, 10,386★),
+[restic/restic](https://github.com/restic/restic) (**BSD-2-Clause**, 37,429★) y
+[kopia/kopia](https://github.com/kopia/kopia) (Apache-2.0, 14,809★).
+
+**Tres exclusiones medidas, no silenciosas:**
+
+| Repo | Licencia | ★ | pushed | Por qué fuera |
+|---|---|---|---|---|
+| [Captain-P-Goldfish/scim-for-keycloak](https://github.com/Captain-P-Goldfish/scim-for-keycloak) | BSD-3-Clause | 210 | **2024-03-10** | `# End of Life` es el **primer encabezado de su README**, y GitHub **no** lo marca como archivado |
+| [EnterpriseDB/barman](https://github.com/EnterpriseDB/barman) | **GPL-3.0** | 3,282 | 2026-11-18 | Vivo y competente, pero copyleft: hay dos permisivas para lo mismo |
+| `agentmesh-discovery` (PyPI 5.0.0, MIT) | — | — | 2026-08-03 | **No se excluye el paquete, se excluye su puntero**: su URL de documentación declara `…/tree/main/agent-discovery`, directorio que **no existe**; la ruta real lleva el prefijo `agent-governance-python/` |
+
+**Cuatro `NOASSERTION`, cuatro veredictos distintos** — la demostración más limpia de que el
+badge no contiene información: `pgbackrest` → **MIT**; `authentik` → **MIT con carve-out**;
+el repo de OWASP → **CC-BY-SA-4.0** (licencia de contenido); `midpoint` → **EUPL-1.2** copyleft,
+y sus **docs en CC BY-NC-ND** (ni comercial ni derivadas: no se puede reempaquetar su
+documentación en un entregable de cliente).
+
+**Tres renombres corregidos, con un método nuevo.** `search/repositories` solo indexa el nombre
+**canónico**, así que un `repo:` con `total_count: 0` mientras `git ls-remote` y `raw` dan 200 es
+la firma exacta de un redirect — `git` y `raw` siguen los renombres en silencio.
+`lyft/cartography` → **`cartography-cncf/`**; `capitalone/cloud-custodian` →
+**`cloud-custodian/`**; `vmware-tanzu/velero` → **`velero-io/velero`**, con el matiz de que los
+plugins (`velero-plugin-for-csi`, `-for-vsphere`) **siguen** canónicamente en `vmware-tanzu`:
+el núcleo migró y los plugins no.
+
+## 2026-11-24 — decimonoveno pase — la capa heredada: 30 direcciones verificadas, 29 nuevas, y una licencia que contradice a la prensa
 
 > Tema: **el sistema de registro que precede a todo repo de esta KB.** 30 direcciones verificadas el
 > **2026-11-24** con `gh api -X GET search/repositories` (SPDX + estrellas + `pushed_at` +
@@ -368,7 +438,7 @@ longer a preview to wait out, every existing ICU-syntax estate has a migration a
 surface is **not** fully frozen. Quoting only the first sentence is how a 2028 rewrite gets sold.
 
 
-## 2026-11-24 — fifteenth pass (latest) — el límite del consumo, y una licencia que recae sobre datos
+## 2026-11-24 — fifteenth pass — el límite del consumo, y una licencia que recae sobre datos
 
 > Tema: **lo que el agente gasta y lo que hay que declarar sobre ese gasto.** **33 direcciones
 > nuevas** este pase. Toda licencia con `NOASSERTION` fue resuelta por **lectura byte a byte** del

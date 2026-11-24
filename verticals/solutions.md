@@ -1132,3 +1132,45 @@ core. No vender OFBiz como "el destino del mainframe".
    2026-05-28**. La alternativa real es golden-master contra GnuCOBOL (LGPL-3.0). Si el
    cliente espera "los tests existentes", hay que saber que en COBOL muchas veces **no
    existen**, y que construirlos es parte del alcance.
+
+## La plataforma que decide si el agente puede darse de baja: IGA, IdM y el operador que guarda su memoria (added twentieth pass, 2026-11-24)
+
+> La entrada "con forma de Odoo" de esta capa no es un ERP: es el **sistema de gobierno de
+> identidades (IGA)** que el cliente ya tiene o que va a tener que tener. Se personaliza, se le
+> escriben conectores y se le pone IA encima — y es el único lugar donde la baja de un agente
+> puede quedar demostrada. Hasta este pase, esta KB no nombraba ni uno.
+
+| Plataforma | Repo | Licencia (leída byte a byte) | ★ | pushed | Qué se puede construir encima |
+|---|---|---|---|---|---|
+| **Apache Syncope** | [apache/syncope](https://github.com/apache/syncope) | Apache-2.0 | 349 | 2026-11-24 | La opción **sin asteriscos** de esta capa: gestión de identidades de la ASF, con conectores, sincronización de directorios y aprovisionamiento. Permisiva de verdad, gobernanza de fundación, y se le escriben conectores propios en Java. Es la base recomendable cuando el entregable incluye código que Globant distribuye |
+| **authentik** | [goauthentik/authentik](https://github.com/goauthentik/authentik) | **MIT excepto `authentik/enterprise/`** (badge `NOASSERTION`) | 26,448 | 2026-11-24 | IdP moderno y el más adoptado de la tabla. **En la parte MIT**: proveedor SCIM de salida (`authentik/providers/scim/` + comando `scim_sync`), fuente SCIM de entrada (`authentik/sources/scim/`, 41 archivos), y las primitivas `Actor` / `ActorPolicyInheritance`. **Fuera de la parte MIT**: el modelo `Agent` y la caducidad por inactividad (`authentik/enterprise/lifecycle/expiration/`) |
+| **midPoint** | [Evolveum/midpoint](https://github.com/Evolveum/midpoint) | **EUPL-1.2 o posterior**; **docs CC BY-NC-ND 4.0** | 556 | 2026-11-24 | La única IGA *completa* del grupo (gobierno, certificación de accesos, recertificación), v4.12.0 en desarrollo, origen **EMEA** (Evolveum, Eslovaquia) y uso declarado en sector público europeo. **Copyleft**: entra solo con el visto bueno de legal, y su documentación **no se puede adaptar** en un entregable |
+| **CloudNativePG** | [cloudnative-pg/cloudnative-pg](https://github.com/cloudnative-pg/cloudnative-pg) | Apache-2.0 | 9,657 | 2026-11-24 | El operador donde vive, en la práctica, la **memoria del agente** (Postgres + pgvector, ya en esta KB). Es la plataforma que convierte "¿cuál es el RPO de lo que el agente recuerda?" en una respuesta configurable: archivado de WAL y PITR declarativos |
+| **Velero** | [velero-io/velero](https://github.com/velero-io/velero) | Apache-2.0 | 10,386 | 2026-11-24 | La plataforma de backup/restore y **migración** del namespace completo del agente, con hooks pre/post por pod. Nombre canónico `velero-io`, no `vmware-tanzu` |
+
+### Lo que diferencia a estas cinco de un producto comercial de IGA
+
+SailPoint, Saviynt, Okta y Microsoft Entra resuelven esto y son los nombres que el cliente ya
+conoce — ninguno estaba en esta KB tampoco. La razón para empezar por las cinco de arriba no es
+el precio: es que **el ciclo de vida de un agente no es el de un empleado**, y en una plataforma
+abierta se puede modelar. En concreto, tres cosas que hay que escribir a mano en cualquier caso:
+
+1. **El disparador.** El alta/baja de un humano la dispara RRHH. **La de un agente la dispara un
+   pipeline de despliegue**, y ningún flujo de gobierno escucha ahí. Hay que conectar el pipeline
+   al IGA, y eso es integración, no configuración.
+2. **El dueño.** Todo agente necesita un humano responsable y una política de qué pasa cuando ese
+   humano se va: ¿se traspasa, se rota la credencial, se da de baja? En authentik esa decisión
+   tiene nombre (`MIRROR`/`COPY`/`NONE`, ver `agents/top.md`).
+3. **La prueba.** La baja sin evidencia no sirve en una auditoría. Aquí se engancha OSCAL, que
+   esta KB ya tiene desde el pase 8: la certificación periódica de identidades no humanas
+   produce exactamente el tipo de artefacto que OSCAL representa.
+
+> **Advertencia de open-core, con la medida de este pase.** Tres productos de esta KB usan la
+> **misma frase** en su `LICENSE` — *"Portions of this software are licensed as follows"* — y
+> **cada uno dibuja la línea en un sitio distinto**: `onyx` carvea el *permission sync* (pase 7),
+> `authentik` carvea el modelo `Agent` y la caducidad por inactividad, e `Infisical`
+> **no** carvea el ciclo de vida de identidades de máquina (está en la parte MIT, con pruebas
+> e2e de limpieza de huérfanas y de alerta de caducidad). Procedimiento, no predicción: cuando
+> el `LICENSE` empiece con esa frase, listar el directorio carveado con
+> `git ls-tree -r HEAD --name-only` y comprobar si **la función que el engagement necesita** está
+> dentro. Son tres minutos y cambia el presupuesto.

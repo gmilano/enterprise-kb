@@ -2538,3 +2538,86 @@ CC-BY-4.0. **Interpretación: la vertical tiene demanda de servicios enorme y un
 software abierta diminuta.** Para una empresa de servicios eso no es una barrera, es el
 margen: lo que no se puede descargar, se construye y se cobra. Pero obliga a cotizar
 **construcción de herramientas** dentro del engagement, no solo uso de herramientas.
+
+## Vigésimo pase — 2026-11-24 — el límite del ciclo de vida: 2026 es el año en que el problema del agente dejó de ser crearlo y pasó a ser darlo de baja
+
+### Tendencia 26 — El riesgo nº 1 de las identidades no humanas es que no se dan de baja, y por primera vez hay una fuente primaria que lo ordena
+
+No es una opinión de proveedor: es el orden del **OWASP Non-Human Identities Top 10**, leído del
+árbol de su propio repositorio (`2025/docs/1-improper-offboarding.md` … `10-human-use-of-nhi.md`).
+**NHI1 = Improper Offboarding.** La ficha lo puntúa *Exploitability: Easy*, *Prevalence:
+Widespread*, **_Detectability: Hard_**, *Technical impact: Severe*, y la combinación de esas cuatro
+es lo que hace de esto una tendencia y no un control más: es **fácil de explotar, generalizado,
+grave y difícil de detectar**. Nadie va a reportar este problema; hay que ir a buscarlo.
+
+Los números que la propia ficha cita del informe NHI de la Cloud Security Alliance: **51 % de las
+organizaciones no tiene ningún proceso formal** para dar de baja o revocar claves de API de larga
+vida, y **32 % de los incidentes relacionados con NHI** tuvo como causa una identidad **huérfana**.
+Y el contraste que define la oportunidad: solo **15 %** considera el (des)aprovisionamiento
+automático la capacidad más importante de una herramienta de NHI. **El problema está reconocido y
+la solución no está priorizada** — eso es precisamente una ventana de servicio, no un mercado
+maduro.
+
+Vocabulario que conviene adoptar tal cual porque viene de la fuente y evita discusiones:
+**stale/dormant** (el servicio murió, la identidad no), **orphaned** (el dueño se fue, nadie
+heredó) y **partially offboarded employee** (un administrador que no era el dueño vio la credencial
+y se fue sin rotación). Nota de precisión al citar: solo existe el directorio `2025/` en el repo
+(último commit 2026-07-27), así que es **NHI1:2025** y **no hay edición 2026**.
+
+### Tendencia 27 — El ciclo de vida de un agente no lo dispara RRHH, lo dispara un pipeline — y por eso ningún flujo de gobierno se entera
+
+Ésta es la razón estructural por la que la tendencia 26 existe, y es la frase que hace que un CISO
+se incorpore en la silla: **la gestión de identidades de las empresas está construida alrededor de
+eventos de RRHH.** Alta, cambio de puesto, baja: los tres los dispara un sistema de personas. Un
+agente **no nace en RRHH**: nace en un despliegue, y a menudo lo crea un desarrollador con un
+permiso de autoservicio. Ningún *workflow* de gobierno escucha en ese punto, y los cambios de
+alcance que ocurren dentro de la capa de despliegue **no pasan por ninguna revisión**.
+
+Este pase encontró las dos caras del mismo hecho en código, no en prosa:
+
+- **La cara del producto:** la clase `Agent` de authentik incluye un permiso llamado
+  `add_agent_self_service`. El autoservicio está previsto, documentado y es deliberado — y es el
+  mecanismo por el que aparecen los agentes en la sombra.
+- **La cara del esquema:** en `authentik/core/models.py` (parte **MIT**), el vínculo con el humano
+  responsable es
+  `parent = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)`.
+  **Al borrar al humano, el vínculo se pone a NULL y la fila del agente sobrevive.** La identidad
+  huérfana no es un descuido de operación: **está en el modelo de datos.**
+
+Consecuencia práctica para la arquitectura, con nombre propio y tres opciones (ninguna gratis):
+`ActorPolicyInheritance` = `MIRROR` (vincula en vivo, el agente nunca excede al humano, pero
+**acopla** los ciclos de vida), `COPY` (instantánea: **no copia** el acceso derivado de grupos —
+infra-aprovisionamiento el día 1 — y **congela** las asignaciones directas — sobre-aprovisionamiento
+el día 100) o `NONE` (nada implícito, todo a mano). Y el conflicto que de ahí sale: el **tenet 1
+del NIST** (octubre de 2026, secundario) pide ciclos de vida **separados** del humano pero
+**verificablemente vinculados** a un responsable, y **ninguna de las tres opciones da las dos
+cosas**. Es una decisión de diseño que hay que escribir en un ADR en la semana 1, no un parámetro.
+
+### Tendencia 28 — Lo que el agente recuerda tiene un RPO, y recuperar a un agente dormido falla *porque* estaba dormido
+
+La contraparte de la identidad es el estado, y es la mitad de la que nadie habla. La memoria de un
+agente vive, en la práctica, en Postgres con pgvector. Eso significa que **su RPO y su RTO son un
+problema de Postgres**, con respuestas abiertas y permisivas (`cloudnative-pg` Apache-2.0,
+`pgbackrest` **MIT**, `velero-io/velero` Apache-2.0, `restic` BSD-2-Clause, `kopia` Apache-2.0) y
+con tres consecuencias que contradicen lo que casi todo el mundo asume, las tres leídas de los
+docs de los propios proyectos:
+
+1. **El RTO no es "restaurar": es "restaurar y conmutar".** CloudNativePG: *"recovery is **not
+   performed in-place**... it is used to **bootstrap a new cluster**"*. Cualquier plan de
+   continuidad que asuma restauración en sitio está mal por diseño del operador.
+2. **Sin archivado de WAL no hay recuperación a un punto en el tiempo**, solo restauración del
+   backup completo: *"A valid WAL archive is required to perform PITR."* Un RPO prometido sin
+   comprobar eso es ficción contractual.
+3. **Y la que da nombre a la tendencia:** *"PostgreSQL recovery will stop when it encounters the
+   first transaction that occurs after the specified time. **If no such transaction exists after
+   the target time, the recovery process will fail.**"* Es decir: **recuperar el estado de un
+   agente a un instante dentro de una ventana de inactividad falla precisamente porque el agente
+   estuvo inactivo.** La identidad dormida (tendencia 26) y el dato dormido fallan por la misma
+   razón, y un agente que corre por lotes — mensual, trimestral, de cierre fiscal — vive casi
+   siempre dentro de esa ventana.
+
+El corolario operativo, también de fuente primaria (docs de Velero): los hooks de backup **no se
+ejecutan en una shell**, el timeout de un pre-hook son **30 s por defecto** y `on-error` es
+**`Fail`**. El resultado por defecto de intentar *quiesce* de un almacén vectorial grande no es un
+backup inconsistente: es un **backup fallido**. Es el default correcto, y aun así sorprende la
+primera vez — así que conviene descubrirlo en un laboratorio y no en el primer incidente.
