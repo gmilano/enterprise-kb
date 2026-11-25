@@ -1,14 +1,173 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 📈 Agentes trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimoquinto pase (latest) — el límite de la contraparte: la capa sí tiene agentes, y el más estrellado de todos está muerto sin decirlo
+## 2026-11-25 — vigesimosexto pase (latest) — el límite del interruptor: la capa que apaga al agente existe, es permisiva, y casi no tiene agentes dentro
+
+> Tema: **cómo se apaga el agente, para quién, en cuánto tiempo, y qué prueba que estuvo apagado.**
+> Veintiséis pases construyeron lo que el agente lee, escribe, prueba, alcanza, firma, envía y con
+> quién trata. Ninguno construyó **el botón de parada** — y resulta que es el único de todos estos
+> límites que una ley **nombra literalmente**.
+
+> **Hueco medido antes de buscar, y es un cero limpio.** Sobre **22.106 líneas y 25 pases previos**:
+> `openfeature` = 0, `flagd` = 0, `unleash` = 0, `flipt` = 0, `growthbook` = 0, `featureflag` = 0,
+> `feature flag` = 0, `kill switch` = 1 (prosa suelta, sin repo), `killswitch` = 0, `interruptor` = 0,
+> `toggle` = 0, `canary` = 1, `chaos` = 0, `litmus` = 0, `chaos-mesh` = 0, `circuit breaker` = 0,
+> `circuitbreaker` = 0, `error budget` = 0, `oncall` = 0, `on-call` = 0, `postmortem` = 0,
+> `rollback` = 0, `robusta` = 0, `deadletter` = 0, `alertmanager` = 0, `showback` = 0.
+> **Dedup medido sobre las 27 direcciones nuevas: 27 en cero.** Ninguna aparecía en la KB.
+>
+> Y el contraste importa: el **coste** sí estaba cubierto (`openmeter` = 7, `opencost` = 10,
+> `finops` = 12, `metering` = 21, `facturación` = 35). Esta KB sabía **cuánto cuesta** el agente
+> antes de saber **cómo apagarlo**.
+
+### El hallazgo que ordena el pase: la capa del interruptor casi no tiene agentes
+
+De las **45 direcciones verificadas** de esta capa, **dos** tienen un agente dentro, y conviene
+decir cuál es cuál:
+
+| Repo | Licencia | ★ | Último commit | Qué es de verdad |
+|------|----------|---|---------------|------------------|
+| [robusta-dev/holmesgpt](https://github.com/robusta-dev/holmesgpt) | Apache-2.0 | 4,0k | 2026-11-22 | **«SRE Agent — CNCF Sandbox Project».** Agente real con bucle agéntico sobre datos de observabilidad en vivo. Creado por Robusta.Dev **con contribución mayor de Microsoft**. Toolsets integrados para Prometheus, Grafana, Datadog, Loki, Tempo, Elastic/OpenSearch, Splunk, k8s, OpenShift, Helm, ArgoCD, AWS/Azure/GCP, Postgres/MySQL/Mongo/ClickHouse, Kafka, GitHub/GitLab/Jira/ServiceNow, AlertManager/PagerDuty/OpsGenie. |
+| [open-feature/mcp](https://github.com/open-feature/mcp) | Apache-2.0 | **3** | 2026-11-24 | Servidor **MCP** oficial de OpenFeature. **Tres estrellas**, commit de ayer. Expone **dos** herramientas: `install_openfeature_sdk` y `ofrep_flag_eval`. |
+
+> **Y la propiedad de seguridad de `open-feature/mcp` es deliberada y hay que decirla en voz alta:
+> expone evaluación y NO expone mutación.** No hay herramienta de crear, modificar ni borrar flags.
+> **Un agente conectado a este servidor puede leer su propio interruptor y no puede apagarlo ni
+> encenderlo.** Es exactamente la asimetría que el octavo pase pidió para la frontera de escritura,
+> implementada aquí por omisión de herramienta en lugar de por política — y por tanto **no depende
+> de `ToolAnnotations`**, que el octavo pase demostró que son pistas no verificables.
+
+**Matiz honesto sobre HolmesGPT, porque su README invita al error:** dice *«read-only access and
+respects RBAC»*, y eso es cierto **de los datos de observabilidad**. Pero el mismo README describe
+**operator mode** en segundo plano y, con la integración de GitHub, **abrir pull requests para
+arreglar cosas**. Abrir un PR es una escritura al mundo. La lectura correcta: **read-only sobre la
+telemetría, no read-only sobre el repositorio.** Las dos frases conviven en el mismo README y sólo
+la primera se cita.
+
+### La capa de guardia murió dos veces, y ninguna de las dos lo dice donde se mira
+
+| Repo | Licencia | ★ | Último commit | Estado real |
+|------|----------|---|---------------|-------------|
+| [grafana/oncall](https://github.com/grafana/oncall) | **AGPL-3.0** | 3,9k | **2026-03-24** | **Archivado.** Rama por defecto `dev`, no `main`. |
+| [Netflix/dispatch](https://github.com/Netflix/dispatch) | Apache-2.0 | 6,5k | **2025-09-02** | **Archivado.** 14 meses sin commit al cerrar este pase. |
+| [keephq/keep](https://github.com/keephq/keep) | **MIT excepto `ee/`** | 12,6k | 2026-11-22 | **Vivo, y es el superviviente de la capa.** |
+| [robusta-dev/robusta](https://github.com/robusta-dev/robusta) | MIT | 3,1k | 2026-11-21 | Vivo. «Robusta Classic», motor de reglas; la parte AI es HolmesGPT, **otro repo**. |
+
+> **Conclusión comercial, directa:** si un cliente pide guardia/respuesta a incidentes
+> *self-hosted* como respaldo humano de un agente, **las dos respuestas famosas son de sólo
+> lectura** y la respuesta viable se llama **Keep**. Los pases 5, 25 y 26 han encontrado ya el
+> mismo patrón en tres capas distintas: la capa visible muere antes que la capa profunda.
+
+### T98 — UN ARCHIVO TIENE DOS FECHAS, Y PUEDEN DISTAR 73 DÍAS
+
+El hallazgo metodológico del pase, y es reutilizable por toda la flota.
+
+**`grafana/oncall` lleva dos fechas de archivo contradictorias en la misma página:**
+
+- El **banner de GitHub** dice: *«This repository was archived by the owner on **Jun 5, 2026**. It
+  is now read-only.»*
+- El **README** del mismo repo dice que OnCall OSS *«was archived on **2026-03-24**»*.
+- El **carril git** adjudica: `git log -1` → **`2026-03-24T10:22:42+01:00`**.
+
+El commit coincide con el README y con la documentación de Grafana. Es decir: **el día en que el
+trabajo paró (24-mar-2026) y el día en que alguien puso la bandera (5-jun-2026) son dos eventos
+distintos, separados por 73 días.** Y **`Netflix/dispatch` lo repite con tres fechas**: README
+anuncia 1-sep-2025, banner dice 3-sep-2025, último commit **2-sep-2025** — justo en medio.
+
+> **Regla: citar la fecha del último commit, porque es el día en que el mantenimiento acabó de
+> verdad.** La bandera `archived` es un acto administrativo posterior y de latencia arbitraria. Un
+> pase que sólo lea el banner **sobrestima la vida del proyecto en meses**. Y nótese que esto
+> **refina** a T-«`archived` es suficiente pero no necesaria» del pase 25: no sólo puede faltar la
+> bandera estando muerto el proyecto — **cuando la bandera está, su fecha puede no ser la fecha.**
+
+### Las trampas de licencia de esta capa, por orden de lo que cuestan
+
+1. **El scanner no la ve: la puerta es una CLAVE EN TIEMPO DE EJECUCIÓN dentro de código MIT.**
+   [featbit/featbit](https://github.com/featbit/featbit) (badge **MIT**, 2,0k ★, commit
+   2026-11-24). Su `LICENSE` es MIT limpio leído byte a byte, **y tiene cero directorios `ee/` o
+   `enterprise/`** (medido sobre el árbol). Pero el README dice *«FeatBit is an Open Core
+   product»* y *«Certain features require a valid license key»*, y el árbol lo confirma:
+   `Domain/Workspaces/LicenseVerifier.cs`, `Domain/Workspaces/LicenseFeatures.cs`,
+   `Api/Authorization/LicenseRequirement.cs` + `LicenseRequirementHandler.cs`,
+   `Application/Workspaces/GetLicenseQuota.cs`, y un test llamado `test_cp07_license_skip.py`.
+   **Ni leer `LICENSE` ni listar directorios detecta esto. Sólo un grep de `LicenseVerifier`.**
+   Y la vuelta de tuerca: **MIT concede expresamente el derecho a borrar ese verificador.** La
+   puerta no se sostiene en el copyright, se sostiene en que nadie la toque.
+2. **Permisiva con directorios propietarios, y dentro está justo el agente.**
+   [growthbook/growthbook](https://github.com/growthbook/growthbook) (8,7k ★, commit 2026-11-24).
+   `LICENSE` = *«MIT Expat»* **excepto tres rutas**, y las tres llevan su propio `LICENSE`
+   propietario (probado: 200/200/200). **289 de 7.020 ficheros (4,1%)** — y el contenido de ese
+   4,1% es lo que un estudio de AI querría: `services/agent-handler.ts`, `services/aiStepPolicy.ts`,
+   `services/ai-access.ts`, `services/ai-chat-to-model.ts`, `sandbox/sandbox-{core,eval,pool,worker}.ts`,
+   `models/VectorsModel.ts`, los *contextual bandits* y `api/visual-editor-ai/*`. La Enterprise
+   License prohíbe literalmente *«copy, merge, publish, distribute, sublicense, and/or sell»* y
+   exige asientos pagados para producción. **El README dice «Open Core» y no dice qué directorios.
+   El árbol lo dice en un clone sin blobs.**
+3. **«MIT excepto `ee/`» no es una licencia, es un puntero — y apunta a cosas muy distintas.**
+   Mismo texto de licencia, consecuencias opuestas: en **Keep**, `ee/` son **13 ficheros** y todos
+   gestores de identidad (Auth0, AzureAD, Keycloak) sobre 2.755 ficheros → la build MIT es
+   funcional y sólo pierdes **SSO empresarial**. En **GrowthBook**, el equivalente son **289
+   ficheros** y contienen **el agente entero**. **Hay que listar el directorio para saber qué
+   compraste.** Es el mismo patrón que el séptimo pase midió en `onyx` (`ee/external_permissions`),
+   y van tres proyectos independientes con la misma forma.
+4. **La frontera de licencia parte cliente y servidor, y en sentido inverso al esperado.**
+   [flipt-io/flipt](https://github.com/flipt-io/flipt) (5,0k ★, commit 2026-11-21). **Rama por
+   defecto `v2`, no `main`.** Servidor bajo **Fair Core License 1.0 (MIT Future License)** — **no
+   es open source hoy**, convierte a MIT tras dos años, y prohíbe uso competidor. Pero `rpc/` y el
+   SDK de Go **son MIT**. Resultado operativo: **se puede hablar con Flipt desde producto propio;
+   no se puede empotrar su servidor.**
+5. **Uniformemente AGPL es MÁS honesto que permisivo con sótano propietario.**
+   [Unleash/unleash](https://github.com/Unleash/unleash) (14,3k ★, commit 2026-11-24) se vende como
+   *«Enterprise Feature Management Platform with an Open Source Core»* y su `LICENSE` es
+   **AGPL-3.0**, confirmado por segundo oráculo (`package.json` → `"license": "AGPL-3.0-or-later"`).
+   **Cero directorios `ee/`.** Una sola licencia, dura, para todo el repo: **sabes exactamente
+   dónde estás parado**, que es más de lo que puede decirse de los casos 1 y 2.
+6. **Y el reparto de funciones de Unleash es EL dato comercial de la capa.** Su README pone
+   **`kill switches`, *gradual rollouts* y *audit logs* en la edición abierta**, y nombra como
+   Enterprise: **RBAC, *change requests*, SSO y SCIM.** Dicho sin adornos: **el interruptor es
+   gratis; QUIÉN puede accionarlo y la APROBACIÓN para accionarlo se pagan.** Esa es la frase para
+   un comité de riesgos, y no es una opinión: está en el README del proyecto más estrellado de la
+   capa.
+7. **Colisión de nombre dentro de la propia KB, y por eso nunca se compone por nombre corto.**
+   Este pase añade [open-feature/watchman](https://github.com/open-feature/watchman) (MIT, 14 ★) y
+   el pase 25 añadió `moov-io/watchman` (cribado de sanciones). **Dos `watchman` sin relación
+   alguna.** Escribir siempre `owner/repo`.
+
+### El cero más caro del pase: nadie mantiene la aplicación del flag en el borde
+
+[open-feature/watchman](https://github.com/open-feature/watchman) — MIT, 14 ★, *«A Kubernetes
+admission controller driven by open-feature»* — es el único artefacto abierto encontrado que
+**aplica** un flag de OpenFeature en el *admission* de Kubernetes, es decir que convierte el
+interruptor en una negativa de arranque de *pod*. **Banner: archivado el 10-abr-2025.** Y hay que
+ser preciso para no venderlo mal: **el propio README lo presenta como proyecto de demostración**
+para aprender cómo OpenFeature controla infraestructura, no como componente de producción.
+
+> **Así que el hueco queda declarado, no rellenado: no existe componente abierto y mantenido que
+> aplique un flag de OpenFeature en la frontera de admisión.** La evaluación está resuelta (flagd,
+> OFREP, 18 SDKs). La **aplicación** en el borde, no. Es trabajo de integración identificado, con
+> una demo archivada como punto de partida y licencia MIT que permite retomarla.
+
+### Inventario completo de una organización en dos llamadas (y por qué hacen falta dos)
+
+`github.com/orgs/open-feature/repositories?type=source` por `WebFetch` → **60 repos**, licencia y
+estado de archivo de cada uno. **Pagina a 30**, y la página 2 es donde estaban **los cinco
+archivados**: `ofep` (22 ★, el repo de propuestas/RFC del proyecto), `watchman` (14 ★),
+`docs.openfeature.dev`, `kubecon-eu-2024-demo` y `open-feature.github.io`. **Quien lea sólo la
+página 1 declara «0 archivados» sobre una organización que tiene 5.** Es la regla de paginación
+del pase 25, y ha pagado a la primera.
+
+Dato con matiz: **`ofep` archivado no significa proyecto parado.** Los 55 repos restantes están
+activos, `community` (104 ★) sigue vivo y `flagd` tenía commit de anteayer. Lo que se archivó es
+**el cauce de propuestas**, no el producto.
+
+## 2026-11-24 — vigesimoquinto pase — el límite de la contraparte: la capa sí tiene agentes, y el más estrellado de todos está muerto sin decirlo
 
 > Tema: **con quién puede operar el agente.** Veintiséis términos medidos **con límite de palabra**
 > sobre **20.810 líneas y 24 pases previos**, y los veintiséis en cero: `sanctions screening` = 0,

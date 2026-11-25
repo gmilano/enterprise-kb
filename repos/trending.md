@@ -1,14 +1,164 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 📈 Repos trending — Enterprise
 
 > **APPEND-ONLY.** Newest dated section first; history is kept below it.
 
-## 2026-11-24 — vigesimoquinto pase (latest) — la capa de la contraparte: 26 términos medidos en cero, 25 direcciones verificadas, 24 existen, y el instrumento recuperó dos campos que el pase anterior declaró perdidos
+## 2026-11-25 — vigesimosexto pase (latest) — el plano del interruptor: 26 términos medidos en cero, 45 direcciones verificadas, 27 nuevas, y la única ley que nombra el botón
+
+> **Hueco medido antes de escribir, y dedup medido antes de escribir.** Veintiséis términos de la
+> capa sobre **22.106 líneas y 25 pases previos**: `openfeature`, `flagd`, `unleash`, `flipt`,
+> `growthbook`, `featureflag`, `feature flag`, `killswitch`, `interruptor`, `toggle`, `chaos`,
+> `litmus`, `chaos-mesh`, `circuit breaker`, `circuitbreaker`, `error budget`, `oncall`, `on-call`,
+> `postmortem`, `rollback`, `robusta`, `deadletter`, `alertmanager`, `showback`, `banderas`,
+> `despliegue gradual` → **todos en cero** (`kill switch` = 1 y `canary` = 1, ambos prosa suelta
+> sin repositorio detrás). **Y las 27 direcciones nuevas de este pase: 27 medidas en cero.**
+
+> **EL INSTRUMENTO, y este pase añade un tercer carril que los dos anteriores no tenían.** Sigue
+> siendo cierto lo del pase 24 (`api.github.com` y `github.com` por `curl` → **403**; `HEAD`
+> bloqueado, verificar con **GET**) y lo del pase 25 (**`WebFetch` sí alcanza el HTML de
+> `github.com`** y trae estrellas, licencia de *sidebar* y badge «Public archive» **con su fecha**;
+> y `orgs/<org>/repositories?type=source` da la organización entera, **paginando a 30**).
+> **Lo nuevo:**
+>
+> - **`git clone --bare --depth 1 --filter=blob:none` + `git ls-tree -r --name-only HEAD` da el
+>   ÁRBOL DE FICHEROS COMPLETO sin descargar un solo byte de contenido.** Es el único instrumento
+>   que resuelve «permisiva excepto estos directorios»: con él se midió que GrowthBook tiene
+>   **289 ficheros propietarios de 7.020** y que el `ee/` de Keep son **13 de 2.755**. Un clone
+>   blobless de un monorepo de 7.000 ficheros tarda segundos.
+> - **`git log -1 --format=%cI` sobre ese mismo bare clone es el ÁRBITRO de las fechas de archivo**
+>   (ver T98 más abajo). Mejor evidencia que el banner y que el README, porque el commit no se
+>   mueve.
+> - **Combinados, los tres carriles dan: existencia + rama por defecto + licencia byte a byte +
+>   árbol de ficheros + fecha real del último commit + estrellas + bandera de archivo.** Es el
+>   conjunto más completo que esta KB ha tenido sin API, y **no requiere API**.
+> - **`git ls-remote --symref <url> HEAD` da la rama por defecto en una línea**, y hacía falta:
+>   de las 45 direcciones de este pase, **la rama por defecto NO era `main` en seis** — `flipt`
+>   (`v2`), `grafana/oncall` (`dev`), `argo-rollouts`, `litmus`, `chaos-mesh`, `chaosmonkey`,
+>   `robusta`, `resilience4j` (`master`). Pedir `raw.githubusercontent.com/.../main/LICENSE` a
+>   ciegas habría devuelto **404 en ocho repos vivos** y los habría registrado como «sin licencia».
+
+### Verificación: 29 direcciones probadas una a una (28 existen, 1 no) + 60 inventariadas por organización
+
+**Dos niveles de evidencia, y conviene no mezclarlos.** **(a) 29 direcciones probadas una a una**
+por los tres carriles (existencia + rama + licencia byte a byte + árbol + fecha de commit):
+`open-feature/{spec,flagd,open-feature-operator,protocol,mcp,cli,go-sdk,java-sdk,js-sdk,flagd-ui}`,
+`thomaspoignant/go-feature-flag`, `Unleash/unleash`, `flipt-io/flipt`, `Flagsmith/flagsmith`,
+`growthbook/growthbook`, `featbit/featbit`, `argoproj/argo-rollouts`, `fluxcd/flagger`,
+`chaos-mesh/chaos-mesh`, `litmuschaos/litmus`, `Netflix/chaosmonkey`, `grafana/oncall`,
+`Netflix/dispatch`, `keephq/keep`, `robusta-dev/robusta`, `robusta-dev/holmesgpt`,
+`resilience4j/resilience4j`, `App-vNext/Polly`, `open-feature/watchman`. **28 existen; 1 no.**
+**(b) 60 repositorios inventariados** por el listado de organización `open-feature`
+(licencia y bandera de archivo de cada uno, **no** probados individualmente): `spec`, `flagd`, `open-feature-operator`,
+`protocol`, `mcp`, `cli`, `community`, `watchman`, `flagd-schemas`, `flagd-testbed`,
+`{go,js,java,python,dotnet,kotlin,swift,rust,dart,ruby,php,elixir,cpp}-sdk`,
+`{go,js,java,python,dotnet,kotlin,rust,ruby,cpp,elixir}-sdk-contrib`, `openfeature.dev`, `ofep`.
+Plataformas: `thomaspoignant/go-feature-flag`, `Flagsmith/flagsmith`, `featbit/featbit`,
+`growthbook/growthbook`, `Unleash/unleash`, `flipt-io/flipt`. Entrega progresiva:
+`argoproj/argo-rollouts`, `fluxcd/flagger`. Caos: `chaos-mesh/chaos-mesh`, `litmuschaos/litmus`,
+`Netflix/chaosmonkey`. Guardia: `grafana/oncall`, `Netflix/dispatch`, `keephq/keep`,
+`robusta-dev/robusta`, `robusta-dev/holmesgpt`. Resiliencia: `resilience4j/resilience4j`,
+`App-vNext/Polly`.
+
+**No existe, y por eso no es una fila (1).** **`open-feature/flagd-ui`** → `git ls-remote` no
+devuelve nada. **Era una conjetura propia**, no una recomendación de terceros: se supuso que un
+demonio de flags con 1k ★ tendría una UI oficial con nombre predecible. No la tiene en ese nombre.
+Queda escrito porque **una conjetura plausible y un repositorio son cosas distintas**, y el pase
+25 falló exactamente igual con `trade-tariff/trade-tariff-backend`.
+
+### T98 — un archivo tiene dos fechas, y pueden distar 73 días
+
+`grafana/oncall`: banner **5-jun-2026**, README **24-mar-2026**, último commit
+**2026-03-24T10:22:42+01:00**. `Netflix/dispatch`: README anuncia **1-sep-2025**, banner
+**3-sep-2025**, último commit **2025-09-02**. **El día en que el trabajo paró y el día en que se
+puso la bandera son eventos distintos. Citar el commit.** Refina la regla del pase 25 (`archived`
+es suficiente pero no necesaria): **cuando la bandera está, su fecha puede no ser la fecha.**
+
+### T99 — una puerta comercial puede no estar en ninguna licencia
+
+`featbit/featbit`: `LICENSE` **MIT limpio** byte a byte, **cero** directorios `ee/`/`enterprise/`
+en el árbol, y sin embargo *«Certain features require a valid license key»* en el README, con
+`LicenseVerifier.cs`, `LicenseFeatures.cs`, `LicenseRequirement{,Handler}.cs`, `GetLicenseQuota.cs`
+y un `test_cp07_license_skip.py` en el árbol. **Tres mecanismos de puerta, y sólo dos son
+detectables por los métodos que esta KB ya tenía:**
+
+| # | Mecanismo | Ejemplo | Se detecta con |
+|---|-----------|---------|----------------|
+| 1 | Licencia no-OSS de todo el servidor | `flipt-io/flipt` (FCL-1.0) | Leer `LICENSE` (T56) |
+| 2 | Permisiva **excepto** subdirectorios | `growthbook`, `keephq/keep`, `onyx` (pase 7) | **Listar el árbol** (nuevo) |
+| 3 | **Clave de licencia en ejecución, dentro de código permisivo** | `featbit/featbit` | **Ni uno ni otro. Sólo grep de `License*` en el árbol.** |
+
+> Y el remate jurídico: **MIT concede el derecho a modificar y por tanto a borrar el verificador.**
+> El mecanismo 3 no se apoya en el copyright; se apoya en que nadie mire. **Para un cliente, eso
+> es un riesgo de relación comercial, no de licencia** — y es una conversación distinta, que hay
+> que tener antes y no después.
+
+### T100 — el límite de un directorio es un PREFIJO DE RUTA, y los prefijos se filtran
+
+Verificado en `growthbook`. Su `LICENSE` nombra exactamente tres rutas:
+`packages/back-end/src/enterprise`, `packages/front-end/enterprise`,
+`packages/shared/src/enterprise`. Pero el repo contiene además
+**`packages/back-end/test/enterprise/`** — que **no** es ninguna de las tres (`test/`, no `src/`)
+y **no lleva `LICENSE` propio** (probado: **404**). Dentro hay `aiStepPolicy.test.ts`,
+`ai-chat-to-model.test.ts`, `ai-cache.test.ts`, `data-pipeline.test.ts`, `interleaving-*.test.ts`.
+
+> **Consecuencia literal: la suite de pruebas del código propietario es MIT.** Se puede leer y
+> ejecutar legalmente la especificación ejecutable de la función que no se puede usar en
+> producción. No es un atajo para reimplementarla —eso sería una obra derivada discutible— pero
+> **sí es la mejor documentación disponible de un comportamiento que el README no documenta**, y
+> para decidir si merece la pena pagar, vale más que el *pricing page*.
+>
+> Regla general: **al auditar una licencia por directorios, comparar el árbol real contra las
+> rutas citadas en `LICENSE`, carácter a carácter.** Un nombre de directorio que coincide no es
+> una ruta que coincide. La misma palabra `enterprise` aparece aquí en cuatro rutas y sólo tres
+> están licenciadas.
+
+### T101 — cadena permisiva completa, y hay que saber qué eslabón falta
+
+La cadena de conmutación de OpenFeature está **entera en Apache-2.0** y es componible hoy:
+
+`agente` → [`open-feature/mcp`](https://github.com/open-feature/mcp) (3 ★) → **OFREP**
+([`open-feature/protocol`](https://github.com/open-feature/protocol), 58 ★) →
+[`flagd`](https://github.com/open-feature/flagd) (1k ★) → `FeatureFlag` CRD vía
+[`open-feature-operator`](https://github.com/open-feature/open-feature-operator) (319 ★)
+
+**Eslabón que falta y queda declarado:** la **aplicación** del flag en el borde.
+`open-feature/watchman` (MIT, 14 ★) era el único artefacto que lo hacía —*admission controller* de
+Kubernetes gobernado por un flag— y está **archivado desde el 10-abr-2025**, además de ser
+**declaradamente una demo**. Evaluación: resuelta. Aplicación en el borde: trabajo de integración,
+con base MIT reutilizable.
+
+### Las estrellas de la capa, para calibrar y no para rankear
+
+`Unleash` 14,3k · `keephq/keep` 12,6k · `Flagsmith` 9,5k · `growthbook` 8,7k ·
+`chaos-mesh` 8,0k · `Netflix/dispatch` 6,5k (archivado) · `litmus` 5,7k · `flagger` 5,4k ·
+`flipt` 5,0k (FCL) · `holmesgpt` 4,0k · `grafana/oncall` 3,9k (archivado) ·
+`argo-rollouts` 3,6k · `robusta` 3,1k · `go-feature-flag` 2,1k · `featbit` 2,0k ·
+`open-feature/spec` 1,3k · `flagd` 1k · `open-feature/mcp` **3**.
+
+> **Lo que las estrellas NO dicen, y es casi todo lo que importa en este pase:** los dos
+> proyectos más estrellados de la capa de guardia están archivados; el proyecto con **3
+> estrellas** es el que conecta un agente al interruptor; y el de **14,3k** es AGPL. **Ordenar
+> esta tabla por estrellas produce exactamente la lista de decisiones equivocadas.**
+> Dos proyectos CNCF graduado/incubando (`flagger` graduado, `chaos-mesh` incubando,
+> `litmus` CNCF, `holmesgpt` Sandbox) pesan más que su recuento.
+
+### Estado de mantenimiento, medido por commit y no por impresión
+
+Frescos al cerrar el pase (commit en las 96 h previas): `open-feature/mcp` **2026-11-24**,
+`growthbook` **2026-11-24**, `Unleash` **2026-11-24**, `featbit` **2026-11-24**, `flagsmith`
+**2026-11-24**, `go-feature-flag` **2026-11-24**, `flagd` 2026-11-23, `argo-rollouts` 2026-11-23,
+`chaos-mesh` 2026-11-22, `keep` 2026-11-22, `holmesgpt` 2026-11-22, `robusta` 2026-11-21,
+`Polly` 2026-11-21, `flipt` 2026-11-21, `flagger` 2026-11-16, `open-feature/spec` 2026-11-15.
+Más atrás pero vivos: `resilience4j` 2026-10-30, `open-feature-operator` 2026-10-29,
+`litmus` 2026-10-27, `open-feature/cli` 2026-10-14, `open-feature/protocol` 2026-09-30.
+**Parados: `Netflix/chaosmonkey` sin commit desde 2024-10-03** (dos años), y los dos archivados.
+
+## 2026-11-24 — vigesimoquinto pase — la capa de la contraparte: 26 términos medidos en cero, 25 direcciones verificadas, 24 existen, y el instrumento recuperó dos campos que el pase anterior declaró perdidos
 
 > **Dedup medido antes de escribir, no estimado.** Veintiséis términos de la capa, medidos **con
 > límite de palabra** sobre **20.810 líneas y 24 pases previos**: **los veintiséis en cero.**

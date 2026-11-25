@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🎯 Agentes AI — Enterprise
@@ -1474,3 +1474,76 @@ compatible con el esquema FtM.
 - **Dos presupuestos, no uno:** software (permisivo, Globant construye) y **datos** (licencia
   comercial de un tercero, el cliente firma). Confundirlos es la forma más rápida de que el
   proyecto muera en *procurement*.
+
+## Vigesimosexto pase — 2026-11-25 — el límite del interruptor: dos filas reales, y la segunda tiene tres estrellas
+
+> **Tema: cómo se apaga el agente.** Veintiséis términos medidos sobre **22.106 líneas y 25 pases
+> previos** — `openfeature`, `flagd`, `unleash`, `flipt`, `growthbook`, `feature flag`,
+> `killswitch`, `interruptor`, `toggle`, `chaos`, `circuit breaker`, `error budget`, `oncall`,
+> `postmortem`, `rollback`, `robusta`, `alertmanager`… — **todos en cero.** Y el contraste es la
+> noticia: el **coste** del agente sí estaba cubierto (`openmeter` 7, `opencost` 10, `finops` 12,
+> `metering` 21, `facturación` 35). **Esta KB sabía cuánto cuesta el agente antes de saber cómo
+> apagarlo.**
+>
+> Es además el único de los veintiséis límites de esta serie que **una norma nombra literalmente**:
+> **AI Act art. 14(4)(e)** — el supervisor debe poder *«intervenir o interrumpir»* el sistema
+> mediante un **botón de parada**, dejándolo **en un estado seguro**.
+
+**De las 29 direcciones probadas una a una en esta capa (más 60 inventariadas por organización),
+dos tienen un agente dentro.** Las demás están
+en `repos/foundations.md` y `verticals/solutions.md`, donde corresponden.
+
+| Agente | Repo | Licencia | ★ | Último commit | Qué hace, de verdad |
+|--------|------|----------|---|---------------|---------------------|
+| **HolmesGPT** | [robusta-dev/holmesgpt](https://github.com/robusta-dev/holmesgpt) | **Apache-2.0** | 4,0k | 2026-11-22 | *«SRE Agent — CNCF Sandbox Project.»* Bucle agéntico sobre **datos de observabilidad en vivo** para encontrar causa raíz de incidentes de producción. Creado por Robusta.Dev **con contribución mayor de Microsoft**. *Operator mode* en segundo plano: detecta, investiga y avisa por Slack. Lee alertas de **AlertManager, PagerDuty, OpsGenie y Jira** y escribe los hallazgos de vuelta. |
+| **OpenFeature MCP** | [open-feature/mcp](https://github.com/open-feature/mcp) | **Apache-2.0** | **3** | **2026-11-24** | Servidor **MCP** oficial de OpenFeature. Dos herramientas: `install_openfeature_sdk` y `ofrep_flag_eval` (evaluación individual o en lote vía OFREP). **Tres estrellas y commit de ayer.** |
+
+### La propiedad de seguridad de `open-feature/mcp`, que es el motivo de incluirlo
+
+**Expone evaluación y no expone mutación.** No hay herramienta de crear, modificar ni borrar
+flags. **Un agente conectado a este servidor puede leer su propio interruptor y no puede
+accionarlo.**
+
+Es la asimetría exacta que pidió el octavo pase (frontera de escritura), y está implementada
+**por omisión de herramienta**, no por política. La diferencia es sustantiva: el octavo pase
+demostró que las `ToolAnnotations` del MCP **son pistas que el cliente debe tratar como no
+confiables**, con `destructiveHint=true` por defecto. Una herramienta que **no existe** no
+necesita que nadie crea en su anotación. **Es el patrón a copiar en cualquier herramienta de
+agente sobre un sistema de control: quitar el verbo, no documentar que no se debe usar.**
+
+### Matiz sobre HolmesGPT que hay que llevar a la reunión, porque su README invita al error
+
+Su README dice *«it has read-only access and respects RBAC permissions»*. **Es cierto de los datos
+de observabilidad.** Pero el **mismo README** describe que, con la integración de GitHub, el agente
+puede **abrir pull requests para arreglar los problemas que encuentra**. Abrir un PR es una
+escritura al mundo.
+
+> **Lectura correcta: read-only sobre la telemetría; no read-only sobre el repositorio.** Las dos
+> frases conviven en el mismo documento y en las presentaciones sólo se cita la primera. Para un
+> cliente regulado, el entregable aquí es **desactivar la integración de escritura o enrutarla por
+> la cola de aprobación** de la Receta 17 (frontera de escritura) — y conviene decirlo antes de
+> que lo pregunte su equipo de seguridad.
+
+**Lo que sí es excepcional de HolmesGPT, y es su argumento de compra:** el catálogo de *toolsets*
+integrados es la lista de sistemas que un cliente empresarial ya tiene — Prometheus, Grafana,
+Datadog, Loki, Tempo, Elastic/OpenSearch, Splunk, Coralogix, NewRelic, VictoriaMetrics, Zabbix;
+Kubernetes, OpenShift, Helm, ArgoCD, Docker, AKS, Crossplane; AWS, Azure, GCP; PostgreSQL, MySQL,
+MongoDB (+Atlas), MariaDB, ClickHouse, SQL Server, Kafka, RabbitMQ; GitHub, GitLab, Jenkins,
+Jira/Atlassian, Confluence, ServiceNow, Sentry; AlertManager, PagerDuty, OpsGenie, Slack, Teams.
+**Apache-2.0 y CNCF Sandbox.** Es, con diferencia, **el agente de esta KB con más integraciones
+empresariales ya escritas**, y el trabajo de un engagement es la selección y el gobierno de esos
+toolsets, no el bucle.
+
+### El cero de la capa, declarado y no rellenado
+
+**No hay agente open source que gobierne el interruptor** — que decida, con política y evidencia,
+apagar una capacidad para un inquilino concreto y lo deje probado. Lo que hay es:
+**motor de evaluación** (flagd, Apache-2.0), **protocolo** (OFREP), **13 SDKs**,
+**entrega progresiva con aborto automático** (Argo Rollouts, Flagger) y **un agente de
+investigación** (HolmesGPT). La pieza que une política + decisión + prueba **no existe como
+producto abierto**, y eso la convierte en el entregable de la Receta 54.
+
+**Y el cero que más cuesta:** `open-feature/watchman` (MIT, 14 ★) era el único artefacto que
+**aplicaba** un flag en el *admission* de Kubernetes, y está **archivado desde el 10-abr-2025**
+y declarado **demo** por su propio README. La evaluación está resuelta; **la aplicación en el
+borde, no.**

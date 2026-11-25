@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🧩 Patrones de composición — Enterprise
@@ -3983,3 +3983,154 @@ pasada con la lista de esa fecha.** Si eso no se puede, el resto es una demo.
 - **Prometer CSDDD como urgencia 2026.** Tras **Omnibus I (Directiva (UE) 2026/470)** está **en
   vigor pero sin aplicarse a ninguna empresa**: transposición hasta **26-jul-2028**, aplicación en
   **2029**, ámbito reducido a **>5.000 empleados y 1.500 M€**.
+
+## Receta 54 — El botón de parada del art. 14(4)(e), construido entero con licencias permisivas (added twenty-sixth pass, 2026-11-25)
+
+**Problema del cliente.** «Nuestro comité de riesgos no aprueba el agente hasta que podamos
+apagarlo. Para un cliente concreto, sin desplegar, en segundos, y con constancia de que estuvo
+apagado.» Y a partir de dic-2027, si el caso de uso es de alto riesgo, **no es una preferencia:
+el art. 14(4)(e) exige botón de parada con detención en estado seguro.**
+
+**Qué NO hacer.** Construir un panel de control de agentes. Y no comprar Unleash Enterprise por
+el RBAC: **hay vía permisiva para exactamente eso** (paso 2).
+
+**La cadena, toda Apache-2.0 salvo donde se indica, y verificada en este pase:**
+
+| # | Componente | Repo | Licencia | Función exacta |
+|---|-----------|------|----------|----------------|
+| 1 | Declaración de flags | [open-feature/spec](https://github.com/open-feature/spec) + [cli](https://github.com/open-feature/cli) | Apache-2.0 | Una capacidad del agente = un flag, con tipos generados. Neutral de proveedor: **el interruptor no queda atado a un SaaS.** |
+| 2 | **Almacén + control de acceso** | [open-feature/open-feature-operator](https://github.com/open-feature/open-feature-operator) | Apache-2.0 | Flags como **CRD `FeatureFlag`** en Kubernetes. **Aquí está el truco de coste: el interruptor hereda el RBAC del clúster y el flujo de aprobación de GitOps — que es justo lo que Unleash cobra como Enterprise.** |
+| 3 | Evaluación | [open-feature/flagd](https://github.com/open-feature/flagd) | Apache-2.0 | Demonio *sidecar*. Evalúa por contexto (inquilino, usuario, región). Sin núcleo de pago. |
+| 4 | Transporte | [open-feature/protocol](https://github.com/open-feature/protocol) (OFREP) | Apache-2.0 | Protocolo de cable: cambiar de motor después sin tocar la aplicación. |
+| 5 | Lectura desde el agente | [open-feature/mcp](https://github.com/open-feature/mcp) | Apache-2.0 | **Herramienta MCP `ofrep_flag_eval`: el agente consulta su propio interruptor. Y no puede accionarlo: el servidor no expone mutación.** |
+| 6 | SDK del servicio | `open-feature/{go,js,java,python,dotnet}-sdk` | Apache-2.0 | 13 lenguajes. El mismo interruptor vale para el modelo en Python y el *core* en Java. |
+| 7 | **El estado seguro** | `apache/camel` + `dapr/dapr-agents` (≥ v1.17) | Apache-2.0 | **La mitad que la capa de flags NO tiene.** Ver abajo. |
+| 8 | Prueba de que funciona | [chaos-mesh/chaos-mesh](https://github.com/chaos-mesh/chaos-mesh) | Apache-2.0 | Inyecta el fallo y demuestra la degradación. El dossier, no la promesa. |
+
+**El cableado, en el orden en que se construye:**
+
+1. **Un flag por capacidad, no uno por agente.** `agent.invoice.autoapprove`,
+   `agent.email.send`, `agent.ledger.write`. El art. 14(4)(e) habla de interrumpir *el sistema*;
+   un comité real quiere apagar **la capacidad que le da miedo** sin perder las demás.
+2. **`FeatureFlag` CRD vía el operador**, en el repo de GitOps del cliente. Quién puede cambiarlo
+   = RBAC del clúster. Quién lo aprobó = el PR. **Rastro de auditoría y control de acceso sin
+   licencia Enterprise.**
+3. **flagd como *sidecar* del agente**, contexto de evaluación = `{tenant, user, region,
+   capability}`. Reutiliza el sujeto de entitlement de la **Receta 16** (pase 7): el mismo sujeto
+   que decide lo que el agente **puede leer** decide ahora lo que **puede seguir haciendo**.
+4. **`ofrep_flag_eval` por MCP** para que el agente consulte el flag **antes de cada acción con
+   efecto**, no al arrancar. Un flag leído al arranque no es un botón de parada: es una opción de
+   despliegue.
+5. **EL ESTADO SEGURO, y es el trabajo de verdad.** Apagar la capacidad a mitad de una
+   transacción deja basura. Por cada capacidad hay que definir **qué significa parar bien**:
+   ¿*rollback* de la escritura?, ¿*checkpoint* y cola para un humano?, ¿compensación? Se
+   implementa donde vive la transacción, **no en el flag**: ruta de `apache/camel` con su paso de
+   compensación, o `dapr-agents` con **versionado de *workflow* (exige ≥ v1.17, o un despliegue a
+   media escritura corrompe la transacción** — hallazgo del octavo pase). **El flag dispara; la
+   orquestación aterriza.**
+6. **Probarlo con Chaos Mesh**, no razonarlo: apagar el flag con 50 transacciones en vuelo y
+   medir cuántas quedaron en estado válido. **Ese número es el entregable para el comité.**
+
+**Lo que se entrega.** Mapa capacidad ↔ flag ↔ inquilino ↔ **estado seguro**; el CRD en GitOps;
+el *sidecar*; la herramienta MCP de sólo lectura; y el **informe de parada**: N transacciones en
+vuelo, N en estado válido, tiempo desde el PR hasta el apagado efectivo.
+
+**Lo que hay que decirle al cliente, y es la frase que vende la receta.** *Un estado seguro no es
+lo mismo que detener la ejecución. Sin estado seguro definido, el botón de parada no tiene a qué
+parar.* **Todo el open source de esta capa le da el botón; ninguno le da el estado seguro.** Eso
+es el proyecto.
+
+**Hueco declarado:** la **aplicación** del flag en el borde (que el *pod* no arranque si el flag
+está apagado) la hacía `open-feature/watchman`, **MIT, archivado el 10-abr-2025 y declarado demo
+por su propio README**. Hoy es trabajo de integración con base MIT reutilizable, **y hay que
+cotizarlo como tal en lugar de prometer un componente que existe.**
+
+---
+
+## Receta 55 — Desplegar un modelo nuevo como se despliega un binario nuevo: canario con aborto automático (added twenty-sixth pass, 2026-11-25)
+
+**Problema del cliente.** «Queremos cambiar el modelo del agente —o su *prompt*, o su conjunto de
+herramientas— sin apostar la operación entera a que la evaluación de laboratorio se parezca a
+producción.»
+
+**El hallazgo que hace la receta barata.** Cambiar de modelo tiene **la misma forma** que cambiar
+de binario: mover un 5% del tráfico, medir, promover o abortar. Y **el aborto automático ya está
+construido, permisivo y maduro**:
+
+| Componente | Repo | Licencia | ★ | Cuándo elegirlo |
+|-----------|------|----------|---|-----------------|
+| Flagger | [fluxcd/flagger](https://github.com/fluxcd/flagger) | Apache-2.0 | 5,4k | Cliente con **Flux**. **CNCF graduado.** CRD `Canary` **al lado** del `Deployment`: el menos invasivo, y **tiene *webhooks* pre-rollout — el punto de enganche para la compuerta de evaluación.** |
+| Argo Rollouts | [argoproj/argo-rollouts](https://github.com/argoproj/argo-rollouts) | Apache-2.0 | 3,6k | Cliente con **Argo CD**. CRD `Rollout` con pasos ordenados y `AnalysisRun`; **al fallar el análisis aborta y devuelve el tráfico al ReplicaSet estable.** |
+
+**El cableado.**
+
+1. **El modelo/prompt/toolset va en un `Deployment` versionado**, no en una variable de entorno.
+   Si no es un artefacto desplegable, no hay canario posible.
+2. **`AnalysisRun` (Argo) o `metric` + umbral (Flagger) sobre métricas de AGENTE, no de HTTP.**
+   Esto es **lo único que hay que construir**, y es donde está el valor:
+   - **tasa de escalado a humano** (la mejor señal de regresión, y la más barata de instrumentar),
+   - **coste por tarea completada** (ya cubierto en esta KB: OpenMeter/OpenCost, `metering` = 21),
+   - **tasa de fallo de validación de esquema** (la compuerta de la Receta 49),
+   - **latencia p95 por tarea**, no por *token*.
+3. **Umbral de aborto, y aquí la regla del dominio:** un canario de binario aborta por errores 5xx;
+   **un canario de agente casi nunca produce 5xx** — produce respuestas plausibles y peores. **Si
+   la métrica no mide calidad, el canario promueve la regresión con la conciencia tranquila.**
+4. **Doble llave con la Receta 54:** el canario es automático y gradual; el flag es manual e
+   inmediato. **Son complementarios y hay que tener los dos:** el canario atrapa la degradación
+   lenta que nadie está mirando; el flag atrapa el incidente que ya está pasando.
+5. **Fallo hacia el modelo estable**, nunca hacia «sin agente», salvo que el estado seguro de la
+   capacidad esté definido (Receta 54, paso 5).
+
+**Aviso honesto para no vender humo.** Aplicar agentes **a decidir** la promoción del canario
+—que un LLM razone sobre las métricas— es, a fecha de este pase, **una propuesta de opinión en
+blogs, no práctica establecida.** La mecánica de umbrales es la que está probada. **La compuerta
+agéntica se puede añadir como *webhook* pre-rollout de Flagger, y se presenta como piloto, no
+como arquitectura.**
+
+---
+
+## Receta 56 — El respaldo humano del agente cuando las dos herramientas famosas están archivadas (added twenty-sixth pass, 2026-11-25)
+
+**Problema del cliente.** «Si el agente se equivoca a las 3 de la mañana, ¿quién se entera, cómo
+se le avisa, y quién investiga?» El art. 14 exige **supervisión humana efectiva**; una
+supervisión sin guardia ni canal de aviso es una declaración, no un control.
+
+**El dato que hay que llevar a la reunión antes de que lo pregunten.** Las dos respuestas
+*self-hosted* que el cliente habrá leído **están archivadas**:
+**`grafana/oncall`** (AGPL-3.0, 3,9k ★, **último commit 2026-03-24**, ruta oficial de salida =
+Grafana Cloud **SaaS**) y **`Netflix/dispatch`** (Apache-2.0, 6,5k ★, **último commit
+2025-09-02**). Fechas por `git log`, no por el banner — **el banner de OnCall dice 5-jun-2026 y
+se equivoca en 73 días** (T98).
+
+**La pila viable, verificada en este pase:**
+
+| Capa | Repo | Licencia | ★ | Papel |
+|------|------|----------|---|-------|
+| Alertas y guardia | [keephq/keep](https://github.com/keephq/keep) | **MIT excepto `ee/`** | 12,6k | *AIOps and alert management.* **El superviviente.** `ee/` = **13 ficheros de 2.755**, sólo Auth0/AzureAD/Keycloak → **la build MIT es funcional; se pierde SSO empresarial.** |
+| Enriquecimiento por reglas | [robusta-dev/robusta](https://github.com/robusta-dev/robusta) | MIT | 3,1k | Agrupación de alertas de Prometheus y remediación automática. MIT íntegro. |
+| **Investigación agéntica** | [robusta-dev/holmesgpt](https://github.com/robusta-dev/holmesgpt) | **Apache-2.0** | 4,0k | **«SRE Agent», CNCF Sandbox.** Bucle agéntico sobre observabilidad en vivo. Lee alertas de **AlertManager/PagerDuty/OpsGenie/Jira** y escribe hallazgos de vuelta. |
+| Corte automático | `resilience4j` (JVM, Apache-2.0) / [App-vNext/Polly](https://github.com/App-vNext/Polly) (.NET, **BSD-3-Clause**) | permisivas | — | *Circuit breaker* cuando el proveedor del modelo degrada **antes de que nadie mire**. |
+
+**El cableado.**
+
+1. **Lo que se instrumenta no es el agente: es su efecto.** Alertas sobre **tasa de escalado**,
+   **coste por tarea**, **fallos de validación** y **profundidad de la cola de aprobación** de la
+   Receta 17. Un agente «caído» es visible; un agente **que decide mal sigue respondiendo 200**.
+2. **Keep como punto único de agregación**, por encima del Prometheus que el cliente ya tiene.
+   **Ninguna pieza nueva en su catálogo.**
+3. **HolmesGPT para la primera pasada de causa raíz**, con **dos restricciones que hay que poner
+   por escrito en la propuesta:**
+   - su README dice *«read-only access and respects RBAC»*, **y eso aplica a la telemetría**. El
+     mismo README describe **abrir pull requests** vía la integración de GitHub. **Read-only sobre
+     los datos, no sobre el repositorio** — desactivar esa integración o enrutarla por la cola de
+     aprobación;
+   - **el agente que investiga al agente no puede compartir su identidad.** Reutilizar el sujeto
+     separado de la **Receta 16**: si el investigador hereda los permisos del investigado, el
+     dossier no vale como evidencia ante un auditor.
+4. **Circuit breaker en el proceso** (resilience4j / Polly) como última red: corta sin esperar a
+   que la guardia conteste. **Polly es BSD-3 y .NET, que es el núcleo real de banca y seguros en
+   LATAM y EMEA.**
+5. **Si el cliente insiste en Dispatch:** su README invita a forkear y Apache-2.0 lo permite.
+   **Cotizarlo como adopción de mantenimiento de un proyecto de 6,5k ★ sin aguas arriba**, no como
+   reutilización. Es una respuesta legítima; lo que no es legítimo es el presupuesto que la
+   presenta como gratis.

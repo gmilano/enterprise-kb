@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🏗️ Repos fundacionales — Enterprise
@@ -3655,3 +3655,135 @@ fleet**:
   **`REUSE.toml`** (REUSE spec 3.3) at its root — **machine-readable, per-file licensing**. Where
   a repo carries one, the licence question is answerable by parsing instead of by reading prose.
   First occurrence of REUSE in this KB; worth probing for on every future pass.
+
+## El plano del interruptor — evaluación de flags (vigesimosexto pase, 2026-11-25)
+
+> **Por qué esta sección es la que faltaba.** Veinticinco pases construyeron lo que el agente lee,
+> escribe, prueba, alcanza, firma, envía y con quién trata. Ninguno construyó **cómo se apaga**. Y
+> es el único de esos límites que una norma nombra literalmente: **AI Act art. 14(4)(e)** exige que
+> el supervisor humano pueda *«intervenir o interrumpir»* el sistema de alto riesgo mediante un
+> **botón de parada o procedimiento similar**, deteniéndolo **en un estado seguro**.
+>
+> Verificación: **29 direcciones probadas una a una** (y 60 inventariadas por el listado de la
+organización `open-feature`, que da licencia y bandera de archivo pero no es una prueba
+individual). Por fila: existencia y rama por defecto con `git ls-remote --symref`,
+> licencia **leída byte a byte** de `raw.githubusercontent.com` en la rama correcta, estrellas y
+> bandera de archivo por `WebFetch` del HTML, y **fecha real del último commit** con
+> `git clone --bare --depth 1 --filter=blob:none` + `git log -1`. Sin API de GitHub (403 en esta
+> sesión). **Las estrellas calibran, no ordenan** — en esta capa, ordenar por estrellas da la lista
+> de decisiones equivocadas.
+
+### La cadena OpenFeature — permisiva de punta a punta, y MCP-nativa
+
+Organización `open-feature`: **60 repositorios**, inventariados en dos páginas
+(`orgs/open-feature/repositories?type=source`, **pagina a 30**). **Apache-2.0 salvo donde se
+indica.**
+
+| Repo | Licencia | ★ | Último commit | Papel en la cadena |
+|------|----------|---|---------------|--------------------|
+| [open-feature/spec](https://github.com/open-feature/spec) | Apache-2.0 | 1,3k | 2026-11-15 | La especificación. Proyecto **CNCF**. Define evaluación, contexto y *hooks* de forma neutral de proveedor: **es el desacople que impide que el interruptor quede atado a un SaaS.** |
+| [open-feature/flagd](https://github.com/open-feature/flagd) | Apache-2.0 | 1k | 2026-11-23 | El demonio de evaluación de referencia, *«a feature flag daemon with a Unix philosophy»*. Corre como *sidecar* o servicio. **Sin núcleo de pago.** |
+| [open-feature/protocol](https://github.com/open-feature/protocol) | Apache-2.0 | 58 | 2026-09-30 | **OFREP** — OpenFeature Remote Evaluation Protocol. El protocolo de cable: permite cambiar de motor de flags sin tocar la aplicación. |
+| [open-feature/mcp](https://github.com/open-feature/mcp) | Apache-2.0 | **3** | **2026-11-24** | **Servidor MCP oficial.** Dos herramientas: `install_openfeature_sdk` y `ofrep_flag_eval`. **Expone evaluación y NO expone mutación** — un agente puede leer su interruptor y no puede accionarlo. Tres estrellas y commit de ayer. |
+| [open-feature/open-feature-operator](https://github.com/open-feature/open-feature-operator) | Apache-2.0 | 319 | 2026-10-29 | Operador de Kubernetes. Lleva los flags a un **CRD** (`FeatureFlag`), con lo que el interruptor queda en GitOps y bajo RBAC del clúster. |
+| [open-feature/cli](https://github.com/open-feature/cli) | Apache-2.0 | 67 | 2026-10-14 | CLI oficial. Genera código con tipos a partir de la definición de flags. |
+| [open-feature/flagd-schemas](https://github.com/open-feature/flagd-schemas) | Apache-2.0 | 10 | — | Esquemas JSON de flagd. **Es la puerta de la validación en CI** del fichero de flags. |
+| [open-feature/flagd-testbed](https://github.com/open-feature/flagd-testbed) | **sin fichero de licencia** (probado: ni `LICENSE`, ni `LICENSE.md`, ni `COPYING`) | 5 | — | Banco de pruebas Gherkin compartido por los SDKs. **Ausencia de licencia ≠ permisiva: no importar sin resolverla**, aunque esté en una organización CNCF cuyos otros 55 repos son Apache-2.0. Es el mismo error que T87 documentó para consorcios europeos: **la licencia es por repo, no por paraguas.** |
+| [open-feature/community](https://github.com/open-feature/community) | Apache-2.0 | 104 | — | Gobernanza del proyecto. Vivo. |
+
+**SDKs oficiales (Apache-2.0, todos):** `go-sdk` 257 ★ · `js-sdk` 290 ★ · `java-sdk` 131 ★ ·
+`dotnet-sdk` 143 ★ · `python-sdk` 112 ★ · `rust-sdk` 52 ★ · `php-sdk` 43 ★ · `ruby-sdk` 43 ★ ·
+`swift-sdk` 32 ★ · `kotlin-sdk` 27 ★ (Android) · `dart-sdk` 26 ★ (incl. Flutter) ·
+`elixir-sdk` 25 ★ · `cpp-sdk` 6 ★. Más los `*-sdk-contrib` de proveedores y *hooks*
+(`go` 83 ★, `js` 77 ★, `java` 51 ★, `dotnet` 53 ★, `python` 27 ★, `php` 17 ★, `rust` 15 ★,
+`kotlin` 3 ★, `ruby` 5 ★, `cpp` 2 ★, `elixir` 1 ★).
+
+> **Trece lenguajes con SDK oficial permisivo es el argumento real de esta cadena**: el interruptor
+> de un sistema agéntico heterogéneo (Python para el modelo, Java para el *core* bancario,
+> TypeScript para el front) **se acciona una vez y vale para todo**, sin escribir el adaptador.
+
+**Archivados en la organización, y están todos en la página 2 del listado (5 de 60):**
+
+| Repo | Licencia | ★ | Archivado | Lectura honesta |
+|------|----------|---|-----------|-----------------|
+| [open-feature/watchman](https://github.com/open-feature/watchman) | **MIT** | 14 | **2025-04-10** | *«A Kubernetes admission controller driven by open-feature».* **El único artefacto abierto que APLICA un flag en el borde** (un flag bloquea la admisión de *pods*). Su README se declara **proyecto de demostración**, no producción. **No venderlo como infraestructura.** Base MIT reutilizable. |
+| [open-feature/ofep](https://github.com/open-feature/ofep) | **sin fichero de licencia** (probado) | 22 | sí | El cauce de propuestas/RFC. **Archivado el cauce, NO el proyecto:** los otros 55 repos están activos. |
+| [open-feature/docs.openfeature.dev](https://github.com/open-feature/docs.openfeature.dev) | CC BY 4.0 | 6 | sí | Consolidado en `openfeature.dev` (CC BY 4.0, 68 ★, vivo). |
+| `open-feature/open-feature.github.io` | Apache-2.0 | 3 | sí | Sitio antiguo. |
+| `open-feature/kubecon-eu-2024-demo` | Apache-2.0 | 3 | sí | Demo de conferencia. |
+
+> **HUECO DECLARADO, no rellenado:** **no existe componente abierto y mantenido que aplique un
+> flag de OpenFeature en la frontera de admisión de Kubernetes.** La *evaluación* está resuelta
+> (flagd + OFREP + 13 SDKs); la *aplicación en el borde* es trabajo de integración identificado,
+> con una demo MIT archivada como punto de partida.
+
+### Plataformas de gestión de flags, ordenadas por lo que se puede construir encima
+
+**Leer la columna de licencia antes de cotizar.** Tres mecanismos distintos de puerta comercial
+conviven en esta tabla y **sólo uno se detecta leyendo `LICENSE`**.
+
+| Repo | Licencia real (leída) | ★ | Último commit | Veredicto para Globant |
+|------|----------------------|---|---------------|------------------------|
+| [Flagsmith/flagsmith](https://github.com/Flagsmith/flagsmith) | **BSD-3-Clause** (de `LICENSE.md`) | 9,5k | 2026-11-24 | **La opción permisiva más limpia de la capa.** Medido sobre el árbol: **cero directorios `ee/` o `enterprise/`**, un solo fichero de licencia. Lo de pago (*«Enterprise-level governance and management features»*) **no está en este repo**. README: *«Our core functionality stays open, always.»* **Primera recomendación cuando legal rechaza copyleft.** |
+| [thomaspoignant/go-feature-flag](https://github.com/thomaspoignant/go-feature-flag) | **MIT** | 2,1k | 2026-11-24 | *«100% Open Source — built on OpenFeature.»* **Sin núcleo de pago en absoluto.** Ligero y autoalojado. **Medido, no supuesto: su README no menciona capacidades específicas de AI/LLM** (sí trae `AGENTS.md`, `CLAUDE.md` y `.claude/skills/audit-provider` en el árbol, sin documentar en el README). |
+| [featbit/featbit](https://github.com/featbit/featbit) | **MIT** en `LICENSE`… **pero ver nota** | 2,0k | 2026-11-24 | **MIT limpio byte a byte y cero directorios propietarios** — y aun así el README dice *«Open Core»* y *«Certain features require a valid license key»*. La puerta es **una clave en tiempo de ejecución**: `LicenseVerifier.cs`, `LicenseFeatures.cs`, `LicenseRequirement{,Handler}.cs`, `GetLicenseQuota.cs`, `test_cp07_license_skip.py`. **MIT permite borrar ese verificador**, así que el riesgo es **de relación comercial, no de licencia**. Tiene un directorio `llm/` (eliminar flags con LLM) **no documentado en el README**. |
+| [growthbook/growthbook](https://github.com/growthbook/growthbook) | **MIT Expat EXCEPTO 3 rutas** | 8,7k | 2026-11-24 | Flags + experimentación + analítica de producto. **289 de 7.020 ficheros (4,1%) son propietarios, y dentro está justo el agente:** `services/agent-handler.ts`, `services/aiStepPolicy.ts`, `services/ai-access.ts`, `services/ai-chat-to-model.ts`, `sandbox/sandbox-{core,eval,pool,worker}.ts`, `models/VectorsModel.ts`, *contextual bandits*, `api/visual-editor-ai/*`. Uso en producción exige **asientos pagados**. **Usable como motor de flags; NO como base de la capa agéntica.** |
+| [Unleash/unleash](https://github.com/Unleash/unleash) | **AGPL-3.0-or-later** (2 oráculos: `LICENSE` + `package.json`) | 14,3k | 2026-11-24 | El más estrellado, y **copyleft de red uniforme, sin sótano propietario** — paradójicamente **el más honesto de la tabla: sabes dónde estás parado.** Integrar **sobre su API**, nunca forkear dentro de producto de cliente. **Su reparto de funciones es el dato comercial de la capa (abajo).** |
+| [flipt-io/flipt](https://github.com/flipt-io/flipt) | **FCL-1.0 (MIT Future License)** — **NO es OSS hoy** | 5,0k | 2026-11-21 | **Rama por defecto `v2`, no `main`.** Servidor bajo Fair Core License: prohíbe uso competidor, convierte a **MIT a los 2 años**. **Pero `rpc/` y el SDK de Go son MIT**, así que se puede *hablar* con Flipt desde producto propio; **no se puede empotrar el servidor.** Git-native (flags versionados con el código), que es su mejor idea. |
+
+> ### El dato que un comité de riesgos necesita, y está en el README del líder de la capa
+> El README de **Unleash** pone en la edición abierta: **`kill switches`, *gradual rollouts* y
+> *audit logs*** (más 2 entornos). Y nombra como **Enterprise**: **RBAC, *change requests*, SSO y
+> SCIM.**
+>
+> **Traducido: el interruptor es gratis. QUIÉN puede accionarlo y la APROBACIÓN para accionarlo se
+> pagan.** No es una opinión de analista; es el reparto declarado por el proyecto. Y es
+> exactamente el mismo límite que el séptimo pase encontró en `onyx` y este pase en `growthbook` y
+> `keep`: **la función se regala y el control de la función es el producto.**
+
+### Entrega progresiva — el interruptor que se mueve solo
+
+| Repo | Licencia | ★ | Último commit | Papel |
+|------|----------|---|---------------|-------|
+| [argoproj/argo-rollouts](https://github.com/argoproj/argo-rollouts) | Apache-2.0 | 3,6k | 2026-11-23 | *«Progressive Delivery for Kubernetes.»* Rama `master`. Sustituye el `Deployment` por un CRD `Rollout` con pasos ordenados y `AnalysisRun`: si el análisis falla, **aborta y devuelve el tráfico al ReplicaSet estable.** El camino natural si el cliente ya usa Argo CD. |
+| [fluxcd/flagger](https://github.com/fluxcd/flagger) | Apache-2.0 | 5,4k | 2026-11-16 | *«Progressive delivery Kubernetes operator (Canary, A/B Testing and Blue/Green).»* **Proyecto CNCF graduado.** Añade un CRD `Canary` **al lado** del `Deployment` existente — **menos invasivo**, que es lo que importa cuando no se puede tocar el manifiesto del cliente. Tiene *webhooks* pre-rollout: **el punto de enganche para una compuerta de evaluación de modelo.** |
+
+> **Por qué están aquí y no en una KB de DevOps:** desplegar un **modelo** nuevo tiene la misma
+> forma que desplegar un binario nuevo —mover el 5% del tráfico, medir, promover o abortar— y
+> **estos dos operadores ya implementan el abortar automático.** Para una capa agéntica, el
+> `AnalysisRun` deja de medir latencia y pasa a medir **tasa de alucinación, coste por tarea o
+> tasa de escalado a humano**. La mecánica es gratis y permisiva; lo que hay que construir es
+> **la métrica**.
+
+### Prueba de degradación — demostrar que el apagado funciona
+
+| Repo | Licencia | ★ | Último commit | Papel |
+|------|----------|---|---------------|-------|
+| [chaos-mesh/chaos-mesh](https://github.com/chaos-mesh/chaos-mesh) | Apache-2.0 | 8,0k | 2026-11-22 | *«A Chaos Engineering Platform for Kubernetes.»* **CNCF incubando.** Rama `master`. Inyecta fallos de red, pod, IO y reloj por CRD. **El instrumento para probar qué hace el agente cuando el proveedor del modelo no responde** — no cuando responde mal, cuando no responde. |
+| [litmuschaos/litmus](https://github.com/litmuschaos/litmus) | Apache-2.0 | 5,7k | 2026-10-27 | *«Litmus helps SREs and developers practice chaos engineering in a Cloud-native way.»* **Proyecto CNCF.** Rama `master`. Alternativa con catálogo de experimentos y flujo de *GameDay*. |
+| [Netflix/chaosmonkey](https://github.com/Netflix/chaosmonkey) | Apache-2.0 | — | **2024-10-03** | El original, y **sin commit desde octubre de 2024**. Se cita por historia y para que nadie lo proponga como base: **dos años parado**. Estrellas no recuperadas en este pase, y por eso no se escriben. |
+
+### Guardia y respuesta — la capa murió dos veces
+
+| Repo | Licencia | ★ | Último commit | Estado |
+|------|----------|---|---------------|--------|
+| [keephq/keep](https://github.com/keephq/keep) | **MIT excepto `ee/`** | 12,6k | 2026-11-22 | *«The open-source AIOps and alert management platform.»* **El superviviente de la capa.** Medido: `ee/` son **13 ficheros de 2.755**, y son **sólo gestores de identidad** (Auth0, AzureAD, Keycloak). **La build MIT es funcional; lo que se pierde es SSO empresarial.** Su README anuncia *«Enterprise Ready: full authentication support (SSO, SAML, OIDC, LDAP)»* **sin decir que tres de esos proveedores viven en el directorio no-MIT.** |
+| [robusta-dev/robusta](https://github.com/robusta-dev/robusta) | **MIT** | 3,1k | 2026-11-21 | *«Better Prometheus alerts for Kubernetes — smart grouping, AI enrichment, and automatic remediation.»* Rama `master`. Es **«Robusta Classic»**, el motor de **reglas**; la parte de AI está en **otro repo** (HolmesGPT). MIT íntegro. |
+| [grafana/oncall](https://github.com/grafana/oncall) | **AGPL-3.0** | 3,9k | **2026-03-24** | **ARCHIVADO.** Rama por defecto `dev`. Dos fechas contradictorias en su propia página (banner **5-jun-2026**, README **24-mar-2026**); **el commit adjudica: 24-mar-2026.** Grafana remite a Cloud IRM. **No proponer como base.** |
+| [Netflix/dispatch](https://github.com/Netflix/dispatch) | Apache-2.0 | 6,5k | **2025-09-02** | **ARCHIVADO.** Tres fechas: README anuncia 1-sep-2025, banner 3-sep-2025, commit 2-sep-2025. README invita explícitamente a **forkear** para continuar. Permisiva, así que un *fork* es viable — **pero es asumir mantenimiento, y hay que cotizarlo como tal.** |
+
+> **Para una propuesta:** *self-hosted on-call* como respaldo humano del agente → **Keep**. Las dos
+> respuestas que el cliente va a nombrar (OnCall de Grafana, Dispatch de Netflix) **son de sólo
+> lectura**, y conviene llevar ese dato a la reunión en lugar de descubrirlo en ella.
+
+### Resiliencia en la aplicación — el interruptor que nadie acciona
+
+| Repo | Licencia | Último commit | Papel |
+|------|----------|---------------|-------|
+| [resilience4j/resilience4j](https://github.com/resilience4j/resilience4j) | Apache-2.0 (`LICENSE.txt`) | 2026-10-30 | *Circuit breaker*, *rate limiter*, *retry* y *bulkhead* para la JVM. Rama `master`. **El corte automático cuando el proveedor del modelo degrada**, dentro del proceso y sin red por medio. Estrellas no recuperadas; se cita la fecha, que es mejor evidencia. |
+| [App-vNext/Polly](https://github.com/App-vNext/Polly) | **BSD-3-Clause** | 2026-11-21 | El equivalente para .NET: políticas de resiliencia componibles. Relevante porque **el núcleo empresarial de banca y seguros en LATAM y EMEA es .NET con frecuencia**, y aquí la licencia es permisiva. |
+
+> **Por qué esta tabla cierra la sección:** flagd apaga lo que **alguien decidió** apagar;
+> resilience4j y Polly apagan lo que **se está rompiendo ahora** y nadie ha mirado todavía. El
+> art. 14(4)(e) pide lo primero. Un sistema que sólo tiene lo primero **se cae igual**, sólo que
+> con un humano mirando.

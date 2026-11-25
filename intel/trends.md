@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 📡 Tendencias — Enterprise
@@ -3219,3 +3219,105 @@ verified**. Maintenance claims above rest on README status lines and archive bad
   GmbH/Germany, DARC/Germany, Open Ownership/UK, OCCRP)**. The LATAM-specific artefacts in this
   layer are **lists published by governments** (Mexico's SAT 69-B, Brazil's CEIS/CNEP), not
   software. See `intel/market.md` → LATAM.
+
+### 42. El único de los veintiséis límites de esta serie que una ley nombra literalmente: el botón de parada — y la palabra que lo hace caro es «seguro»
+
+**AI Act, art. 14(4)(e).** El supervisor humano de un sistema de alto riesgo debe poder
+*«intervenir o interrumpir»* el sistema **mediante un botón de parada o procedimiento similar**,
+que lo detenga **en un estado seguro** (*«halting it in a safe state»*).
+
+Veinticinco pases de esta KB construyeron lo que el agente **lee** (7.º), **cambia** (8.º),
+**prueba** (9.º), **alcanza** (10.º), **firma** (24.º) y **con quién trata** (25.º) — todos
+límites derivados de principios generales. **Éste está escrito como requisito de ingeniería en el
+texto de la norma**, y es el primero del que se puede decir qué artefacto lo satisface.
+
+**Y la trampa está en la segunda mitad de la frase, no en la primera.** La comentaristica coincide
+en el punto que importa: *un estado seguro no es lo mismo que detener la ejecución*; **sin un
+estado seguro definido, el botón de parada no tiene a qué parar.**
+
+> **Consecuencia directa y es la frase de este pase:** toda la capa que este pase inventarió
+> —flagd, OFREP, 13 SDKs, Flagsmith, GO Feature Flag— **sabe apagar una funcionalidad y no sabe
+> qué es un estado seguro para una transacción de agente a medio terminar.** El botón vive en la
+> capa de flags; **el estado seguro vive en la capa de orquestación** que el octavo pase
+> inventarió (rutas de Camel, `dapr-agents` con versionado de *workflow* ≥ v1.17, Conductor).
+> **El art. 14(4)(e) exige las dos, y ningún proyecto de esta KB trae las dos.** Eso es el
+> entregable, y es de integración, no de producto.
+
+**Fechas, con la precisión que esta KB exige:** las fuentes dan **2 de diciembre de 2027** para
+sistemas del Anexo III y **2 de agosto de 2028** para los del Anexo I. Una fuente atribuye un
+aplazamiento al **Reglamento (UE) 2026/1744**: **no verificado en el Diario Oficial, se registra
+como atribuido y no como hecho.** La fecha de dic-2027 coincide con la que esta KB ya tenía por el
+estudio de IBM de oct-2026, que es la **cuarta** confirmación independiente de ese horizonte.
+
+### 43. Tres mecanismos de puerta comercial, y sólo dos son auditables con los métodos que esta KB tenía
+
+El pase 12 estableció que la postura de licencia de una fila está incompleta sin leer el fichero.
+El pase 26 encuentra que **leer el fichero tampoco basta**, y que los mecanismos forman una
+jerarquía por dificultad de detección:
+
+| # | Mecanismo | Ejemplos verificados | Instrumento que lo detecta |
+|---|-----------|----------------------|----------------------------|
+| 1 | Licencia no-OSS de todo el repo | `flipt-io/flipt` (FCL-1.0 MIT-Future), `Unleash` (AGPL-3.0) | **Leer `LICENSE`** (regla del pase 12) |
+| 2 | Permisiva **excepto** subdirectorios nombrados | `growthbook` (289/7.020), `keephq/keep` (13/2.755), `onyx` (pase 7) | **Listar el árbol** — `git clone --bare --filter=blob:none` + `ls-tree` |
+| 3 | **Clave de licencia verificada en ejecución, dentro de código uniformemente permisivo** | `featbit/featbit` (MIT, **cero** dirs propietarios, `LicenseVerifier.cs`) | **Ninguno de los dos.** Sólo un grep de `License*` sobre el árbol |
+
+**El mecanismo 3 es nuevo en esta KB y es el más incómodo**, porque invierte la relación entre
+licencia y control: **MIT concede expresamente el derecho a modificar, y por tanto a borrar el
+verificador.** La puerta no se sostiene en el copyright; se sostiene en que nadie la toque. Para
+un cliente eso no es un riesgo de licencia, **es un riesgo de relación comercial** — y es una
+conversación que hay que tener en *procurement*, no en arquitectura.
+
+**Corolario operativo para toda la flota:** la auditoría de licencia de un repositorio tiene ahora
+**tres pasos y no uno**: (1) leer `LICENSE` en la **rama por defecto correcta**, (2) listar el
+árbol y comparar contra las rutas que `LICENSE` nombra, (3) buscar verificadores de licencia en el
+árbol. Los tres son gratis y ninguno necesita API.
+
+### 44. El interruptor se regala; el control del interruptor es el producto — y van tres capas con la misma forma
+
+El reparto declarado por el proyecto más estrellado de la capa, **Unleash** (14,3k ★), en su
+propio README:
+
+- **Edición abierta (AGPL-3.0):** `kill switches`, *gradual rollouts*, *audit logs*, estrategias
+  de activación, A/B testing, *webhooks*, Unleash Edge, **2 entornos**.
+- **Enterprise:** **RBAC**, ***change requests***, **SSO**, **SCIM**, entornos ilimitados,
+  segmentación avanzada.
+
+**Dicho sin adornos: apagar es gratis. Decidir *quién* puede apagar, y *aprobar* que se apague, se
+paga.**
+
+Y es la tercera vez que esta KB mide la misma frontera en una capa distinta:
+
+| Pase | Capa | La función es… | Lo que se cobra es… |
+|------|------|----------------|---------------------|
+| 7.º | Búsqueda empresarial | recuperación (MIT) | **sincronización de permisos** (`onyx` `ee/`) |
+| 22.º | Tenencia | multi-empresa en el ERP | el aislamiento **operado** |
+| 26.º | Interruptor | el *kill switch* (abierto) | **RBAC + aprobación del cambio** (Unleash Enterprise) |
+
+> **La regla, ya con tres confirmaciones independientes: en software empresarial abierto, la
+> capacidad es el señuelo y el GOBIERNO de la capacidad es el modelo de negocio.** Es también la
+> mejor noticia comercial de esta KB, porque **el gobierno es precisamente lo que un integrador
+> construye y un producto no puede empaquetar**: depende del organigrama del cliente. Globant no
+> compite con Unleash Enterprise; **compite con el presupuesto de no hacer nada**, y la vía
+> permisiva existe (CRD `FeatureFlag` + RBAC del clúster, ver Receta 54).
+
+### 45. La capa de guardia abierta se está muriendo mientras la capa de agentes crece, y los dos cadáveres son los dos nombres famosos
+
+Medido por commit, no por impresión, y con las fechas adjudicadas por `git log` (ver T98):
+
+- **`grafana/oncall`** (AGPL-3.0, 3,9k ★): **archivado, último commit 2026-03-24.** Ruta oficial
+  de salida: **Grafana Cloud IRM**, es decir **SaaS**.
+- **`Netflix/dispatch`** (Apache-2.0, 6,5k ★): **archivado, último commit 2025-09-02.**
+- Supervivientes: **`keephq/keep`** (12,6k ★, MIT excepto `ee/`, commit 2026-11-22) y
+  **`robusta-dev/robusta`** (MIT, 3,1k ★, commit 2026-11-21), con **`robusta-dev/holmesgpt`**
+  (Apache-2.0, 4,0k ★, **CNCF Sandbox**, commit 2026-11-22) como la parte agéntica.
+
+**La dirección del movimiento es la misma que el pase 25 encontró en `alephdata/aleph` y el pase 5
+en las UI de chat: lo que muere es la capa que el usuario ve, y muere hacia el SaaS.** Y conviene
+leer la consecuencia estratégica entera: **justo cuando el art. 14(4)(e) va a exigir supervisión
+humana con botón de parada, la herramienta abierta de supervisión humana se está replegando a
+producto alojado.** Un cliente europeo con requisito de soberanía y requisito de supervisión
+humana **tiene hoy una sola opción abierta y mantenida para la segunda mitad**, y se llama Keep.
+
+> **Oportunidad, no lamento:** el *fork* de Dispatch es viable (Apache-2.0, y su README invita
+> explícitamente a forkear). Pero **es asumir mantenimiento y hay que cotizarlo como tal**, no
+> presentarlo como «reutilizamos un proyecto de Netflix».

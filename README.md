@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🏢 Enterprise KB
@@ -27,36 +27,83 @@ enterprise-kb/
 2. **Proponer solución AI**: `agents/top.md` + `compose/patterns.md`
 3. **Mantenerse al día**: correr `ingest/update.sh` semanalmente
 
-## Estado de la KB — medido, no estimado (vigesimocuarto pase, 2026-11-24)
+## Estado de la KB — medido, no estimado (vigesimosexto pase, 2026-11-25)
 
 | Medida | Valor |
 |---|---|
 | Archivos de contenido | 9 (8 + README) |
-| Líneas de contenido | **21.022** (+881) |
-| Direcciones de repositorio distintas | **741** (+44) |
-| …en `github.com` | 720 |
-| …en `gitlab.com` | 21 |
-| Direcciones **probadas** este pase | **45** — de las que **44 existen** y **1 era una conjetura propia** (404) |
-| …de ellas **nuevas** para la KB | **44** (dedup medido antes de buscar: sólo `documenso/documenso` tenía apariciones previas) |
-| Recetas numeradas en `compose/patterns.md` | **52** (+49 a 52) |
-| Tendencias numeradas en `intel/trends.md` | **46** (+43 a 46) |
-| Clases de licencia registradas | **21** (**ninguna nueva**, y se dice en lugar de inflar la cifra) |
-| Formas registradas de equivocarse | **57** (+T93 a T97) |
-| Proyectos parados-o-archivados pero recomendados | **18** (+Sphereon, +la organización `OpenICP-BR` entera) |
-| Preguntas registradas como **sin resolver** | **22** |
+| Líneas de contenido | **23.154** (+1.048) |
+| Direcciones de repositorio distintas | **796** (+30) |
+| …en `github.com` | 774 |
+| …en `gitlab.com` | 22 |
+| Direcciones **probadas** este pase | **29 una a una** — **28 existen** y **1 era una conjetura propia** (`open-feature/flagd-ui`, no existe) · **+60 inventariadas** por listado de organización |
+| …de ellas **nuevas** para la KB | **30** (dedup **medido** antes de escribir: los 27 nombres sondeados dieron **27 ceros**) |
+| Recetas numeradas en `compose/patterns.md` | **56** (+54 a 56) |
+| Tendencias numeradas en `intel/trends.md` | **45** (+42 a 45) |
+| Clases de licencia registradas | **22** (**+1 nueva: FCL-1.0 «Fair Core License, MIT Future»**, cero apariciones antes de este pase) |
+| Formas registradas de equivocarse | **61** (+T98 a T101) |
+| Proyectos parados-o-archivados pero recomendados | **21** (+`grafana/oncall`, +`Netflix/dispatch`, +`open-feature/watchman`) |
+| Filas de tabla / cabeceras / **cabeceras compiladas como dato** | 2.228 / 206 / **0** |
+| Preguntas registradas como **sin resolver** | **25** |
 
-> **Nota de instrumentación, porque esta vez el instrumento cambió de carril.** En esta sesión
-> `api.github.com` **y** `github.com` devuelven **403** —el acceso a la API está limitado a los
-> repositorios adjuntos—, así que **este pase no tiene ni una estrella ni una bandera `archived`,
-> y no finge tenerlas.** Lo que funciona es el carril de lectura anónima de git:
-> `git clone --bare --depth 1 --filter=blob:none` + `git log -1 --format=%cI` da la **fecha real
-> del último commit en ~0,5 s y 196 KB por repositorio**, y `raw.githubusercontent.com` da el
-> **fichero de licencia byte a byte**. **La fecha del último commit es mejor evidencia que
-> `pushed_at`**, que se mueve con cualquier rama mientras el commit no. **Contrapartida honesta:
-> sin `archived` este pase no puede distinguir «archivado» de «parado», y por eso dice siempre
-> «sin commit desde X».** Los dos contadores de direcciones de esta KB discrepaban en uno al
-> cerrar el pase; la causa se encontró (una dirección escrita en prosa y no como enlace) y se
-> corrigió, y ahora ambos dan **+44**.
+> **Nota de instrumentación: este pase añadió un tercer carril y con él se cierra el conjunto.**
+> Sigue vigente lo del pase 24 (`api.github.com` y `github.com` por `curl` → **403**; `HEAD`
+> bloqueado, **verificar con GET**) y lo del pase 25 (**`WebFetch` sí alcanza el HTML de
+> `github.com`** y devuelve estrellas, licencia de *sidebar* y badge «Public archive» **con fecha**;
+> y `orgs/<org>/repositories?type=source` da la organización entera **paginando a 30** — la
+> página 2 es donde estaban **los 5 archivados de 60** en `open-feature`). **Lo nuevo:**
+> **`git clone --bare --depth 1 --filter=blob:none` + `git ls-tree -r --name-only HEAD` da el
+> árbol de ficheros completo sin descargar contenido**, y es **el único instrumento que resuelve
+> «permisiva excepto estos directorios»**: así se midió que GrowthBook tiene **289 ficheros
+> propietarios de 7.020** y que el `ee/` de Keep son **13 de 2.755**. Con `git log -1 --format=%cI`
+> sobre el mismo clon, y `git ls-remote --symref` para la rama por defecto, el conjunto queda
+> completo **sin API**: existencia + rama + licencia byte a byte + **árbol** + fecha real de commit
+> + estrellas + bandera de archivo.
+>
+> **Tres correcciones de contabilidad, porque los números de esta KB sólo valen si se corrigen.**
+> (1) El bloque de estado anterior era del **pase 24**: el **pase 25 empujó contenido sin
+> actualizarlo**, así que los deltas de esta tabla se miden contra el árbol real, no contra la
+> tabla anterior. (2) El contador de direcciones devolvió **797** y el valor correcto es **796**:
+> incluía `github.com/orgs/open-feature`, que es **un listado de organización usado como
+> instrumento, no un repositorio**. (3) **Las 29 direcciones probadas una a una y los 60
+> repositorios inventariados por organización son dos niveles de evidencia distintos y no se
+> suman**; los 13 SDKs de OpenFeature se nombran **en prosa y no como enlace**, y por eso **no
+> entran en el recuento de direcciones** — la misma causa que produjo la discrepancia de uno en el
+> pase 24.
+>
+> **Lea esto antes de prometer que un agente se puede apagar.** Veinticinco pases construyeron
+> veintiséis límites —lectura, escritura, procedencia, contención, borrado, pesos, accesibilidad,
+> consumo, idioma, documento fiscal, calendario, sistema heredado, ciclo de vida, voz, tenencia,
+> remitente, firma y contraparte— y **ninguno preguntó cómo se apaga**. Medido antes de buscar
+> sobre **22.106 líneas** y los nueve ficheros: `openfeature` **0** · `flagd` **0** · `unleash`
+> **0** · `flipt` **0** · `growthbook` **0** · `feature flag` **0** · `killswitch` **0** ·
+> `interruptor` **0** · `toggle` **0** · `chaos` **0** · `circuit breaker` **0** · `error budget`
+> **0** · `oncall` **0** · `postmortem` **0** · `rollback` **0** · `robusta` **0** ·
+> `alertmanager` **0** — y `kill switch` **1** y `canary` **1**, ambos prosa suelta sin repositorio
+> detrás. **El contraste es la noticia: el coste del agente sí estaba cubierto** (`openmeter` 7,
+> `opencost` 10, `finops` 12, `metering` 21, `facturación` 35). **Esta KB sabía cuánto cuesta el
+> agente antes de saber cómo apagarlo.**
+>
+> **EL HALLAZGO DEL PASE, Y ES EL PRIMERO DE LA SERIE QUE UNA LEY NOMBRA LITERALMENTE.** El
+> **art. 14(4)(e) del AI Act** exige que el supervisor humano pueda *«intervenir o interrumpir»* el
+> sistema de alto riesgo **mediante un botón de parada o procedimiento similar**, deteniéndolo **en
+> un estado seguro**. Los veintiséis límites anteriores se derivaban de principios; **éste está
+> escrito como requisito de ingeniería.** Y **la palabra cara es «seguro», no «parada»**: *un
+> estado seguro no es lo mismo que detener la ejecución, y sin estado seguro definido el botón no
+> tiene a qué parar.* **Toda la capa permisiva que este pase inventarió —flagd, OFREP, 13 SDKs,
+> Flagsmith, GO Feature Flag— sabe apagar una funcionalidad y NINGUNA sabe qué es un estado seguro
+> para una transacción de agente a medio terminar.** El botón vive en la capa de flags; el estado
+> seguro, en la de orquestación del pase 8 (Camel, `dapr-agents` ≥ v1.17, Conductor). **El
+> artículo exige las dos y ningún proyecto trae las dos: ése es el engagement** (Receta 54).
+>
+> **Y el dato comercial, declarado por el propio líder de la capa.** El README de **Unleash**
+> (14,3k ★, **AGPL-3.0** confirmada por dos oráculos) pone `kill switches`, *gradual rollouts* y
+> *audit logs* **en la edición abierta**, y nombra como **Enterprise**: **RBAC, *change requests*,
+> SSO y SCIM**. **El interruptor es gratis; quién puede accionarlo y la aprobación para accionarlo
+> se pagan.** Tercera confirmación de la misma frontera en tres capas distintas (pase 7 `onyx`
+> `ee/`, pase 22 tenencia, pase 26 interruptor): **la capacidad es el señuelo y el GOBIERNO de la
+> capacidad es el modelo de negocio** — y el gobierno es exactamente lo que un integrador
+> construye y un producto no puede empaquetar, porque depende del organigrama del cliente.
 
 > **Lea esto antes de prometer que un agente puede firmar algo.** Veintitrés pases construyeron
 > catorce límites —lectura, escritura, procedencia, contención, borrado, accesibilidad, pesos,

@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🗺️ Mapa de mercado — Enterprise
@@ -1036,6 +1036,60 @@ aquí es **de exposición**, no de plazo.
 registra que acciones de OFAC **elevaron la exposición en operaciones con Brasil y México**,
 incluidas designaciones de empresas mexicanas vinculadas al CJNG. El riesgo NA de un cliente
 **se materializa en su cadena LATAM** — ver la subsección LATAM de este mismo pase.
+
+
+#### Vigesimosexto pase — 2026-11-25 — el interruptor: NA no lo exige por ley, y por eso lo compra por responsabilidad
+
+**El instrumento federal avanzó y ahora tiene trazabilidad de proceso, que es citable.** El NCCoE
+del NIST publicó el *concept paper* **«Accelerating the Adoption of Software and Artificial
+Intelligence Agent Identity and Authorization»** el **5-feb-2026**; el periodo de comentarios
+cerró el **2-abr-2026**; el proyecto figura como **«Reviewing Comments»**, y el NIST publica una
+página de **resumen de comentarios recibidos**. Esto **actualiza** lo que esta KB registró en el
+pase 6 («el NIST empezó trabajo de estándares de agentes en feb-2026») con tres hitos fechados.
+
+**Dos precisiones que evitan sobrevender el documento:**
+
+1. **Es una propuesta de proyecto, no una norma.** El propio texto se declara *«a concept paper
+   proposing a potential project, not a final standard or published guidance»*. **Citarlo como
+   dirección del regulador, nunca como requisito.**
+2. **Nombra protocolos que ya están en esta KB**: **OAuth, OpenID Connect y SCIM**. Y ahí está el
+   enganche con este pase: **SCIM es exactamente una de las cuatro funciones que Unleash cobra
+   como Enterprise** (junto a RBAC, SSO y *change requests*). Es decir, **el camino que el NIST
+   señala atraviesa la frontera de licencia que el pase 26 midió** — y la vía permisiva existe
+   (Keycloak, Apache-2.0, ya en `repos/foundations.md`; CRD `FeatureFlag` + RBAC del clúster,
+   Receta 54).
+
+**Regulación: sigue sin haber ley general, y el mosaico se movió.** Ninguna de las tres economías
+de Norteamérica tiene ley integral de IA en vigor. Vinculantes hoy, según las fuentes de este
+pase: **California SB 53**, **Texas TRAIGA** e **Illinois** (IA en empleo). Un borrador federal de
+**prelación sobre las normas estatales** de jun-2026 **está parado** — registrar como riesgo en
+fase de borrador, **jamás como ley** (es el error más repetido de esta KB).
+
+> **CORRECCIÓN A UN DATO PROPIO, y conviene que conste.** El pase 8 escribió que *«Colorado fue
+> litigada fuera de existencia antes de entrar en vigor»*. Las fuentes de este pase lo matizan:
+> la ley fue **derogada y sustituida en may-2026**, y una fuente nombra una **sucesora de
+> decisiones automatizadas (ADMT), SB 26-189, con efecto 1-ene-2027**. **Las fuentes no concuerdan
+> y no se reconcilian aquí**, pero la lectura operativa cambia: **no es «desapareció», es «fue
+> reemplazada por otra con fecha».** Verificar antes de usarlo en una propuesta.
+
+**Canadá:** estrategia nacional **«AI for All» lanzada el 4-jun-2026**, **sin estatuto**.
+**México:** sin ley general de IA.
+
+**Adopción, con la procedencia de cada cifra.** Una investigación de mercado da a Norteamérica
+**39,6% del mercado de agentes empresariales** (mayor cuota; **vendor research, direccional**).
+Datos de censo citados por una fuente: **19,8%** de uso de IA entre **todas** las empresas de EE.
+UU. frente a **37%** en las de **250+ empleados** — la brecha por tamaño es el dato útil, porque
+dice **dónde está el presupuesto**. Y el hueco de gobernanza, en una sola frase: **74% cree que
+pasaría hoy una auditoría de cumplimiento de IA; sólo 27% califica su programa de gobernanza como
+plenamente maduro.** Esa distancia **es el mercado de este pase**.
+
+**La oportunidad, dicha como se vende en NA.** Sin obligación legal de botón de parada, el
+argumento no es cumplimiento: es **responsabilidad civil y continuidad**. Lo que se propone es el
+**informe de parada** de la Receta 54 —N transacciones en vuelo, N en estado válido, tiempo desde
+la aprobación hasta el apagado efectivo— como **artefacto de gestión de riesgo**, no de
+*compliance*. Y hay un dato de palanca: **la ruta de salida de `grafana/oncall` es Grafana Cloud
+(SaaS)**, de modo que un cliente de NA que quiera guardia autoalojada **ya tiene un problema de
+proveedor**, y Keep (MIT) es la respuesta.
 
 ### EMEA
 
@@ -2171,6 +2225,66 @@ está cerrando. Vender el plazo equivocado es la forma más rápida de perder cr
 *sunsetting*). Es una de las pocas capas de esta KB donde **el inventario abierto no es
 norteamericano** — argumento directo de soberanía para un comprador europeo.
 
+
+#### Vigesimosexto pase — 2026-11-25 — EMEA es la única región donde el interruptor es un requisito con fecha, y el requisito caro no es el botón
+
+**El hallazgo regional del pase, y es literal del texto normativo.** **AI Act, art. 14(4)(e):** el
+supervisor humano debe poder *«intervenir o interrumpir»* el sistema de alto riesgo **mediante un
+botón de parada o procedimiento similar**, deteniéndolo **en un estado seguro**.
+
+Veinticinco pases de esta KB derivaron límites de principios generales. **Éste está escrito como
+requisito de ingeniería**, y por primera vez se puede responder con un artefacto concreto a una
+cláusula concreta.
+
+> **Y la parte caliente es la segunda mitad de la frase.** La comentarística coincide: **un estado
+> seguro no es lo mismo que detener la ejecución; sin estado seguro definido, el botón no tiene a
+> qué parar.** Toda la capa permisiva que este pase inventarió (flagd, OFREP, 13 SDKs, Flagsmith,
+> GO Feature Flag) **sabe apagar una funcionalidad y no sabe qué es un estado seguro para una
+> transacción de agente a medio terminar.** El botón vive en la capa de flags; el estado seguro en
+> la de orquestación (Camel, `dapr-agents` ≥ v1.17, Conductor — pase 8). **El artículo exige las
+> dos y ningún proyecto trae las dos: eso es el engagement.**
+
+**Fechas, con el rigor que esta KB se exige y las discrepancias declaradas:**
+
+- **Art. 14 (supervisión humana):** **2-dic-2027** para Anexo III y **2-ago-2028** para Anexo I.
+- **2-ago-2026** para transparencia y prácticas prohibidas. **Varias fuentes dan ago-2026 también
+  para alto riesgo y otras dic-2027: la discrepancia se registra, no se reconcilia.** Para una
+  propuesta, usar **dic-2027** y decir que la fecha de alto riesgo está disputada.
+- Una fuente atribuye un aplazamiento al **Reglamento (UE) 2026/1744**: **no verificado en el
+  Diario Oficial. Atribuido, no adoptado.**
+- **Sanciones: una fuente da €35 M / 7% del volumen global y otra €30 M / 6%. No reconciliadas.**
+  Verificar contra el Reglamento (UE) 2024/1689 antes de citar una cifra a un cliente.
+
+**Dic-2027 recibe su cuarta confirmación independiente**, y la fuente ya estaba en esta KB: el
+**estudio de IBM del 14-oct-2026** — **80%** de los ejecutivos de EMEA dice que un incidente de IA
+llegó al consejo o a la dirección en el último año, **sólo 40%** cambió política o marco de
+gobernanza a consecuencia, y **41%** acelera inversión en gobernanza **antes de las obligaciones
+de alto riesgo de dic-2027**.
+
+> **El 80/40 es el mejor dato comercial que esta KB tiene para EMEA, y este pase explica por qué.**
+> El incidente escala al consejo, y **sólo la mitad cambia algo**. La razón plausible y verificada:
+> **cambiar la política exige un mecanismo para aplicarla**, y hasta este pase esta KB no tenía
+> ninguno. **El interruptor es el mecanismo**, y la Receta 54 es permisiva de punta a punta.
+
+**Adopción y madurez.** Adopción empresarial en la UE **19,95% en 2025** (+6,47 pp sobre 2024), con
+una **brecha de 38 puntos** entre grandes (**55%**) y pequeñas (**17%**) — fuente agregadora,
+indicativa. **74%** planea adoptar IA agéntica en dos años y **sólo 21%** tiene un modelo de
+gobernanza maduro para ella.
+
+**Players y señal de mercado.** Comentario de analista señala a **Mistral** como la alternativa
+europea más creíble, y nombra además **SAP, Aleph Alpha, Cohere** y la iniciativa soberana
+**Apertus**, junto a los hiperescalares. Y una señal de integrador que vale por sí sola:
+**Cognizant lanzó una unidad de IA para EMEA el 28-jul-2026, explícitamente para llevar pilotos
+agénticos fallidos a producción.** Es el competidor directo de Globant declarando el mismo
+diagnóstico que esta KB: **el problema no es construir el agente, es industrializarlo.**
+
+**Choque soberanía / supervisión, y es la oportunidad concreta de la región.** Justo cuando el
+art. 14 va a exigir supervisión humana con botón de parada, **la herramienta abierta de
+supervisión se repliega a SaaS**: `grafana/oncall` archivado (último commit **2026-03-24**) con
+ruta de salida **Grafana Cloud IRM**. **Un cliente europeo con requisito de soberanía Y requisito
+de supervisión humana tiene hoy una sola opción abierta y mantenida, y se llama Keep** (MIT
+excepto 13 ficheros de SSO). Esa frase abre una conversación de arquitectura con fecha límite.
+
 ### APAC
 
 - **Regulatory shape: diverging, and binding in several markets.** South Korea's **AI Basic
@@ -3210,6 +3324,57 @@ Esta capa encaja exactamente: **`yente` corre on-premise como *KYC appliance*** 
 (Apache-2.0)** se despliega dentro del perímetro del cliente. **El screening es el caso de uso donde
 «no mandar el dato a un SaaS» deja de ser preferencia y pasa a ser requisito** — y donde el *stack*
 abierto gana por arquitectura, no por precio.
+
+
+#### Vigesimosexto pase — 2026-11-25 — APAC: Singapur actualizó su marco PARA AGENTES, y Corea abrió una ventana de un año
+
+**Dos instrumentos nuevos para esta KB, y los dos son directamente del tema de este pase.**
+
+1. **Singapur actualizó su *Model AI Governance Framework* para IA AGÉNTICA en may-2026.** Es
+   **guía, no estatuto** —Singapur sigue sin ley vinculante de IA— y precisamente por eso es
+   utilizable: **un marco de gobernanza agéntica sin sanción detrás es un documento que un
+   cliente puede adoptar voluntariamente como estándar de facto**, que es el patrón que esta KB ya
+   registró para el AI Act en LATAM. **Es el primer instrumento de cualquier región en esta KB que
+   dice «agéntico» en su propio título de revisión.**
+2. **Corea del Sur: la *AI Basic Act* entró en vigor en ene-2026**, y la lectura operativa está en
+   la letra pequeña: el ministerio trata **2026 como periodo piloto con aplicación limitada** y
+   hay **un año de gracia en sanciones**. **Esto actualiza un «sin establecer» de cuatro pases:**
+   esta KB venía registrando que no había reglas de IA sectoriales en Japón ni Corea. Sigue siendo
+   cierto que no son *sectoriales* —son transversales— pero **Corea ya tiene ley en vigor con
+   calendario de gracia**, y eso es una ventana comercial con fecha de cierre.
+
+**El resto del mapa, que sigue siendo el más fragmentado de las cuatro regiones:**
+
+- **Vietnam:** primera ley de IA **en vigor el 1-mar-2026**, marco basado en riesgo, con
+  **Decreto 142/2026** de desarrollo (ya en esta KB desde el pase 8; **segunda confirmación**).
+- **India:** reglas de intermediarios de TI **enmendadas para contenido generado por IA, efectivas
+  el 20-feb-2026**. **Nuevo en esta KB.**
+- **Taiwán:** **AI Basic Act aprobada en dic-2025** y **comité nacional de IA constituido en
+  mar-2026**. **Nuevo en esta KB.**
+- **China:** reglas **por capas y por tipo de salida** (recomendación algorítmica, *deepfakes*, IA
+  generativa) en lugar de una ley marco.
+- **Japón:** enfoque **basado en principios**, apoyado en cooperación **sin régimen sancionador**.
+- **Malasia:** la **soberanía del dato** es el eje de su política de nube. **Indonesia:**
+  regulación nacional de IA **aún en elaboración**.
+
+**El dato económico, y es el que decide qué se vende aquí.** Una encuesta de la región:
+**58% de las empresas aumentó su inversión en IA en el último año, y sólo 28% dice que sus
+iniciativas generan hoy más valor del que cuestan.** Y sobre restricciones: **75% a nivel global
+señala gobernanza y cumplimiento como freno para escalar, frente al 73% en APAC** — es decir,
+**APAC no está peor en gobernanza; está peor en rentabilidad.**
+
+> **Consecuencia para la propuesta, y es distinta a las otras tres regiones.** En EMEA el
+> interruptor se vende por **ley**; en NA por **responsabilidad**; **en APAC se vende por COSTE.**
+> El 28% de rentabilidad convierte la Receta 55 en el argumento principal: **un canario de agente
+> cuyo umbral de aborto es el *coste por tarea completada*** apaga automáticamente la variante que
+> no se paga. No es gobernanza: es control de gasto, y **la métrica ya está cubierta en esta KB**
+> (OpenMeter/OpenCost, `metering` = 21 apariciones). La gobernanza llega gratis de regalo, y así
+> es como se financia.
+
+**Soberanía como requisito de diseño, no como preferencia.** Con Malasia e Indonesia empujando
+localización, **la cadena de la Receta 54 tiene aquí una ventaja que no tiene en NA: es
+autoalojable de punta a punta y permisiva** (flagd, operador, OFREP, 13 SDKs, Apache-2.0). Ni un
+componente obliga a SaaS, y eso es un criterio de adjudicación en varias de estas jurisdicciones.
 
 ### LATAM
 
@@ -4464,6 +4629,69 @@ societarios locales— es donde los motores anglocéntricos fallan. El único si
 se está construyendo en abierto es [opensanctions/qarin](https://github.com/opensanctions/qarin)
 (**MIT, 18 ★**, financiado por la UE vía **NGI Search**): marco de evaluación de calidad de casado
 y datasets abiertos. **No es un producto** — y por eso es una posición, no una dependencia.
+
+
+#### Vigesimosexto pase — 2026-11-25 — LATAM: cero medido en reglas de supervisión propias, y el art. 14 europeo entra igual por la puerta de la exportación
+
+**Lo primero, el cero, y está medido y no es silencio.** Búsquedas de este pase sobre adopción,
+regulación y actores de IA empresarial en LATAM **no devolvieron ningún instrumento regional —de
+ningún país— que exija supervisión humana, botón de parada o estado seguro para sistemas de IA.**
+No es que no se haya buscado: es que **el requisito que estructura este pase no existe en el
+derecho de la región a fecha de hoy.** Se declara como hueco.
+
+**Y aquí está la inversión que lo vuelve accionable, porque el requisito llega por otra vía.** El
+AI Act aplica sus obligaciones principales desde el **2-ago-2026**, y las fuentes de este pase
+coinciden en el mecanismo de contagio: **los exportadores latinoamericanos pueden quedar excluidos
+de licitaciones si no pueden demostrar cumplimiento**, y por eso **algunas empresas están
+adoptando los principios europeos como estándar de facto**.
+
+> **Traducido a una frase de venta: en LATAM el botón de parada no se compra para cumplir la ley
+> local, se compra para no perder el contrato europeo.** El entregable es idéntico al de EMEA —el
+> **informe de parada** de la Receta 54— pero **el comprador es comercial, no de cumplimiento**, y
+> eso cambia a quién se le presenta: **al director de exportación, no al oficial de riesgos.** Es
+> el mismo razonamiento que esta KB ya registró para el pase 24 (firma) y vale igual aquí.
+
+**El volumen regulatorio, con su segunda confirmación.** Un estudio de la **Universidad de los
+Andes (2026)** cuenta **716 instrumentos de IA en 23 países y territorios**, en su mayoría
+iniciados desde 2023 — cifra que esta KB ya tenía desde el pase 8 y que aquí **se confirma por
+fuente independiente**. Una fuente señala que ese solapamiento **genera incertidumbre**, y es
+exactamente el argumento de volumen que esta KB usa para OSCAL (control legible por máquina,
+pase 8).
+
+**Por país, lo verificable:**
+
+- **Perú:** régimen basado en riesgo del **Decreto Supremo 115-2025-PCM**, **en vigor desde
+  ene-2026** (segunda confirmación; el pase 8 lo fechó el 22-ene-2026).
+- **Uruguay:** **primer firmante regional** del convenio de IA del Consejo de Europa (segunda
+  confirmación).
+- **México:** **sin ley específica de IA.** Una fuente menciona una enmienda de 2026 y una
+  **reforma penal sobre *deepfakes* pendiente en el Senado**. No vinculante hoy.
+- **Brasil — CONFLICTO DE FUENTES, y se registra sin reconciliar.** Una fuente afirma que el
+  *Marco Legal de IA* (2024) **está en vigor**; otra, mucho más específica, dice que el proyecto
+  **aprobado por el Senado en dic-2024 sigue esperando dictamen del relator en la Cámara, con
+  votación probable sólo después de las elecciones de oct-2026**. **La segunda es más específica y
+  es la que debe usarse**, verificando contra el registro de la Cámara. **Decirle a un cliente
+  brasileño que ya hay ley de IA es el tipo de error que cuesta la credibilidad de toda la
+  propuesta.**
+
+**Adopción, y la brecha es la oportunidad.** Datos del **BID y McKinsey** citados por una fuente
+secundaria: **~dos tercios de las grandes empresas de la región tienen al menos un proyecto de IA
+en producción, y sólo ~una cuarta parte reporta impacto medible.** Cifras de un único blog:
+**indicativas, no bibliografía.** Pero la forma del dato coincide con la de APAC (58% invierte /
+28% rentable) y con la de NA (74% se cree auditable / 27% maduro): **la región tiene pilotos y le
+falta industrialización**, que es el producto de esta KB desde el pase 19.
+
+**Players.** Lidera **servicios financieros** —banca y *fintech* en *credit scoring*, fraude y
+PLD— con **Nubank, Mercado Pago, Bancolombia e Itaú** nombrados. Del lado de integradores aparece
+**Softtek** (entrega *nearshore* en México y Colombia) e **IBM**. **El resto del panorama de
+proveedores está poco cubierto en las fuentes, y las cifras de tamaño de mercado encontradas son
+inconsistentes y de páginas de baja calidad: se omiten deliberadamente en lugar de citarse.**
+
+**Nota técnica con consecuencia comercial para la región.** Para la pila de la Receta 56, el
+*circuit breaker* permisivo para **.NET** es [`App-vNext/Polly`](https://github.com/App-vNext/Polly)
+(**BSD-3-Clause**, commit 2026-11-21). **No es un detalle menor: el núcleo transaccional de buena
+parte de la banca y los seguros latinoamericanos es .NET**, y la alternativa permisiva existe y
+está viva. Para JVM, `resilience4j` (Apache-2.0, commit 2026-10-30).
 
 ## Posicionamiento Globant
 

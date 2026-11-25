@@ -1,7 +1,7 @@
 ---
 industry: enterprise
 region: Global
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # 🏭 Verticales de partida — Enterprise
@@ -1436,3 +1436,67 @@ Esta capa **no lo reemplaza**: le añade un atributo —*¿puedo operar con esta
 **caduca en días** y cuya respuesta hay que poder reconstruir con la lista de entonces. La
 integración correcta es **al maestro de terceros del ERP**, por API documentada, nunca a su base
 de datos, y el agente vive en su propio repositorio permisivo.
+
+## Vigesimosexto pase — 2026-11-25 — la plataforma del interruptor: el sistema que el cliente ya compró para apagar funciones, y en el que el agente debería declararse
+
+> **El patrón de esta KB, aplicado una vez más:** no se construye un panel de control de agentes.
+> **Se declara el agente como una funcionalidad más en la plataforma de *feature management* que el
+> cliente ya tiene**, y así el interruptor del agente queda donde el equipo de operaciones ya mira,
+> con el rastro de auditoría que ya existe y el proceso de cambio que ya está aprobado.
+>
+> Y aquí el reparto de licencias **vuelve a ser la ley de esta KB**, con una vuelta de tuerca: en
+> esta capa la base **no** es copyleft y el agente permisivo. Hay **tres mecanismos distintos** de
+> puerta comercial, y **sólo uno se detecta leyendo el fichero `LICENSE`**.
+
+| Plataforma | Repo | Licencia real (leída byte a byte) | ★ | Stack | Oportunidad agéntica |
+|-----------|------|-----------------------------------|---|-------|---------------------|
+| **Flagsmith** | [Flagsmith/flagsmith](https://github.com/Flagsmith/flagsmith) | **BSD-3-Clause** (de `LICENSE.md`) | 9,5k | Python/Django + React | **La base permisiva más limpia de la capa.** Árbol medido: **cero directorios `ee/`/`enterprise/`**. Lo de pago no está en el repo. Declarar cada capacidad del agente como *flag* con segmentación por cliente final. **La respuesta cuando legal rechaza copyleft.** |
+| **GO Feature Flag** | [thomaspoignant/go-feature-flag](https://github.com/thomaspoignant/go-feature-flag) | **MIT** | 2,1k | Go | *«100% Open Source — built on OpenFeature.»* **Sin núcleo de pago alguno.** Ligero: el interruptor cabe en un *sidecar* junto al agente, sin base de datos nueva. La opción para un piloto que debe nacer gobernado. |
+| **Unleash** | [Unleash/unleash](https://github.com/Unleash/unleash) | **AGPL-3.0-or-later** (2 oráculos) | 14,3k | Node/TypeScript + Postgres | El líder de la capa. **Integrar sobre su API, nunca forkear dentro del producto del cliente** (misma regla que Odoo/ERPNext en este fichero). **Su reparto de funciones es el dato comercial del pase: `kill switches`, *gradual rollouts* y *audit logs* en abierto; RBAC, *change requests*, SSO y SCIM en Enterprise.** |
+| **GrowthBook** | [growthbook/growthbook](https://github.com/growthbook/growthbook) | **MIT Expat excepto 3 rutas** (`LICENSE` propio en cada una, probado 200/200/200) | 8,7k | TypeScript + Mongo | Flags + experimentación + analítica. **Usable como motor de flags; NO como base de la capa agéntica:** los **289 de 7.020 ficheros (4,1%)** propietarios contienen `services/agent-handler.ts`, `services/aiStepPolicy.ts`, `sandbox/sandbox-*.ts`, *contextual bandits* y `models/VectorsModel.ts`. Producción exige **asientos pagados**. |
+| **FeatBit** | [featbit/featbit](https://github.com/featbit/featbit) | **MIT** en `LICENSE`, **pero con clave de licencia en ejecución** | 2,0k | .NET + Angular | Autoalojable, MIT limpio y **cero directorios propietarios** — y aun así *«certain features require a valid license key»* (`LicenseVerifier.cs`, `LicenseFeatures.cs`, `GetLicenseQuota.cs`). **Interesante para clientes .NET**, pero la puerta hay que negociarla, no auditarla. |
+| **Flipt** | [flipt-io/flipt](https://github.com/flipt-io/flipt) | **FCL-1.0 (MIT Future License)** — **no es OSS hoy**; `rpc/` y SDK Go **sí son MIT** | 5,0k | Go | **Rama por defecto `v2`.** *Git-native*: los flags se versionan y ramifican **con el código**, que es la mejor idea de la capa para un cliente con GitOps. **Se puede hablar con su servidor; no empotrarlo.** Convierte a MIT a los 2 años. |
+| **Keep** | [keephq/keep](https://github.com/keephq/keep) | **MIT excepto `ee/`** (13 de 2.755 ficheros, sólo gestores de identidad) | 12,6k | Python + Next.js | *«Open-source AIOps and alert management platform.»* **La plataforma de guardia viable**, y la única: las dos famosas están archivadas. La build MIT es funcional; **se pierde SSO empresarial** (Auth0/AzureAD/Keycloak viven en `ee/`). |
+
+> **Aviso de inventario, porque el README de Keep lo omite:** anuncia *«Enterprise Ready: full
+> authentication support (SSO, SAML, OIDC, LDAP)»* y *«granular access control (RBAC, ABAC)»*
+> **sin decir que tres de esos proveedores de identidad están en el directorio no-MIT.** Medido
+> sobre el árbol, no deducido del texto.
+
+### Las dos plataformas que el cliente va a nombrar y que ya no existen
+
+| Plataforma | Repo | Licencia | ★ | Estado medido |
+|-----------|------|----------|---|---------------|
+| Grafana OnCall | [grafana/oncall](https://github.com/grafana/oncall) | **AGPL-3.0** | 3,9k | **ARCHIVADO.** Último commit **2026-03-24** (rama `dev`). Grafana remite a **Cloud IRM** — es decir, **la ruta de salida es SaaS, no autoalojada.** |
+| Netflix Dispatch | [Netflix/dispatch](https://github.com/Netflix/dispatch) | Apache-2.0 | 6,5k | **ARCHIVADO.** Último commit **2025-09-02**. Su README **invita a forkear**: permisiva, viable, **pero es asumir el mantenimiento y hay que cotizarlo.** |
+
+> **Para una propuesta de respaldo humano del agente:** la respuesta es **Keep**, y conviene
+> llevar a la reunión el dato de que las dos alternativas que el cliente leyó en un blog **son de
+> sólo lectura desde marzo de 2026 y septiembre de 2025 respectivamente.** Un pase que sólo lea el
+> banner de GitHub le habría dado a OnCall tres meses más de vida de los que tuvo (ver T98).
+
+### Dónde se enchufa esto en lo que el cliente ya corre
+
+Igual que la capa de contención (décimo pase) se enchufa al Kubernetes existente y no a un
+producto nuevo, el interruptor se enchufa a **tres cosas que ya están desplegadas**:
+
+1. **El clúster.** [`open-feature-operator`](https://github.com/open-feature/open-feature-operator)
+   (Apache-2.0, 319 ★) convierte los flags en un **CRD `FeatureFlag`**: el interruptor pasa a
+   GitOps y hereda **el RBAC del clúster**, que es justo la pieza que Unleash cobra. **Es la vía
+   permisiva para tener control de acceso sobre el interruptor sin pagar RBAC.**
+2. **El *pipeline* de despliegue.** [`argoproj/argo-rollouts`](https://github.com/argoproj/argo-rollouts)
+   (Apache-2.0, 3,6k ★) si el cliente usa Argo CD; [`fluxcd/flagger`](https://github.com/fluxcd/flagger)
+   (Apache-2.0, 5,4k ★, **CNCF graduado**) si usa Flux. **Flagger es el menos invasivo** —CRD
+   `Canary` al lado del `Deployment`—, lo que importa cuando no se puede tocar el manifiesto.
+3. **La plataforma de alertas.** Keep o [`robusta-dev/robusta`](https://github.com/robusta-dev/robusta)
+   (MIT, 3,1k ★) por debajo, con **HolmesGPT** (Apache-2.0, 4,0k ★, CNCF Sandbox) encima para la
+   investigación. **Ninguna pieza nueva en el catálogo del cliente: Prometheus ya está.**
+
+### Lo que no hay, dicho como hueco
+
+**No existe plataforma abierta que gobierne agentes como tales** — con inventario de agentes,
+política por inquilino, interruptor con aprobación y dossier de evidencia en un solo producto. Lo
+que existe es **una plataforma de *feature flags* a la que se le puede declarar el agente como
+funcionalidad**. Esa es la propuesta honesta, y es más barata y más auditable que construir el
+panel. Lo que Globant aporta es **el mapeo** —capacidad del agente ↔ flag ↔ inquilino ↔ estado
+seguro— y **el estado seguro**, que ninguna de estas plataformas define.
